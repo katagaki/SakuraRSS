@@ -12,6 +12,7 @@ struct YouTubePlayerView: View {
     @Environment(\.openURL) var openURL
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dismiss) var dismissSheet
+    @Environment(\.browserTabID) private var browserTabID
     let article: Article
     let showsDismissButton: Bool
     let session: YouTubePlayerSession
@@ -210,8 +211,13 @@ struct YouTubePlayerView: View {
         .onChange(of: videoAspectRatio) { _, newRatio in
             session.videoAspectRatio = newRatio
         }
-        .onChange(of: scenePhase) { _, newPhase in
-            handleScenePhaseChange(newPhase)
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            handleScenePhaseChange(from: oldPhase, to: newPhase)
+        }
+        .onChange(of: webView) { _, newWebView in
+            // A player rebuilt around the session's webview, from the mini
+            // player or an evicted tab, starts out not knowing PiP is up.
+            if newWebView != nil { resyncPiPState() }
         }
         .onReceive(NotificationCenter.default.publisher(for: .youTubePlayerDidStartPlaying)) { notification in
             guard let otherID = notification.object as? UUID, otherID != playerID else { return }
@@ -225,12 +231,13 @@ struct YouTubePlayerView: View {
             // the player is in PiP. `onDisappear` also fires when a
             // destination is pushed on top of the player, so a live image
             // viewer means the player is merely covered, not dismissed.
-            if !hasMiniPlayerAccessory, !isPiP, imageViewerURL == nil {
+            // Browser tabs have no mini player either, but also hide and
+            // evict pages, so the tab store decides when the player is gone.
+            guard browserTabID == nil else { return }
+            if !hasMiniPlayerAccessory, !isPiP, imageViewerURL == nil,
+               session.holds(article) {
                 pauseForOtherPlayer()
-                if session.isPrimary {
-                    YouTubeAudioSession.deactivate()
-                }
-                session.clear()
+                session.stop()
             }
         }
         .task { await initializePlayerSession() }
@@ -251,6 +258,13 @@ struct YouTubePlayerView: View {
         .navigationDestination(item: $imageViewerURL) { url in
             ImageViewerView(url: url)
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
+        }
+        .browserOverlayPage(item: $imageViewerURL) { url in
+            BrowserPageIdentity(
+                title: String(localized: "Overlay.Image", table: "Browser"),
+                subtitle: url.host,
+                symbolName: "photo"
+            )
         }
     }
 

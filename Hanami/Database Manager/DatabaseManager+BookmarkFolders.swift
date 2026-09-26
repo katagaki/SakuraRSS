@@ -36,6 +36,38 @@ public nonisolated extension DatabaseManager {
         ))
     }
 
+    func updateBookmarkFolderReadingOptions(
+        id: Int64,
+        openMode: FeedOpenMode?,
+        marksReadOnOpen: Bool?
+    ) throws {
+        let target = bookmarkFolders.filter(bookmarkFolderID == id)
+        try database.run(target.update(
+            bookmarkFolderOpenMode <- openMode?.rawValue,
+            bookmarkFolderMarksReadOnOpen <- marksReadOnOpen
+        ))
+    }
+
+    /// Open modes for every folder, keyed by the articles inside them. Read once
+    /// per Bookmarks surface so routing a tap costs no lookup.
+    func bookmarkFolderReadingOptionsByArticleID() throws -> [Int64: BookmarkFolderReadingOptions] {
+        var optionsByFolderID: [Int64: BookmarkFolderReadingOptions] = [:]
+        for folder in try allBookmarkFolders() where folder.openMode != nil || folder.marksReadOnOpen != nil {
+            optionsByFolderID[folder.id] = BookmarkFolderReadingOptions(
+                openMode: folder.openMode,
+                marksReadOnOpen: folder.marksReadOnOpen
+            )
+        }
+        guard !optionsByFolderID.isEmpty else { return [:] }
+        var result: [Int64: BookmarkFolderReadingOptions] = [:]
+        for row in try database.prepare(bookmarkFolderItems) {
+            let folderID = row[bookmarkFolderItemFolderID]
+            guard let options = optionsByFolderID[folderID] else { continue }
+            result[row[bookmarkFolderItemArticleID]] = options
+        }
+        return result
+    }
+
     func updateBookmarkFolderDisplayStyle(id: Int64, displayStyle: String?) throws {
         let target = bookmarkFolders.filter(bookmarkFolderID == id)
         try database.run(target.update(bookmarkFolderDisplayStyle <- displayStyle))
@@ -149,7 +181,9 @@ public nonisolated extension DatabaseManager {
             icon: row[bookmarkFolderIcon],
             displayStyle: row[bookmarkFolderDisplayStyle],
             sortOrder: row[bookmarkFolderSortOrder],
-            parentFolderID: row[bookmarkFolderParentID]
+            parentFolderID: row[bookmarkFolderParentID],
+            openMode: ((try? row.get(bookmarkFolderOpenMode)) ?? nil).flatMap(FeedOpenMode.init(rawValue:)),
+            marksReadOnOpen: (try? row.get(bookmarkFolderMarksReadOnOpen)) ?? nil
         )
     }
 }

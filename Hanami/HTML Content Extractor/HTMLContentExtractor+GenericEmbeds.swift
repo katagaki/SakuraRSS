@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// Promotes Vimeo, TikTok, Instagram, Bluesky, Spotify, SoundCloud,
     /// CodePen, and GitHub Gist embeds to `{{EMBED}}provider|url{{/EMBED}}`

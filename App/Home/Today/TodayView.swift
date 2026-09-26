@@ -1,26 +1,18 @@
 import SwiftUI
 import Hanami
 
-/// Top-level Today tab content: greeting + weather, summary cards, topic
-/// carousels, topics/people pills, bookmarks, and recently viewed.
+/// Top-level Today tab content: greeting, weather, bookmarks, and recently viewed.
 struct TodayView: View {
+
+    /// Optional content pinned directly below the greeting. The browser shell
+    /// uses it to keep Favourites on the start page.
+    var pinnedSection: AnyView?
 
     @Environment(FeedManager.self) var feedManager
     @Environment(TodayManager.self) var todayManager
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @Bindable var weatherService: TodayWeatherService = .shared
-
-    @State var sleptHasSummary = false
-    @State var afternoonHasSummary = false
-    @State var todayHasSummary = false
-    @State var sleptVisible = false
-    @State var afternoonVisible = false
-    @State var todayVisible = false
-
-    @State var summaryRefreshTrigger: Int = 0
-    @State var anySummaryActive = false
-    @State var summaryArticleCounts: [SummaryCardKind: Int] = [:]
 
     var body: some View {
         Group {
@@ -48,79 +40,10 @@ struct TodayView: View {
                 dataRevision: feedManager.dataRevision,
                 loadEntities: contentInsightsEnabled
             )
-            updateAnySummaryActive()
         }
     }
 
     // MARK: - Layouts
-
-    private var portraitLayout: some View {
-        let episodes = visibleEpisodes
-        let sections = contentSections(episodes: episodes)
-        let showEmpty = todayManager.hasLoadedInitially && !anySummaryVisible && sections.isEmpty
-        return ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                TodayGreetingView()
-                    .padding(.horizontal)
-
-                if isWeatherShowing {
-                    sectionDivider
-                }
-
-                if !anySummaryVisible, !isWeatherShowing,
-                   !todayManager.hasLoadedInitially || !sections.isEmpty || showEmpty {
-                    sectionDivider
-                }
-
-                if anySummaryActive {
-                    summaryCardsStack
-                }
-
-                if anySummaryVisible,
-                   !todayManager.hasLoadedInitially || !sections.isEmpty || showEmpty {
-                    sectionDivider
-                }
-
-                if !todayManager.hasLoadedInitially {
-                    loadingIndicator
-                } else if showEmpty {
-                    emptyContentView
-                } else {
-                    contentSectionsStack(sections, episodes: episodes)
-                }
-
-                TodayAttributionFooter()
-            }
-            .padding(.top, 8)
-            .padding(.bottom, 24)
-        }
-        .refreshable {
-            startRefreshWithoutBlocking()
-        }
-    }
-
-    var summaryCardsStack: some View {
-        VStack(spacing: 0) {
-            WhileYouSleptView(
-                hasSummary: $sleptHasSummary, flatStyle: true,
-                isVisible: $sleptVisible,
-                refreshTrigger: summaryRefreshTrigger,
-                articleCount: summaryArticleCount(for: .whileYouSlept)
-            )
-            AfternoonBriefView(
-                hasSummary: $afternoonHasSummary,
-                isVisible: $afternoonVisible,
-                refreshTrigger: summaryRefreshTrigger,
-                articleCount: summaryArticleCount(for: .afternoonBrief)
-            )
-            TodaysSummaryView(
-                hasSummary: $todayHasSummary, flatStyle: true,
-                isVisible: $todayVisible,
-                refreshTrigger: summaryRefreshTrigger,
-                articleCount: summaryArticleCount(for: .todaysSummary)
-            )
-        }
-    }
 
     @ViewBuilder
     func contentSectionsStack(
@@ -140,8 +63,6 @@ struct TodayView: View {
     enum ContentSection: Hashable {
         case listenNow
         case watchNow
-        case topThree
-        case topicsAndPeople
         case bookmarks
         case recentlyViewed
     }
@@ -184,13 +105,6 @@ struct TodayView: View {
         if !episodes.videos.isEmpty {
             sections.append(.watchNow)
         }
-        if contentInsightsEnabled,
-           todayManager.entitySections.prefix(3).contains(where: { !$0.articles.isEmpty }) {
-            sections.append(.topThree)
-        }
-        if contentInsightsEnabled, !filteredTopics.isEmpty || !filteredPeople.isEmpty {
-            sections.append(.topicsAndPeople)
-        }
         if !todayManager.bookmarkedArticles.isEmpty {
             sections.append(.bookmarks)
         }
@@ -210,8 +124,6 @@ struct TodayView: View {
         switch section {
         case .listenNow: listenNowSection(episodes.podcasts)
         case .watchNow: watchNowSection(episodes.videos)
-        case .topThree: topThreeTopicsSection
-        case .topicsAndPeople: topicsAndPeopleSection
         case .bookmarks: bookmarksSection
         case .recentlyViewed: recentlyViewedSection
         }
@@ -235,37 +147,6 @@ struct TodayView: View {
             destination: nil,
             articles: episodes
         )
-    }
-
-    @ViewBuilder
-    private var topThreeTopicsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            ForEach(todayManager.entitySections.prefix(3)) { section in
-                if !section.articles.isEmpty {
-                    TodayCardCarousel(
-                        title: section.name,
-                        destination: EntityDestination(name: section.name, types: section.types),
-                        articles: section.articles
-                    )
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var topicsAndPeopleSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Discover.TopicsAndPeople", table: "Feeds"))
-                .font(.title3)
-                .fontWeight(.bold)
-                .todayHorizontalContentPadding()
-
-            TodayChipsFlow(
-                topics: filteredTopics,
-                people: filteredPeople
-            )
-            .todayHorizontalContentPadding()
-        }
     }
 
     @ViewBuilder

@@ -8,7 +8,7 @@ public extension ContentResolver {
     /// domains) → feed-content fallback (with quality gate) → full web
     /// extraction. Caching is handled internally; ephemeral articles
     /// (`sakura://open` opens) are never cached.
-    func extract() async -> ExtractionResult {
+    public func extract() async -> ExtractionResult {
         log("Extract", "Extracting article content: \(article.url)")
 
         if let cached = readCachedContent(), !cached.isEmpty {

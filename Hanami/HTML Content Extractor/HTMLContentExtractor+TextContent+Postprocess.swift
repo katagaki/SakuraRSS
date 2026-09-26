@@ -1,6 +1,6 @@
 import Foundation
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     // MARK: - Placeholder Conversion
 

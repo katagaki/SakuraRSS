@@ -2,7 +2,7 @@ import Foundation
 import SwiftSoup
 
 /// HTML-to-text article body extraction.
-public final class HTMLContentExtractor {
+public nonisolated final class HTMLContentExtractor {
 
     private init() {}
 
@@ -189,8 +189,7 @@ public final class HTMLContentExtractor {
     ) async -> String? {
         if WebViewExtractor.requiresWebView(for: url) {
             log("Extract", "Extracting text using WebView from \(url)")
-            let extractor = WebViewExtractor()
-            if let text = await extractor.extractText(from: url, excludeTitle: excludeTitle) {
+            if let text = await WebViewExtractor.extractText(from: url, excludeTitle: excludeTitle) {
                 return text
             }
         }
@@ -214,8 +213,7 @@ public final class HTMLContentExtractor {
         excludeTitle: String? = nil
     ) async -> ExtractionResult {
         if WebViewExtractor.requiresWebView(for: url) {
-            let extractor = WebViewExtractor()
-            if let text = await extractor.extractText(from: url, excludeTitle: excludeTitle) {
+            if let text = await WebViewExtractor.extractText(from: url, excludeTitle: excludeTitle) {
                 return ExtractionResult(text: text)
             }
         }
@@ -227,7 +225,7 @@ public final class HTMLContentExtractor {
                 return ExtractionResult()
             }
             if BotChallengeDetector.looksLikeChallenge(html) {
-                if let webText = await WebViewExtractor().extractText(
+                if let webText = await WebViewExtractor.extractText(
                     from: url, excludeTitle: excludeTitle
                 ) {
                     return ExtractionResult(text: webText)

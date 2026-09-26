@@ -15,10 +15,17 @@ extension YouTubePlayerView {
         YouTubeAudioSession.activate()
     }
 
-    func handleScenePhaseChange(_ newPhase: ScenePhase) {
+    func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+        log("YT Native", "scene \(oldPhase) -> \(newPhase) isPlaying=\(isPlaying) isPiP=\(isPiP)")
         switch newPhase {
         case .background, .inactive:
-            wantsPlaybackInBackground = isPlaying
+            // Coming back passes through `.inactive` too, after the video may
+            // have been paused in the background; only leaving `.active` says
+            // whether it was playing. PiP carries playback on its own, and
+            // closing it in the background is a deliberate stop.
+            if oldPhase == .active {
+                wantsPlaybackInBackground = isPlaying && !isPiP
+            }
             session.rememberPlaybackPosition()
         case .active:
             if wantsPlaybackInBackground && !isPlaying {
@@ -45,6 +52,7 @@ extension YouTubePlayerView {
         """
         webView?.evaluateJavaScript(script) { result, _ in
             let actuallyInPiP = (result as? Bool) ?? false
+            log("YT Native", "PiP resync result=\(actuallyInPiP) wasPiP=\(isPiP)")
             if isPiP != actuallyInPiP {
                 isPiP = actuallyInPiP
             }
@@ -60,6 +68,7 @@ extension YouTubePlayerView {
         let script = """
         (function() {
             if (window.__yt && window.__yt.userPaused === true) return;
+            if (window.__yt && window.__yt.exitedPiPRecently === true) return;
             var v = document.querySelector('video');
             if (v && v.paused && !v.ended) {
                 var p = v.play();

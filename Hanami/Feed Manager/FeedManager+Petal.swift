@@ -1,5 +1,9 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension FeedManager {
 
@@ -22,7 +26,7 @@ public extension FeedManager {
         )
         let feed = feeds.first(where: { $0.url == recipe.feedURL })
 
-        if let feed, let iconData, let image = UIImage(data: iconData) {
+        if let feed, let iconData, let image = PlatformImage(data: iconData) {
             Task {
                 await Iconography.shared.setCustomIcon(image, feedID: feed.id)
                 await MainActor.run { self.notifyIconChange() }

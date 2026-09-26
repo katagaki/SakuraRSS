@@ -168,7 +168,7 @@ extension SakuraRSSApp {
         wipeContents(of: fileManager.temporaryDirectory)
 
         if let groupURL = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         ) {
             let dbFile = groupURL.appendingPathComponent("Sakura.feeds").lastPathComponent
             let dbWal = groupURL.appendingPathComponent("Sakura.feeds-wal").lastPathComponent

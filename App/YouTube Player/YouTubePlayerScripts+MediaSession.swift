@@ -51,24 +51,36 @@ extension YouTubePlayerScripts {
         var pageHandlers = { play: null, pause: null };
 
         function wrapper(action) {
-            return function() {
+            return function(details) {
+                var video = document.querySelector('video');
+                window.__yt.logState('mediaSession ' + action + ' received', video);
                 if (action === 'pause') {
                     window.__yt.userPaused = true;
                 } else {
+                    if (window.__yt.userPaused && window.__yt.isInPiP()) {
+                        window.__yt.pipResumeDeadline = Date.now() + 2000;
+                    }
                     window.__yt.userPaused = false;
                     window.__yt.autoplayBlocked = false;
                     window.__yt.exitedPiPRecently = false;
                 }
                 var h = pageHandlers[action];
                 if (typeof h === 'function') {
-                    try { h(); return; } catch (e) {}
+                    window.__yt.logState('mediaSession ' + action + ' page handler', video);
+                    try { h(details); return; } catch (e) {
+                        window.__yt.logState('mediaSession page handler failed', video);
+                    }
                 }
-                var v = document.querySelector('video');
-                if (!v) return;
+                video = document.querySelector('video');
+                if (!video) {
+                    window.__yt.logState('mediaSession fallback video missing', null);
+                    return;
+                }
+                window.__yt.logState('mediaSession ' + action + ' video fallback', video);
                 if (action === 'pause') {
-                    v.pause();
+                    video.pause();
                 } else {
-                    var p = v.play();
+                    var p = video.play();
                     if (p && typeof p.catch === 'function') p.catch(function(){});
                 }
             };

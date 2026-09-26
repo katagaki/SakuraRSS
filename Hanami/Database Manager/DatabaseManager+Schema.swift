@@ -58,6 +58,9 @@ public nonisolated extension DatabaseManager {
     var articleStatusSyncID: SQLite.Expression<String?> { SQLite.Expression<String?>("status_sync_id") }
     var articleStatusDirty: SQLite.Expression<Bool> { SQLite.Expression<Bool>("status_dirty") }
     var articleExternalSource: SQLite.Expression<Bool> { SQLite.Expression<Bool>("external_source") }
+    var articleCustomTitle: SQLite.Expression<String?> { SQLite.Expression<String?>("custom_title") }
+    var articlePreviewFetchState: SQLite.Expression<Int> { SQLite.Expression<Int>("preview_fetch_state") }
+    var articlePreviewFetchedAt: SQLite.Expression<Double?> { SQLite.Expression<Double?>("preview_fetched_at") }
 
     // MARK: - Comments
 
@@ -147,10 +150,24 @@ public nonisolated extension DatabaseManager {
     var bookmarkFolderDisplayStyle: SQLite.Expression<String?> { SQLite.Expression<String?>("display_style") }
     var bookmarkFolderSortOrder: SQLite.Expression<Int> { SQLite.Expression<Int>("sort_order") }
     var bookmarkFolderParentID: SQLite.Expression<Int64?> { SQLite.Expression<Int64?>("parent_folder_id") }
+    var bookmarkFolderOpenMode: SQLite.Expression<String?> { SQLite.Expression<String?>("open_mode") }
+    var bookmarkFolderMarksReadOnOpen: SQLite.Expression<Bool?> { SQLite.Expression<Bool?>("marks_read_on_open") }
 
     var bookmarkFolderItems: Table { Table("bookmark_folder_items") }
     var bookmarkFolderItemFolderID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("folder_id") }
     var bookmarkFolderItemArticleID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("article_id") }
+
+    // MARK: - Bookmark Tags
+
+    var bookmarkTags: Table { Table("bookmark_tags") }
+    var bookmarkTagID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("id") }
+    var bookmarkTagName: SQLite.Expression<String> { SQLite.Expression<String>("name") }
+    var bookmarkTagNormalizedName: SQLite.Expression<String> { SQLite.Expression<String>("normalized_name") }
+    var bookmarkTagIsAutomatic: SQLite.Expression<Bool> { SQLite.Expression<Bool>("is_automatic") }
+
+    var bookmarkTagItems: Table { Table("bookmark_tag_items") }
+    var bookmarkTagItemTagID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("tag_id") }
+    var bookmarkTagItemArticleID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("article_id") }
 
     // MARK: - Content Overrides
 

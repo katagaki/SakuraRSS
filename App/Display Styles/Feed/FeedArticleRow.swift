@@ -93,7 +93,7 @@ struct FeedArticleRow: View {
                     if article.hasMeaningfulSummary, let summary = article.summary {
                         SummaryText(summary: summary)
                     } else {
-                        Text(article.title
+                        Text(article.displayTitle
                             .trimmingCharacters(in: .whitespacesAndNewlines))
                     }
                 }

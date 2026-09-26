@@ -18,7 +18,7 @@ struct BookmarkEntity: AppEntity, Identifiable, Sendable {
     init(article: Article, feedTitle: String?) {
         self.id = String(article.id)
         self.articleID = article.id
-        self.title = article.title
+        self.title = article.displayTitle
         self.url = URL(string: article.url)
         self.publishedDate = article.publishedDate
         self.feedTitle = feedTitle

@@ -36,6 +36,12 @@ struct InboxArticleRow: View {
                         RoundedRectangle(cornerRadius: 8)
                             .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
                     }
+                } else if article.isExternalBookmark {
+                    BookmarkSiteIcon(article: article, size: 48, cornerRadius: 8)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                        }
                 } else {
                     FeedIconPlaceholder(
                         icon: icon,
@@ -67,12 +73,12 @@ struct InboxArticleRow: View {
                         .lineLimit(1)
                         .foregroundStyle(isRead ? .secondary : .primary)
 
-                    Text(article.title)
+                    Text(article.displayTitle)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 } else {
-                    Text(article.title)
+                    Text(article.displayTitle)
                         .font(.body)
                         .fontWeight(isRead ? .regular : .semibold)
                         .lineLimit(1)

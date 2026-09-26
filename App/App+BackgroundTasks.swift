@@ -51,13 +51,9 @@ extension SakuraRSSApp {
             guard let task = task as? BGProcessingTask else { return }
             self.handleImageBackfill(task: task)
         }
-        BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: SummaryBackfillScheduler.taskIdentifier,
-            using: nil
-        ) { task in
-            guard let task = task as? BGProcessingTask else { return }
-            self.handleSummaryBackfill(task: task)
-        }
+        BGTaskScheduler.shared.cancel(
+            taskRequestWithIdentifier: "com.tsubuzaki.SakuraRSS.SummaryBackfill"
+        )
     }
 
     /// Submits a `BGAppRefreshTaskRequest` per category so each one gets its
@@ -131,7 +127,6 @@ extension SakuraRSSApp {
                 "BackgroundRefresh",
                 "handleAppRefresh end category=\(category.rawValue) cancelled=\(refreshTask.isCancelled)"
             )
-            SummaryBackfillScheduler.schedule()
             completion.complete(success: !refreshTask.isCancelled)
         }
     }
@@ -305,27 +300,6 @@ extension SakuraRSSApp {
         }
     }
 
-    nonisolated func handleSummaryBackfill(task: BGProcessingTask) {
-        log("SummaryBackfill", "handleSummaryBackfill begin")
-
-        let completion = BackgroundTaskCompletion(task: task)
-
-        let work = Task {
-            await SummaryBackfillScheduler.runBackfill(isCancelled: { Task.isCancelled })
-        }
-
-        task.expirationHandler = {
-            log("SummaryBackfill", "handleSummaryBackfill expired")
-            work.cancel()
-            completion.complete(success: false)
-        }
-
-        Task {
-            _ = await work.value
-            log("SummaryBackfill", "handleSummaryBackfill end cancelled=\(work.isCancelled)")
-            completion.complete(success: !work.isCancelled)
-        }
-    }
 }
 
 nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {

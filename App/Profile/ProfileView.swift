@@ -4,6 +4,8 @@ import Hanami
 struct ProfileView: View {
 
     var showsCloseButton: Bool = true
+    /// Sheets want the standard inline title; the tab keeps the large one.
+    var titleDisplayMode: ToolbarTitleDisplayMode?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(FeedManager.self) private var feedManager
@@ -125,7 +127,10 @@ struct ProfileView: View {
             .sakuraBackground()
             .navigationTitle("Tabs.Profile")
             .compatibleSoftScrollEdgeEffectStyle()
-            .toolbarTitleDisplayMode(UIDevice.current.userInterfaceIdiom == .pad ? .inline : .inlineLarge)
+            .toolbarTitleDisplayMode(
+                titleDisplayMode
+                    ?? (UIDevice.current.userInterfaceIdiom == .pad ? .inline : .inlineLarge)
+            )
             #if targetEnvironment(macCatalyst)
             .toolbar(.hidden, for: .navigationBar)
             #endif

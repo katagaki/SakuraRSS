@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import TipKit
 import Hanami
@@ -37,6 +38,7 @@ struct ArticlesView: View {
     var onScrollOffsetChange: ((CGFloat) -> Void)?
 
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @Environment(\.homeSectionDisplayMenu) private var homeSectionDisplayMenu
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
@@ -145,8 +147,14 @@ struct ArticlesView: View {
         .navigationSubtitle(subtitle ?? "")
         #endif
         .toolbarTitleDisplayMode(titleDisplayMode)
+        // The browser hides the top bar, so the list's own actions go in the
+        // omnibox's menu instead.
+        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            BrowserPageDisplayMenu(options: browserDisplayStyleOptions, markAllRead: onMarkAllRead)
+        }
         .toolbar {
-            if !hidesMarkAllReadToolbar, markAllReadPosition == .top, let onMarkAllRead {
+            if !hidesMarkAllReadToolbar, !isBrowserChromeActive,
+               markAllReadPosition == .top, let onMarkAllRead {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     Button {
                         isShowingMarkAllReadConfirmation = true
@@ -328,4 +336,13 @@ extension ArticlesView {
         }
         return displayStyle
     }
+    private var browserDisplayStyleOptions: BrowserDisplayStyleOptions {
+        BrowserDisplayStyleOptions(
+            displayStyle: $displayStyle,
+            hasImages: hasImages,
+            showsTimeline: feedKey != "all",
+            showsPodcast: isPodcastFeed || hasAudioArticles
+        )
+    }
+
 }

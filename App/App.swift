@@ -62,6 +62,8 @@ struct SakuraRSSApp: App {
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
                     reindexSpotlightIfSchemaChanged()
+                    await BookmarkPreviewResolver.backfillPendingPreviews()
+                    feedManager.bumpDataRevision()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)

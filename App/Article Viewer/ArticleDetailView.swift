@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import FoundationModels
 import Hanami
@@ -47,6 +48,8 @@ struct ArticleDetailView: View {
     @State var hasCachedSummary = false
     @State var showingSummary = false
     @State var isBookmarked = false
+    @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
+    @Environment(\.browserPageProgressReporter) var browserPageProgressReporter
     @State var summarizationError: String?
     @State var showYouTubeSafari = false
     @State var linkedArticleURL: URL?
@@ -79,12 +82,16 @@ struct ArticleDetailView: View {
         self.marksReadOnAppear = marksReadOnAppear
     }
 
+    /// Hoisted out of the body: inline, a wrong text style is reported as
+    /// the whole expression timing out rather than as an unknown case.
+    private static let titleFont: UIFont = .preferredFont(forTextStyle: .title1).bold()
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 SelectableText(
                     displayTitle,
-                    font: .preferredFont(forTextStyle: .title2).bold(),
+                    font: ArticleDetailView.titleFont,
                     textColor: .label
                 )
                 .id(showingTranslation ? translatedTitle : nil)
@@ -169,6 +176,13 @@ struct ArticleDetailView: View {
         .sakuraBackground()
         .navigationTitle(displayTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { reportBrowserProgress() }
+        .onChange(of: isTranslating) { reportBrowserProgress() }
+        .onChange(of: isSummarizing) { reportBrowserProgress() }
+        .onChange(of: isExtracting) { reportBrowserProgress() }
+        .tabOmniboxAccessory(isEnabled: showsBrowserArticleMenu) {
+            browserArticleMenu
+        }
         .toolbar {
             articleToolbar
         }
@@ -190,6 +204,9 @@ struct ArticleDetailView: View {
         .navigationDestination(item: $arXivPDFReference) { reference in
             ArXivPDFViewerView(url: reference.url, title: reference.title)
         }
+        .browserOverlayPage(item: $arXivPDFReference) { reference in
+            BrowserPageIdentity(title: reference.title, symbolName: "doc.richtext")
+        }
         .sheet(isPresented: $showYouTubeSafari) {
             if let url = URL(string: article.url) {
                 SafariView(url: url)
@@ -199,6 +216,20 @@ struct ArticleDetailView: View {
         .navigationDestination(item: $imageViewerURL) { url in
             ImageViewerView(url: url)
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
+        }
+        .browserOverlayPage(item: $imageViewerURL) { url in
+            BrowserPageIdentity(
+                title: String(localized: "Overlay.Image", table: "Browser"),
+                subtitle: url.host,
+                symbolName: "photo"
+            )
+        }
+        .browserOverlayPage(item: $inAppLinkURL) { url in
+            BrowserPageIdentity(
+                title: url.host ?? url.absoluteString,
+                subtitle: url.absoluteString,
+                symbolName: "doc.text"
+            )
         }
         .navigationDestination(item: $inAppLinkURL) { url in
             ArticleDestinationView(

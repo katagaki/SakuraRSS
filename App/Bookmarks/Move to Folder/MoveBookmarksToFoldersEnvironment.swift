@@ -1,9 +1,9 @@
 import SwiftUI
 
 extension EnvironmentValues {
-    /// Enabled only in the Bookmarks tab, where articles can be organized
-    /// into bookmark folders via drag and drop, context menu, or swipe.
-    @Entry var allowsMovingBookmarksToFolders: Bool = false
+    /// Enabled only on Bookmarks surfaces, where saved content can be renamed,
+    /// tagged, and organized into folders.
+    @Entry var isBookmarksSurface: Bool = false
 }
 
 enum BookmarkDragPayload {

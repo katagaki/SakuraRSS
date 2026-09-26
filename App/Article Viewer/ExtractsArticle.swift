@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftSoup
 import Hanami
 
 @MainActor
@@ -28,9 +27,8 @@ extension ExtractsArticle {
         let request = URLRequest.sakura(url: url)
         guard let (data, response) = try? await HTTPSPreferringSession.shared.data(for: request),
               let html = HTMLDataDecoder.decode(data, response: response),
-              !html.isEmpty,
-              let doc = try? SwiftSoup.parse(html),
-              let pageTitle = HTMLContentExtractor.pageTitleFromDocument(doc) else { return }
+              let pageTitle = await HTMLContentExtractor.pageTitle(offMainActorFromHTML: html)
+        else { return }
         if extractedPageTitle == nil {
             extractedPageTitle = pageTitle
         }
@@ -60,6 +58,9 @@ extension ExtractsArticle {
         )
         let extracted = await extractor.extract()
 
+        if let text = extracted.text {
+            await ContentBlock.prepareIdentifiedBlocks(offMainActorFrom: text)
+        }
         applyExtractedMetadata(extracted.metadata)
         isPaywalled = extracted.paywalled
         extractedText = extracted.text

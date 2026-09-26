@@ -1,6 +1,6 @@
 import Foundation
 
-public nonisolated struct ExtractionResult {
+public nonisolated struct ExtractionResult: Sendable {
     public var text: String?
     public var metadata: ArticleMetadata
     public var paywalled: Bool

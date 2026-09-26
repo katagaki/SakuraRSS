@@ -86,6 +86,18 @@ final class YouTubePlayerSession {
         artworkURL = nil
     }
 
+    /// Also hands the audio route back, so other apps can resume.
+    func stop() {
+        clear()
+        if isPrimary {
+            YouTubeAudioSession.deactivate()
+        }
+    }
+
+    func holds(_ article: Article) -> Bool {
+        currentArticle?.url == article.url
+    }
+
     var isActive: Bool { webView != nil }
 
     func togglePlayPause() {

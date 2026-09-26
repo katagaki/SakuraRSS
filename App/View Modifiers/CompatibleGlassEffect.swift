@@ -103,3 +103,14 @@ struct CompatibleGlassEffectContainer<Content: View>: View {
         #endif
     }
 }
+
+extension View {
+    @ViewBuilder
+    func compatibleInteractiveKeyboardDismissal() -> some View {
+        #if os(visionOS)
+        self
+        #else
+        scrollDismissesKeyboard(.interactively)
+        #endif
+    }
+}

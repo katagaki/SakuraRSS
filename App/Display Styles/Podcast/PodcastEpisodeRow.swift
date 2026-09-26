@@ -57,7 +57,7 @@ struct PodcastEpisodeRow: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Text(article.title)
+                Text(article.displayTitle)
                     .font(.subheadline)
                     .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                     .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
@@ -110,7 +110,7 @@ struct PodcastEpisodeRow: View {
                 url: playbackURL,
                 articleID: article.id,
                 feedID: article.feedID,
-                episodeTitle: article.title,
+                episodeTitle: article.displayTitle,
                 feedTitle: feed?.title ?? "",
                 artworkURL: article.imageURL,
                 feedIconURL: feed?.iconURL,

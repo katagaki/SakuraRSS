@@ -1,6 +1,6 @@
 import Foundation
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// True when the HTML looks like a JS-rendered shell (retry via WebView).
     static func looksJSRendered(_ html: String) -> Bool {

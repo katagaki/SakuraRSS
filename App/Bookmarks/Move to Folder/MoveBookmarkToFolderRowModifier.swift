@@ -5,12 +5,12 @@ import Hanami
 /// grid cells. Inert elsewhere.
 struct MoveBookmarkToFolderRowModifier: ViewModifier {
 
-    @Environment(\.allowsMovingBookmarksToFolders) private var allowsMoving
+    @Environment(\.isBookmarksSurface) private var isBookmarksSurface
     @Environment(FeedManager.self) private var feedManager
     let article: Article
 
     func body(content: Content) -> some View {
-        if allowsMoving && !feedManager.bookmarkFolders.isEmpty {
+        if isBookmarksSurface && !feedManager.bookmarkFolders.isEmpty {
             content
                 .draggable(BookmarkDragPayload.encode(articleID: article.id))
         } else {

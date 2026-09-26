@@ -32,6 +32,7 @@
 		E47D10632F54986D006081EF /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E47D10622F54986D006081EF /* FaviconFinder */; };
 		E47D13182F549F92006081EF /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E47D13172F549F92006081EF /* SwiftSoup */; };
 		E4BC0A01300B95BD0083C0BD /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
+		EA0E4A012FC0A00E003FDAD4 /* EnhancedNavigation in Frameworks */ = {isa = PBXBuildFile; productRef = EA0E4A022FC0A00E003FDAD4 /* EnhancedNavigation */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -141,40 +142,12 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E45623F3300B95BD0083C0BD /* Exceptions for "Bookmark Article" folder in "Bookmark Article" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = E45623E2300B95BD0083C0BD /* Bookmark Article */;
-		};
-		E45EAA232F9FA36900EA7A54 /* Exceptions for "Open Article" folder in "Open Article" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = E45EAA152F9FA36900EA7A54 /* Open Article */;
-		};
 		E45EAA462FA0406300EA7A54 /* Exceptions for "Shared" folder in "Open Article" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Assets.xcassets,
 			);
 			target = E45EAA152F9FA36900EA7A54 /* Open Article */;
-		};
-		E47D10442F54980E006081EF /* Exceptions for "Add Feed" folder in "Add Feed" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = E47D10332F54980E006081EF /* Add Feed */;
-		};
-		E47D105D2F549822006081EF /* Exceptions for "Widgets" folder in "WidgetsExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};
 		E47D13142F549D4D006081EF /* Exceptions for "App" folder in "Sakura" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -183,28 +156,203 @@
 			);
 			target = E47D101A2F549605006081EF /* Sakura */;
 		};
+		E4D2C4843067335900D1C2D6 /* Exceptions for "Extensions" folder in "Sakura" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Add Feed/ActionViewController.swift",
+				"Add Feed/Info.plist",
+				"Add Feed/InfoPlist.xcstrings",
+				"Bookmark Article/ActionViewController.swift",
+				"Bookmark Article/BookmarkExtensionView.swift",
+				"Bookmark Article/Info.plist",
+				"Bookmark Article/InfoPlist.xcstrings",
+				"Bookmark Article/Media.xcassets",
+				"Open Article/ActionViewController.swift",
+				"Open Article/Info.plist",
+				"Open Article/InfoPlist.xcstrings",
+				"Open Article/OpenArticle.xcstrings",
+				"Open Article/OpenArticleExtensionView.swift",
+				"Open Article/OpenArticleRequest.swift",
+				Widgets/AllArticlesWidget/ArticleEntry.swift,
+				Widgets/AllArticlesWidget/ArticleProvider.swift,
+				Widgets/AllArticlesWidget/ArticleWidgetViews.swift,
+				Widgets/AllArticlesWidget/SakuraRSSWidget.swift,
+				Widgets/Info.plist,
+				Widgets/ListWidget/ListEntity.swift,
+				Widgets/ListWidget/ListThumbnailCell.swift,
+				Widgets/ListWidget/ListTitleBar.swift,
+				Widgets/ListWidget/ListWidget.swift,
+				Widgets/ListWidget/ListWidgetEntry.swift,
+				Widgets/ListWidget/ListWidgetIntent.swift,
+				Widgets/ListWidget/ListWidgetProvider.swift,
+				Widgets/ListWidget/ListWidgetRequest.swift,
+				Widgets/ListWidget/ListWidgetSmallView.swift,
+				Widgets/ListWidget/ListWidgetTextViews.swift,
+				Widgets/ListWidget/ListWidgetThumbnailViews.swift,
+				Widgets/SingleFeedWidget/EmptyView.swift,
+				Widgets/SingleFeedWidget/FeedEntity.swift,
+				Widgets/SingleFeedWidget/FeedTitleBar.swift,
+				Widgets/SingleFeedWidget/SingleFeedEntry.swift,
+				Widgets/SingleFeedWidget/SingleFeedIntent.swift,
+				Widgets/SingleFeedWidget/SingleFeedPageIntent.swift,
+				Widgets/SingleFeedWidget/SingleFeedProvider.swift,
+				Widgets/SingleFeedWidget/SingleFeedSmallView.swift,
+				Widgets/SingleFeedWidget/SingleFeedTextViews.swift,
+				Widgets/SingleFeedWidget/SingleFeedThumbnailCell.swift,
+				Widgets/SingleFeedWidget/SingleFeedThumbnailViews.swift,
+				Widgets/SingleFeedWidget/SingleFeedWidget.swift,
+				Widgets/SingleFeedWidget/SingleFeedWidgetLayout.swift,
+				Widgets/SingleFeedWidget/SingleFeedWidgetRequest.swift,
+				Widgets/WidgetImageBudget.swift,
+				Widgets/WidgetImageResolutionMarker.swift,
+				Widgets/WidgetsBundle.swift,
+				Widgets/WidgetThumbnailCache.swift,
+				"Widgets/WidgetThumbnailCache+Scopes.swift",
+			);
+			target = E47D101A2F549605006081EF /* Sakura */;
+		};
+		E4D2C4853067335900D1C2D6 /* Exceptions for "Extensions" folder in "Add Feed" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Add Feed/Info.plist",
+				"Bookmark Article/ActionViewController.swift",
+				"Bookmark Article/BookmarkExtensionView.swift",
+				"Bookmark Article/Info.plist",
+				"Bookmark Article/InfoPlist.xcstrings",
+				"Bookmark Article/Media.xcassets",
+				"Open Article/ActionViewController.swift",
+				"Open Article/Info.plist",
+				"Open Article/InfoPlist.xcstrings",
+				"Open Article/OpenArticle.xcstrings",
+				"Open Article/OpenArticleExtensionView.swift",
+				"Open Article/OpenArticleRequest.swift",
+				Widgets/AllArticlesWidget/ArticleEntry.swift,
+				Widgets/AllArticlesWidget/ArticleProvider.swift,
+				Widgets/AllArticlesWidget/ArticleWidgetViews.swift,
+				Widgets/AllArticlesWidget/SakuraRSSWidget.swift,
+				Widgets/Info.plist,
+				Widgets/ListWidget/ListEntity.swift,
+				Widgets/ListWidget/ListThumbnailCell.swift,
+				Widgets/ListWidget/ListTitleBar.swift,
+				Widgets/ListWidget/ListWidget.swift,
+				Widgets/ListWidget/ListWidgetEntry.swift,
+				Widgets/ListWidget/ListWidgetIntent.swift,
+				Widgets/ListWidget/ListWidgetProvider.swift,
+				Widgets/ListWidget/ListWidgetRequest.swift,
+				Widgets/ListWidget/ListWidgetSmallView.swift,
+				Widgets/ListWidget/ListWidgetTextViews.swift,
+				Widgets/ListWidget/ListWidgetThumbnailViews.swift,
+				Widgets/SingleFeedWidget/EmptyView.swift,
+				Widgets/SingleFeedWidget/FeedEntity.swift,
+				Widgets/SingleFeedWidget/FeedTitleBar.swift,
+				Widgets/SingleFeedWidget/SingleFeedEntry.swift,
+				Widgets/SingleFeedWidget/SingleFeedIntent.swift,
+				Widgets/SingleFeedWidget/SingleFeedPageIntent.swift,
+				Widgets/SingleFeedWidget/SingleFeedProvider.swift,
+				Widgets/SingleFeedWidget/SingleFeedSmallView.swift,
+				Widgets/SingleFeedWidget/SingleFeedTextViews.swift,
+				Widgets/SingleFeedWidget/SingleFeedThumbnailCell.swift,
+				Widgets/SingleFeedWidget/SingleFeedThumbnailViews.swift,
+				Widgets/SingleFeedWidget/SingleFeedWidget.swift,
+				Widgets/SingleFeedWidget/SingleFeedWidgetLayout.swift,
+				Widgets/SingleFeedWidget/SingleFeedWidgetRequest.swift,
+				Widgets/WidgetImageBudget.swift,
+				Widgets/WidgetImageResolutionMarker.swift,
+				Widgets/WidgetsBundle.swift,
+				Widgets/WidgetThumbnailCache.swift,
+				"Widgets/WidgetThumbnailCache+Scopes.swift",
+			);
+			target = E47D10332F54980E006081EF /* Add Feed */;
+		};
+		E4D2C4863067335900D1C2D6 /* Exceptions for "Extensions" folder in "Open Article" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Open Article/ActionViewController.swift",
+				"Open Article/InfoPlist.xcstrings",
+				"Open Article/OpenArticle.xcstrings",
+				"Open Article/OpenArticleExtensionView.swift",
+				"Open Article/OpenArticleRequest.swift",
+			);
+			target = E45EAA152F9FA36900EA7A54 /* Open Article */;
+		};
+		E4D2C4873067335900D1C2D6 /* Exceptions for "Extensions" folder in "Bookmark Article" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Add Feed/ActionViewController.swift",
+				"Add Feed/Info.plist",
+				"Add Feed/InfoPlist.xcstrings",
+				"Bookmark Article/Info.plist",
+				"Open Article/ActionViewController.swift",
+				"Open Article/Info.plist",
+				"Open Article/InfoPlist.xcstrings",
+				"Open Article/OpenArticle.xcstrings",
+				"Open Article/OpenArticleExtensionView.swift",
+				"Open Article/OpenArticleRequest.swift",
+				Widgets/AllArticlesWidget/ArticleEntry.swift,
+				Widgets/AllArticlesWidget/ArticleProvider.swift,
+				Widgets/AllArticlesWidget/ArticleWidgetViews.swift,
+				Widgets/AllArticlesWidget/SakuraRSSWidget.swift,
+				Widgets/Info.plist,
+				Widgets/ListWidget/ListEntity.swift,
+				Widgets/ListWidget/ListThumbnailCell.swift,
+				Widgets/ListWidget/ListTitleBar.swift,
+				Widgets/ListWidget/ListWidget.swift,
+				Widgets/ListWidget/ListWidgetEntry.swift,
+				Widgets/ListWidget/ListWidgetIntent.swift,
+				Widgets/ListWidget/ListWidgetProvider.swift,
+				Widgets/ListWidget/ListWidgetRequest.swift,
+				Widgets/ListWidget/ListWidgetSmallView.swift,
+				Widgets/ListWidget/ListWidgetTextViews.swift,
+				Widgets/ListWidget/ListWidgetThumbnailViews.swift,
+				Widgets/SingleFeedWidget/EmptyView.swift,
+				Widgets/SingleFeedWidget/FeedEntity.swift,
+				Widgets/SingleFeedWidget/FeedTitleBar.swift,
+				Widgets/SingleFeedWidget/SingleFeedEntry.swift,
+				Widgets/SingleFeedWidget/SingleFeedIntent.swift,
+				Widgets/SingleFeedWidget/SingleFeedPageIntent.swift,
+				Widgets/SingleFeedWidget/SingleFeedProvider.swift,
+				Widgets/SingleFeedWidget/SingleFeedSmallView.swift,
+				Widgets/SingleFeedWidget/SingleFeedTextViews.swift,
+				Widgets/SingleFeedWidget/SingleFeedThumbnailCell.swift,
+				Widgets/SingleFeedWidget/SingleFeedThumbnailViews.swift,
+				Widgets/SingleFeedWidget/SingleFeedWidget.swift,
+				Widgets/SingleFeedWidget/SingleFeedWidgetLayout.swift,
+				Widgets/SingleFeedWidget/SingleFeedWidgetRequest.swift,
+				Widgets/WidgetImageBudget.swift,
+				Widgets/WidgetImageResolutionMarker.swift,
+				Widgets/WidgetsBundle.swift,
+				Widgets/WidgetThumbnailCache.swift,
+				"Widgets/WidgetThumbnailCache+Scopes.swift",
+			);
+			target = E45623E2300B95BD0083C0BD /* Bookmark Article */;
+		};
+		E4D2C4883067335900D1C2D6 /* Exceptions for "Extensions" folder in "WidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Add Feed/ActionViewController.swift",
+				"Add Feed/Info.plist",
+				"Add Feed/InfoPlist.xcstrings",
+				"Bookmark Article/ActionViewController.swift",
+				"Bookmark Article/BookmarkExtensionView.swift",
+				"Bookmark Article/Info.plist",
+				"Bookmark Article/InfoPlist.xcstrings",
+				"Bookmark Article/Media.xcassets",
+				"Open Article/ActionViewController.swift",
+				"Open Article/Info.plist",
+				"Open Article/InfoPlist.xcstrings",
+				"Open Article/OpenArticle.xcstrings",
+				"Open Article/OpenArticleExtensionView.swift",
+				"Open Article/OpenArticleRequest.swift",
+				Widgets/Info.plist,
+			);
+			target = E47D104C2F549821006081EF /* WidgetsExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E44484152FB09B0E003FDAD4 /* Hanami */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Hanami;
-			sourceTree = "<group>";
-		};
-		E45623E5300B95BD0083C0BD /* Bookmark Article */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E45623F3300B95BD0083C0BD /* Exceptions for "Bookmark Article" folder in "Bookmark Article" target */,
-			);
-			path = "Bookmark Article";
-			sourceTree = "<group>";
-		};
-		E45EAA182F9FA36900EA7A54 /* Open Article */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E45EAA232F9FA36900EA7A54 /* Exceptions for "Open Article" folder in "Open Article" target */,
-			);
-			path = "Open Article";
 			sourceTree = "<group>";
 		};
 		E47D101D2F549605006081EF /* App */ = {
@@ -223,20 +371,16 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
-		E47D10382F54980E006081EF /* Add Feed */ = {
+		E4D2C41E3067335100D1C2D6 /* Extensions */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E47D10442F54980E006081EF /* Exceptions for "Add Feed" folder in "Add Feed" target */,
+				E4D2C4843067335900D1C2D6 /* Exceptions for "Extensions" folder in "Sakura" target */,
+				E4D2C4853067335900D1C2D6 /* Exceptions for "Extensions" folder in "Add Feed" target */,
+				E4D2C4863067335900D1C2D6 /* Exceptions for "Extensions" folder in "Open Article" target */,
+				E4D2C4873067335900D1C2D6 /* Exceptions for "Extensions" folder in "Bookmark Article" target */,
+				E4D2C4883067335900D1C2D6 /* Exceptions for "Extensions" folder in "WidgetsExtension" target */,
 			);
-			path = "Add Feed";
-			sourceTree = "<group>";
-		};
-		E47D10522F549821006081EF /* Widgets */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E47D105D2F549822006081EF /* Exceptions for "Widgets" folder in "WidgetsExtension" target */,
-			);
-			path = Widgets;
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -280,6 +424,7 @@
 				E47D10632F54986D006081EF /* FaviconFinder in Frameworks */,
 				E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */,
 				E47D13182F549F92006081EF /* SwiftSoup in Frameworks */,
+				EA0E4A012FC0A00E003FDAD4 /* EnhancedNavigation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,12 +458,9 @@
 				E47D10352F54980E006081EF /* Frameworks */,
 				E47D101C2F549605006081EF /* Products */,
 				E47D101D2F549605006081EF /* App */,
-				E44484152FB09B0E003FDAD4 /* Hanami */,
+				E4D2C41E3067335100D1C2D6 /* Extensions */,
 				E47D10292F549709006081EF /* Shared */,
-				E47D10382F54980E006081EF /* Add Feed */,
-				E45EAA182F9FA36900EA7A54 /* Open Article */,
-				E45623E5300B95BD0083C0BD /* Bookmark Article */,
-				E47D10522F549821006081EF /* Widgets */,
+				E44484152FB09B0E003FDAD4 /* Hanami */,
 			);
 			sourceTree = "<group>";
 		};
@@ -399,8 +541,8 @@
 				E4BC0A03300B95BD0083C0BD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				E45623E5300B95BD0083C0BD /* Bookmark Article */,
 				E47D10292F549709006081EF /* Shared */,
+				E4D2C41E3067335100D1C2D6 /* Extensions */,
 			);
 			name = "Bookmark Article";
 			packageProductDependencies = (
@@ -421,9 +563,6 @@
 			);
 			dependencies = (
 				E444843A2FB0A00E003FDAD4 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				E45EAA182F9FA36900EA7A54 /* Open Article */,
 			);
 			name = "Open Article";
 			packageProductDependencies = (
@@ -455,6 +594,7 @@
 			fileSystemSynchronizedGroups = (
 				E47D101D2F549605006081EF /* App */,
 				E47D10292F549709006081EF /* Shared */,
+				E4D2C41E3067335100D1C2D6 /* Extensions */,
 			);
 			name = Sakura;
 			packageProductDependencies = (
@@ -462,6 +602,7 @@
 				E47D10622F54986D006081EF /* FaviconFinder */,
 				E47D13172F549F92006081EF /* SwiftSoup */,
 				E41D98A72F8B3B6E00FB2880 /* FluidAudio */,
+				EA0E4A022FC0A00E003FDAD4 /* EnhancedNavigation */,
 			);
 			productName = SakuraRSS;
 			productReference = E47D101B2F549605006081EF /* Sakura.app */;
@@ -482,7 +623,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				E47D10292F549709006081EF /* Shared */,
-				E47D10382F54980E006081EF /* Add Feed */,
+				E4D2C41E3067335100D1C2D6 /* Extensions */,
 			);
 			name = "Add Feed";
 			packageProductDependencies = (
@@ -507,7 +648,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				E47D10292F549709006081EF /* Shared */,
-				E47D10522F549821006081EF /* Widgets */,
+				E4D2C41E3067335100D1C2D6 /* Extensions */,
 			);
 			name = WidgetsExtension;
 			packageProductDependencies = (
@@ -570,6 +711,7 @@
 				E47D10612F54986D006081EF /* XCRemoteSwiftPackageReference "FaviconFinder" */,
 				E47D13162F549F92006081EF /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 				E41D98A62F8B3B6E00FB2880 /* XCRemoteSwiftPackageReference "FluidAudio" */,
+				EA0E4A032FC0A00E003FDAD4 /* XCRemoteSwiftPackageReference "EnhancedNavigation" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E47D101C2F549605006081EF /* Products */;
@@ -865,7 +1007,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Bookmark Article/Info.plist";
+				INFOPLIST_FILE = "Extensions/Bookmark Article/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark Page";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -874,7 +1016,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Bookmark-Article";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -901,7 +1043,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Bookmark Article/Info.plist";
+				INFOPLIST_FILE = "Extensions/Bookmark Article/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark Page";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -910,7 +1052,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Bookmark-Article";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -936,7 +1078,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Open Article/Info.plist";
+				INFOPLIST_FILE = "Extensions/Open Article/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Open in Sakura";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -945,7 +1087,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Open-Article";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -972,7 +1114,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Open Article/Info.plist";
+				INFOPLIST_FILE = "Extensions/Open Article/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Open in Sakura";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -981,7 +1123,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Open-Article";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1148,6 +1290,8 @@
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location is used to show local weather on the Today tab.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Sakura can save images in feed articles to your Photo Library.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Sakura uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1159,7 +1303,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -1199,6 +1343,8 @@
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location is used to show local weather on the Today tab.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Sakura can save images in feed articles to your Photo Library.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Sakura uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1210,7 +1356,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -1238,7 +1384,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Add Feed/Info.plist";
+				INFOPLIST_FILE = "Extensions/Add Feed/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Add Feed";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1247,7 +1393,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Add-Feed";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1275,7 +1421,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Add Feed/Info.plist";
+				INFOPLIST_FILE = "Extensions/Add Feed/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Add Feed";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1284,7 +1430,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Add-Feed";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1313,7 +1459,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_FILE = Extensions/Widgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Widgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1322,7 +1468,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS.Widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1351,7 +1497,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_FILE = Extensions/Widgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Widgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1360,7 +1506,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS.Widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1480,6 +1626,14 @@
 				revision = 8d6ad267714cac3ae747cefdd21f7a6665006e1f;
 			};
 		};
+		EA0E4A032FC0A00E003FDAD4 /* XCRemoteSwiftPackageReference "EnhancedNavigation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/katagaki/EnhancedNavigation.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1532,6 +1686,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E47D13162F549F92006081EF /* XCRemoteSwiftPackageReference "SwiftSoup" */;
 			productName = SwiftSoup;
+		};
+		EA0E4A022FC0A00E003FDAD4 /* EnhancedNavigation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EA0E4A032FC0A00E003FDAD4 /* XCRemoteSwiftPackageReference "EnhancedNavigation" */;
+			productName = EnhancedNavigation;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

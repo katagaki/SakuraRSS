@@ -33,6 +33,24 @@ public nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
         }
     }
 
+    public var symbol: String {
+        switch self {
+        case .inbox: "tray"
+        case .feed: "text.rectangle.page"
+        case .feedCompact: "square.text.square"
+        case .magazine: "rectangle.grid.2x2"
+        case .masonry: "rectangle.3.group"
+        case .compact: "list.dash"
+        case .video: "play.rectangle"
+        case .photos: "photo.stack"
+        case .podcast: "headphones"
+        case .timeline: "clock"
+        case .cards: "square.stack.3d.up"
+        case .grid: "square.grid.3x3"
+        case .scroll: "arrow.up.and.down"
+        }
+    }
+
     public var requiresImages: Bool {
         switch self {
         case .magazine, .masonry, .photos, .cards, .grid: true

@@ -1,5 +1,9 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension FeedManager {
 
@@ -102,7 +106,7 @@ public extension FeedManager {
 
     private struct PrefetchedAddFeedMetadata {
         public let displayName: String?
-        public let iconImage: UIImage?
+        public let iconImage: PlatformImage?
     }
 
     private func prefetchAddFeedMetadata(
@@ -114,10 +118,10 @@ public extension FeedManager {
             return PrefetchedAddFeedMetadata(displayName: nil, iconImage: nil)
         }
 
-        var image: UIImage?
+        var image: PlatformImage?
         if let iconURL = metadata.iconURL,
            let (data, _) = try? await Iconography.urlSession.data(from: iconURL),
-           let downloaded = UIImage(data: data) {
+           let downloaded = PlatformImage(data: data) {
             image = metadata.iconNeedsSquareCrop
                 ? downloaded.centerSquareCropped()
                 : downloaded

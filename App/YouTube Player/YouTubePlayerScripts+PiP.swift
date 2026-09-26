@@ -181,9 +181,15 @@ extension YouTubePlayerScripts {
             if (!video || video.__ytPiPAttached) return;
             video.__ytPiPAttached = true;
             window.__yt.addListener(video, 'enterpictureinpicture',
-                function() { send('enter'); });
+                function() {
+                    window.__yt.logState('PiP enterpictureinpicture event', video);
+                    send('enter');
+                });
             window.__yt.addListener(video, 'leavepictureinpicture',
-                function() { send('leave'); });
+                function() {
+                    window.__yt.logState('PiP leavepictureinpicture event', video);
+                    send('leave');
+                });
             window.__yt.addListener(video, 'webkitpresentationmodechanged',
                 function() {
                     var nowInPiP =
@@ -192,8 +198,58 @@ extension YouTubePlayerScripts {
                         window.__yt.exitedPiPRecently = true;
                     }
                     window.__yt.expectingPiPExit = false;
+                    window.__yt.logState(
+                        'PiP presentation mode ' + (nowInPiP ? 'enter' : 'exit'), video
+                    );
                     send(nowInPiP ? 'enter' : 'leave');
                 });
+            // PiP's play button can start the element directly, bypassing both the
+            // media session and YouTube, so a pause made from PiP would stay
+            // flagged and YouTube would pause again to match its own state.
+            window.__yt.addListener(video, 'play', function() {
+                if (video.webkitPresentationMode !== 'picture-in-picture') return;
+                window.__yt.logState('PiP video play event', video);
+                if (window.__yt.userPaused
+                    && Date.now() >= window.__yt.pipResumeDeadline) {
+                    window.__yt.pipResumeDeadline = Date.now() + 2000;
+                }
+                video.__ytPagePaused = false;
+                window.__yt.userPaused = false;
+                window.__yt.autoplayBlocked = false;
+                window.__yt.exitedPiPRecently = false;
+                var player = document.getElementById('movie_player');
+                if (!player || typeof player.playVideo !== 'function') {
+                    window.__yt.logState('PiP playVideo unavailable', video);
+                    return;
+                }
+                window.__yt.logState('PiP call playVideo()', video);
+                try { player.playVideo(); } catch (e) {
+                    window.__yt.logState('PiP playVideo() failed', video);
+                }
+            }, true);
+            window.__yt.addListener(video, 'pause', function() {
+                if (video.webkitPresentationMode !== 'picture-in-picture') return;
+                window.__yt.logState('PiP video pause event', video);
+                if (video.__ytRecoveringPiPPause) {
+                    video.__ytRecoveringPiPPause = false;
+                    window.__yt.logState('PiP skip recovered pause', video);
+                    return;
+                }
+                if (!window.__yt.userPaused && video.__ytPagePaused
+                    && Date.now() < window.__yt.pipResumeDeadline) {
+                    window.__yt.logState('PiP skip page pause in retry window', video);
+                    return;
+                }
+                var player = document.getElementById('movie_player');
+                if (!player || typeof player.pauseVideo !== 'function') {
+                    window.__yt.logState('PiP pauseVideo unavailable', video);
+                    return;
+                }
+                window.__yt.logState('PiP call pauseVideo()', video);
+                try { player.pauseVideo(); } catch (e) {
+                    window.__yt.logState('PiP pauseVideo() failed', video);
+                }
+            }, true);
         }
         function tryAttach() {
             var videos = document.querySelectorAll('video');

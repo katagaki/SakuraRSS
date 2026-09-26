@@ -31,7 +31,7 @@ struct ScrollExpandedArticleView: View {
     }
 
     private var displayTitle: String {
-        article.title
+        article.displayTitle
     }
 
     var body: some View {
@@ -95,6 +95,13 @@ struct ScrollExpandedArticleView: View {
         .navigationDestination(item: $imageViewerURL) { url in
             ImageViewerView(url: url)
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
+        }
+        .browserOverlayPage(item: $imageViewerURL) { url in
+            BrowserPageIdentity(
+                title: String(localized: "Overlay.Image", table: "Browser"),
+                subtitle: url.host,
+                symbolName: "photo"
+            )
         }
         .task {
             await extractArticleContent()

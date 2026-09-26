@@ -62,10 +62,7 @@ struct FeedHeaderView: View {
             actionButtons
                 .padding(.top, 8)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 16)
-        .padding(.top, 4)
-        .padding(.bottom, 16)
+        .sourceHeaderPadding()
         .task(id: feed.id) {
             icon = await Iconography.shared.icon(for: feed)
         }

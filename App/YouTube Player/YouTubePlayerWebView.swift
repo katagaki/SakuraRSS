@@ -85,9 +85,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         userContent.removeAllScriptMessageHandlers()
         userContent.add(coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
         userContent.add(coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
-        #if DEBUG
         userContent.add(coordinator, name: "ytDebug")
-        #endif
         coordinator.claimMessageHandlers(on: userContent)
         DispatchQueue.main.async {
             self.webView = existing
@@ -106,6 +104,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         let controller = WKUserContentController()
         let scripts: [InjectedUserScript] = [
             .init(source: YouTubePlayerScripts.mediaIsolationBootstrap, time: .atDocumentStart, mainFrameOnly: false),
+            .init(source: YouTubePlayerScripts.playbackDiagnostics, time: .atDocumentStart, mainFrameOnly: false),
             .init(
                 source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
                 time: .atDocumentStart,
@@ -147,9 +146,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         }
         controller.add(coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
         controller.add(coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
-        #if DEBUG
         controller.add(coordinator, name: "ytDebug")
-        #endif
         coordinator.claimMessageHandlers(on: controller)
         return controller
     }
@@ -177,10 +174,12 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         return components.url ?? url
     }
 
+    /// Catalyst needs an explicit desktop UA to get the desktop watch page, but it has to be
+    /// the Safari one: with a Chrome UA YouTube picks a media pipeline WebKit cannot feed, so
+    /// the video element never attaches media and playback stalls at 0:00.
     static var youTubeUserAgent: String? {
         #if targetEnvironment(macCatalyst)
-        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-            + "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+        return sakuraUserAgent
         #else
         return nil
         #endif

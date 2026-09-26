@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     private static let googleAMPHosts: Set<String> = ["google.com", "www.google.com"]
     private static let googleAMPPathPrefix = "/amp/s/"

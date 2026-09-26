@@ -1,6 +1,6 @@
 import Foundation
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     private static let noiseHostSuffixes = [
         "gravatar.com", "feeds.feedburner.com",
