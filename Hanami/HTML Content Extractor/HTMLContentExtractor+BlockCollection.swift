@@ -5,17 +5,39 @@ public nonisolated extension HTMLContentExtractor {
 
     // MARK: - Content Discovery
 
+    /// Scores every selector match by its non-link paragraph text so a teaser
+    /// `<article>` card can't beat the real body just by appearing first.
+    /// Near-ties go to the more precise (earlier) selector.
     static func findMainContent(from doc: Document) throws -> Element {
-        for selector in contentSelectors {
-            let elements = try doc.select(selector)
-            if let element = elements.first() {
-                let text = try element.text()
-                if text.count > 100 {
-                    return element
-                }
+        var candidates: [ContentCandidate] = []
+        for (selectorRank, selector) in contentSelectors.enumerated() {
+            for element in try doc.select(selector).array().prefix(20) {
+                guard try element.text().count > 100 else { continue }
+                candidates.append(ContentCandidate(
+                    element: element, selectorRank: selectorRank, score: proseScore(of: element)
+                ))
             }
         }
-        return doc.body() ?? doc
+        guard let bestScore = candidates.map(\.score).max(), bestScore > 0 else {
+            return candidates.first?.element ?? doc.body() ?? doc
+        }
+        let nearBest = candidates.filter { $0.score * 100 >= bestScore * 85 }
+        return nearBest.min { $0.selectorRank < $1.selectorRank }?.element ?? doc.body() ?? doc
+    }
+
+    private struct ContentCandidate {
+        let element: Element
+        let selectorRank: Int
+        let score: Int
+    }
+
+    private static func proseScore(of element: Element) -> Int {
+        let paragraphs = (try? element.select("p").array()) ?? []
+        return paragraphs.reduce(0) { total, paragraph in
+            let textLength = (try? paragraph.text().count) ?? 0
+            let linkLength = ((try? paragraph.select("a").text()) ?? "").count
+            return total + max(textLength - linkLength, 0)
+        }
     }
 
     // MARK: - Paragraph Extraction
