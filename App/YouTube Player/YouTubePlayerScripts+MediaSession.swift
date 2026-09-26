@@ -56,6 +56,9 @@ extension YouTubePlayerScripts {
                 if (action === 'pause') {
                     window.__yt.userPaused = true;
                 } else {
+                    if (window.__yt.userPaused && window.__yt.isInPiP()) {
+                        window.__yt.pipResumeDeadline = Date.now() + 2000;
+                    }
                     window.__yt.userPaused = false;
                     window.__yt.autoplayBlocked = false;
                     window.__yt.exitedPiPRecently = false;

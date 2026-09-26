@@ -199,6 +199,11 @@ extension YouTubePlayerScripts {
             // flagged and YouTube would pause again to match its own state.
             window.__yt.addListener(video, 'play', function() {
                 if (video.webkitPresentationMode !== 'picture-in-picture') return;
+                if (window.__yt.userPaused
+                    && Date.now() >= window.__yt.pipResumeDeadline) {
+                    window.__yt.pipResumeDeadline = Date.now() + 2000;
+                }
+                video.__ytPagePaused = false;
                 window.__yt.userPaused = false;
                 window.__yt.autoplayBlocked = false;
                 window.__yt.exitedPiPRecently = false;
@@ -208,6 +213,12 @@ extension YouTubePlayerScripts {
             }, true);
             window.__yt.addListener(video, 'pause', function() {
                 if (video.webkitPresentationMode !== 'picture-in-picture') return;
+                if (video.__ytRecoveringPiPPause) {
+                    video.__ytRecoveringPiPPause = false;
+                    return;
+                }
+                if (!window.__yt.userPaused && video.__ytPagePaused
+                    && Date.now() < window.__yt.pipResumeDeadline) return;
                 var player = document.getElementById('movie_player');
                 if (!player || typeof player.pauseVideo !== 'function') return;
                 try { player.pauseVideo(); } catch (e) {}

@@ -1,6 +1,13 @@
 import Foundation
 import Hanami
 
+// Background playback portions adapted from Brave's iOS implementation:
+// https://github.com/brave/brave-core/blob/9877355bd3e9/ios/browser/web/media/resources/media_backgrounding.ts
+// Copyright (c) 2026 The Brave Authors. All rights reserved.
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 // swiftlint:disable:next type_body_length
 nonisolated enum YouTubePlayerScripts {
 
@@ -11,9 +18,7 @@ nonisolated enum YouTubePlayerScripts {
     /// has no reason to pause the video, while preserving native access via
     /// `window.__yt.*` (saved originals before the patches were applied).
     ///
-    /// This replaces a more invasive approach that overrode `HTMLMediaElement.pause`.
-    /// Blocking detection at the source means there is no pause attempt to undo,
-    /// which is friendlier to YouTube's internal state machine and to ad transitions.
+    /// Tracks page-initiated media pauses separately from WebKit's background pause.
     static var mediaIsolationBootstrap: String { """
     (function() {
         if (window.__yt) return;
@@ -21,6 +26,11 @@ nonisolated enum YouTubePlayerScripts {
         var origAdd = EventTarget.prototype.addEventListener;
         var origRemove = EventTarget.prototype.removeEventListener;
         var origDispatch = EventTarget.prototype.dispatchEvent;
+        var origVideoPause = HTMLVideoElement.prototype.pause;
+        var origVideoPlay = HTMLVideoElement.prototype.play;
+        var visibilityDescriptor = Object.getOwnPropertyDescriptor(
+            Document.prototype, 'visibilityState'
+        );
         var pipDescriptor = Object.getOwnPropertyDescriptor(
             Document.prototype, 'pictureInPictureElement'
         );
@@ -41,6 +51,7 @@ nonisolated enum YouTubePlayerScripts {
             // audio doesn't keep playing without the visual PiP context.
             // Cleared when Swift initiates a play.
             exitedPiPRecently: false,
+            pipResumeDeadline: 0,
             // Swift sets this before calling `exitPictureInPicture()` /
             // `webkitSetPresentationMode('inline')` so the PiP bridge knows
             // the exit is user-initiated and not a system tear-down.
@@ -50,6 +61,14 @@ nonisolated enum YouTubePlayerScripts {
             },
             removeListener: function(target, type, handler, options) {
                 return origRemove.call(target, type, handler, options);
+            },
+            realVisibilityState: function() {
+                return visibilityDescriptor && visibilityDescriptor.get
+                    ? visibilityDescriptor.get.call(document)
+                    : document.visibilityState;
+            },
+            resumeVideo: function(video) {
+                return origVideoPlay.call(video);
             },
             // True if any video is in PiP. Checks the iOS-specific
             // `webkitPresentationMode` first since `pictureInPictureElement`
@@ -99,6 +118,15 @@ nonisolated enum YouTubePlayerScripts {
                     }
                 } catch (e) {}
             }
+        };
+
+        HTMLVideoElement.prototype.pause = function() {
+            this.__ytPagePaused = true;
+            return origVideoPause.call(this);
+        };
+        HTMLVideoElement.prototype.play = function() {
+            this.__ytPagePaused = false;
+            return origVideoPlay.call(this);
         };
 
         var mutationCallbacks = [];
@@ -281,35 +309,57 @@ nonisolated enum YouTubePlayerScripts {
     private static let mediaIsolationDiagnostics = ""
     #endif
 
-    /// Resumes the video when something pauses it that isn't the user. Defaults
-    /// to "resume on any pause". Swift sets `__yt.userPaused = true` before
-    /// deliberate pauses, and `__yt.autoplayBlocked` defers to the autoplay
-    /// blocker. End-of-video and within-tail pauses are left alone.
-    ///
-    /// This catches:
-    ///   - WebKit suspending WKWebView media on app background (no JS pause to
-    ///     intercept; we only see the resulting `pause` event)
-    ///   - any YouTube pause path our isolation bootstrap didn't anticipate
+    /// Retries WebKit background pauses while respecting page and user pauses.
     static let pauseGuard = """
     (function() {
+        function shouldResume(video, ignorePagePause) {
+            if (window.__yt.userPaused === true) return false;
+            if (window.__yt.autoplayBlocked === true) return false;
+            if (window.__yt.exitedPiPRecently === true) return false;
+            if (video.__ytPagePaused && !ignorePagePause) return false;
+            if (video.ended) return false;
+            return !(video.duration > 0
+                && video.currentTime >= video.duration - 0.25);
+        }
+        function resume(video, ignorePagePause) {
+            if (!shouldResume(video, ignorePagePause)) return;
+            var playback = window.__yt.resumeVideo(video);
+            if (playback && typeof playback.catch === 'function') {
+                playback.catch(function(){});
+            }
+        }
         function attach(video) {
             if (!video || video.__ytPauseGuardAttached) return;
             video.__ytPauseGuardAttached = true;
             window.__yt.addListener(video, 'pause', function() {
                 if (video.webkitPresentationMode === 'picture-in-picture') {
+                    if (!window.__yt.userPaused && video.__ytPagePaused
+                        && Date.now() < window.__yt.pipResumeDeadline) {
+                        video.__ytRecoveringPiPPause = true;
+                        resume(video, true);
+                        return;
+                    }
                     window.__yt.userPaused = true;
                     return;
                 }
-                if (window.__yt.userPaused === true) return;
-                if (window.__yt.autoplayBlocked === true) return;
-                // System tore down PiP, don't resume audio "headlessly"
-                // when the user has no visual PiP indicator anymore.
-                if (window.__yt.exitedPiPRecently === true) return;
-                if (video.ended) return;
-                if (video.duration > 0
-                    && video.currentTime >= video.duration - 0.25) return;
-                var p = video.play();
-                if (p && typeof p.catch === 'function') { p.catch(function(){}); }
+                if (!shouldResume(video)) return;
+                if (window.__yt.realVisibilityState() === 'visible'
+                    && !video.__ytBackgroundRetryPending) {
+                    video.__ytBackgroundRetryPending = true;
+                    var onVisibilityChange = function() {
+                        if (window.__yt.realVisibilityState() === 'visible') return;
+                        clearTimeout(timeout);
+                        window.__yt.removeListener(document, 'visibilitychange', onVisibilityChange);
+                        video.__ytBackgroundRetryPending = false;
+                        resume(video);
+                    };
+                    window.__yt.addListener(document, 'visibilitychange', onVisibilityChange);
+                    var timeout = setTimeout(function() {
+                        window.__yt.removeListener(document, 'visibilitychange', onVisibilityChange);
+                        video.__ytBackgroundRetryPending = false;
+                    }, 2000);
+                }
+                resume(video);
             }, true);
         }
         function scan() { document.querySelectorAll('video').forEach(attach); }
