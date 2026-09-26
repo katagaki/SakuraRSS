@@ -12,7 +12,7 @@ struct BrowserCompactShell: View {
 
     var body: some View {
         let isEditing = omnibox.isActive
-        return TabZoomContainer(store: store, cardCornerRadius: BrowserTabCard.cornerRadius) {
+        return TabZoomContainer(store: store, cardCornerRadius: TabSwitcherCardMetrics.cornerRadius) {
             BrowserTabSwitcher()
                 .environment(store)
                 .environment(favourites)

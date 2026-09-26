@@ -27,12 +27,6 @@ extension TabNavigationStore where Root == BrowserLocation, Identity == BrowserP
         }
     }
 
-    func prewarmRestorablePaths(in feedManager: FeedManager) async {
-        await prewarmRestorablePaths { token, path in
-            token.append(to: &path, in: feedManager)
-        }
-    }
-
     /// Feed identifiers ordered by how often this browser has opened them.
     var frequentlyVisitedFeedIDs: [Int64] {
         frequentlyVisitedRoots.compactMap { root in
