@@ -85,9 +85,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         userContent.removeAllScriptMessageHandlers()
         userContent.add(coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
         userContent.add(coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
-        #if DEBUG
         userContent.add(coordinator, name: "ytDebug")
-        #endif
         coordinator.claimMessageHandlers(on: userContent)
         DispatchQueue.main.async {
             self.webView = existing
@@ -106,6 +104,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         let controller = WKUserContentController()
         let scripts: [InjectedUserScript] = [
             .init(source: YouTubePlayerScripts.mediaIsolationBootstrap, time: .atDocumentStart, mainFrameOnly: false),
+            .init(source: YouTubePlayerScripts.playbackDiagnostics, time: .atDocumentStart, mainFrameOnly: false),
             .init(
                 source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
                 time: .atDocumentStart,
@@ -147,9 +146,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         }
         controller.add(coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
         controller.add(coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
-        #if DEBUG
         controller.add(coordinator, name: "ytDebug")
-        #endif
         coordinator.claimMessageHandlers(on: controller)
         return controller
     }

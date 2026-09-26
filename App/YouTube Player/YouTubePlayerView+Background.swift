@@ -16,6 +16,7 @@ extension YouTubePlayerView {
     }
 
     func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+        log("YT Native", "scene \(oldPhase) -> \(newPhase) isPlaying=\(isPlaying) isPiP=\(isPiP)")
         switch newPhase {
         case .background, .inactive:
             // Coming back passes through `.inactive` too, after the video may
@@ -51,6 +52,7 @@ extension YouTubePlayerView {
         """
         webView?.evaluateJavaScript(script) { result, _ in
             let actuallyInPiP = (result as? Bool) ?? false
+            log("YT Native", "PiP resync result=\(actuallyInPiP) wasPiP=\(isPiP)")
             if isPiP != actuallyInPiP {
                 isPiP = actuallyInPiP
             }

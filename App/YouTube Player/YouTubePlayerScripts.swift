@@ -68,8 +68,10 @@ nonisolated enum YouTubePlayerScripts {
                     : document.visibilityState;
             },
             resumeVideo: function(video) {
+                if (this.logState) this.logState('guard original play()', video);
                 return origVideoPlay.call(video);
             },
+            logState: function() {},
             // True if any video is in PiP. Checks the iOS-specific
             // `webkitPresentationMode` first since `pictureInPictureElement`
             // is unreliable in WKWebView's native PiP path.
@@ -89,6 +91,7 @@ nonisolated enum YouTubePlayerScripts {
             // and falls back to the iOS-only setter.
             enterPiP: function(video) {
                 if (!video) return;
+                if (this.logState) this.logState('native enterPiP()', video);
                 if (origRequestPiP) {
                     var p = origRequestPiP.call(video);
                     if (p && typeof p.catch === 'function') p.catch(function(){});
@@ -98,6 +101,7 @@ nonisolated enum YouTubePlayerScripts {
             },
             // Native PiP exit, bypassing our prototype overrides.
             exitPiP: function(video) {
+                if (this.logState) this.logState('native exitPiP()', video);
                 if (origExitPiP) {
                     var p = origExitPiP.call(document);
                     if (p && typeof p.catch === 'function') p.catch(function(){});
@@ -105,9 +109,7 @@ nonisolated enum YouTubePlayerScripts {
                     origWebkitSetPM.call(video, 'inline');
                 }
             },
-            // Diagnostic log to the native `ytDebug` message handler. The
-            // handler is registered only in DEBUG builds; in Release these
-            // calls silently no-op via the try/catch.
+            // Diagnostic log to the native `ytDebug` message handler.
             log: function(msg) {
                 try {
                     if (window.webkit && window.webkit.messageHandlers
@@ -121,10 +123,12 @@ nonisolated enum YouTubePlayerScripts {
         };
 
         HTMLVideoElement.prototype.pause = function() {
+            if (window.__yt.logState) window.__yt.logState('page video.pause()', this);
             this.__ytPagePaused = true;
             return origVideoPause.call(this);
         };
         HTMLVideoElement.prototype.play = function() {
+            if (window.__yt.logState) window.__yt.logState('page video.play()', this);
             this.__ytPagePaused = false;
             return origVideoPlay.call(this);
         };
@@ -322,35 +326,48 @@ nonisolated enum YouTubePlayerScripts {
                 && video.currentTime >= video.duration - 0.25);
         }
         function resume(video, ignorePagePause) {
-            if (!shouldResume(video, ignorePagePause)) return;
+            if (!shouldResume(video, ignorePagePause)) {
+                window.__yt.logState('guard skip resume', video);
+                return;
+            }
             var playback = window.__yt.resumeVideo(video);
             if (playback && typeof playback.catch === 'function') {
-                playback.catch(function(){});
+                playback.catch(function() {
+                    window.__yt.logState('guard play() rejected', video);
+                });
             }
         }
         function attach(video) {
             if (!video || video.__ytPauseGuardAttached) return;
             video.__ytPauseGuardAttached = true;
             window.__yt.addListener(video, 'pause', function() {
+                window.__yt.logState('guard video pause event', video);
                 if (video.webkitPresentationMode === 'picture-in-picture') {
                     if (!window.__yt.userPaused && video.__ytPagePaused
                         && Date.now() < window.__yt.pipResumeDeadline) {
                         video.__ytRecoveringPiPPause = true;
+                        window.__yt.logState('guard recover PiP page pause', video);
                         resume(video, true);
                         return;
                     }
                     window.__yt.userPaused = true;
+                    window.__yt.logState('guard accept PiP pause', video);
                     return;
                 }
-                if (!shouldResume(video)) return;
+                if (!shouldResume(video)) {
+                    window.__yt.logState('guard accept inline pause', video);
+                    return;
+                }
                 if (window.__yt.realVisibilityState() === 'visible'
                     && !video.__ytBackgroundRetryPending) {
                     video.__ytBackgroundRetryPending = true;
+                    window.__yt.logState('guard wait for background transition', video);
                     var onVisibilityChange = function() {
                         if (window.__yt.realVisibilityState() === 'visible') return;
                         clearTimeout(timeout);
                         window.__yt.removeListener(document, 'visibilitychange', onVisibilityChange);
                         video.__ytBackgroundRetryPending = false;
+                        window.__yt.logState('guard retry after background transition', video);
                         resume(video);
                     };
                     window.__yt.addListener(document, 'visibilitychange', onVisibilityChange);

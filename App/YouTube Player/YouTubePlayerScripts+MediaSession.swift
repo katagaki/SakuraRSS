@@ -52,7 +52,8 @@ extension YouTubePlayerScripts {
 
         function wrapper(action) {
             return function(details) {
-                window.__yt.log('mediaSession action: ' + action);
+                var video = document.querySelector('video');
+                window.__yt.logState('mediaSession ' + action + ' received', video);
                 if (action === 'pause') {
                     window.__yt.userPaused = true;
                 } else {
@@ -65,14 +66,21 @@ extension YouTubePlayerScripts {
                 }
                 var h = pageHandlers[action];
                 if (typeof h === 'function') {
-                    try { h(details); return; } catch (e) {}
+                    window.__yt.logState('mediaSession ' + action + ' page handler', video);
+                    try { h(details); return; } catch (e) {
+                        window.__yt.logState('mediaSession page handler failed', video);
+                    }
                 }
-                var v = document.querySelector('video');
-                if (!v) return;
+                video = document.querySelector('video');
+                if (!video) {
+                    window.__yt.logState('mediaSession fallback video missing', null);
+                    return;
+                }
+                window.__yt.logState('mediaSession ' + action + ' video fallback', video);
                 if (action === 'pause') {
-                    v.pause();
+                    video.pause();
                 } else {
-                    var p = v.play();
+                    var p = video.play();
                     if (p && typeof p.catch === 'function') p.catch(function(){});
                 }
             };
