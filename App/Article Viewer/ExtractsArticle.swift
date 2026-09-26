@@ -28,6 +28,7 @@ extension ExtractsArticle {
         let request = URLRequest.sakura(url: url)
         guard let (data, response) = try? await HTTPSPreferringSession.shared.data(for: request),
               let html = HTMLDataDecoder.decode(data, response: response),
+              !BotChallengeDetector.looksLikeChallenge(html, response: response),
               let pageTitle = await HTMLContentExtractor.pageTitle(offMainActorFromHTML: html)
         else { return }
         if extractedPageTitle == nil {

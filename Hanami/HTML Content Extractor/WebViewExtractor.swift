@@ -14,6 +14,7 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
 
     public nonisolated struct Extraction: Sendable {
         public var text: String?
+        public var pageTitle: String?
         public var challenged: Bool
     }
 
@@ -47,11 +48,12 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
             let text = await HTMLContentExtractor.extractText(
                 offMainActorFromHTML: html, baseURL: url, excludeTitle: excludeTitle
             )
-            return Extraction(text: text, challenged: false)
+            let pageTitle = await HTMLContentExtractor.pageTitle(offMainActorFromHTML: html)
+            return Extraction(text: text, pageTitle: pageTitle, challenged: false)
         case .challenged:
-            return Extraction(text: nil, challenged: true)
+            return Extraction(text: nil, pageTitle: nil, challenged: true)
         default:
-            return Extraction(text: nil, challenged: false)
+            return Extraction(text: nil, pageTitle: nil, challenged: false)
         }
     }
 

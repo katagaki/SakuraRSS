@@ -31,6 +31,7 @@ public extension ContentResolver {
         if extraction.challenged {
             result.challenged = true
         }
+        mergeMetadata(ArticleMetadata(pageTitle: extraction.pageTitle))
         return extraction.text
     }
 
