@@ -16,8 +16,8 @@ struct BrowserCompactShell: View {
             BrowserTabSwitcher()
                 .environment(store)
                 .environment(favourites)
-        } page: { width in
-            tabStack(width: width)
+        } page: { _ in
+            tabStack
         }
         // One per shell, not one per page: mounted per page, the overlay and
         // its focused field can end up on screen twice.
@@ -32,15 +32,11 @@ struct BrowserCompactShell: View {
         .ignoresSafeArea(.container)
     }
 
-    private func tabStack(width: CGFloat) -> some View {
+    private var tabStack: some View {
         BrowserTabStack()
             // Edge to edge, or the snapshot carries blank status bar and home
             // indicator bands into the card.
             .ignoresSafeArea(.container)
             .environment(\.isBrowserChromeActive, true)
-            .environment(
-                \.browserAddressWidth,
-                BrowserAddressMetrics.addressWidth(forContainerWidth: width)
-            )
     }
 }

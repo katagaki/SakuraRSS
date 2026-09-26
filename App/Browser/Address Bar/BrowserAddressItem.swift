@@ -11,7 +11,6 @@ struct BrowserAddressItem: View {
     let slots: BrowserPageSlots
     let tabID: UUID
     let favourites: BrowserFavourites
-    let width: CGFloat
     let onOpenOmnibox: () -> Void
     @State private var isConfirmingMarkAllRead = false
 
@@ -105,24 +104,16 @@ struct BrowserAddressItem: View {
         }
         .animation(BrowserLocationLabel.contentChange, value: trailingSlot)
         // Even by construction: both the icon and the glyph sit flush
-        // against this padding, so neither side needs a fudge factor.
-        .padding(.horizontal, 12)
+        // against this padding, so neither side needs a fudge factor. As far
+        // in from the capsule's ends as a `.bottomBar` item's content sat.
+        .padding(.horizontal, 17)
+        .frame(maxWidth: .infinity, minHeight: TabBottomBarMetrics.itemHeight)
         // Behind the label rather than over the page: the browser has no
         // room for Home's refresh pill, so the bar itself reports the work.
-        // Sized to the bar's glass, which the label alone does not fill.
         .background {
             BrowserAddressProgressBackground(progress: slots.displayedProgress(for: tabID, in: store))
-                .frame(height: BrowserAddressMetrics.glassHeight)
-                .padding(.horizontal, -BrowserAddressMetrics.glassHorizontalOverhang)
         }
         .animation(.smooth, value: slots.displayedProgress(for: tabID, in: store) == nil)
-        // A toolbar item is proposed its ideal size, so `maxWidth: .infinity`
-        // resolves to the content width and the bar collapses around a short
-        // page name. The measured width is what makes it fill.
-        .frame(width: width > 0 ? width : nil)
-        // The item widens by the back button's slot at a tab's root, and that
-        // lands on the same navigation as the label swap.
-        .animation(BrowserLocationLabel.contentChange, value: width)
     }
 
     /// The article viewer's trailing actions, in the slot mark as read uses

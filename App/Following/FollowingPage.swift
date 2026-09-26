@@ -48,7 +48,10 @@ struct FollowingPage: View {
         }
         .navigationTitle("Shared.Feeds")
         .toolbarTitleDisplayMode(.inlineLarge)
-        .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt", table: "Feeds")))
+        .searchable(
+            text: $searchText,
+            placement: .browserChrome(isActive: isBrowserChromeActive),
+            prompt: Text(String(localized: "FeedList.SearchPrompt", table: "Feeds")))
         .toolbar { toolbarContent }
         .sakuraBackground()
         .overlay { emptyStateOverlay }

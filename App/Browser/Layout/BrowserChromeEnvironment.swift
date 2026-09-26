@@ -25,3 +25,12 @@ extension EnvironmentValues {
         set { self[BrowserChromeActiveKey.self] = newValue }
     }
 }
+
+extension SearchFieldPlacement {
+    /// Under the browser's chrome a page's search field goes up into the
+    /// hidden top bar: the omnibox is how the browser searches, and left to
+    /// itself the field claims the bottom edge the browser's bar sits on.
+    static func browserChrome(isActive: Bool) -> SearchFieldPlacement {
+        isActive ? .navigationBarDrawer : .automatic
+    }
+}

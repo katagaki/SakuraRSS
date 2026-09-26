@@ -93,6 +93,7 @@ struct BookmarksContentView: View {
         .toolbarTitleDisplayMode(titleDisplayMode)
         .sakuraBackground()
         .searchable(text: $searchText,
+                    placement: .browserChrome(isActive: isBrowserChromeActive),
                     prompt: String(localized: "Bookmarks.Search.Prompt", table: "Articles"))
         .bookmarkCollectionDestinations(namespace: zoomNamespace)
         .toolbar { topBarItems }

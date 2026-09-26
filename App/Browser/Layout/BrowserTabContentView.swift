@@ -7,6 +7,7 @@ import Hanami
 struct BrowserTabContentView: View {
 
     @Environment(FeedManager.self) private var feedManager
+    @Environment(\.browserLayout) private var layout
     let store: BrowserTabStore
     let tabID: UUID
     /// Handed in rather than looked up: reading `store.tabs` here re-runs
@@ -29,6 +30,7 @@ struct BrowserTabContentView: View {
                 .browserNavigationEnvironment(path: path, namespace: cardZoom)
                 .browserNavigationDestinations(path: path, namespace: cardZoom)
         }
+        .browserBottomBar(for: tabID, isEnabled: layout == .compact)
         .environment(\.browserTabID, tabID)
         .environment(\.browserPageReporter, reporters.page)
         .environment(\.browserOverlayPageReporter, reporters.overlayPage)
