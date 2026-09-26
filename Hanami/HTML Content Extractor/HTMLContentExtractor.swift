@@ -147,7 +147,7 @@ public nonisolated final class HTMLContentExtractor {
                                                       baseURL: baseURL,
                                                       excludeTitle: excludeTitle)
             let nonAdParagraphs = rawParagraphs.filter { !isAdvertisementText($0) }
-            let paragraphs = removeTrailingFeedCTAParagraphs(nonAdParagraphs)
+            let paragraphs = removeLinkDenseTail(removeTrailingFeedCTAParagraphs(nonAdParagraphs))
             let result = paragraphs.joined(separator: "\n\n")
             var cleaned = normalizeExtractedText(result)
             cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
