@@ -12,6 +12,7 @@ struct BrowserTabSwitcher: View {
         TabSwitcher(
             store: store,
             strings: .browser,
+            placeholderIcon: .asset("SakuraIcon"),
             rebuildingPath: { [feedManager] token, path in
                 token.append(to: &path, in: feedManager)
             },
@@ -23,7 +24,6 @@ struct BrowserTabSwitcher: View {
                     showsSubtitle: false
                 )
             },
-            cardPlaceholder: { standIn },
             bottomLeadingItem: { profileButton }
         )
         .sheet(isPresented: $isShowingProfile) {
@@ -39,17 +39,6 @@ struct BrowserTabSwitcher: View {
             Image(systemName: "person.crop.circle")
         }
         .accessibilityLabel(String(localized: "Tabs.Profile"))
-    }
-
-    /// The app's own mark, for a tab that has not been left yet, so has no
-    /// snapshot.
-    private var standIn: some View {
-        Image("SakuraIcon")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 56)
-            .foregroundStyle(.tertiary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
