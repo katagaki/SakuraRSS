@@ -6,7 +6,6 @@ import SwiftUI
 /// untagged report from a background page would take the bar over.
 enum BrowserPageSlotReport {
     case markAllRead(BrowserMarkAllReadAction?)
-    case article(BrowserArticleActions?)
     case bookmarks(BrowserBookmarksActions?)
     case following(BrowserFollowingActions?)
     case startPage(BrowserStartPageActions?)

@@ -15,6 +15,8 @@ struct BrowserBottomBar: View {
     /// The tab this bar belongs to. The bar reads its own tab's state, not
     /// the selection's, so switching tabs leaves the other tabs' bars alone.
     let tabID: UUID
+    /// What the visible page declared for the bar.
+    let items: TabBottomBarItems
 
     var body: some View {
         CompatibleGlassEffectContainer(spacing: TabBottomBarMetrics.itemSpacing) {
@@ -25,6 +27,7 @@ struct BrowserBottomBar: View {
                     slots: slots,
                     tabID: tabID,
                     favourites: favourites,
+                    items: items,
                     onOpenOmnibox: { openOmnibox?() }
                 )
                 .compatibleGlassEffect(in: .capsule, interactive: true)
@@ -88,10 +91,10 @@ struct BrowserBottomBar: View {
 
 extension View {
     @ViewBuilder
-    func browserBottomBar(for tabID: UUID, isEnabled: Bool) -> some View {
+    func browserBottomBar(for tabID: UUID, in store: BrowserTabStore, isEnabled: Bool) -> some View {
         if isEnabled {
-            tabBottomBar {
-                BrowserBottomBar(tabID: tabID)
+            tabBottomBar(for: tabID, in: store) { items in
+                BrowserBottomBar(tabID: tabID, items: items)
             }
         } else {
             self

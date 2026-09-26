@@ -8,7 +8,6 @@ import SwiftUI
 @Observable
 final class BrowserPageSlots {
 
-    private(set) var articleActions: [UUID: BrowserPageSlot<BrowserArticleActions>] = [:]
     private(set) var bookmarksActions: [UUID: BrowserPageSlot<BrowserBookmarksActions>] = [:]
     private(set) var followingActions: [UUID: BrowserPageSlot<BrowserFollowingActions>] = [:]
     private(set) var startPageActions: [UUID: BrowserPageSlot<BrowserStartPageActions>] = [:]
@@ -20,8 +19,6 @@ final class BrowserPageSlots {
         switch report {
         case .markAllRead(let action):
             BrowserPageSlot.fill(&markAllReadActions[tabID], with: action, from: token)
-        case .article(let actions):
-            BrowserPageSlot.fill(&articleActions[tabID], with: actions, from: token)
         case .bookmarks(let actions):
             BrowserPageSlot.fill(&bookmarksActions[tabID], with: actions, from: token)
         case .following(let actions):
@@ -40,7 +37,6 @@ final class BrowserPageSlots {
             markAllReadActions[tabID] = nil
             displayStyleOptions[tabID] = nil
             pageProgress[tabID] = nil
-            articleActions[tabID] = nil
             bookmarksActions[tabID] = nil
             followingActions[tabID] = nil
             startPageActions[tabID] = nil

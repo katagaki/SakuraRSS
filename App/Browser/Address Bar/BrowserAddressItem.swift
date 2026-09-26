@@ -11,6 +11,8 @@ struct BrowserAddressItem: View {
     let slots: BrowserPageSlots
     let tabID: UUID
     let favourites: BrowserFavourites
+    /// What the visible page declared with `tabOmniboxAccessory`.
+    let items: TabBottomBarItems
     let onOpenOmnibox: () -> Void
     @State private var isConfirmingMarkAllRead = false
 
@@ -23,10 +25,6 @@ struct BrowserAddressItem: View {
 
     private var markAllRead: BrowserMarkAllReadAction? {
         slots.markAllReadActions[tabID]?.value(forPageAt: pageToken)
-    }
-
-    private var articleActions: BrowserArticleActions? {
-        slots.articleActions[tabID]?.value(forPageAt: pageToken)
     }
 
     private var bookmarksActions: BrowserBookmarksActions? {
@@ -48,8 +46,8 @@ struct BrowserAddressItem: View {
     /// What the trailing slot holds. Animating on the actions themselves would
     /// restart the fade every time a page republishes an unchanged menu.
     private var trailingSlot: BrowserAddressTrailingSlot {
-        if articleActions != nil {
-            .article
+        if items.hasOmniboxAccessory {
+            .accessory
         } else if bookmarksActions != nil {
             .bookmarks
         } else if followingActions != nil {
@@ -82,8 +80,8 @@ struct BrowserAddressItem: View {
             }
             .buttonStyle(.plain)
 
-            if let articleActions {
-                articleMenu(articleActions)
+            if items.hasOmniboxAccessory {
+                items.omniboxAccessory
                     .transition(.opacity)
             } else if let bookmarksActions {
                 BrowserBookmarksMenu(actions: bookmarksActions)
@@ -114,58 +112,6 @@ struct BrowserAddressItem: View {
             BrowserAddressProgressBackground(progress: slots.displayedProgress(for: tabID, in: store))
         }
         .animation(.smooth, value: slots.displayedProgress(for: tabID, in: store) == nil)
-    }
-
-    /// The article viewer's trailing actions, in the slot mark as read uses
-    /// on a list. A page is one or the other, never both.
-    private func articleMenu(_ actions: BrowserArticleActions) -> some View {
-        Menu {
-            if let toggleBookmark = actions.toggleBookmark {
-                Button(action: toggleBookmark) {
-                    Label(
-                        String(localized: actions.isBookmarked
-                               ? "Article.RemoveBookmark" : "Article.Bookmark",
-                               table: "Articles"),
-                        systemImage: actions.isBookmarked ? "bookmark.fill" : "bookmark"
-                    )
-                }
-            }
-
-            if actions.translate != nil || actions.summarize != nil {
-                Divider()
-                if let translate = actions.translate {
-                    menuButton(translate)
-                }
-                if let summarize = actions.summarize {
-                    menuButton(summarize)
-                }
-            }
-
-            if let openInApp = actions.openInApp {
-                Divider()
-                menuButton(openInApp)
-            }
-
-            if let shareURL = actions.shareURL {
-                Divider()
-                ShareLink(item: shareURL) {
-                    Label(String(localized: "Article.Share", table: "Articles"),
-                          systemImage: "square.and.arrow.up")
-                }
-            }
-        } label: {
-            Image(systemName: "ellipsis")
-                .font(.system(size: 17))
-                .padding(.vertical, 8)
-                .contentShape(.rect)
-        }
-    }
-
-    private func menuButton(_ action: BrowserArticleActions.LabelledAction) -> some View {
-        Button(action: action.perform) {
-            Label(action.title, systemImage: action.systemImage)
-        }
-        .disabled(!action.isEnabled)
     }
 
     private func markAllReadButton(_ action: BrowserMarkAllReadAction) -> some View {

@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import FoundationModels
 import Hanami
@@ -48,7 +49,6 @@ struct ArticleDetailView: View {
     @State var showingSummary = false
     @State var isBookmarked = false
     @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
-    @Environment(\.browserArticleActionsReporter) var browserArticleActionsReporter
     @Environment(\.browserPageProgressReporter) var browserPageProgressReporter
     @State var summarizationError: String?
     @State var showYouTubeSafari = false
@@ -176,24 +176,12 @@ struct ArticleDetailView: View {
         .sakuraBackground()
         .navigationTitle(displayTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            reportBrowserArticleActions()
-            reportBrowserProgress()
-        }
-        .onChange(of: isBookmarked) { reportBrowserArticleActions() }
-        .onChange(of: showingTranslation) { reportBrowserArticleActions() }
-        .onChange(of: showingSummary) { reportBrowserArticleActions() }
-        .onChange(of: isTranslating) {
-            reportBrowserArticleActions()
-            reportBrowserProgress()
-        }
-        .onChange(of: isSummarizing) {
-            reportBrowserArticleActions()
-            reportBrowserProgress()
-        }
-        .onChange(of: isExtracting) {
-            reportBrowserArticleActions()
-            reportBrowserProgress()
+        .onAppear { reportBrowserProgress() }
+        .onChange(of: isTranslating) { reportBrowserProgress() }
+        .onChange(of: isSummarizing) { reportBrowserProgress() }
+        .onChange(of: isExtracting) { reportBrowserProgress() }
+        .tabOmniboxAccessory(isEnabled: showsBrowserArticleMenu) {
+            browserArticleMenu
         }
         .toolbar {
             articleToolbar
