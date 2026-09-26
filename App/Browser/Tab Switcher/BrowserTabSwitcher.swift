@@ -24,7 +24,7 @@ struct BrowserTabSwitcher: View {
                     showsSubtitle: false
                 )
             },
-            bottomLeadingItem: { profileButton }
+            topTrailingItem: { profileButton }
         )
         .sheet(isPresented: $isShowingProfile) {
             ProfileView(titleDisplayMode: .inline)
