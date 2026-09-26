@@ -47,20 +47,38 @@ public nonisolated extension HTMLContentExtractor {
         scope: NoiseScope = .global
     ) {
         do {
+            let totalParagraphCharacters = paragraphCharacterCount(in: element)
             let allElements = try element.select("div, section, aside, ul, ol")
-            for element in allElements {
-                let className = (try? element.attr("class"))?.lowercased() ?? ""
-                let idName = (try? element.attr("id"))?.lowercased() ?? ""
+            for candidate in allElements {
+                let className = (try? candidate.attr("class"))?.lowercased() ?? ""
+                let idName = (try? candidate.attr("id"))?.lowercased() ?? ""
                 let combined = className + " " + idName
                 for pattern in noiseClassPatterns where combined.contains(pattern) {
                     if scope == .local && unsafeInsideArticle.contains(pattern) {
                         continue
                     }
-                    try element.remove()
+                    if holdsMostParagraphText(candidate, of: totalParagraphCharacters) {
+                        break
+                    }
+                    try candidate.remove()
                     break
                 }
             }
         } catch {
+        }
+    }
+
+    /// Layout wrappers can carry noise-like class names (Future plc's main
+    /// column is `widget-area`), so never strip the bulk of the prose.
+    private static func holdsMostParagraphText(_ element: Element, of total: Int) -> Bool {
+        guard total >= 500 else { return false }
+        return paragraphCharacterCount(in: element) * 2 > total
+    }
+
+    private static func paragraphCharacterCount(in element: Element) -> Int {
+        let paragraphs = (try? element.select("p").array()) ?? []
+        return paragraphs.reduce(0) { total, paragraph in
+            total + ((try? paragraph.text().count) ?? 0)
         }
     }
 
