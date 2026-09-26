@@ -51,10 +51,10 @@ public nonisolated extension HTMLContentExtractor {
             let totalParagraphCharacters = paragraphCharacterCount(in: element)
             let allElements = try element.select("div, section, aside, ul, ol")
             for candidate in allElements {
-                let className = (try? candidate.attr("class"))?.lowercased() ?? ""
-                let idName = (try? candidate.attr("id"))?.lowercased() ?? ""
-                let combined = className + " " + idName
-                for pattern in noiseClassPatterns where combined.contains(pattern) {
+                let names = normalizedClassNames(of: candidate)
+                for pattern in noiseClassPatterns where names.contains(where: {
+                    classNameContainsNoisePattern($0, pattern: pattern)
+                }) {
                     if scope == .local && unsafeInsideArticle.contains(pattern) {
                         continue
                     }
@@ -80,6 +80,43 @@ public nonisolated extension HTMLContentExtractor {
                 try? timeElement.remove()
             }
         }
+    }
+
+    private static let noisePatternSuffixes = ["", "s", "es", "ed", "ing", "ation", "ations"]
+
+    /// Class and id names lowercased, with camelCase and underscores turned into hyphens.
+    private static func normalizedClassNames(of element: Element) -> [String] {
+        let rawNames = ((try? element.attr("class")) ?? "") + " " + ((try? element.attr("id")) ?? "")
+        return rawNames.split(whereSeparator: \.isWhitespace).map { rawName in
+            var normalized = ""
+            var previous: Character?
+            for character in rawName {
+                if character.isUppercase, let previous, previous.isLowercase {
+                    normalized.append("-")
+                }
+                normalized.append(character == "_" ? "-" : character)
+                previous = character
+            }
+            return normalized.lowercased()
+        }
+    }
+
+    /// Matches whole hyphen-separated segments so "comment" hits `comments-area`
+    /// but not `commentary`, and "related" doesn't hit `unrelated`.
+    private static func classNameContainsNoisePattern(_ name: String, pattern: String) -> Bool {
+        let normalizedPattern = pattern.replacingOccurrences(of: "_", with: "-")
+        var searchStart = name.startIndex
+        while let range = name.range(of: normalizedPattern, range: searchStart..<name.endIndex) {
+            let startsSegment = range.lowerBound == name.startIndex
+                || name[name.index(before: range.lowerBound)] == "-"
+            let segmentEnd = name[range.upperBound...].firstIndex(of: "-") ?? name.endIndex
+            let suffix = String(name[range.upperBound..<segmentEnd])
+            if startsSegment && noisePatternSuffixes.contains(suffix) {
+                return true
+            }
+            searchStart = name.index(after: range.lowerBound)
+        }
+        return false
     }
 
     /// Layout wrappers can carry noise-like class names (Future plc's main
