@@ -224,7 +224,7 @@ public nonisolated final class HTMLContentExtractor {
             guard let html = HTMLDataDecoder.decode(data, response: response) else {
                 return ExtractionResult()
             }
-            if BotChallengeDetector.looksLikeChallenge(html) {
+            if BotChallengeDetector.looksLikeChallenge(html, response: response) {
                 if let webText = await WebViewExtractor.extractText(
                     from: url, excludeTitle: excludeTitle
                 ) {

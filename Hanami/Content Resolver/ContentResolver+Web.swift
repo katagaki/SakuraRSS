@@ -53,7 +53,9 @@ public extension ContentResolver {
     private func initialExtractionResult(
         rawHTML: String?, url: URL, response: URLResponse?
     ) async -> ExtractionResult {
-        let isChallenge = rawHTML.map(BotChallengeDetector.looksLikeChallenge) ?? false
+        let isChallenge = rawHTML.map {
+            BotChallengeDetector.looksLikeChallenge($0, response: response)
+        } ?? false
         if isChallenge {
             let webText = await extractViaWebView(from: url, excludeTitle: article.title)
             return ExtractionResult(text: webText)
