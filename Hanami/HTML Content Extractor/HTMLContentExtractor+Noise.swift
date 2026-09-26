@@ -29,6 +29,7 @@ public nonisolated extension HTMLContentExtractor {
             }
         }
 
+        removeStandaloneTimeElements(from: element)
         removeNoiseByClassPatterns(from: element, scope: scope)
         removeAdvertisementTextBlocks(from: element)
         // Aggressive list/section sweeps only run on the full document to
@@ -65,6 +66,19 @@ public nonisolated extension HTMLContentExtractor {
                 }
             }
         } catch {
+        }
+    }
+
+    /// Datelines leak into the body as orphan lines; dates inside sentences are prose.
+    private static func removeStandaloneTimeElements(from element: Element) {
+        let timeElements = (try? element.select("time").array()) ?? []
+        for timeElement in timeElements {
+            guard let parent = timeElement.parent() else { continue }
+            let timeText = ((try? timeElement.text()) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let parentText = ((try? parent.text()) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if timeText == parentText {
+                try? timeElement.remove()
+            }
         }
     }
 

@@ -249,8 +249,7 @@
       "selectors": [
         "[data-testid=article-badge-and-breadcrumb]",
         "[data-testid=truncation-inner]",
-        ".dp_VC speakable-headline",
-        "time"
+        ".dp_VC speakable-headline"
       ]
     },
     {
