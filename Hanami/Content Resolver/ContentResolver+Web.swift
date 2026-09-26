@@ -27,7 +27,8 @@ public extension ContentResolver {
             await tryAMPExtraction(into: &extraction, rawHTML: rawHTML, url: url)
         }
 
-        if HTMLContentExtractor.isWeakExtraction(extraction.text) && jsRendered && !extraction.paywalled {
+        if HTMLContentExtractor.isWeakExtraction(extraction.text) && jsRendered
+            && !extraction.paywalled && !result.challenged {
             let webText = await extractViaWebView(from: url, excludeTitle: article.title)
             if let webText, !webText.isEmpty,
                !HTMLContentExtractor.isWeakExtraction(webText) || extraction.text == nil {

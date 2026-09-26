@@ -27,7 +27,11 @@ public extension ContentResolver {
     }
 
     func extractViaWebView(from url: URL, excludeTitle: String?) async -> String? {
-        await WebViewExtractor.extractText(from: url, excludeTitle: excludeTitle)
+        let extraction = await WebViewExtractor.extract(from: url, excludeTitle: excludeTitle)
+        if extraction.challenged {
+            result.challenged = true
+        }
+        return extraction.text
     }
 
     /// Merges newly-extracted metadata into `result.metadata`, only filling
