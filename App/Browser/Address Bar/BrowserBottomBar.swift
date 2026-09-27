@@ -10,7 +10,6 @@ struct BrowserBottomBar: View {
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserPageSlots.self) private var slots
     @Environment(BrowserFavourites.self) private var favourites
-    @Environment(BrowserOmniboxModel.self) private var omnibox
     @Environment(\.browserOmniboxAction) private var openOmnibox
     /// The tab this bar belongs to. The bar reads its own tab's state, not
     /// the selection's, so switching tabs leaves the other tabs' bars alone.
@@ -39,9 +38,7 @@ struct BrowserBottomBar: View {
         .imageScale(.large)
         // Hidden rather than removed while the omnibox edits in its place:
         // removing it would take its inset away and shift every page under it.
-        .opacity(omnibox.isActive ? 0 : 1)
-        .allowsHitTesting(!omnibox.isActive)
-        .accessibilityHidden(omnibox.isActive)
+        .modifier(BrowserHiddenWhileEditing())
     }
 
     /// With no top bar, Back lives here. It stays put at a tab's root,

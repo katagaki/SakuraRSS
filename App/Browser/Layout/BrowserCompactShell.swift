@@ -8,11 +8,9 @@ struct BrowserCompactShell: View {
 
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
-    @Environment(BrowserOmniboxModel.self) private var omnibox
 
     var body: some View {
-        let isEditing = omnibox.isActive
-        return TabZoomContainer(store: store, cardCornerRadius: TabSwitcherCardMetrics.cornerRadius) {
+        TabZoomContainer(store: store, cardCornerRadius: TabSwitcherCardMetrics.cornerRadius) {
             BrowserTabSwitcher()
                 .environment(store)
                 .environment(favourites)
@@ -27,10 +25,7 @@ struct BrowserCompactShell: View {
         // override, or with the keyboard down the editing bar rests against
         // the screen's edge instead of above the home indicator.
         .overlay {
-            if isEditing, !store.isShowingTabSwitcher {
-                BrowserOmniboxView()
-                    .transition(.opacity)
-            }
+            BrowserOmniboxOverlay()
         }
     }
 
