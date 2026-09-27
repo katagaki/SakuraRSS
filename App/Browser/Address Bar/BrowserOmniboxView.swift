@@ -102,20 +102,21 @@ struct BrowserOmniboxView: View {
     }
 
     private var suggestionList: some View {
+        let suggestions = suggestions
         // Hugs its content when it is short, scrolls once it is not. A plain
         // ScrollView always claims its full height, which left a dead gap
         // between the last suggestion and the field.
-        ViewThatFits(in: .vertical) {
-            suggestionRows
+        return ViewThatFits(in: .vertical) {
+            suggestionRows(suggestions)
             ScrollView {
-                suggestionRows
+                suggestionRows(suggestions)
             }
             .compatibleInteractiveKeyboardDismissal()
             .defaultScrollAnchor(.bottom)
         }
     }
 
-    private var suggestionRows: some View {
+    private func suggestionRows(_ suggestions: [BrowserSuggestion]) -> some View {
         LazyVStack(alignment: .leading, spacing: 0) {
             ForEach(BrowserSuggestion.Section.allCases, id: \.rawValue) { section in
                 let sectionSuggestions = suggestions.filter { $0.section == section }
