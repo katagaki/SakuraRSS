@@ -9,16 +9,18 @@ extension Notification.Name {
 extension YouTubePlayerView {
 
     func togglePlayPause() {
-        log("YT Native", "togglePlayPause tapped, webView=\(webView != nil)")
+        let shouldPause = isPlaying
+        log("YT Native", "togglePlayPause tapped, action=\(shouldPause ? "pause" : "play") webView=\(webView != nil)")
         let script = """
         var video = document.querySelectorAll('video')[0];
         if (!video) { return null; }
-        if (video.paused) {
+        if (!\(shouldPause)) {
             if (window.__yt) {
                 window.__yt.autoplayBlocked = false;
                 window.__yt.userPaused = false;
                 window.__yt.exitedPiPRecently = false;
             }
+            if (!video.paused) return true;
             var player = document.getElementById('movie_player');
             if (player && typeof player.playVideo === 'function') {
                 player.playVideo();
