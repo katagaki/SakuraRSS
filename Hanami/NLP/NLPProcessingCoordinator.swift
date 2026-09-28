@@ -81,7 +81,7 @@ public enum NLPProcessingCoordinator {
 
     /// Processes the given article IDs inline as part of a per-feed refresh pipeline.
     /// Skipped when content insights are disabled or in Low Power Mode.
-    public nonisolated static func processArticles(ids: [Int64]) async {
+    @concurrent public nonisolated static func processArticles(ids: [Int64]) async {
         guard !ids.isEmpty else { return }
         let defaults = UserDefaults.standard
         guard defaults.bool(forKey: "Intelligence.ContentInsights.Enabled") else { return }

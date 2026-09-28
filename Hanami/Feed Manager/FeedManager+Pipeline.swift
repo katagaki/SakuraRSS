@@ -2,7 +2,7 @@ import Foundation
 
 public extension FeedManager {
 
-    nonisolated static func runStandardFeedPipeline(
+    @concurrent nonisolated static func runStandardFeedPipeline(
         feed: Feed,
         database: DatabaseManager,
         options: StandardFeedPipelineOptions
@@ -224,7 +224,7 @@ public extension FeedManager {
         return predicates.first(where: { $0.predicate(feed) })?.label
     }
 
-    nonisolated static func runPostInsertPipeline(
+    @concurrent nonisolated static func runPostInsertPipeline(
         insertedIDs: [Int64],
         feedTitle: String,
         skipImagePreload: Bool,
