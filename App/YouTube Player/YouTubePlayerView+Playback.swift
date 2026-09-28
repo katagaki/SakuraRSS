@@ -28,7 +28,16 @@ extension YouTubePlayerView {
             try { await video.play(); } catch (error) { return false; }
             return !video.paused;
         }
-        if (window.__yt) { window.__yt.userPaused = true; }
+        if (window.__yt) {
+            window.__yt.userPaused = true;
+        }
+        var player = document.getElementById('movie_player');
+        if (player && typeof player.pauseVideo === 'function') {
+            if (window.__yt) window.__yt.logState('native toggle pauseVideo()', video);
+            try { player.pauseVideo(); } catch (error) {
+                if (window.__yt) window.__yt.logState('native pauseVideo() failed', video);
+            }
+        }
         video.pause();
         return !video.paused;
         """
@@ -57,6 +66,10 @@ extension YouTubePlayerView {
             var video = document.querySelector('video');
             if (video && !video.paused) {
                 if (window.__yt) { window.__yt.userPaused = true; }
+                var player = document.getElementById('movie_player');
+                if (player && typeof player.pauseVideo === 'function') {
+                    try { player.pauseVideo(); } catch (error) {}
+                }
                 video.pause();
             }
         })();
