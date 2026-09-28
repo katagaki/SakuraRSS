@@ -235,9 +235,9 @@ extension YouTubePlayerScripts {
                     window.__yt.logState('PiP skip recovered pause', video);
                     return;
                 }
-                if (!window.__yt.userPaused && video.__ytPagePaused
+                if (!window.__yt.userPaused
                     && Date.now() < window.__yt.pipResumeDeadline) {
-                    window.__yt.logState('PiP skip page pause in retry window', video);
+                    window.__yt.logState('PiP skip pause in retry window', video);
                     return;
                 }
                 var player = document.getElementById('movie_player');

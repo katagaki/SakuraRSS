@@ -55,6 +55,25 @@ extension YouTubePlayerScripts {
                 var video = document.querySelector('video');
                 window.__yt.logState('mediaSession ' + action + ' received', video);
                 if (action === 'pause') {
+                    if (video && window.__yt.isInPiP()
+                        && !window.__yt.userPaused
+                        && Date.now() < window.__yt.pipResumeDeadline) {
+                        window.__yt.pipResumeDeadline = Date.now() + 2000;
+                        window.__yt.logState('mediaSession recover PiP resume pause', video);
+                        var player = document.getElementById('movie_player');
+                        if (player && typeof player.playVideo === 'function') {
+                            try { player.playVideo(); } catch (e) {
+                                window.__yt.logState('mediaSession PiP playVideo() failed', video);
+                            }
+                        }
+                        var recovery = window.__yt.resumeVideo(video);
+                        if (recovery && typeof recovery.catch === 'function') {
+                            recovery.catch(function() {
+                                window.__yt.logState('mediaSession PiP play() rejected', video);
+                            });
+                        }
+                        return;
+                    }
                     window.__yt.userPaused = true;
                 } else {
                     if (window.__yt.userPaused && window.__yt.isInPiP()) {

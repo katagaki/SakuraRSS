@@ -343,10 +343,10 @@ nonisolated enum YouTubePlayerScripts {
             window.__yt.addListener(video, 'pause', function() {
                 window.__yt.logState('guard video pause event', video);
                 if (video.webkitPresentationMode === 'picture-in-picture') {
-                    if (!window.__yt.userPaused && video.__ytPagePaused
+                    if (!window.__yt.userPaused
                         && Date.now() < window.__yt.pipResumeDeadline) {
                         video.__ytRecoveringPiPPause = true;
-                        window.__yt.logState('guard recover PiP page pause', video);
+                        window.__yt.logState('guard recover PiP resume pause', video);
                         resume(video, true);
                         return;
                     }
