@@ -74,11 +74,12 @@ public nonisolated enum HTMLMetadataImage {
 
     public static func extractImageURL(from html: String, baseURL: URL?) -> String? {
         // Restrict scanning to <head> to avoid picking up inline article images.
+        // NSString's case-insensitive search is far cheaper than String's on large pages.
         let headSlice: String = {
-            if let range = html.range(of: "</head>", options: .caseInsensitive) {
-                return String(html[..<range.lowerBound])
-            }
-            return html
+            let nsHTML = html as NSString
+            let range = nsHTML.range(of: "</head>", options: .caseInsensitive)
+            guard range.location != NSNotFound else { return html }
+            return nsHTML.substring(to: range.location)
         }()
 
         let metaNamePatterns = [
