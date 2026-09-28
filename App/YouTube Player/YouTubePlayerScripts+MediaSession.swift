@@ -52,20 +52,28 @@ extension YouTubePlayerScripts {
 
         function wrapper(action) {
             return function(details) {
-                var video = document.querySelector('video');
+                var pipVideo = window.__yt.getPiPVideo();
+                var video = pipVideo || document.querySelector('video');
                 window.__yt.logState('mediaSession ' + action + ' received', video);
                 if (action === 'pause') {
-                    if (video && window.__yt.isInPiP()
+                    if (pipVideo
                         && !window.__yt.userPaused
                         && Date.now() < window.__yt.pipResumeDeadline) {
                         window.__yt.pipResumeDeadline = Date.now() + 2000;
                         window.__yt.logState('mediaSession recover PiP resume pause', video);
                         var player = document.getElementById('movie_player');
                         if (player && typeof player.playVideo === 'function') {
-                            try { player.playVideo(); } catch (e) {
+                            try {
+                                var playerState = typeof player.getPlayerState === 'function'
+                                    ? player.getPlayerState() : -1;
+                                if (playerState !== 1 && playerState !== 3) {
+                                    player.playVideo();
+                                }
+                            } catch (e) {
                                 window.__yt.logState('mediaSession PiP playVideo() failed', video);
                             }
                         }
+                        video.__ytMediaSessionRecoveryAt = Date.now();
                         var recovery = window.__yt.resumeVideo(video);
                         if (recovery && typeof recovery.catch === 'function') {
                             recovery.catch(function() {
@@ -76,7 +84,7 @@ extension YouTubePlayerScripts {
                     }
                     window.__yt.userPaused = true;
                 } else {
-                    if (window.__yt.userPaused && window.__yt.isInPiP()) {
+                    if (window.__yt.userPaused && pipVideo) {
                         window.__yt.pipResumeDeadline = Date.now() + 2000;
                     }
                     window.__yt.userPaused = false;
@@ -90,7 +98,7 @@ extension YouTubePlayerScripts {
                         window.__yt.logState('mediaSession page handler failed', video);
                     }
                 }
-                video = document.querySelector('video');
+                video = window.__yt.getPiPVideo() || document.querySelector('video');
                 if (!video) {
                     window.__yt.logState('mediaSession fallback video missing', null);
                     return;

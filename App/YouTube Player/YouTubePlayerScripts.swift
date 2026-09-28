@@ -72,19 +72,22 @@ nonisolated enum YouTubePlayerScripts {
                 return origVideoPlay.call(video);
             },
             logState: function() {},
-            // True if any video is in PiP. Checks the iOS-specific
-            // `webkitPresentationMode` first since `pictureInPictureElement`
-            // is unreliable in WKWebView's native PiP path.
-            isInPiP: function() {
+            getPiPVideo: function() {
                 var videos = document.querySelectorAll('video');
+                var hasWebKitMode = false;
                 for (var i = 0; i < videos.length; i++) {
+                    hasWebKitMode = hasWebKitMode
+                        || typeof videos[i].webkitPresentationMode === 'string';
                     if (videos[i].webkitPresentationMode === 'picture-in-picture') {
-                        return true;
+                        return videos[i];
                     }
                 }
-                var el = (pipDescriptor && pipDescriptor.get)
+                if (hasWebKitMode) return null;
+                return (pipDescriptor && pipDescriptor.get)
                     ? pipDescriptor.get.call(document) : null;
-                return !!el;
+            },
+            isInPiP: function() {
+                return !!this.getPiPVideo();
             },
             // Native PiP entry, bypassing our prototype overrides. Prefers the
             // W3C API (which routes through AVPictureInPictureController on iOS)
@@ -342,6 +345,10 @@ nonisolated enum YouTubePlayerScripts {
             video.__ytPauseGuardAttached = true;
             window.__yt.addListener(video, 'pause', function() {
                 window.__yt.logState('guard video pause event', video);
+                if (!video.paused) {
+                    window.__yt.logState('guard skip stale pause event', video);
+                    return;
+                }
                 if (video.webkitPresentationMode === 'picture-in-picture') {
                     if (!window.__yt.userPaused
                         && Date.now() < window.__yt.pipResumeDeadline) {

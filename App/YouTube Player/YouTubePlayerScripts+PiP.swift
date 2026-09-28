@@ -197,6 +197,7 @@ extension YouTubePlayerScripts {
                     if (!nowInPiP && !window.__yt.expectingPiPExit) {
                         window.__yt.exitedPiPRecently = true;
                     }
+                    if (!nowInPiP) window.__yt.pipResumeDeadline = 0;
                     window.__yt.expectingPiPExit = false;
                     window.__yt.logState(
                         'PiP presentation mode ' + (nowInPiP ? 'enter' : 'exit'), video
@@ -209,6 +210,12 @@ extension YouTubePlayerScripts {
             window.__yt.addListener(video, 'play', function() {
                 if (video.webkitPresentationMode !== 'picture-in-picture') return;
                 window.__yt.logState('PiP video play event', video);
+                if (!window.__yt.userPaused
+                    && Date.now() - (video.__ytMediaSessionRecoveryAt || 0) < 1000) {
+                    video.__ytMediaSessionRecoveryAt = 0;
+                    window.__yt.logState('PiP skip recovery playVideo()', video);
+                    return;
+                }
                 if (window.__yt.userPaused
                     && Date.now() >= window.__yt.pipResumeDeadline) {
                     window.__yt.pipResumeDeadline = Date.now() + 2000;
@@ -233,6 +240,10 @@ extension YouTubePlayerScripts {
                 if (video.__ytRecoveringPiPPause) {
                     video.__ytRecoveringPiPPause = false;
                     window.__yt.logState('PiP skip recovered pause', video);
+                    return;
+                }
+                if (!video.paused) {
+                    window.__yt.logState('PiP skip stale pause event', video);
                     return;
                 }
                 if (!window.__yt.userPaused

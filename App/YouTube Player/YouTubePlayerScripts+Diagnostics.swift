@@ -17,6 +17,9 @@ extension YouTubePlayerScripts {
                 }
             } catch (error) { playerState = 'error'; }
             var state = window.__yt;
+            var mediaSessionState = 'unavailable';
+            try { mediaSessionState = navigator.mediaSession.playbackState; }
+            catch (error) {}
             var visibility = 'unknown';
             try { visibility = state.realVisibilityState(); } catch (error) {}
             state.log('action#' + (++sequence) + ' ' + action
@@ -24,6 +27,7 @@ extension YouTubePlayerScripts {
                 + ' pagePaused=' + (video ? !!video.__ytPagePaused : 'missing')
                 + ' mode=' + (video ? video.webkitPresentationMode : 'missing')
                 + ' playerState=' + playerState
+                + ' mediaSessionState=' + mediaSessionState
                 + ' userPaused=' + state.userPaused
                 + ' autoplayBlocked=' + state.autoplayBlocked
                 + ' exitedPiP=' + state.exitedPiPRecently
