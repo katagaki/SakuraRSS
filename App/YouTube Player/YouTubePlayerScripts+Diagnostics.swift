@@ -26,6 +26,7 @@ extension YouTubePlayerScripts {
                 + ' videoPaused=' + (video ? video.paused : 'missing')
                 + ' pagePaused=' + (video ? !!video.__ytPagePaused : 'missing')
                 + ' mode=' + (video ? video.webkitPresentationMode : 'missing')
+                + ' nativePiP=' + state.isInPiP()
                 + ' playerState=' + playerState
                 + ' mediaSessionState=' + mediaSessionState
                 + ' userPaused=' + state.userPaused

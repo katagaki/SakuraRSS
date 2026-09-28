@@ -74,15 +74,11 @@ nonisolated enum YouTubePlayerScripts {
             logState: function() {},
             getPiPVideo: function() {
                 var videos = document.querySelectorAll('video');
-                var hasWebKitMode = false;
                 for (var i = 0; i < videos.length; i++) {
-                    hasWebKitMode = hasWebKitMode
-                        || typeof videos[i].webkitPresentationMode === 'string';
                     if (videos[i].webkitPresentationMode === 'picture-in-picture') {
                         return videos[i];
                     }
                 }
-                if (hasWebKitMode) return null;
                 return (pipDescriptor && pipDescriptor.get)
                     ? pipDescriptor.get.call(document) : null;
             },

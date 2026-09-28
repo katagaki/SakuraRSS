@@ -234,7 +234,7 @@ struct YouTubePlayerView: View {
             // Browser tabs have no mini player either, but also hide and
             // evict pages, so the tab store decides when the player is gone.
             guard browserTabID == nil else { return }
-            if !hasMiniPlayerAccessory, !isPiP, imageViewerURL == nil,
+            if scenePhase == .active, !hasMiniPlayerAccessory, !isPiP, imageViewerURL == nil,
                session.holds(article) {
                 pauseForOtherPlayer()
                 session.stop()
