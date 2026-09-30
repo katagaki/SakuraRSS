@@ -27,20 +27,13 @@ extension YouTubePlayerView {
             }
             // The play promise can reject under the autoplay policy, so the
             // resulting state is only known once it settles.
-            try { await video.play(); } catch (error) { return false; }
+            try { await window.__yt.resumeVideo(video); } catch (error) { return false; }
             return !video.paused;
         }
         if (window.__yt) {
             window.__yt.userPaused = true;
         }
-        var player = document.getElementById('movie_player');
-        if (player && typeof player.pauseVideo === 'function') {
-            if (window.__yt) window.__yt.logState('native toggle pauseVideo()', video);
-            try { player.pauseVideo(); } catch (error) {
-                if (window.__yt) window.__yt.logState('native pauseVideo() failed', video);
-            }
-        }
-        video.pause();
+        window.__yt.pauseVideo(video);
         return !video.paused;
         """
         let startingID = playerID
@@ -68,11 +61,7 @@ extension YouTubePlayerView {
             var video = document.querySelector('video');
             if (video && !video.paused) {
                 if (window.__yt) { window.__yt.userPaused = true; }
-                var player = document.getElementById('movie_player');
-                if (player && typeof player.pauseVideo === 'function') {
-                    try { player.pauseVideo(); } catch (error) {}
-                }
-                video.pause();
+                window.__yt.pauseVideo(video);
             }
         })();
         """
@@ -129,11 +118,6 @@ extension YouTubePlayerView {
     }
 
     func togglePiP() {
-        // Goes through `__yt.enterPiP` / `__yt.exitPiP` which call the
-        // *saved-original* PiP methods.
-        // `expectingPiPExit` tells the PiP bridge that this exit is
-        // user-initiated, so it doesn't mistake it for a system teardown
-        // and suppress the pause guard.
         let script = """
         (function() {
             var video = document.querySelector('video');

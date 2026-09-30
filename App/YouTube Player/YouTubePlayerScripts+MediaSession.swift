@@ -5,67 +5,46 @@ extension YouTubePlayerScripts {
     (function() {
         if (!('mediaSession' in navigator)) return;
         var mediaSession = navigator.mediaSession;
-        var origSet = mediaSession.setActionHandler.bind(mediaSession);
-        var pageHandlers = { play: null, pause: null };
+        var originalSet = mediaSession.setActionHandler.bind(mediaSession);
         var pipHandler = null;
         window.__yt.setPiPActionHandler = function(handler) {
             pipHandler = handler;
-            try { origSet('enterpictureinpicture', handler); } catch (error) {}
+            try { originalSet('enterpictureinpicture', handler); } catch (error) {}
         };
-
-        function wrapper(action) {
-            return function(details) {
-                var pipVideo = window.__yt.getPiPVideo();
-                var video = pipVideo || document.querySelector('video');
-                window.__yt.logState('mediaSession ' + action + ' received', video);
-                if (action === 'pause') {
-                    window.__yt.userPaused = true;
-                } else {
+        var handlers = {};
+        ['play', 'pause', 'stop'].forEach(function(action) {
+            handlers[action] = function() {
+                var video = window.__yt.getPlaybackVideo();
+                if (!video) return;
+                window.__yt.logState('native mediaSession ' + action, video);
+                if (action === 'play') {
                     window.__yt.userPaused = false;
                     window.__yt.autoplayBlocked = false;
                     window.__yt.exitedPiPRecently = false;
-                }
-                var handler = pageHandlers[action];
-                if (typeof handler === 'function') {
-                    window.__yt.logState('mediaSession ' + action + ' page handler', video);
-                    try { handler(details); return; } catch (e) {
-                        window.__yt.logState('mediaSession page handler failed', video);
+                    var playback = window.__yt.resumeVideo(video);
+                    if (playback && typeof playback.catch === 'function') {
+                        playback.catch(function() {
+                            window.__yt.logState('mediaSession play rejected', video);
+                        });
                     }
-                }
-                video = window.__yt.getPiPVideo() || document.querySelector('video');
-                if (!video) {
-                    window.__yt.logState('mediaSession fallback video missing', null);
-                    return;
-                }
-                window.__yt.logState('mediaSession ' + action + ' video fallback', video);
-                if (action === 'pause') {
-                    video.pause();
                 } else {
-                    var playback = video.play();
-                    if (playback && typeof playback.catch === 'function') playback.catch(function(){});
+                    window.__yt.userPaused = true;
+                    window.__yt.pauseVideo(video);
                 }
             };
-        }
-
-        function install(action) {
-            try { origSet(action, wrapper(action)); } catch (e) {}
-        }
-
+        });
         mediaSession.setActionHandler = function(action, handler) {
-            if (action === 'play' || action === 'pause') {
-                pageHandlers[action] = handler || null;
-                install(action);
-                return;
+            if (Object.prototype.hasOwnProperty.call(handlers, action)) {
+                return originalSet(action, handlers[action]);
             }
             if (action === 'enterpictureinpicture' && pipHandler) {
-                return origSet(action, pipHandler);
+                return originalSet(action, pipHandler);
             }
-            return origSet(action, handler);
+            return originalSet(action, handler);
         };
-
-        install('play');
-        install('pause');
+        Object.keys(handlers).forEach(function(action) {
+            try { originalSet(action, handlers[action]); } catch (error) {}
+        });
     })();
     """
-
 }

@@ -62,27 +62,53 @@ if (process.argv[2]) {
     console.log('Downloaded iOS configuration bootstrap passed');
 }
 
-class Video extends EventTarget {
-    paused = true;
-    ended = false;
-    webkitPresentationMode = 'inline';
-    play() { this.paused = false; this.dispatchEvent(new Event('play')); return Promise.resolve(); }
-    pause() { this.paused = true; this.dispatchEvent(new Event('pause')); }
-}
-const video = new Video();
-const document = new EventTarget();
-document.visibilityState = 'visible';
-document.querySelectorAll = () => [video];
-document.querySelector = () => video;
-let playerState = 2;
-let playerCalls = 0;
-document.getElementById = () => ({
-    getPlayerState: () => playerState,
-    playVideo() { playerCalls++; playerState = 1; video.play(); },
-    pauseVideo() { playerCalls++; playerState = 2; video.pause(); }
-});
+const mediaEvents = [];
 const handlers = {};
 const interruptions = [];
+const messages = [];
+const observers = [];
+let timerCount = 0;
+class Document extends EventTarget {}
+const document = new Document();
+document.visibilityState = 'visible';
+class MediaElement extends EventTarget {
+    paused = true;
+    ended = false;
+    readyState = 4;
+    play() {
+        if (this.paused) {
+            this.paused = false;
+            mediaEvents.push(() => this.dispatchEvent(new Event('play')));
+        }
+        return Promise.resolve();
+    }
+    pause() {
+        if (!this.paused) {
+            this.paused = true;
+            mediaEvents.push(() => this.dispatchEvent(new Event('pause')));
+        }
+    }
+}
+class Video extends MediaElement {
+    webkitPresentationMode = 'inline';
+    attributes = new Set();
+    hasAttribute(name) { return this.attributes.has(name); }
+    removeAttribute(name) { this.attributes.delete(name); }
+    webkitSetPresentationMode(mode) {
+        this.webkitPresentationMode = mode;
+        this.dispatchEvent(new Event('webkitpresentationmodechanged'));
+    }
+    dispatchEvent(event) {
+        const captured = new Event(event.type);
+        Object.defineProperty(captured, 'target', { value: this });
+        document.dispatchEvent(captured);
+        return super.dispatchEvent(event);
+    }
+}
+const video = new Video();
+const nativePlay = MediaElement.prototype.play;
+const nativePause = MediaElement.prototype.pause;
+const nativePresentation = Video.prototype.webkitSetPresentationMode;
 class MediaSession {
     state = 'none';
     get playbackState() { return this.state; }
@@ -95,88 +121,125 @@ class MediaSession {
     setActionHandler(action, handler) { handlers[action] = handler; }
 }
 const mediaSession = new MediaSession();
-const messages = [];
-let timerCount = 0;
-let observerTarget;
+const player = {
+    state: 2,
+    getPlayerState() { return this.state; },
+    playVideo() { this.state = 1; video.play().catch(() => {}); mediaSession.playbackState = 'playing'; },
+    pauseVideo() { this.state = 2; video.pause(); mediaSession.playbackState = 'paused'; }
+};
+document.querySelectorAll = () => [video];
+document.querySelector = () => video;
+document.getElementById = () => player;
 const playbackContext = vm.createContext({
-    document, HTMLMediaElement: Video, HTMLVideoElement: Video, EventTarget,
+    document, Document, HTMLMediaElement: MediaElement, HTMLVideoElement: Video, EventTarget, DOMException,
     navigator: { mediaSession },
-    MutationObserver: class { observe(target) { observerTarget = target; } },
+    MutationObserver: class { constructor(callback) { this.callback = callback; } observe(target) {
+        observers.push({ target, callback: this.callback });
+    } },
     setTimeout() { timerCount++; },
     webkit: { messageHandlers: { ytPiP: { postMessage(message) { messages.push(message); } } } }
 });
 vm.runInContext('window = globalThis;', playbackContext);
 const originalAdd = EventTarget.prototype.addEventListener;
 vm.runInContext(script('YouTubePlayerScripts.swift', 'mediaIsolationBootstrap'), playbackContext);
-assert.equal(observerTarget, document, 'observer works before documentElement exists');
-assert.equal(EventTarget.prototype.addEventListener, originalAdd);
+vm.runInContext(script('YouTubePlayerScripts+Ownership.swift', 'playbackOwnership'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+MediaSessionState.swift', 'mediaSessionPlaybackStateBridge'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+MediaSession.swift', 'mediaSessionUserActionBridge'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+PiP.swift', 'pipEventBridge'), playbackContext);
-video.webkitPresentationMode = 'picture-in-picture';
-video.dispatchEvent(new Event('webkitpresentationmodechanged'));
-video.dispatchEvent(new Event('enterpictureinpicture'));
-assert.deepEqual(messages, ['enter']);
-video.play();
-assert.equal(playerState, 1);
-video.pause();
-assert.equal(playerState, 2);
-handlers.play({ action: 'play' });
-handlers.pause({ action: 'pause' });
-assert.equal(video.paused, true, 'immediate user pause is never suppressed');
-assert.equal(playbackContext.__yt.userPaused, true);
-assert.equal(playerCalls, 4, 'one player synchronization per transition');
-video.webkitPresentationMode = 'fullscreen';
-video.dispatchEvent(new Event('webkitpresentationmodechanged'));
-video.dispatchEvent(new Event('leavepictureinpicture'));
-assert.deepEqual(messages, ['enter', 'leave']);
-assert.equal(playbackContext.__yt.exitedPiPRecently, true);
-vm.runInContext(script('YouTubePlayerScripts+UserActivity.swift', 'inactivitySuppressor'), playbackContext);
-assert.equal(timerCount, 0, 'initialization and playback transitions do not schedule timers');
-let visibilityEvents = 0;
-document.addEventListener('visibilitychange', () => visibilityEvents++);
+assert.equal(observers[0].target, document, 'discovery works before documentElement exists');
+assert.equal(EventTarget.prototype.addEventListener, originalAdd);
+function flushMediaEvents() {
+    let remainingEvents = 100;
+    while (mediaEvents.length) {
+        assert.ok(remainingEvents-- > 0, 'playback must settle without an event feedback loop');
+        mediaEvents.shift()();
+    }
+}
+let pageCommands = 0;
+for (const action of ['play', 'pause', 'stop']) {
+    mediaSession.setActionHandler(action, () => pageCommands++);
+}
+handlers.play();
+flushMediaEvents();
+assert.equal(video.paused, false);
+assert.equal(mediaSession.playbackState, 'none', 'inline playback also uses native video state');
 document.visibilityState = 'hidden';
 document.dispatchEvent(new Event('visibilitychange'));
-assert.equal(visibilityEvents, 1);
-assert.equal(playbackContext.__yt.realVisibilityState(), 'hidden');
+mediaSession.playbackState = 'playing';
+video.pause();
+flushMediaEvents();
+assert.equal(interruptions.length, 0, 'inline backgrounding cannot activate a competing DOM media session');
+assert.equal(video.paused, false, 'page pause is blocked while backgrounded');
+player.pauseVideo();
+flushMediaEvents();
+assert.equal(video.paused, false);
+assert.equal(player.state, 1, 'blocked page pause must not leave the stream controller paused');
+assert.equal(playbackContext.__yt.userPaused, false, 'blocked page pause must not change user intent');
+handlers.pause();
+flushMediaEvents();
+assert.equal(video.paused, true);
+await assert.rejects(video.play(), { name: 'AbortError' });
+assert.equal(video.paused, true, 'page cannot undo a user pause');
+handlers.play();
+flushMediaEvents();
+assert.equal(video.paused, false, 'system resume bypasses the page play guard');
+handlers.stop();
+flushMediaEvents();
+assert.equal(video.paused, true, 'system stop remains authoritative');
+assert.equal(pageCommands, 0, 'system commands never invoke page-owned callbacks');
+
+nativePresentation.call(video, 'picture-in-picture');
+video.dispatchEvent(new Event('enterpictureinpicture'));
+assert.deepEqual(messages, ['enter']);
+video.webkitSetPresentationMode('inline');
+assert.equal(video.webkitPresentationMode, 'picture-in-picture', 'page cannot close native PiP');
+video.disablePictureInPicture = true;
+assert.equal(video.disablePictureInPicture, false);
+video.attributes.add('disablepictureinpicture');
+observers.find(observer => observer.target === video).callback();
+assert.equal(video.hasAttribute('disablepictureinpicture'), false);
+video.addEventListener('play', () => video.pause());
+for (let attempt = 0; attempt < 3; attempt++) {
+    nativePlay.call(video);
+    flushMediaEvents();
+    assert.equal(video.paused, false, 'native PiP resume survives a counteracting page pause');
+    nativePause.call(video);
+    flushMediaEvents();
+    assert.equal(video.paused, true, 'immediate native PiP pause is respected');
+    assert.equal(playbackContext.__yt.userPaused, true);
+}
+playbackContext.__yt.expectingPiPExit = true;
+playbackContext.__yt.exitPiP(video);
+assert.equal(video.webkitPresentationMode, 'inline', 'app retains original PiP exit API');
+assert.deepEqual(messages, ['enter', 'leave']);
+assert.equal(mediaSession.playbackState, 'none', 'PiP exit does not restore page session ownership');
+playbackContext.__yt.enterPiP(video);
+assert.equal(video.webkitPresentationMode, 'picture-in-picture', 'app retains original PiP entry API');
+
+// A non-player media element and source replacement retain their normal lifecycle.
+const audio = new MediaElement();
+await audio.play();
+audio.pause();
+flushMediaEvents();
+assert.equal(audio.paused, true);
+playbackContext.__yt.userPaused = false;
+video.readyState = 0;
+video.paused = false;
+video.pause();
+flushMediaEvents();
+assert.equal(video.paused, true, 'source replacement pauses are not blocked');
+video.readyState = 4;
+video.ended = true;
+video.paused = false;
+video.pause();
+flushMediaEvents();
+assert.equal(video.paused, true, 'ended media can transition to the next source');
 vm.runInContext(`__yt.setPiPActionHandler(() => 'native');
     navigator.mediaSession.setActionHandler('enterpictureinpicture', () => 'page');`, playbackContext);
 assert.equal(handlers.enterpictureinpicture(), 'native');
-vm.runInContext(`navigator.mediaSession.setActionHandler('pause', () => { window.pauseCalls = 1; });`,
-    playbackContext);
-handlers.pause({ action: 'pause' });
-assert.equal(playbackContext.pauseCalls, 1);
-assert.equal(playbackContext.__yt.userPaused, true);
-// Model WebKit's DOM Media Session interruption callback independently of the PiP video.
-video.webkitPresentationMode = 'picture-in-picture';
-video.dispatchEvent(new Event('webkitpresentationmodechanged'));
-mediaSession.setActionHandler('play', () => {
-    document.getElementById().playVideo();
-    mediaSession.playbackState = 'playing';
-});
-mediaSession.setActionHandler('pause', () => {
-    document.getElementById().pauseVideo();
-    mediaSession.playbackState = 'paused';
-});
-for (let attempt = 0; attempt < 3; attempt++) {
-    handlers.play({ action: 'play' });
-    for (const interrupt of interruptions.splice(0)) interrupt();
-    assert.equal(video.paused, false, 'background PiP resume must not trigger a session interruption pause');
-    assert.equal(mediaSession.playbackState, 'none', 'PiP video owns native playback state');
-    handlers.pause({ action: 'pause' });
-    assert.equal(video.paused, true, 'immediate user pause is respected on every attempt');
-}
-video.webkitPresentationMode = 'inline';
-video.dispatchEvent(new Event('webkitpresentationmodechanged'));
-assert.equal(mediaSession.playbackState, 'paused', 'leaving PiP restores the latest page state');
-document.visibilityState = 'visible';
-handlers.play({ action: 'play' });
-assert.equal(mediaSession.playbackState, 'playing', 'inline playback state remains page-controlled');
-video.webkitPresentationMode = 'picture-in-picture';
-video.dispatchEvent(new Event('webkitpresentationmodechanged'));
-assert.equal(mediaSession.playbackState, 'none', 'PiP entry relinquishes an already-playing session');
-video.webkitPresentationMode = 'inline';
-video.dispatchEvent(new Event('webkitpresentationmodechanged'));
-assert.equal(mediaSession.playbackState, 'playing', 'PiP exit preserves playing intent');
-assert.equal(timerCount, 0, 'resume protection never polls or schedules retries');
-console.log('Policy, PiP, Media Session, lifecycle and idle-timer checks passed');
+assert.equal(timerCount, 0, 'ownership protection never polls or schedules retries');
+let visibilityEvents = 0;
+document.addEventListener('visibilitychange', () => visibilityEvents++);
+document.dispatchEvent(new Event('visibilitychange'));
+assert.equal(visibilityEvents, 1);
+console.log('Policy, inline backgrounding, native controls, PiP ownership and lifecycle checks passed');

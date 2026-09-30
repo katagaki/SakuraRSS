@@ -9,6 +9,9 @@ nonisolated enum YouTubePlayerScripts {
         if (window.__yt) return;
         var originalPlay = HTMLMediaElement.prototype.play;
         var originalPause = HTMLMediaElement.prototype.pause;
+        var originalRequestPiP = HTMLVideoElement.prototype.requestPictureInPicture;
+        var originalExitPiP = Document.prototype.exitPictureInPicture;
+        var originalPresentationMode = HTMLVideoElement.prototype.webkitSetPresentationMode;
         window.__yt = {
             autoplayBlocked: false,
             userPaused: false,
@@ -30,22 +33,26 @@ nonisolated enum YouTubePlayerScripts {
                         || document.pictureInPictureElement === video;
                 }) || null;
             },
+            getPlaybackVideo: function() {
+                return this.getPiPVideo() || document.querySelector('#movie_player video')
+                    || document.querySelector('video');
+            },
             isInPiP: function() { return !!this.getPiPVideo(); },
             enterPiP: function(video) {
                 if (!video) return;
                 this.logState('native enterPiP()', video);
-                if (typeof video.webkitSetPresentationMode === 'function') {
-                    video.webkitSetPresentationMode('picture-in-picture');
-                } else if (video.requestPictureInPicture) {
-                    video.requestPictureInPicture().catch(function() {});
+                if (originalPresentationMode) {
+                    originalPresentationMode.call(video, 'picture-in-picture');
+                } else if (originalRequestPiP) {
+                    originalRequestPiP.call(video).catch(function() {});
                 }
             },
             exitPiP: function(video) {
                 this.logState('native exitPiP()', video);
-                if (video && typeof video.webkitSetPresentationMode === 'function') {
-                    video.webkitSetPresentationMode('inline');
-                } else if (document.pictureInPictureElement && document.exitPictureInPicture) {
-                    document.exitPictureInPicture().catch(function() {});
+                if (video && originalPresentationMode) {
+                    originalPresentationMode.call(video, 'inline');
+                } else if (document.pictureInPictureElement && originalExitPiP) {
+                    originalExitPiP.call(document).catch(function() {});
                 }
             },
             log: function(message) {

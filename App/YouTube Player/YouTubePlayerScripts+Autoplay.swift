@@ -53,9 +53,9 @@ extension YouTubePlayerScripts {
                     var now = Date.now();
                     if (now - (video.__ytLastPlayCycle || 0) < 1000) return;
                     video.__ytLastPlayCycle = now;
-                    video.pause();
+                    window.__yt.pauseVideo(video);
                 }
-                var playPromise = video.play();
+                var playPromise = window.__yt.resumeVideo(video);
                 if (playPromise && typeof playPromise.catch === 'function') {
                     playPromise.catch(function(){});
                 }
@@ -110,8 +110,8 @@ extension YouTubePlayerScripts {
             : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
         if (!video.paused && !mediaMissing) return 'done';
         window.__yt.exitedPiPRecently = false;
-        if (!video.paused) { video.pause(); }
-        var playPromise = video.play();
+        if (!video.paused) { window.__yt.pauseVideo(video); }
+        var playPromise = window.__yt.resumeVideo(video);
         if (playPromise && typeof playPromise.catch === 'function') {
             playPromise.catch(function(){});
         }

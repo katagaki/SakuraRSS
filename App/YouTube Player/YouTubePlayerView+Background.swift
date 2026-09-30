@@ -59,11 +59,6 @@ extension YouTubePlayerView {
         }
     }
 
-    /// Safety net for the rare case the audio session lost the route while we
-    /// were backgrounded. With detection isolation in place YouTube no longer
-    /// pauses on visibility changes, so this is normally a no-op. Bails when
-    /// the user explicitly paused (e.g. via the Lock Screen Now Playing
-    /// control) so returning to the app doesn't override their intent.
     func resumePlaybackIfNeeded() {
         let script = """
         (function() {

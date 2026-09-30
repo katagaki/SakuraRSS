@@ -170,7 +170,6 @@ extension YouTubePlayerScripts {
             video.__ytPiPAttached = true;
             var wasInPiP = false;
             function update() {
-                if (window.__yt.updatePiPMediaSessionState) window.__yt.updatePiPMediaSessionState();
                 var inPiP = window.__yt.getPiPVideo() === video;
                 if (inPiP === wasInPiP) return;
                 wasInPiP = inPiP;
@@ -187,23 +186,6 @@ extension YouTubePlayerScripts {
             ['enterpictureinpicture', 'leavepictureinpicture',
                 'webkitpresentationmodechanged'].forEach(function(type) {
                 video.addEventListener(type, update);
-            });
-            ['play', 'pause'].forEach(function(type) {
-                video.addEventListener(type, function() {
-                    if (window.__yt.getPiPVideo() !== video || video.ended) return;
-                    if ((type === 'pause') !== video.paused) return;
-                    var paused = video.paused;
-                    window.__yt.userPaused = paused;
-                    if (!paused) {
-                        window.__yt.autoplayBlocked = false;
-                        window.__yt.exitedPiPRecently = false;
-                    }
-                    var player = document.getElementById('movie_player');
-                    if (!player || typeof player.getPlayerState !== 'function') return;
-                    var state = player.getPlayerState();
-                    if (paused && state !== 2) player.pauseVideo();
-                    if (!paused && state !== 1 && state !== 3) player.playVideo();
-                });
             });
             update();
         }

@@ -116,12 +116,12 @@ final class YouTubePlayerSession {
             // A play() the page never observed leaves the element
             // un-paused with no media; cycle pause() so the mobile watch
             // page sees a fresh play event and attaches the media.
-            if (!video.paused) { video.pause(); }
-            try { await video.play(); } catch (error) { return false; }
+            if (!video.paused) { window.__yt.pauseVideo(video); }
+            try { await window.__yt.resumeVideo(video); } catch (error) { return false; }
             return !video.paused;
         }
         if (window.__yt) { window.__yt.userPaused = true; }
-        video.pause();
+        window.__yt.pauseVideo(video);
         return !video.paused;
         """
         evaluatePlaybackState(script)
@@ -150,8 +150,8 @@ final class YouTubePlayerSession {
         var mediaMissing = (window.__yt && window.__yt.mediaMissing)
             ? window.__yt.mediaMissing(video)
             : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
-        if (!video.paused && mediaMissing) { video.pause(); }
-        try { await video.play(); } catch (error) { return false; }
+        if (!video.paused && mediaMissing) { window.__yt.pauseVideo(video); }
+        try { await window.__yt.resumeVideo(video); } catch (error) { return false; }
         return !video.paused;
         """
         evaluatePlaybackState(script)
@@ -163,7 +163,7 @@ final class YouTubePlayerSession {
             var video = document.querySelector('video');
             if (!video) { return null; }
             if (window.__yt) { window.__yt.userPaused = true; }
-            video.pause();
+            window.__yt.pauseVideo(video);
             return !video.paused;
         })();
         """
