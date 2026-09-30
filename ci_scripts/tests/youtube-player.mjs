@@ -82,12 +82,25 @@ document.getElementById = () => ({
     pauseVideo() { playerCalls++; playerState = 2; video.pause(); }
 });
 const handlers = {};
+const interruptions = [];
+class MediaSession {
+    state = 'none';
+    get playbackState() { return this.state; }
+    set playbackState(value) {
+        this.state = value;
+        if (value === 'playing' && document.visibilityState === 'hidden') {
+            interruptions.push(() => handlers.pause({ action: 'pause' }));
+        }
+    }
+    setActionHandler(action, handler) { handlers[action] = handler; }
+}
+const mediaSession = new MediaSession();
 const messages = [];
 let timerCount = 0;
 let observerTarget;
 const playbackContext = vm.createContext({
     document, HTMLMediaElement: Video, HTMLVideoElement: Video, EventTarget,
-    navigator: { mediaSession: { setActionHandler(action, handler) { handlers[action] = handler; } } },
+    navigator: { mediaSession },
     MutationObserver: class { observe(target) { observerTarget = target; } },
     setTimeout() { timerCount++; },
     webkit: { messageHandlers: { ytPiP: { postMessage(message) { messages.push(message); } } } }
@@ -97,6 +110,7 @@ const originalAdd = EventTarget.prototype.addEventListener;
 vm.runInContext(script('YouTubePlayerScripts.swift', 'mediaIsolationBootstrap'), playbackContext);
 assert.equal(observerTarget, document, 'observer works before documentElement exists');
 assert.equal(EventTarget.prototype.addEventListener, originalAdd);
+vm.runInContext(script('YouTubePlayerScripts+MediaSessionState.swift', 'mediaSessionPlaybackStateBridge'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+MediaSession.swift', 'mediaSessionUserActionBridge'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+PiP.swift', 'pipEventBridge'), playbackContext);
 video.webkitPresentationMode = 'picture-in-picture';
@@ -133,4 +147,36 @@ vm.runInContext(`navigator.mediaSession.setActionHandler('pause', () => { window
 handlers.pause({ action: 'pause' });
 assert.equal(playbackContext.pauseCalls, 1);
 assert.equal(playbackContext.__yt.userPaused, true);
+// Model WebKit's DOM Media Session interruption callback independently of the PiP video.
+video.webkitPresentationMode = 'picture-in-picture';
+video.dispatchEvent(new Event('webkitpresentationmodechanged'));
+mediaSession.setActionHandler('play', () => {
+    document.getElementById().playVideo();
+    mediaSession.playbackState = 'playing';
+});
+mediaSession.setActionHandler('pause', () => {
+    document.getElementById().pauseVideo();
+    mediaSession.playbackState = 'paused';
+});
+for (let attempt = 0; attempt < 3; attempt++) {
+    handlers.play({ action: 'play' });
+    for (const interrupt of interruptions.splice(0)) interrupt();
+    assert.equal(video.paused, false, 'background PiP resume must not trigger a session interruption pause');
+    assert.equal(mediaSession.playbackState, 'none', 'PiP video owns native playback state');
+    handlers.pause({ action: 'pause' });
+    assert.equal(video.paused, true, 'immediate user pause is respected on every attempt');
+}
+video.webkitPresentationMode = 'inline';
+video.dispatchEvent(new Event('webkitpresentationmodechanged'));
+assert.equal(mediaSession.playbackState, 'paused', 'leaving PiP restores the latest page state');
+document.visibilityState = 'visible';
+handlers.play({ action: 'play' });
+assert.equal(mediaSession.playbackState, 'playing', 'inline playback state remains page-controlled');
+video.webkitPresentationMode = 'picture-in-picture';
+video.dispatchEvent(new Event('webkitpresentationmodechanged'));
+assert.equal(mediaSession.playbackState, 'none', 'PiP entry relinquishes an already-playing session');
+video.webkitPresentationMode = 'inline';
+video.dispatchEvent(new Event('webkitpresentationmodechanged'));
+assert.equal(mediaSession.playbackState, 'playing', 'PiP exit preserves playing intent');
+assert.equal(timerCount, 0, 'resume protection never polls or schedules retries');
 console.log('Policy, PiP, Media Session, lifecycle and idle-timer checks passed');

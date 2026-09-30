@@ -114,7 +114,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             .init(source: YouTubePlayerScripts.pipEventBridge, time: .atDocumentEnd, mainFrameOnly: true),
             .init(source: YouTubePlayerScripts.playbackPolicy, time: .atDocumentStart, mainFrameOnly: true),
             .init(
-                source: YouTubePlayerScripts.mediaSessionUserActionBridge,
+                source: YouTubePlayerScripts.mediaSessionPlaybackStateBridge
+                    + YouTubePlayerScripts.mediaSessionUserActionBridge,
                 time: .atDocumentStart,
                 mainFrameOnly: true
             ),

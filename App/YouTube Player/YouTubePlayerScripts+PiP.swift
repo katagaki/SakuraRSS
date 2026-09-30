@@ -170,6 +170,7 @@ extension YouTubePlayerScripts {
             video.__ytPiPAttached = true;
             var wasInPiP = false;
             function update() {
+                if (window.__yt.updatePiPMediaSessionState) window.__yt.updatePiPMediaSessionState();
                 var inPiP = window.__yt.getPiPVideo() === video;
                 if (inPiP === wasInPiP) return;
                 wasInPiP = inPiP;
