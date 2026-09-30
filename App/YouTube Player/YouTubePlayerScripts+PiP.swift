@@ -163,111 +163,52 @@ extension YouTubePlayerScripts {
     })();
     """
 
-    /// Forwards PiP enter/leave events to native code immediately. Uses the
-    /// saved `addEventListener` from the isolation bootstrap so listeners are
-    /// not filtered by the page-side block on PiP events.
-    ///
-    /// On iOS WKWebView the W3C `enterpictureinpicture`/`leavepictureinpicture`
-    /// events are unreliable, the canonical signal is `webkitpresentationmodechanged`,
-    /// read via `video.webkitPresentationMode`.
     static let pipEventBridge = """
     (function() {
-        function send(state) {
-            try {
-                window.webkit.messageHandlers.\(pipMessageHandlerName).postMessage(state);
-            } catch (e) {}
-        }
         function attach(video) {
-            if (!video || video.__ytPiPAttached) return;
+            if (video.__ytPiPAttached) return;
             video.__ytPiPAttached = true;
-            window.__yt.addListener(video, 'enterpictureinpicture',
-                function() {
-                    window.__yt.logState('PiP enterpictureinpicture event', video);
-                    send('enter');
-                });
-            window.__yt.addListener(video, 'leavepictureinpicture',
-                function() {
-                    window.__yt.logState('PiP leavepictureinpicture event', video);
-                    send('leave');
-                });
-            window.__yt.addListener(video, 'webkitpresentationmodechanged',
-                function() {
-                    var nowInPiP =
-                        video.webkitPresentationMode === 'picture-in-picture';
-                    if (!nowInPiP && !window.__yt.expectingPiPExit) {
-                        window.__yt.exitedPiPRecently = true;
-                    }
-                    if (!nowInPiP) window.__yt.pipResumeDeadline = 0;
+            var wasInPiP = false;
+            function update() {
+                var inPiP = window.__yt.getPiPVideo() === video;
+                if (inPiP === wasInPiP) return;
+                wasInPiP = inPiP;
+                if (!inPiP) {
+                    window.__yt.exitedPiPRecently = !window.__yt.expectingPiPExit;
                     window.__yt.expectingPiPExit = false;
-                    window.__yt.logState(
-                        'PiP presentation mode ' + (nowInPiP ? 'enter' : 'exit'), video
-                    );
-                    send(nowInPiP ? 'enter' : 'leave');
+                }
+                window.__yt.logState(inPiP ? 'PiP enter' : 'PiP leave', video);
+                try {
+                    window.webkit.messageHandlers.\(pipMessageHandlerName)
+                        .postMessage(inPiP ? 'enter' : 'leave');
+                } catch (error) {}
+            }
+            ['enterpictureinpicture', 'leavepictureinpicture',
+                'webkitpresentationmodechanged'].forEach(function(type) {
+                video.addEventListener(type, update);
+            });
+            ['play', 'pause'].forEach(function(type) {
+                video.addEventListener(type, function() {
+                    if (window.__yt.getPiPVideo() !== video || video.ended) return;
+                    if ((type === 'pause') !== video.paused) return;
+                    var paused = video.paused;
+                    window.__yt.userPaused = paused;
+                    if (!paused) {
+                        window.__yt.autoplayBlocked = false;
+                        window.__yt.exitedPiPRecently = false;
+                    }
+                    var player = document.getElementById('movie_player');
+                    if (!player || typeof player.getPlayerState !== 'function') return;
+                    var state = player.getPlayerState();
+                    if (paused && state !== 2) player.pauseVideo();
+                    if (!paused && state !== 1 && state !== 3) player.playVideo();
                 });
-            // PiP's play button can start the element directly, bypassing both the
-            // media session and YouTube, so a pause made from PiP would stay
-            // flagged and YouTube would pause again to match its own state.
-            window.__yt.addListener(video, 'play', function() {
-                if (video.webkitPresentationMode !== 'picture-in-picture') return;
-                window.__yt.logState('PiP video play event', video);
-                if (!window.__yt.userPaused
-                    && Date.now() - (video.__ytMediaSessionRecoveryAt || 0) < 1000) {
-                    video.__ytMediaSessionRecoveryAt = 0;
-                    window.__yt.logState('PiP skip recovery playVideo()', video);
-                    return;
-                }
-                if (window.__yt.userPaused
-                    && Date.now() >= window.__yt.pipResumeDeadline) {
-                    window.__yt.pipResumeDeadline = Date.now() + 2000;
-                }
-                video.__ytPagePaused = false;
-                window.__yt.userPaused = false;
-                window.__yt.autoplayBlocked = false;
-                window.__yt.exitedPiPRecently = false;
-                var player = document.getElementById('movie_player');
-                if (!player || typeof player.playVideo !== 'function') {
-                    window.__yt.logState('PiP playVideo unavailable', video);
-                    return;
-                }
-                window.__yt.logState('PiP call playVideo()', video);
-                try { player.playVideo(); } catch (e) {
-                    window.__yt.logState('PiP playVideo() failed', video);
-                }
-            }, true);
-            window.__yt.addListener(video, 'pause', function() {
-                if (video.webkitPresentationMode !== 'picture-in-picture') return;
-                window.__yt.logState('PiP video pause event', video);
-                if (video.__ytRecoveringPiPPause) {
-                    video.__ytRecoveringPiPPause = false;
-                    window.__yt.logState('PiP skip recovered pause', video);
-                    return;
-                }
-                if (!video.paused) {
-                    window.__yt.logState('PiP skip stale pause event', video);
-                    return;
-                }
-                if (!window.__yt.userPaused
-                    && Date.now() < window.__yt.pipResumeDeadline) {
-                    window.__yt.logState('PiP skip pause in retry window', video);
-                    return;
-                }
-                var player = document.getElementById('movie_player');
-                if (!player || typeof player.pauseVideo !== 'function') {
-                    window.__yt.logState('PiP pauseVideo unavailable', video);
-                    return;
-                }
-                window.__yt.logState('PiP call pauseVideo()', video);
-                try { player.pauseVideo(); } catch (e) {
-                    window.__yt.logState('PiP pauseVideo() failed', video);
-                }
-            }, true);
+            });
+            update();
         }
-        function tryAttach() {
-            var videos = document.querySelectorAll('video');
-            videos.forEach(attach);
-            return videos.length > 0;
-        }
-        window.__yt.onMutation(function() { tryAttach(); });
+        window.__yt.onMutation(function() {
+            document.querySelectorAll('video').forEach(attach);
+        });
     })();
     """
 
@@ -305,7 +246,7 @@ extension YouTubePlayerScripts {
         }
 
         try {
-            navigator.mediaSession.setActionHandler('enterpictureinpicture',
+            window.__yt.setPiPActionHandler(
                 function() {
                     var video = pickAutoPipTarget();
                     if (!video) return;

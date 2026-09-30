@@ -1,54 +1,17 @@
 import Foundation
-import Hanami
 
 extension YouTubePlayerScripts {
-
-    /// Prevents YouTube from forcing PiP to close during ads by neutralizing
-    /// any `disablePictureInPicture` writes on `<video>` elements.
-    static let pipDisableOverride = """
-    (function() {
-        try {
-            var proto = HTMLVideoElement.prototype;
-            if (!proto.__ytPiPDisableOverridden) {
-                proto.__ytPiPDisableOverridden = true;
-                Object.defineProperty(proto, 'disablePictureInPicture', {
-                    configurable: true,
-                    get: function() { return false; },
-                    set: function() {}
-                });
-            }
-        } catch (e) {}
-        function strip(video) {
-            if (!video) return;
-            try { video.removeAttribute('disablepictureinpicture'); } catch (e) {}
-            try { video.removeAttribute('disablePictureInPicture'); } catch (e) {}
-        }
-        function scan() { document.querySelectorAll('video').forEach(strip); }
-        if (window.__yt && window.__yt.onMutation) {
-            window.__yt.onMutation(scan);
-        } else {
-            scan();
-        }
-        var attributeObserver = new MutationObserver(scan);
-        if (document.documentElement) {
-            attributeObserver.observe(document.documentElement, {
-                subtree: true,
-                attributes: true,
-                attributeFilter: ['disablepictureinpicture', 'disablePictureInPicture']
-            });
-        }
-    })();
-    """
-
-    /// Bridges system Now Playing play/pause taps (Lock Screen, Control Center,
-    /// PiP overlay, headset clicker) to the `__yt.userPaused` flag so the pause
-    /// guard knows the pause was user-initiated and shouldn't be auto-resumed.
     static let mediaSessionUserActionBridge = """
     (function() {
         if (!('mediaSession' in navigator)) return;
-        var ms = navigator.mediaSession;
-        var origSet = ms.setActionHandler.bind(ms);
+        var mediaSession = navigator.mediaSession;
+        var origSet = mediaSession.setActionHandler.bind(mediaSession);
         var pageHandlers = { play: null, pause: null };
+        var pipHandler = null;
+        window.__yt.setPiPActionHandler = function(handler) {
+            pipHandler = handler;
+            try { origSet('enterpictureinpicture', handler); } catch (error) {}
+        };
 
         function wrapper(action) {
             return function(details) {
@@ -56,45 +19,16 @@ extension YouTubePlayerScripts {
                 var video = pipVideo || document.querySelector('video');
                 window.__yt.logState('mediaSession ' + action + ' received', video);
                 if (action === 'pause') {
-                    if (pipVideo
-                        && !window.__yt.userPaused
-                        && Date.now() < window.__yt.pipResumeDeadline) {
-                        window.__yt.pipResumeDeadline = Date.now() + 2000;
-                        window.__yt.logState('mediaSession recover PiP resume pause', video);
-                        var player = document.getElementById('movie_player');
-                        if (player && typeof player.playVideo === 'function') {
-                            try {
-                                var playerState = typeof player.getPlayerState === 'function'
-                                    ? player.getPlayerState() : -1;
-                                if (playerState !== 1 && playerState !== 3) {
-                                    player.playVideo();
-                                }
-                            } catch (e) {
-                                window.__yt.logState('mediaSession PiP playVideo() failed', video);
-                            }
-                        }
-                        video.__ytMediaSessionRecoveryAt = Date.now();
-                        var recovery = window.__yt.resumeVideo(video);
-                        if (recovery && typeof recovery.catch === 'function') {
-                            recovery.catch(function() {
-                                window.__yt.logState('mediaSession PiP play() rejected', video);
-                            });
-                        }
-                        return;
-                    }
                     window.__yt.userPaused = true;
                 } else {
-                    if (window.__yt.userPaused && pipVideo) {
-                        window.__yt.pipResumeDeadline = Date.now() + 2000;
-                    }
                     window.__yt.userPaused = false;
                     window.__yt.autoplayBlocked = false;
                     window.__yt.exitedPiPRecently = false;
                 }
-                var h = pageHandlers[action];
-                if (typeof h === 'function') {
+                var handler = pageHandlers[action];
+                if (typeof handler === 'function') {
                     window.__yt.logState('mediaSession ' + action + ' page handler', video);
-                    try { h(details); return; } catch (e) {
+                    try { handler(details); return; } catch (e) {
                         window.__yt.logState('mediaSession page handler failed', video);
                     }
                 }
@@ -107,8 +41,8 @@ extension YouTubePlayerScripts {
                 if (action === 'pause') {
                     video.pause();
                 } else {
-                    var p = video.play();
-                    if (p && typeof p.catch === 'function') p.catch(function(){});
+                    var playback = video.play();
+                    if (playback && typeof playback.catch === 'function') playback.catch(function(){});
                 }
             };
         }
@@ -117,11 +51,14 @@ extension YouTubePlayerScripts {
             try { origSet(action, wrapper(action)); } catch (e) {}
         }
 
-        ms.setActionHandler = function(action, handler) {
+        mediaSession.setActionHandler = function(action, handler) {
             if (action === 'play' || action === 'pause') {
                 pageHandlers[action] = handler || null;
                 install(action);
                 return;
+            }
+            if (action === 'enterpictureinpicture' && pipHandler) {
+                return origSet(action, pipHandler);
             }
             return origSet(action, handler);
         };

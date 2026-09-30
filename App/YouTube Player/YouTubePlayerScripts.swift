@@ -1,137 +1,59 @@
 import Foundation
-import Hanami
 
-// Background playback portions adapted from Brave's iOS implementation:
-// https://github.com/brave/brave-core/blob/9877355bd3e9/ios/browser/web/media/resources/media_backgrounding.ts
-// Copyright (c) 2026 The Brave Authors. All rights reserved.
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-// swiftlint:disable:next type_body_length
 nonisolated enum YouTubePlayerScripts {
-
     static let pipMessageHandlerName = "ytPiP"
     static let playbackMessageHandlerName = "ytPlayback"
 
-    /// Hides background/PiP/page-lifecycle signals from page scripts so YouTube
-    /// has no reason to pause the video, while preserving native access via
-    /// `window.__yt.*` (saved originals before the patches were applied).
-    ///
-    /// Tracks page-initiated media pauses separately from WebKit's background pause.
-    static var mediaIsolationBootstrap: String { """
+    static let mediaIsolationBootstrap = """
     (function() {
         if (window.__yt) return;
-
-        var origAdd = EventTarget.prototype.addEventListener;
-        var origRemove = EventTarget.prototype.removeEventListener;
-        var origDispatch = EventTarget.prototype.dispatchEvent;
-        var origVideoPause = HTMLVideoElement.prototype.pause;
-        var origVideoPlay = HTMLVideoElement.prototype.play;
-        var visibilityDescriptor = Object.getOwnPropertyDescriptor(
-            Document.prototype, 'visibilityState'
-        );
-        var pipDescriptor = Object.getOwnPropertyDescriptor(
-            Document.prototype, 'pictureInPictureElement'
-        );
-        // Save the real PiP entry/exit methods *before* we install no-op
-        // overrides on the prototypes. YouTube's player code can only see
-        // the patched methods, but our app keeps native control via
-        // `__yt.enterPiP` / `__yt.exitPiP` below.
-        var origExitPiP = Document.prototype.exitPictureInPicture;
-        var origRequestPiP = HTMLVideoElement.prototype.requestPictureInPicture;
-        var origWebkitSetPM = HTMLVideoElement.prototype.webkitSetPresentationMode;
-
+        var originalPlay = HTMLMediaElement.prototype.play;
+        var originalPause = HTMLMediaElement.prototype.pause;
         window.__yt = {
             autoplayBlocked: false,
             userPaused: false,
-            // Set to true by the PiP bridge when we exit PiP without Swift
-            // having flagged the exit as deliberate (i.e., iOS tore PiP down
-            // during background). Suppresses the pause-guard auto-resume so
-            // audio doesn't keep playing without the visual PiP context.
-            // Cleared when Swift initiates a play.
             exitedPiPRecently: false,
-            pipResumeDeadline: 0,
-            // Swift sets this before calling `exitPictureInPicture()` /
-            // `webkitSetPresentationMode('inline')` so the PiP bridge knows
-            // the exit is user-initiated and not a system tear-down.
             expectingPiPExit: false,
-            addListener: function(target, type, handler, options) {
-                return origAdd.call(target, type, handler, options);
+            addListener: function(target, type, listener, options) {
+                target.addEventListener(type, listener, options);
             },
-            removeListener: function(target, type, handler, options) {
-                return origRemove.call(target, type, handler, options);
+            removeListener: function(target, type, listener, options) {
+                target.removeEventListener(type, listener, options);
             },
-            realVisibilityState: function() {
-                return visibilityDescriptor && visibilityDescriptor.get
-                    ? visibilityDescriptor.get.call(document)
-                    : document.visibilityState;
-            },
-            resumeVideo: function(video) {
-                if (this.logState) this.logState('guard original play()', video);
-                return origVideoPlay.call(video);
-            },
+            realVisibilityState: function() { return document.visibilityState; },
+            resumeVideo: function(video) { return originalPlay.call(video); },
+            pauseVideo: function(video) { return originalPause.call(video); },
             logState: function() {},
             getPiPVideo: function() {
-                var videos = document.querySelectorAll('video');
-                for (var i = 0; i < videos.length; i++) {
-                    if (videos[i].webkitPresentationMode === 'picture-in-picture') {
-                        return videos[i];
-                    }
-                }
-                return (pipDescriptor && pipDescriptor.get)
-                    ? pipDescriptor.get.call(document) : null;
+                return Array.from(document.querySelectorAll('video')).find(function(video) {
+                    return video.webkitPresentationMode === 'picture-in-picture'
+                        || document.pictureInPictureElement === video;
+                }) || null;
             },
-            isInPiP: function() {
-                return !!this.getPiPVideo();
-            },
-            // Native PiP entry, bypassing our prototype overrides. Prefers the
-            // W3C API (which routes through AVPictureInPictureController on iOS)
-            // and falls back to the iOS-only setter.
+            isInPiP: function() { return !!this.getPiPVideo(); },
             enterPiP: function(video) {
                 if (!video) return;
-                if (this.logState) this.logState('native enterPiP()', video);
-                if (origRequestPiP) {
-                    var p = origRequestPiP.call(video);
-                    if (p && typeof p.catch === 'function') p.catch(function(){});
-                } else if (origWebkitSetPM) {
-                    origWebkitSetPM.call(video, 'picture-in-picture');
+                this.logState('native enterPiP()', video);
+                if (typeof video.webkitSetPresentationMode === 'function') {
+                    video.webkitSetPresentationMode('picture-in-picture');
+                } else if (video.requestPictureInPicture) {
+                    video.requestPictureInPicture().catch(function() {});
                 }
             },
-            // Native PiP exit, bypassing our prototype overrides.
             exitPiP: function(video) {
-                if (this.logState) this.logState('native exitPiP()', video);
-                if (origExitPiP) {
-                    var p = origExitPiP.call(document);
-                    if (p && typeof p.catch === 'function') p.catch(function(){});
-                } else if (video && origWebkitSetPM) {
-                    origWebkitSetPM.call(video, 'inline');
+                this.logState('native exitPiP()', video);
+                if (video && typeof video.webkitSetPresentationMode === 'function') {
+                    video.webkitSetPresentationMode('inline');
+                } else if (document.pictureInPictureElement && document.exitPictureInPicture) {
+                    document.exitPictureInPicture().catch(function() {});
                 }
             },
-            // Diagnostic log to the native `ytDebug` message handler.
-            log: function(msg) {
+            log: function(message) {
                 try {
-                    if (window.webkit && window.webkit.messageHandlers
-                        && window.webkit.messageHandlers.ytDebug) {
-                        window.webkit.messageHandlers.ytDebug.postMessage(
-                            '[BG ' + Date.now() + '] ' + msg
-                        );
-                    }
-                } catch (e) {}
+                    window.webkit.messageHandlers.ytDebug.postMessage(message);
+                } catch (error) {}
             }
         };
-
-        HTMLVideoElement.prototype.pause = function() {
-            if (window.__yt.logState) window.__yt.logState('page video.pause()', this);
-            this.__ytPagePaused = true;
-            return origVideoPause.call(this);
-        };
-        HTMLVideoElement.prototype.play = function() {
-            if (window.__yt.logState) window.__yt.logState('page video.play()', this);
-            this.__ytPagePaused = false;
-            return origVideoPlay.call(this);
-        };
-
         var mutationCallbacks = [];
         var mutationPending = false;
         var mutationLastRun = 0;
@@ -139,14 +61,23 @@ nonisolated enum YouTubePlayerScripts {
             mutationPending = false;
             mutationLastRun = Date.now();
             for (var index = 0; index < mutationCallbacks.length; index++) {
-                try { mutationCallbacks[index](); } catch (e) {}
+                try { mutationCallbacks[index](); } catch (error) {}
             }
         }
         window.__yt.onMutation = function(callback) {
             mutationCallbacks.push(callback);
-            try { callback(); } catch (e) {}
+            try { callback(); } catch (error) {}
         };
-        var sharedMutationObserver = new MutationObserver(function() {
+        function containsPlayer(node) {
+            return node.nodeType === 1 && (node.matches('video, .html5-video-player')
+                || node.querySelector('video, .html5-video-player'));
+        }
+        var sharedMutationObserver = new MutationObserver(function(records) {
+            var changed = records.some(function(record) {
+                return Array.from(record.addedNodes).some(containsPlayer)
+                    || Array.from(record.removedNodes).some(containsPlayer);
+            });
+            if (!changed) return;
             if (mutationPending) return;
             var elapsed = Date.now() - mutationLastRun;
             if (elapsed >= 250) {
@@ -156,235 +87,8 @@ nonisolated enum YouTubePlayerScripts {
                 setTimeout(runMutationCallbacks, 250 - elapsed);
             }
         });
-        if (document.documentElement) {
-            sharedMutationObserver.observe(document.documentElement,
-                { childList: true, subtree: true });
-        }
+        sharedMutationObserver.observe(document, { childList: true, subtree: true });
 
-        var BLOCKED = {
-            visibilitychange: 1, webkitvisibilitychange: 1,
-            enterpictureinpicture: 1, leavepictureinpicture: 1,
-            webkitpresentationmodechanged: 1,
-            pagehide: 1, pageshow: 1, freeze: 1, resume: 1
-        };
-
-        // Window-level `blur`/`focus` is a background-detection signal on
-        // iOS WKWebView - `blur` fires when the app deactivates. Element-
-        // level `focus`/`blur` (form inputs etc.) must still work, so we
-        // only filter when registered on window/document/body.
-        function isWindowLevel(target) {
-            return target === window
-                || target === document
-                || target === document.documentElement
-                || target === document.body;
-        }
-
-        EventTarget.prototype.addEventListener = function(type, listener, options) {
-            if (BLOCKED[type]) return;
-            if ((type === 'blur' || type === 'focus') && isWindowLevel(this)) {
-                return;
-            }
-            return origAdd.call(this, type, listener, options);
-        };
-
-        EventTarget.prototype.dispatchEvent = function(event) {
-            if (event && BLOCKED[event.type]) return true;
-            return origDispatch.call(this, event);
-        };
-
-        function defineConst(target, name, value) {
-            try {
-                Object.defineProperty(target, name, {
-                    configurable: true,
-                    get: function() { return value; }
-                });
-            } catch (e) {}
-        }
-        defineConst(Document.prototype, 'hidden', false);
-        defineConst(Document.prototype, 'webkitHidden', false);
-        defineConst(Document.prototype, 'visibilityState', 'visible');
-        defineConst(Document.prototype, 'webkitVisibilityState', 'visible');
-        defineConst(Document.prototype, 'pictureInPictureElement', null);
-
-        function neuterOn(target, names) {
-            names.forEach(function(name) {
-                try {
-                    Object.defineProperty(target, name, {
-                        configurable: true,
-                        get: function() { return null; },
-                        set: function() {}
-                    });
-                } catch (e) {}
-            });
-        }
-        neuterOn(Document.prototype, ['onvisibilitychange']);
-        neuterOn(HTMLVideoElement.prototype, [
-            'onenterpictureinpicture',
-            'onleavepictureinpicture',
-            'onwebkitpresentationmodechanged'
-        ]);
-        neuterOn(Window.prototype, [
-            'onpagehide', 'onpageshow', 'onfreeze', 'onresume',
-            'onblur', 'onfocus'
-        ]);
-
-        // Hard-block YouTube's only PiP-control code path. The single toggle
-        // method in the player JS calls these prototype methods; no other
-        // path in the player uses PiP APIs. Our app retains native control
-        // through `__yt.enterPiP` / `__yt.exitPiP` (saved originals above).
-        function rejectedPromise() {
-            return Promise && Promise.reject
-                ? Promise.reject(new Error('blocked'))
-                : undefined;
-        }
-        try {
-            Document.prototype.exitPictureInPicture = function() {
-                window.__yt.log('PAGE call: exitPictureInPicture (blocked)');
-                return rejectedPromise();
-            };
-        } catch (e) {}
-        try {
-            HTMLVideoElement.prototype.requestPictureInPicture = function() {
-                window.__yt.log('PAGE call: requestPictureInPicture (blocked)');
-                return rejectedPromise();
-            };
-        } catch (e) {}
-        try {
-            if (origWebkitSetPM) {
-                HTMLVideoElement.prototype.webkitSetPresentationMode =
-                    function(mode) {
-                        window.__yt.log(
-                            'PAGE call: webkitSetPresentationMode("'
-                            + mode + '") (blocked)'
-                        );
-                    };
-            }
-        } catch (e) {}
-
-        \(mediaIsolationDiagnostics)
-    })();
-    """ }
-
-    #if DEBUG
-    /// Attach passive listeners on every event we filter, plus key video
-    /// events, so we can see exactly what fires on iOS during background
-    /// transitions. Uses saved `origAdd` so listeners aren't filtered.
-    private static let mediaIsolationDiagnostics = """
-    function watch(target, type, label) {
-            origAdd.call(target, type, function(e) {
-                window.__yt.log(label + ' (vis=' + document.visibilityState + ')');
-            }, true);
-        }
-        ['visibilitychange', 'webkitvisibilitychange'].forEach(function(t) {
-            watch(document, t, 'document.' + t);
-        });
-        ['blur', 'focus', 'pagehide', 'pageshow', 'freeze', 'resume'].forEach(
-            function(t) { watch(window, t, 'window.' + t); }
-        );
-
-        var VIDEO_EVENTS = [
-            'enterpictureinpicture', 'leavepictureinpicture',
-            'webkitpresentationmodechanged',
-            'pause', 'play', 'ended', 'waiting', 'stalled',
-            'suspend', 'emptied', 'abort'
-        ];
-        function attachVideoLog(video) {
-            if (video.__ytEventLogAttached) return;
-            video.__ytEventLogAttached = true;
-            VIDEO_EVENTS.forEach(function(type) {
-                origAdd.call(video, type, function() {
-                    window.__yt.log(
-                        'video.' + type
-                        + ' paused=' + video.paused
-                        + ' mode=' + (video.webkitPresentationMode || 'n/a')
-                        + ' t=' + (isFinite(video.currentTime)
-                            ? video.currentTime.toFixed(2) : '?')
-                    );
-                }, true);
-            });
-        }
-        function scanVideos() {
-            document.querySelectorAll('video').forEach(attachVideoLog);
-        }
-        window.__yt.onMutation(scanVideos);
-    """
-    #else
-    private static let mediaIsolationDiagnostics = ""
-    #endif
-
-    /// Retries WebKit background pauses while respecting page and user pauses.
-    static let pauseGuard = """
-    (function() {
-        function shouldResume(video, ignorePagePause) {
-            if (window.__yt.userPaused === true) return false;
-            if (window.__yt.autoplayBlocked === true) return false;
-            if (window.__yt.exitedPiPRecently === true) return false;
-            if (video.__ytPagePaused && !ignorePagePause) return false;
-            if (video.ended) return false;
-            return !(video.duration > 0
-                && video.currentTime >= video.duration - 0.25);
-        }
-        function resume(video, ignorePagePause) {
-            if (!shouldResume(video, ignorePagePause)) {
-                window.__yt.logState('guard skip resume', video);
-                return;
-            }
-            var playback = window.__yt.resumeVideo(video);
-            if (playback && typeof playback.catch === 'function') {
-                playback.catch(function() {
-                    window.__yt.logState('guard play() rejected', video);
-                });
-            }
-        }
-        function attach(video) {
-            if (!video || video.__ytPauseGuardAttached) return;
-            video.__ytPauseGuardAttached = true;
-            window.__yt.addListener(video, 'pause', function() {
-                window.__yt.logState('guard video pause event', video);
-                if (!video.paused) {
-                    window.__yt.logState('guard skip stale pause event', video);
-                    return;
-                }
-                if (video.webkitPresentationMode === 'picture-in-picture') {
-                    if (!window.__yt.userPaused
-                        && Date.now() < window.__yt.pipResumeDeadline) {
-                        video.__ytRecoveringPiPPause = true;
-                        window.__yt.logState('guard recover PiP resume pause', video);
-                        resume(video, true);
-                        return;
-                    }
-                    window.__yt.userPaused = true;
-                    window.__yt.logState('guard accept PiP pause', video);
-                    return;
-                }
-                if (!shouldResume(video)) {
-                    window.__yt.logState('guard accept inline pause', video);
-                    return;
-                }
-                if (window.__yt.realVisibilityState() === 'visible'
-                    && !video.__ytBackgroundRetryPending) {
-                    video.__ytBackgroundRetryPending = true;
-                    window.__yt.logState('guard wait for background transition', video);
-                    var onVisibilityChange = function() {
-                        if (window.__yt.realVisibilityState() === 'visible') return;
-                        clearTimeout(timeout);
-                        window.__yt.removeListener(document, 'visibilitychange', onVisibilityChange);
-                        video.__ytBackgroundRetryPending = false;
-                        window.__yt.logState('guard retry after background transition', video);
-                        resume(video);
-                    };
-                    window.__yt.addListener(document, 'visibilitychange', onVisibilityChange);
-                    var timeout = setTimeout(function() {
-                        window.__yt.removeListener(document, 'visibilitychange', onVisibilityChange);
-                        video.__ytBackgroundRetryPending = false;
-                    }, 2000);
-                }
-                resume(video);
-            }, true);
-        }
-        function scan() { document.querySelectorAll('video').forEach(attach); }
-        window.__yt.onMutation(scan);
     })();
     """
-
 }

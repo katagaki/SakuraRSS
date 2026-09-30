@@ -103,17 +103,16 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     private func makeUserContentController(coordinator: Coordinator) -> WKUserContentController {
         let controller = WKUserContentController()
         let scripts: [InjectedUserScript] = [
-            .init(source: YouTubePlayerScripts.mediaIsolationBootstrap, time: .atDocumentStart, mainFrameOnly: false),
-            .init(source: YouTubePlayerScripts.playbackDiagnostics, time: .atDocumentStart, mainFrameOnly: false),
+            .init(source: YouTubePlayerScripts.mediaIsolationBootstrap, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.playbackDiagnostics, time: .atDocumentStart, mainFrameOnly: true),
             .init(
                 source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
                 time: .atDocumentStart,
                 mainFrameOnly: true
             ),
-            .init(source: YouTubePlayerScripts.pauseGuard, time: .atDocumentEnd, mainFrameOnly: false),
             .init(source: YouTubePlayerScripts.autoplayArmer, time: .atDocumentEnd, mainFrameOnly: true),
             .init(source: YouTubePlayerScripts.pipEventBridge, time: .atDocumentEnd, mainFrameOnly: true),
-            .init(source: YouTubePlayerScripts.pipDisableOverride, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.playbackPolicy, time: .atDocumentStart, mainFrameOnly: true),
             .init(
                 source: YouTubePlayerScripts.mediaSessionUserActionBridge,
                 time: .atDocumentStart,
