@@ -16,13 +16,35 @@ struct BrowserTodayShortcutsGrid: View {
         return base.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
+    private var feedSections: [FeedSection] {
+        let feeds = feedManager.isFocusEffective
+            ? feedManager.feeds.filter { feedManager.focusedFeedIDs.contains($0.id) }
+            : feedManager.feeds
+        let followedSections = Set(feeds.map(\.feedSection))
+        return FeedSection.allCases.filter { followedSections.contains($0) }
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 12) {
+            ForEach(feedSections, id: \.self) { section in
+                Button {
+                    store.navigate(to: .feedSection(section))
+                } label: {
+                    BrowserTodayShortcutCell(
+                        title: section.localizedTitle,
+                        symbolName: section.browserSymbolName
+                    )
+                }
+                .buttonStyle(.plain)
+                .contextMenu {
+                    openInNewTabButton(.feedSection(section))
+                }
+            }
             ForEach(BrowserTodayShortcut.allCases) { shortcut in
                 Button {
                     open(shortcut)
                 } label: {
-                    BrowserTodayShortcutCell(shortcut: shortcut)
+                    BrowserTodayShortcutCell(title: shortcut.title, symbolName: shortcut.symbolName)
                 }
                 .buttonStyle(.plain)
             }
@@ -34,21 +56,25 @@ struct BrowserTodayShortcutsGrid: View {
                 }
                 .buttonStyle(.plain)
                 .contextMenu {
-                    Button {
-                        store.openTab(at: .list(list.id), inBackground: true)
-                    } label: {
-                        Label(String(localized: "Menu.OpenInNewTab", table: "Browser"),
-                              systemImage: "plus.square.on.square")
-                    }
+                    openInNewTabButton(.list(list.id))
                 }
             }
         }
+        .animation(.smooth.speed(2.0), value: feedSections)
         .animation(.smooth.speed(2.0), value: feedManager.lists)
+    }
+
+    private func openInNewTabButton(_ location: BrowserLocation) -> some View {
+        Button {
+            store.openTab(at: location, inBackground: true)
+        } label: {
+            Label(String(localized: "Menu.OpenInNewTab", table: "Browser"),
+                  systemImage: "plus.square.on.square")
+        }
     }
 
     private func open(_ shortcut: BrowserTodayShortcut) {
         switch shortcut {
-        case .following: store.navigate(to: .feeds)
         case .allContent: store.navigate(to: .allContent)
         case .topics: store.navigate(to: .topics)
         case .bookmarks: store.push(BrowserBookmarksDestination())
@@ -58,14 +84,15 @@ struct BrowserTodayShortcutsGrid: View {
 
 struct BrowserTodayShortcutCell: View {
 
-    let shortcut: BrowserTodayShortcut
+    let title: String
+    let symbolName: String
 
     private let iconSize: CGFloat = 56
     private let iconCornerRadius: CGFloat = 12
 
     var body: some View {
         VStack(alignment: .center, spacing: 6) {
-            Image(systemName: shortcut.symbolName)
+            Image(systemName: symbolName)
                 .font(.system(size: 24))
                 .foregroundStyle(.tint)
                 .frame(width: iconSize, height: iconSize)
@@ -79,7 +106,7 @@ struct BrowserTodayShortcutCell: View {
                 )
                 .hoverEffect(.highlight)
 
-            Text(shortcut.title)
+            Text(title)
                 .font(.caption)
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)

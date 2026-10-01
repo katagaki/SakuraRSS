@@ -30,6 +30,8 @@ struct BrowserLocationDescription: Equatable {
                 symbolName: "dot.radiowaves.up.forward",
                 feed: nil
             )
+        case .feedSection(let section):
+            symbolic(title: section.localizedTitle, symbolName: section.browserSymbolName)
         case .topics:
             symbolic(
                 title: String(localized: "Location.Topics", table: "Browser"),

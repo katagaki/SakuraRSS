@@ -10,6 +10,7 @@ enum BrowserLocation: Hashable {
     case list(Int64)
     case allContent
     case feeds
+    case feedSection(FeedSection)
     case topics
     case search(String)
 }
@@ -32,6 +33,7 @@ extension BrowserLocation: @MainActor TabRoot {
         case .startPage: "startPage"
         case .allContent: "allContent"
         case .feeds: "feeds"
+        case .feedSection(let section): "feedSection:\(section.rawValue)"
         case .topics: "topics"
         case .feed(let feedID): "feed:\(feedID)"
         case .list(let listID): "list:\(listID)"
@@ -49,10 +51,14 @@ extension BrowserLocation: @MainActor TabRoot {
         }
         let parts = token.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
         guard parts.count == 2 else { return nil }
-        let value = String(parts[1])
-        switch String(parts[0]) {
+        return resolve(kind: String(parts[0]), value: String(parts[1]))
+    }
+
+    private static func resolve(kind: String, value: String) -> BrowserLocation? {
+        switch kind {
         case "feed": return Int64(value).map(BrowserLocation.feed)
         case "list": return Int64(value).map(BrowserLocation.list)
+        case "feedSection": return FeedSection(rawValue: value).map(BrowserLocation.feedSection)
         case "search": return value.isEmpty ? nil : .search(value)
         default: return nil
         }

@@ -37,6 +37,15 @@ struct BrowserRootContentView: View {
                     title: String(localized: "Tabs.Feeds"),
                     symbolName: "dot.radiowaves.up.forward"
                 )
+        case .feedSection(let section):
+            FeedSectionPage(section: section)
+                .navigationTitle(section.localizedTitle)
+                .toolbarTitleDisplayMode(.inline)
+                .browserPage(
+                    title: section.localizedTitle,
+                    symbolName: section.browserSymbolName
+                )
+                .browserRefreshScope("section.\(section.rawValue)")
         case .topics:
             TopicsPageView()
                 .browserPage(
