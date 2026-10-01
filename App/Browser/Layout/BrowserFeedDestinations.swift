@@ -23,7 +23,7 @@ struct BrowserFeedDestinations: ViewModifier {
                     .environment(\.browserPathToken, .feed(feed.id))
             }
             .navigationDestination(for: FeedSection.self) { section in
-                HomeSectionView(section: section)
+                FeedSectionPage(section: section)
                     .browserNavigationEnvironment(path: $path, namespace: namespace)
                     .browserPage(
                         title: section.localizedTitle,
