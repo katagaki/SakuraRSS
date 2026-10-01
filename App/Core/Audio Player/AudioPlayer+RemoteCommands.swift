@@ -20,6 +20,7 @@ extension AudioPlayer {
         commandCenter.playCommand.addTarget { [weak self] _ in
             Task { @MainActor in
                 if YouTubePlayerSession.shared.isActive {
+                    log("YT Native", "remote play command")
                     YouTubePlayerSession.shared.play()
                 } else {
                     self?.player?.play()
@@ -35,6 +36,7 @@ extension AudioPlayer {
         commandCenter.pauseCommand.addTarget { [weak self] _ in
             Task { @MainActor in
                 if YouTubePlayerSession.shared.isActive {
+                    log("YT Native", "remote pause command")
                     YouTubePlayerSession.shared.pause()
                 } else {
                     self?.player?.pause()
@@ -50,6 +52,7 @@ extension AudioPlayer {
         commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
             Task { @MainActor in
                 if YouTubePlayerSession.shared.isActive {
+                    log("YT Native", "remote toggle command")
                     YouTubePlayerSession.shared.togglePlayPause()
                 } else {
                     self?.togglePlayPause()

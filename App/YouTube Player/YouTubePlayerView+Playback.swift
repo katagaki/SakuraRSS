@@ -22,7 +22,7 @@ extension YouTubePlayerView {
             }
             if (!video.paused) return true;
             var player = document.getElementById('movie_player');
-            if (player && typeof player.playVideo === 'function') {
+            if (!window.__yt.isInPiP() && player && typeof player.playVideo === 'function') {
                 player.playVideo();
             }
             // The play promise can reject under the autoplay policy, so the

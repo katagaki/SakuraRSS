@@ -39,7 +39,8 @@ extension YouTubePlayerScripts {
         function suppressed() {
             return window.__yt.userPaused === true
                 || window.__yt.autoplayBlocked === true
-                || window.__yt.exitedPiPRecently === true;
+                || window.__yt.exitedPiPRecently === true
+                || window.__yt.isInPiP();
         }
 
         function tryPlay(video) {
@@ -81,6 +82,7 @@ extension YouTubePlayerScripts {
         window.__yt.onMutation(scan);
 
         window.__yt.armAutoplay = function(durationMs) {
+            if (window.__yt.isInPiP()) return;
             var duration = (typeof durationMs === 'number' && durationMs > 0)
                 ? durationMs : 12000;
             window.__yt.autoplayArmedUntil = Date.now() + duration;
@@ -100,6 +102,7 @@ extension YouTubePlayerScripts {
     static let nativeAutoplayKick = """
     (function() {
         if (!window.__yt) return 'waiting';
+        if (window.__yt.isInPiP()) return 'done';
         if (window.__yt.userPaused === true) return 'suppressed';
         if (window.__yt.autoplayBlocked === true) return 'suppressed';
         var video = document.querySelector('video');

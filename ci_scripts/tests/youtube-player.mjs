@@ -121,12 +121,26 @@ class MediaSession {
     setActionHandler(action, handler) { handlers[action] = handler; }
 }
 const mediaSession = new MediaSession();
+let playerPlayCalls = 0;
+let playerPauseCalls = 0;
 const player = {
     state: 2,
     getPlayerState() { return this.state; },
-    playVideo() { this.state = 1; video.play().catch(() => {}); mediaSession.playbackState = 'playing'; },
-    pauseVideo() { this.state = 2; video.pause(); mediaSession.playbackState = 'paused'; }
+    playVideo() {
+        playerPlayCalls++;
+        this.state = 1;
+        video.play().catch(() => {});
+        mediaSession.playbackState = 'playing';
+    },
+    pauseVideo() {
+        playerPauseCalls++;
+        this.state = 2;
+        nativePause.call(video);
+        mediaSession.playbackState = 'paused';
+    }
 };
+video.addEventListener('play', () => { player.state = 1; });
+video.addEventListener('pause', () => { player.state = 2; });
 document.querySelectorAll = () => [video];
 document.querySelector = () => video;
 document.getElementById = () => player;
@@ -146,6 +160,7 @@ vm.runInContext(script('YouTubePlayerScripts+Ownership.swift', 'playbackOwnershi
 vm.runInContext(script('YouTubePlayerScripts+MediaSessionState.swift', 'mediaSessionPlaybackStateBridge'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+MediaSession.swift', 'mediaSessionUserActionBridge'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+PiP.swift', 'pipEventBridge'), playbackContext);
+vm.runInContext(script('YouTubePlayerScripts+Autoplay.swift', 'autoplayArmer'), playbackContext);
 assert.equal(observers[0].target, document, 'discovery works before documentElement exists');
 assert.equal(EventTarget.prototype.addEventListener, originalAdd);
 function flushMediaEvents() {
@@ -174,6 +189,7 @@ player.pauseVideo();
 flushMediaEvents();
 assert.equal(video.paused, false);
 assert.equal(player.state, 1, 'blocked page pause must not leave the stream controller paused');
+assert.equal(playerPauseCalls, 0, 'page player pause cannot bypass the native media guard');
 assert.equal(playbackContext.__yt.userPaused, false, 'blocked page pause must not change user intent');
 handlers.pause();
 flushMediaEvents();
@@ -193,6 +209,10 @@ video.dispatchEvent(new Event('enterpictureinpicture'));
 assert.deepEqual(messages, ['enter']);
 video.webkitSetPresentationMode('inline');
 assert.equal(video.webkitPresentationMode, 'picture-in-picture', 'page cannot close native PiP');
+player.pauseVideo = function() {
+    playerPauseCalls++;
+    nativePause.call(video);
+};
 video.disablePictureInPicture = true;
 assert.equal(video.disablePictureInPicture, false);
 video.attributes.add('disablepictureinpicture');
@@ -201,13 +221,25 @@ assert.equal(video.hasAttribute('disablepictureinpicture'), false);
 video.addEventListener('play', () => video.pause());
 for (let attempt = 0; attempt < 3; attempt++) {
     nativePlay.call(video);
+    player.pauseVideo();
+    video.pause();
+    assert.equal(video.paused, false, 'page cannot pause before the native resume event arrives');
     flushMediaEvents();
     assert.equal(video.paused, false, 'native PiP resume survives a counteracting page pause');
+    player.pauseVideo();
+    flushMediaEvents();
+    assert.equal(video.paused, false, 'page player API cannot stop resumed native PiP');
     nativePause.call(video);
     flushMediaEvents();
     assert.equal(video.paused, true, 'immediate native PiP pause is respected');
     assert.equal(playbackContext.__yt.userPaused, true);
 }
+assert.equal(playerPlayCalls, 0, 'native PiP events never call the page player API');
+assert.equal(playerPauseCalls, 0, 'native PiP events never call the page player API');
+playbackContext.__yt.armAutoplay(12000);
+assert.equal(playbackContext.__yt.userPaused, true, 'autoplay cannot clear a PiP pause');
+assert.equal(vm.runInContext(script('YouTubePlayerScripts+Autoplay.swift', 'nativeAutoplayKick'), playbackContext),
+    'done', 'native autoplay does not cycle the PiP media element');
 playbackContext.__yt.expectingPiPExit = true;
 playbackContext.__yt.exitPiP(video);
 assert.equal(video.webkitPresentationMode, 'inline', 'app retains original PiP exit API');
@@ -215,6 +247,12 @@ assert.deepEqual(messages, ['enter', 'leave']);
 assert.equal(mediaSession.playbackState, 'none', 'PiP exit does not restore page session ownership');
 playbackContext.__yt.enterPiP(video);
 assert.equal(video.webkitPresentationMode, 'picture-in-picture', 'app retains original PiP entry API');
+video.readyState = 0;
+video.paused = false;
+video.pause();
+assert.equal(video.paused, false, 'buffering cannot let the page pause native PiP');
+playbackContext.__yt.expectingPiPExit = true;
+playbackContext.__yt.exitPiP(video);
 
 // A non-player media element and source replacement retain their normal lifecycle.
 const audio = new MediaElement();

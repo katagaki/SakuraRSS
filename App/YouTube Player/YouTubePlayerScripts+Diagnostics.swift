@@ -24,6 +24,8 @@ extension YouTubePlayerScripts {
             try { visibility = state.realVisibilityState(); } catch (error) {}
             state.log('action#' + (++sequence) + ' ' + action
                 + ' videoPaused=' + (video ? video.paused : 'missing')
+                + ' readyState=' + (video ? video.readyState : 'missing')
+                + ' sourcePresent=' + (video ? !!(video.currentSrc || video.srcObject) : 'missing')
                 + ' mode=' + (video ? video.webkitPresentationMode : 'missing')
                 + ' nativePiP=' + state.isInPiP()
                 + ' playerState=' + playerState

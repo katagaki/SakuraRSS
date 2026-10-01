@@ -9,21 +9,25 @@ extension YouTubePlayerScripts {
         var originalPlay = HTMLMediaElement.prototype.play;
         var pagePauses = new WeakSet();
         var loggedPauses = new WeakSet();
-        var synchronizing = new WeakSet();
+        var wrappedPlayers = new WeakSet();
         function managed(video) {
             return video instanceof HTMLVideoElement && video === state.getPlaybackVideo();
         }
         function protectedPlayback(video) {
             return managed(video) && (document.visibilityState !== 'visible' || state.isInPiP());
         }
+        function blockPagePause(video) {
+            if (!protectedPlayback(video) || video.paused || video.ended) return false;
+            if (state.isInPiP()) return true;
+            return !state.userPaused && !state.autoplayBlocked
+                && !state.exitedPiPRecently && video.readyState > 0;
+        }
         HTMLMediaElement.prototype.pause = function() {
-            if (protectedPlayback(this) && !state.userPaused && !state.autoplayBlocked
-                && !state.exitedPiPRecently && !this.ended && this.readyState > 0) {
+            if (blockPagePause(this)) {
                 if (!loggedPauses.has(this)) {
                     loggedPauses.add(this);
                     state.logState('blocked page pause during background/PiP playback', this);
                 }
-                if (!this.paused) synchronizePlayer(this, false);
                 return;
             }
             if (!this.paused) pagePauses.add(this);
@@ -35,44 +39,54 @@ extension YouTubePlayerScripts {
             }
             return originalPlay.call(this);
         };
-        function synchronizePlayer(video, paused) {
-            if (synchronizing.has(video)) return;
+        function protectPlayer() {
             var player = document.getElementById('movie_player');
-            if (!player || typeof player.getPlayerState !== 'function') return;
-            synchronizing.add(video);
-            try {
-                var playerState = player.getPlayerState();
-                if (paused && playerState !== 2 && typeof player.pauseVideo === 'function') {
-                    player.pauseVideo();
-                } else if (!paused && playerState !== 1 && playerState !== 3
-                    && typeof player.playVideo === 'function') {
-                    player.playVideo();
+            if (!player || wrappedPlayers.has(player) || typeof player.pauseVideo !== 'function') return;
+            var originalPauseVideo = player.pauseVideo;
+            var guardedPauseVideo = function() {
+                var video = state.getPlaybackVideo();
+                if (video && blockPagePause(video)) {
+                    state.logState('blocked page player pause during background/PiP playback', video);
+                    return;
                 }
+                return originalPauseVideo.apply(this, arguments);
+            };
+            try {
+                Object.defineProperty(player, 'pauseVideo', {
+                    configurable: true,
+                    get: function() { return guardedPauseVideo; },
+                    set: function(handler) {
+                        if (typeof handler === 'function' && handler !== guardedPauseVideo) {
+                            originalPauseVideo = handler;
+                        }
+                    }
+                });
             } catch (error) {
-                state.logState('native playback synchronization failed', video);
-            } finally {
-                synchronizing.delete(video);
+                player.pauseVideo = guardedPauseVideo;
             }
+            wrappedPlayers.add(player);
         }
-        // Capture native intent before YouTube's target listeners reconcile stale player state.
         document.addEventListener('play', function(event) {
             var video = event.target;
             if (!managed(video) || video.paused) return;
+            protectPlayer();
             pagePauses.delete(video);
             state.userPaused = false;
             state.exitedPiPRecently = false;
             loggedPauses.delete(video);
-            state.logState('native video play', video);
-            synchronizePlayer(video, false);
+            state.logState('unwrapped video play', video);
         }, true);
         document.addEventListener('pause', function(event) {
             var video = event.target;
             if (!managed(video)) return;
             var pagePause = pagePauses.delete(video);
-            if (!video.paused || video.ended || video.readyState === 0 || pagePause) return;
+            if (!video.paused || video.ended || video.readyState === 0) return;
+            if (pagePause) {
+                state.logState('page video pause', video);
+                return;
+            }
             state.userPaused = true;
-            state.logState('native video pause', video);
-            synchronizePlayer(video, true);
+            state.logState('unwrapped video pause', video);
         }, true);
 
         var originalPresentationMode = HTMLVideoElement.prototype.webkitSetPresentationMode;
@@ -105,6 +119,7 @@ extension YouTubePlayerScripts {
         }
         var observedVideos = new WeakSet();
         state.onMutation(function() {
+            protectPlayer();
             var video = state.getPlaybackVideo();
             if (!video || observedVideos.has(video)) return;
             observedVideos.add(video);
