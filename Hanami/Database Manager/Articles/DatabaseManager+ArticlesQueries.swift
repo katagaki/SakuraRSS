@@ -88,6 +88,13 @@ public nonisolated extension DatabaseManager {
         return result
     }
 
+    func undatedArticleURLs(forFeedID fid: Int64) throws -> Set<String> {
+        let query = articles
+            .filter(articleFeedID == fid && articlePublishedDate == nil)
+            .select(articleURL)
+        return Set(try database.prepare(query).map { $0[articleURL] })
+    }
+
     func articles(forFeedID fid: Int64, since date: Date) throws -> [Article] {
         let query = articles
             .filter(articleFeedID == fid

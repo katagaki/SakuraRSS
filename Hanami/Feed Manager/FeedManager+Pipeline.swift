@@ -159,6 +159,7 @@ public extension FeedManager {
         skipImageFetch: Bool
     ) async -> [ArticleInsertItem] {
         let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
+        let undatedURLs = (try? database.undatedArticleURLs(forFeedID: feed.id)) ?? []
         let hasNewArticles = parsed.articles.contains { !existingURLs.contains($0.url) }
         let metadataImages: [String: String]
         if skipImageFetch {
@@ -171,7 +172,12 @@ public extension FeedManager {
         let redditImages: [String: String] = (!skipImageFetch && feed.isRedditFeed && hasNewArticles)
             ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
             : [:]
-        return parsed.articles.map { article in
+        // Stored articles only need a row when their published date can be backfilled.
+        let insertableArticles = parsed.articles.filter { article in
+            !existingURLs.contains(article.url)
+                || (article.publishedDate != nil && undatedURLs.contains(article.url))
+        }
+        return insertableArticles.map { article in
             let redditImage = FeedManager.redditImageURL(
                 for: article.url, in: redditImages
             )
