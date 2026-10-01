@@ -99,12 +99,14 @@ public nonisolated extension DatabaseManager {
         try database.run(articles.filter(articleFeedID == id).delete())
         try database.run(feedRules.filter(ruleFeedID == id).delete())
         try database.run(feedRefreshMetrics.filter(metricFeedID == id).delete())
+        try database.run(feedHTTPValidators.filter(validatorFeedID == id).delete())
         try removeDeletedFeedFromLists(feedID: id)
         try database.run(feeds.filter(feedID == id).delete())
     }
 
     func deleteAllArticles() throws {
         try database.run(articles.filter(articleIsBookmarked == false).delete())
+        try clearAllHTTPValidators()
     }
 
     // MARK: - Row Mapping

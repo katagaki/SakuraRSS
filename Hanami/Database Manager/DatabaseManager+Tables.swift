@@ -203,6 +203,13 @@ nonisolated extension DatabaseManager {
             table.column(metricSampleCount, defaultValue: 0)
             table.column(metricLastRecordedAt, defaultValue: 0.0)
         })
+        try database.run(feedHTTPValidators.create(ifNotExists: true) { table in
+            table.column(validatorFeedID, primaryKey: true)
+            table.column(validatorFetchURL)
+            table.column(validatorETag)
+            table.column(validatorLastModified)
+            table.column(validatorBodyHash)
+        })
     }
 
     private func createNLPTables() throws {

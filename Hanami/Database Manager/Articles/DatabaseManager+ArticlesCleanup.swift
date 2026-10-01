@@ -21,6 +21,7 @@ public nonisolated extension DatabaseManager {
         } else {
             try database.run(articles.filter(articleIsBookmarked == false).delete())
         }
+        try clearAllHTTPValidators()
         try pruneOrphanedBookmarkFolderItems()
         try pruneOrphanedBookmarkTagItems()
     }

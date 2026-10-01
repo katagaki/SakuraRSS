@@ -196,4 +196,13 @@ public nonisolated extension DatabaseManager {
     var metricAverageDurationMs: SQLite.Expression<Double> { SQLite.Expression<Double>("avg_duration_ms") }
     var metricSampleCount: SQLite.Expression<Int> { SQLite.Expression<Int>("sample_count") }
     var metricLastRecordedAt: SQLite.Expression<Double> { SQLite.Expression<Double>("last_recorded_at") }
+
+    // MARK: - Feed HTTP Validators
+
+    var feedHTTPValidators: Table { Table("feed_http_validators") }
+    var validatorFeedID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("feed_id") }
+    var validatorFetchURL: SQLite.Expression<String> { SQLite.Expression<String>("fetch_url") }
+    var validatorETag: SQLite.Expression<String?> { SQLite.Expression<String?>("etag") }
+    var validatorLastModified: SQLite.Expression<String?> { SQLite.Expression<String?>("last_modified") }
+    var validatorBodyHash: SQLite.Expression<String?> { SQLite.Expression<String?>("body_hash") }
 }
