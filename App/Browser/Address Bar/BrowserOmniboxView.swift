@@ -31,6 +31,10 @@ struct BrowserOmniboxView: View {
             .suggestions(for: omnibox.text, contentMatches: omnibox.contentMatches)
     }
 
+    private var isQueryEmpty: Bool {
+        omnibox.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Rectangle()
@@ -40,17 +44,24 @@ struct BrowserOmniboxView: View {
                 .onTapGesture { dismiss() }
 
             VStack(spacing: 0) {
-                // The list only claims the room it needs, so the dimmed page
-                // above it stays tappable the way Safari's does.
-                Spacer(minLength: 0)
-                suggestionList
-                    // Bottom aligned: a maxHeight frame centres its content,
-                    // which left the rows floating in the middle of the box
-                    // with a dead gap above the field.
-                    .frame(
-                        maxHeight: BrowserOmniboxView.suggestionListMaxHeight,
-                        alignment: .bottom
+                if isQueryEmpty {
+                    BrowserOmniboxFollowingGrid(
+                        openFeed: { feed in open(.feed(feed.id)) },
+                        openSection: { section in open(.feedSection(section)) }
                     )
+                } else {
+                    // The list only claims the room it needs, so the dimmed
+                    // page above it stays tappable the way Safari's does.
+                    Spacer(minLength: 0)
+                    suggestionList
+                        // Bottom aligned: a maxHeight frame centres its
+                        // content, which left the rows floating in the middle
+                        // of the box with a dead gap above the field.
+                        .frame(
+                            maxHeight: BrowserOmniboxView.suggestionListMaxHeight,
+                            alignment: .bottom
+                        )
+                }
                 fieldBar
             }
         }
@@ -151,6 +162,11 @@ struct BrowserOmniboxView: View {
         let found = (try? DatabaseManager.shared.searchArticles(query: query)) ?? []
         guard !Task.isCancelled else { return }
         omnibox.contentMatches = Array(found.prefix(4))
+    }
+
+    private func open(_ location: BrowserLocation) {
+        store.navigate(to: location)
+        dismiss()
     }
 
     private func apply(_ suggestion: BrowserSuggestion) {
