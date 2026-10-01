@@ -70,6 +70,7 @@ struct SakuraRSSApp: App {
                 ) { _ in
                     feedManager.flushDebouncedReads()
                     reloadWidgetsIfNeeded()
+                    LogManager.shared.flush()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)

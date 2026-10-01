@@ -319,6 +319,7 @@ nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {
         }
         didComplete = true
         lock.unlock()
+        LogManager.shared.flush()
         task.setTaskCompleted(success: success)
     }
 }

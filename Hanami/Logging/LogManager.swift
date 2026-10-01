@@ -18,6 +18,9 @@ public nonisolated final class LogManager: @unchecked Sendable {
     }()
 
     private var knownFileSizes: [URL: Int64] = [:]
+    private var pendingLines: [URL: Data] = [:]
+    private var isFlushScheduled = false
+    private static let flushDelay: DispatchTimeInterval = .seconds(2)
 
     public let directoryURL: URL? = {
         guard let container = FileManager.default.containerURL(
@@ -28,16 +31,41 @@ public nonisolated final class LogManager: @unchecked Sendable {
         return directory
     }()
 
+    /// Lines are batched per module and written every couple of seconds, so a
+    /// burst of logging costs one file append per module instead of one per line.
     public func write(module: String, message: String) {
         let date = Date()
         queue.async { [weak self] in
             guard let self, let url = self.fileURL(for: module) else { return }
             let line = "[\(self.timestampFormatter.string(from: date))] \(message)\n"
-            self.appendData(Data(line.utf8), to: url)
+            self.pendingLines[url, default: Data()].append(contentsOf: line.utf8)
+            self.scheduleFlushIfNeeded()
+        }
+    }
+
+    public func flush() {
+        queue.sync { flushPendingLines() }
+    }
+
+    private func scheduleFlushIfNeeded() {
+        guard !isFlushScheduled else { return }
+        isFlushScheduled = true
+        queue.asyncAfter(deadline: .now() + Self.flushDelay) { [weak self] in
+            self?.flushPendingLines()
+        }
+    }
+
+    private func flushPendingLines() {
+        isFlushScheduled = false
+        let batches = pendingLines
+        pendingLines.removeAll(keepingCapacity: true)
+        for (url, data) in batches {
+            appendData(data, to: url)
         }
     }
 
     public func availableModules() -> [String] {
+        flush()
         guard let directory = directoryURL else { return [] }
         let contents = (try? FileManager.default.contentsOfDirectory(
             at: directory,
@@ -55,6 +83,7 @@ public nonisolated final class LogManager: @unchecked Sendable {
     }
 
     public func size(for module: String) -> Int64 {
+        flush()
         guard let url = fileURL(for: module),
               let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
               let size = attributes[.size] as? Int64 else { return 0 }
@@ -62,6 +91,7 @@ public nonisolated final class LogManager: @unchecked Sendable {
     }
 
     public func totalSize() -> Int64 {
+        flush()
         guard let directory = directoryURL else { return 0 }
         let contents = (try? FileManager.default.contentsOfDirectory(
             at: directory,
@@ -85,11 +115,13 @@ public nonisolated final class LogManager: @unchecked Sendable {
             try? FileManager.default.removeItem(at: url)
         }
         queue.async { [weak self] in
+            self?.pendingLines.removeAll()
             self?.knownFileSizes.removeAll()
         }
     }
 
     public func contents(for module: String) -> String {
+        flush()
         guard let url = fileURL(for: module),
               let data = try? Data(contentsOf: url),
               let text = String(data: data, encoding: .utf8) else { return "" }
