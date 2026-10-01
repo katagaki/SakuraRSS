@@ -131,9 +131,14 @@ public final class FeedManager {
 
     public let database = DatabaseManager.shared
 
-    public init() {
-        createDefaultBookmarkFoldersIfNeeded()
-        loadFromDatabase()
+    init(loadsFullState: Bool) {
+        if loadsFullState {
+            createDefaultBookmarkFoldersIfNeeded()
+            loadFromDatabase()
+        } else {
+            feeds = (try? database.allFeeds()) ?? []
+            feedsByID = Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) })
+        }
         userDefaultsObserver = NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification,
             object: UserDefaults.standard,

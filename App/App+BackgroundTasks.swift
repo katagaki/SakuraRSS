@@ -104,7 +104,7 @@ extension SakuraRSSApp {
             let pluggedIn = await Self.deviceIsPluggedIn()
             let skipImagePreload = pathExpensive || !pluggedIn
 
-            let manager = await MainActor.run { FeedManager() }
+            let manager = await MainActor.run { FeedManager.forBackgroundRefresh() }
             let latestArticleIDBefore = DatabaseManager.shared.latestArticleID()
             await manager.refreshFeeds(
                 in: category,
