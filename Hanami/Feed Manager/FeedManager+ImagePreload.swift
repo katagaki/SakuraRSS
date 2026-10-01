@@ -65,6 +65,27 @@ public extension FeedManager {
         log("ImageBackfill", "end")
     }
 
+    /// Re-encodes blobs cached before downsampling-on-write existed.
+    nonisolated static func shrinkOversizedCachedImages(limit: Int = 300) async {
+        let database = DatabaseManager.shared
+        let urls = (try? database.cachedImageURLs(largerThan: 512 * 1024, limit: limit)) ?? []
+        guard !urls.isEmpty else { return }
+        var savedBytes = 0
+        var shrunkCount = 0
+        for urlString in urls {
+            if Task.isCancelled { break }
+            guard let original = try? database.cachedImageData(for: urlString) else { continue }
+            let shrunk = ImageDownsampler.cacheableData(original)
+            if shrunk.count < original.count {
+                try? database.replaceCachedImageData(shrunk, for: urlString)
+                savedBytes += original.count - shrunk.count
+                shrunkCount += 1
+            }
+            await Task.yield()
+        }
+        log("ImageBackfill", "shrunk \(shrunkCount)/\(urls.count) cached images saved=\(savedBytes) bytes")
+    }
+
     nonisolated private static func downloadAndCacheImage(url: URL) async {
         let urlString = url.absoluteString
         let database = DatabaseManager.shared
@@ -80,8 +101,9 @@ public extension FeedManager {
                 log("FeedRefresh.ImagePreload", "fail url=\(urlString) reason=empty")
                 return
             }
-            try? database.cacheImageData(data, for: urlString)
-            log("FeedRefresh.ImagePreload", "success url=\(urlString) bytes=\(data.count)")
+            let cacheable = ImageDownsampler.cacheableData(data)
+            try? database.cacheImageData(cacheable, for: urlString)
+            log("FeedRefresh.ImagePreload", "success url=\(urlString) bytes=\(data.count) stored=\(cacheable.count)")
         } catch {
             log("FeedRefresh.ImagePreload", "fail url=\(urlString) error=\(error.localizedDescription)")
         }

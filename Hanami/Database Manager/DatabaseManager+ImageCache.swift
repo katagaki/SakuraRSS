@@ -54,6 +54,20 @@ public nonisolated extension DatabaseManager {
         ))
     }
 
+    func cachedImageURLs(largerThan byteCount: Int, limit: Int) throws -> [String] {
+        let lengthExpression = SQLite.Expression<Int>(literal: "length(\"data\")")
+        let query = imageCache
+            .select(imageCacheURL)
+            .filter(lengthExpression > byteCount)
+            .limit(limit)
+        return try imageDatabase.prepare(query).map { $0[imageCacheURL] }
+    }
+
+    /// Swaps a blob in place without bumping `cached_at`, so age-based cleanup is unaffected.
+    func replaceCachedImageData(_ data: Data, for url: String) throws {
+        try imageDatabase.run(imageCache.filter(imageCacheURL == url).update(imageCacheData <- data))
+    }
+
     func clearCachedImageData(for url: String) throws {
         try imageDatabase.run(imageCache.filter(imageCacheURL == url).delete())
     }

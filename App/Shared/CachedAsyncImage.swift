@@ -26,7 +26,7 @@ nonisolated final class ImageMemoryCache: @unchecked Sendable {
 }
 
 private enum CachedAsyncImageConfig {
-    nonisolated static let maxDisplayPixelSize: CGFloat = 2000
+    nonisolated static let maxDisplayPixelSize: CGFloat = ImageDownsampler.cacheMaxPixelSize
 }
 
 struct CachedAsyncImage<Placeholder: View>: View {
@@ -173,7 +173,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
             attachDerivedMetrics(to: downsampled, encodedData: data)
             ImageAspectRatioCache.shared.recordAspectRatio(of: downsampled, for: urlString)
             if memoryCache.image(forKey: key) == nil {
-                try? database.cacheImageData(data, for: urlString)
+                try? database.cacheImageData(ImageDownsampler.cacheableData(data), for: urlString)
             }
             memoryCache.setImage(downsampled, forKey: key)
             return downsampled
