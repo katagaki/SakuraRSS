@@ -116,8 +116,6 @@ public enum NLPProcessingCoordinator {
             .filter { !$0.isEmpty }
             .joined(separator: " ")
 
-        log("NLPCoordinator", "processArticleSync: article=\(article.id) title=\"\(article.title.prefix(60))\"")
-
         if runSentiment {
             let sentiment: Double?
             if let sentimentTagger {

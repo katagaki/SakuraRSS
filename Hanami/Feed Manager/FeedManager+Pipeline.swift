@@ -225,7 +225,6 @@ public extension FeedManager {
         database: DatabaseManager
     ) {
         if feed.isFediverse != nil {
-            log("FediverseDetector", "skip id=\(feed.id) reason=cached value=\(feed.isFediverse == true)")
             return
         }
         if feed.isKnownFediverseHost {
