@@ -160,7 +160,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
         log("Image", "Cache miss, downloading \(urlString)")
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: .sakuraImage(url: url))
+            let (data, response) = try await URLSession.sakuraImages.data(for: .sakuraImage(url: url))
             let statusCode = (response as? HTTPURLResponse)?.statusCode
             log("Image", "Downloaded \(urlString): \(data.count) bytes, HTTP \(statusCode ?? 0)")
             let downsampled = ImageDownsampler.downsample(

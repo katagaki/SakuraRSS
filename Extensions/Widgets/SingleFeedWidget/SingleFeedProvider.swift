@@ -228,7 +228,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
             log("Widget", "Image cache hit for \(urlString) (\(cached.count) bytes)")
             rawData = cached
         } else if !articleSetUnchanged {
-            if let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)) {
+            if let (data, _) = try? await URLSession.sakuraImages.data(for: .sakuraImage(url: imageURL)) {
                 log("Widget", "Downloaded image \(urlString) (\(data.count) bytes)")
                 if WidgetImageBudget.isWithinBudget(data) {
                     try? database.cacheImageData(data, for: urlString)
