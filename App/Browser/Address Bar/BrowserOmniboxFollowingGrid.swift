@@ -33,7 +33,6 @@ struct BrowserOmniboxFollowingGrid: View {
         }
         .scrollContentBackground(.hidden)
         .compatibleInteractiveKeyboardDismissal()
-        .defaultScrollAnchor(.bottom)
     }
 
     private func sectionGrid(_ section: FeedSection, feeds: [Feed]) -> some View {
