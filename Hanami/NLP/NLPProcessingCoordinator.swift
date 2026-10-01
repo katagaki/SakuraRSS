@@ -43,7 +43,7 @@ public enum NLPProcessingCoordinator {
             var processedSinceYield = 0
             for pending in toProcess {
                 if Task.isCancelled { break }
-                if let article = try? database.article(byID: pending.id) {
+                if let article = try? database.listArticle(byID: pending.id) {
                     processArticleSync(
                         article,
                         sentimentTagger: pending.needsSentiment ? sentimentTagger : nil,
@@ -93,7 +93,7 @@ public enum NLPProcessingCoordinator {
 
         for id in ids {
             if Task.isCancelled { return }
-            guard let article = try? database.article(byID: id) else { continue }
+            guard let article = try? database.listArticle(byID: id) else { continue }
             processArticleSync(
                 article,
                 sentimentTagger: sentimentTagger,

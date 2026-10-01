@@ -50,6 +50,12 @@ public nonisolated extension DatabaseManager {
         return try database.prepare(query).map(rowToArticle).first
     }
 
+    /// Same row as `article(byID:)` without the full-text `content` column.
+    func listArticle(byID id: Int64) throws -> Article? {
+        let query = selectingListColumns(articles).filter(articleID == id).limit(1)
+        return try database.prepare(query).map(rowToListArticle).first
+    }
+
     func articles(forFeedID fid: Int64, limit: Int? = nil) throws -> [Article] {
         var query = articles
             .filter(articleFeedID == fid)
