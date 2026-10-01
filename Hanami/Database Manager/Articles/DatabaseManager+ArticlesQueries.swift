@@ -72,6 +72,11 @@ public nonisolated extension DatabaseManager {
     }
 
     /// Returns the URLs already ingested for `fid`.
+    /// Highest article row id; grows whenever a refresh inserts anything.
+    func latestArticleID() -> Int64 {
+        (try? database.scalar(articles.select(articleID.max))) ?? 0
+    }
+
     func existingArticleURLs(forFeedID fid: Int64) throws -> Set<String> {
         let query = articles
             .filter(articleFeedID == fid)

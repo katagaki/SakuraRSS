@@ -105,6 +105,7 @@ extension SakuraRSSApp {
             let skipImagePreload = pathExpensive || !pluggedIn
 
             let manager = await MainActor.run { FeedManager() }
+            let latestArticleIDBefore = DatabaseManager.shared.latestArticleID()
             await manager.refreshFeeds(
                 in: category,
                 skipImageFetch: skipImageFetch,
@@ -112,6 +113,10 @@ extension SakuraRSSApp {
             )
             if Task.isCancelled { return }
             manager.updateBadgeCount()
+            guard DatabaseManager.shared.latestArticleID() != latestArticleIDBefore else {
+                log("BackgroundRefresh", "no new articles category=\(category.rawValue), skipping widget reload")
+                return
+            }
             WidgetCenter.shared.reloadAllTimelines()
         }
 
