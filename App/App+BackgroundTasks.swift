@@ -112,6 +112,7 @@ extension SakuraRSSApp {
                 skipImagePreload: skipImagePreload
             )
             if Task.isCancelled { return }
+            await MainActor.run { manager.reloadUnreadCounts() }
             manager.updateBadgeCount()
             guard DatabaseManager.shared.latestArticleID() != latestArticleIDBefore else {
                 log("BackgroundRefresh", "no new articles category=\(category.rawValue), skipping widget reload")

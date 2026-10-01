@@ -166,10 +166,7 @@ public final class FeedManager {
             feeds = try database.allFeeds()
             feedsByID = Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) })
             articles = try database.allArticlesList(limit: 200)
-            let rawUnreadCounts = (try? database.allUnreadCounts()) ?? [:]
-            unreadCounts = FeedManager.applyRulesToUnreadCounts(rawUnreadCounts, database: database)
-            let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
-            unreadReelsCounts = (try? database.unreadReelsCounts(forFeedIDs: instagramFeedIDs)) ?? [:]
+            reloadUnreadCounts()
             lists = (try? database.allLists()) ?? []
             bookmarkFolders = (try? database.allBookmarkFolders()) ?? []
             pendingReadIDs.removeAll()
@@ -184,6 +181,13 @@ public final class FeedManager {
         } catch {
             log("FeedManager", "Failed to load from database: \(error)")
         }
+    }
+
+    public func reloadUnreadCounts() {
+        let rawUnreadCounts = (try? database.allUnreadCounts()) ?? [:]
+        unreadCounts = FeedManager.applyRulesToUnreadCounts(rawUnreadCounts, database: database)
+        let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
+        unreadReelsCounts = (try? database.unreadReelsCounts(forFeedIDs: instagramFeedIDs)) ?? [:]
     }
 
     public func loadFromDatabaseInBackground(animated: Bool = false) async {
