@@ -167,8 +167,11 @@ extension SakuraRSSApp {
 
     nonisolated private static func deviceIsPluggedIn() async -> Bool {
         await MainActor.run { () -> Bool in
-            UIDevice.current.isBatteryMonitoringEnabled = true
-            switch UIDevice.current.batteryState {
+            let device = UIDevice.current
+            let wasMonitoring = device.isBatteryMonitoringEnabled
+            device.isBatteryMonitoringEnabled = true
+            defer { device.isBatteryMonitoringEnabled = wasMonitoring }
+            switch device.batteryState {
             case .charging, .full: return true
             case .unplugged, .unknown: return false
             @unknown default: return false
