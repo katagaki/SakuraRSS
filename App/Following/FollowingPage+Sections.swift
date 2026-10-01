@@ -20,25 +20,11 @@ extension FollowingPage {
         }
     }
 
-    /// Groups the filtered feeds by section once, so each section doesn't
-    /// re-filter and re-sort the whole feed list on every body evaluation.
-    var feedsBySection: [FeedSection: [Feed]] {
-        var grouped = Dictionary(grouping: filteredFeeds, by: \.feedSection)
-        for (section, feeds) in grouped where section != .feeds {
-            grouped[section] = feeds.sorted {
-                let domainCompare = $0.domain.localizedStandardCompare($1.domain)
-                if domainCompare != .orderedSame { return domainCompare == .orderedAscending }
-                return $0.title.localizedStandardCompare($1.title) == .orderedAscending
-            }
-        }
-        return grouped
-    }
-
     @ViewBuilder
     var feedSectionsContent: some View {
         LazyVStack(alignment: .leading, spacing: 24) {
             focusBanner
-            let groupedFeeds = feedsBySection
+            let groupedFeeds = filteredFeeds.groupedByFeedSection()
             ForEach(FeedSection.allCases, id: \.self) { section in
                 feedSection(section, feeds: groupedFeeds[section] ?? [])
             }
@@ -92,21 +78,10 @@ extension FollowingPage {
     @ViewBuilder
     func feedSectionHeader(_ section: FeedSection) -> some View {
         if isEditingFeeds || isSelectingFeeds {
-            Text(section.localizedTitle)
-                .font(.title3)
-                .fontWeight(.bold)
+            FollowingSectionHeaderLabel(section: section, showsChevron: false)
         } else {
             NavigationLink(value: section) {
-                HStack(spacing: 4) {
-                    Text(section.localizedTitle)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.primary)
-                    Image(systemName: "chevron.right")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
-                }
+                FollowingSectionHeaderLabel(section: section)
             }
             .buttonStyle(.plain)
             .matchedSource(id: FollowingZoomID.section(section), in: followingNavigationNamespace)
