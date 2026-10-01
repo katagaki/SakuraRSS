@@ -43,6 +43,10 @@ public extension ContentResolver {
             extraction.text = text + "\n\n" + extras
         }
 
+        if !extraction.paywalled, let text = extraction.text, !text.isEmpty {
+            extraction.text = await CloudBlockRefiner.refine(text, title: article.title, url: url)
+        }
+
         mergeMetadata(extraction.metadata)
         result.paywalled = extraction.paywalled
         result.text = extraction.text
