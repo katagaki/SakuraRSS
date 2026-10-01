@@ -19,19 +19,22 @@ struct HomeSectionView: View {
     let showsLastUpdated: Bool
     let effectiveStyleBinding: Binding<FeedDisplayStyle?>?
     let externalScrollToTopTrigger: Int
+    var leadingHeader: AnyView?
 
     init(
         source: HomeContentSource,
         showsListHeader: Bool = false,
         showsLastUpdated: Bool = true,
         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
-        externalScrollToTopTrigger: Int = 0
+        externalScrollToTopTrigger: Int = 0,
+        leadingHeader: AnyView? = nil
     ) {
         self.source = source
         self.showsListHeader = showsListHeader
         self.showsLastUpdated = showsLastUpdated
         self.effectiveStyleBinding = effectiveStyleBinding
         self.externalScrollToTopTrigger = externalScrollToTopTrigger
+        self.leadingHeader = leadingHeader
     }
 
     init(section: FeedSection?) {
