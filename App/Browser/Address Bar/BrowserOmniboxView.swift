@@ -62,6 +62,10 @@ struct BrowserOmniboxView: View {
                             alignment: .bottom
                         )
                 }
+            }
+            // An inset rather than a stack sibling, so the scroll views run on
+            // behind the field instead of being clipped at its top edge.
+            .safeAreaInset(edge: .bottom, spacing: 0) {
                 fieldBar
             }
         }
