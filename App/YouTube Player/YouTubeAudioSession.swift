@@ -13,7 +13,13 @@ enum YouTubeAudioSession {
     }
 
     static func activate() {
-        try? AVAudioSession.sharedInstance().setActive(true)
+        log("YT Native", "audio session activation requested")
+        do {
+            try AVAudioSession.sharedInstance().setActive(true)
+            log("YT Native", "audio session activation completed")
+        } catch {
+            log("YT Native", "audio session activation failed: \(error)")
+        }
     }
 
     static func deactivate() {

@@ -54,6 +54,9 @@ extension YouTubePlayerScripts {
                 + ' bufferedAhead=' + bufferedAhead.toFixed(2)
                 + ' sourcePresent=' + (video ? !!(video.currentSrc || video.srcObject) : 'missing')
                 + ' mode=' + (video ? state.realPresentationMode(video) : 'missing')
+                + ' pageMode=' + (video ? video.webkitPresentationMode : 'missing')
+                + ' muted=' + (video ? video.muted : 'missing')
+                + ' volume=' + (video ? video.volume : 'missing')
                 + ' nativePiP=' + state.isInPiP()
                 + ' playerState=' + playerState
                 + ' mediaSessionState=' + mediaSessionState
@@ -61,6 +64,7 @@ extension YouTubePlayerScripts {
                 + ' autoplayBlocked=' + state.autoplayBlocked
                 + ' exitedPiP=' + state.exitedPiPRecently
                 + ' visibility=' + visibility
+                + ' pageVisibility=' + document.visibilityState
                 + ' time=' + (video && isFinite(video.currentTime)
                     ? video.currentTime.toFixed(2) : 'unknown'));
         };

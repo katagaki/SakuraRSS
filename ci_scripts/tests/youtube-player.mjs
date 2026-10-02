@@ -400,4 +400,28 @@ let visibilityEvents = 0;
 document.addEventListener('visibilitychange', () => visibilityEvents++);
 document.dispatchEvent(new Event('visibilitychange'));
 assert.equal(visibilityEvents, 0);
-console.log('Policy, inline backgrounding, native controls, PiP ownership and lifecycle checks passed');
+const autoplayVideo = new EventTarget();
+autoplayVideo.muted = true;
+let autoplayUnmuteCalls = 0;
+const autoplayContext = vm.createContext({
+    document: {
+        querySelectorAll() { return [autoplayVideo]; },
+        getElementById() { return { unMute() { autoplayUnmuteCalls++; } }; }
+    },
+    __yt: {
+        armAutoplay() {},
+        logState() {},
+        addListener(target, type, listener, options) { target.addEventListener(type, listener, options); },
+        onMutation(callback) { callback(); }
+    }
+});
+vm.runInContext('window = globalThis;', autoplayContext);
+vm.runInContext(script('YouTubePlayerScripts+Autoplay.swift', 'initialAutoplayKick'), autoplayContext);
+autoplayVideo.dispatchEvent(new Event('playing'));
+assert.equal(autoplayVideo.muted, false);
+assert.equal(autoplayUnmuteCalls, 1, 'initial autoplay unmutes the player once');
+autoplayVideo.muted = true;
+autoplayVideo.dispatchEvent(new Event('playing'));
+assert.equal(autoplayUnmuteCalls, 1, 'resume must not issue another page unmute command');
+assert.equal(autoplayVideo.muted, true, 'resume preserves a subsequent user mute');
+console.log('Policy, inline backgrounding, native controls, PiP ownership, lifecycle and initial autoplay checks passed');

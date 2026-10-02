@@ -142,8 +142,9 @@ extension YouTubePlayerScripts {
             if (!video || video.__ytInitialUnmuteAttached) return;
             video.__ytInitialUnmuteAttached = true;
             window.__yt.addListener(video, 'playing', function() {
+                window.__yt.logState('initial autoplay unmute', video);
                 unmute(video);
-            }, true);
+            }, { capture: true, once: true });
         }
         function scan() { document.querySelectorAll('video').forEach(attach); }
         window.__yt.onMutation(scan);
