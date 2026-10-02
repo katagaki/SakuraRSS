@@ -67,10 +67,11 @@ const mediaEvents = [];
 const handlers = {};
 const interruptions = [];
 const messages = [];
-const playbackMessages = [];
 const windowEvents = new EventTarget();
 const observers = [];
 let timerCount = 0;
+let nextTimer = 0;
+const pendingTimers = new Map();
 class Document extends EventTarget {}
 const document = new Document();
 document.visibilityState = 'visible';
@@ -78,16 +79,22 @@ class MediaElement extends EventTarget {
     paused = true;
     ended = false;
     readyState = 4;
+    currentTime = 0;
+    streamReady = false;
     play() {
         if (this.paused) {
             this.paused = false;
             mediaEvents.push(() => this.dispatchEvent(new Event('play')));
+            mediaEvents.push(() => {
+                if (!this.paused) this.dispatchEvent(new Event('playing'));
+            });
         }
         return Promise.resolve();
     }
     pause() {
         if (!this.paused) {
             this.paused = true;
+            this.streamReady = false;
             mediaEvents.push(() => this.dispatchEvent(new Event('pause')));
         }
     }
@@ -134,11 +141,14 @@ class MediaSession {
 const mediaSession = new MediaSession();
 let playerPlayCalls = 0;
 let playerPauseCalls = 0;
+let controllerSuspended = false;
 const player = {
     state: 2,
     getPlayerState() { return this.state; },
     playVideo() {
         playerPlayCalls++;
+        controllerSuspended = false;
+        video.streamReady = true;
         this.state = 1;
         video.play().catch(() => {});
         mediaSession.playbackState = 'playing';
@@ -150,7 +160,8 @@ const player = {
         mediaSession.playbackState = 'paused';
     }
 };
-video.addEventListener('play', () => { player.state = 1; });
+video.addEventListener('play', () => { if (!controllerSuspended) player.state = 1; });
+video.addEventListener('playing', () => { if (!controllerSuspended) video.streamReady = true; });
 video.addEventListener('pause', () => { player.state = 2; });
 document.querySelectorAll = () => [video];
 document.querySelector = () => video;
@@ -162,15 +173,21 @@ const playbackContext = vm.createContext({
     MutationObserver: class { constructor(callback) { this.callback = callback; } observe(target) {
         observers.push({ target, callback: this.callback });
     } },
-    setTimeout() { timerCount++; },
+    setTimeout(callback) {
+        timerCount++;
+        const timer = ++nextTimer;
+        pendingTimers.set(timer, callback);
+        return timer;
+    },
+    clearTimeout(timer) { pendingTimers.delete(timer); },
     webkit: { messageHandlers: {
-        ytPiP: { postMessage(message) { messages.push(message); } },
-        ytPlayback: { postMessage(message) { playbackMessages.push(message); } }
+        ytPiP: { postMessage(message) { messages.push(message); } }
     } }
 });
 vm.runInContext('window = globalThis;', playbackContext);
 const originalAdd = EventTarget.prototype.addEventListener;
 vm.runInContext(script('YouTubePlayerScripts.swift', 'mediaIsolationBootstrap'), playbackContext);
+vm.runInContext(script('YouTubePlayerScripts+Diagnostics.swift', 'playbackDiagnostics'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+Ownership.swift', 'playbackOwnership'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+MediaSessionState.swift', 'mediaSessionPlaybackStateBridge'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+MediaSession.swift', 'mediaSessionUserActionBridge'), playbackContext);
@@ -248,7 +265,9 @@ for (let attempt = 0; attempt < 3; attempt++) {
     video.pause();
     assert.equal(video.paused, false, 'page cannot pause before the native resume event arrives');
     flushMediaEvents();
+    await Promise.resolve();
     assert.equal(video.paused, false, 'native PiP resume survives a counteracting page pause');
+    assert.equal(video.streamReady, true, 'the stream consumer receives playing on every PiP resume');
     player.pauseVideo();
     flushMediaEvents();
     assert.equal(video.paused, false, 'page player API cannot stop resumed native PiP');
@@ -256,12 +275,51 @@ for (let attempt = 0; attempt < 3; attempt++) {
     flushMediaEvents();
     assert.equal(video.paused, true, 'immediate native PiP pause is respected');
     assert.equal(playbackContext.__yt.userPaused, true);
-    assert.equal(player.state, 1, 'a native PiP pause must not put the page stream controller into paused state');
-    assert.equal(playbackMessages.at(-1).event, 'pause', 'native UI still receives the isolated pause');
+    assert.equal(player.state, 2, 'the stream controller observes the real pause');
 }
-assert.equal(playerPlayCalls, 0, 'native PiP events never call the page player API');
+assert.equal(playerPlayCalls, 0, 'a synchronized stream controller needs no extra play command');
 assert.equal(playerPauseCalls, 0, 'native PiP events never call the page player API');
-assert.equal(pageMediaEvents, inlinePageMediaEvents, 'PiP media events do not reach page capture listeners');
+assert.ok(pageMediaEvents > inlinePageMediaEvents, 'PiP preserves normal media event delivery');
+
+controllerSuspended = true;
+nativePlay.call(video);
+flushMediaEvents();
+assert.equal(video.paused, false);
+assert.equal(video.streamReady, false, 'an unpaused element alone does not prove stream playback');
+await Promise.resolve();
+assert.equal(playerPlayCalls, 1, 'a suspended controller is restarted once after native resume');
+assert.equal(video.streamReady, true);
+assert.equal(interruptions.length, 0, 'resynchronization cannot activate the competing DOM media session');
+await Promise.resolve();
+assert.equal(playerPlayCalls, 1, 'stream resynchronization does not poll or retry');
+assert.equal(pendingTimers.size, 0, 'playing cancels the fallback timer');
+
+nativePause.call(video);
+flushMediaEvents();
+controllerSuspended = true;
+nativePlay.call(video);
+mediaEvents.pop();
+flushMediaEvents();
+assert.equal(video.streamReady, false, 'a missing playing event leaves the stream suspended');
+assert.equal(pendingTimers.size, 1, 'a stalled resume has one bounded fallback');
+const [fallbackTimer, fallback] = pendingTimers.entries().next().value;
+pendingTimers.delete(fallbackTimer);
+fallback();
+await Promise.resolve();
+assert.equal(playerPlayCalls, 2, 'the fallback restarts a stream without a playing event');
+assert.equal(video.streamReady, true);
+
+nativePause.call(video);
+flushMediaEvents();
+controllerSuspended = true;
+nativePlay.call(video);
+flushMediaEvents();
+nativePause.call(video);
+flushMediaEvents();
+await Promise.resolve();
+assert.equal(playerPlayCalls, 2, 'a newer user pause cancels queued stream resynchronization');
+assert.equal(video.paused, true);
+controllerSuspended = false;
 
 const sessionSource = readFileSync(new URL('../../App/Core/YouTube Player Session/YouTubePlayerSession.swift', import.meta.url), 'utf8');
 const playSource = sessionSource.split('func play() {')[1].split('let script = """')[1].split('"""')[0];
@@ -318,7 +376,8 @@ assert.equal(video.paused, true, 'ended media can transition to the next source'
 vm.runInContext(`__yt.setPiPActionHandler(() => 'native');
     navigator.mediaSession.setActionHandler('enterpictureinpicture', () => 'page');`, playbackContext);
 assert.equal(handlers.enterpictureinpicture(), 'native');
-assert.equal(timerCount, 0, 'ownership protection never polls or schedules retries');
+assert.equal(pendingTimers.size, 0, 'ownership protection leaves no active retry timer');
+assert.ok(timerCount < 20, 'each PiP resume schedules at most one fallback');
 let visibilityEvents = 0;
 document.addEventListener('visibilitychange', () => visibilityEvents++);
 document.dispatchEvent(new Event('visibilitychange'));
