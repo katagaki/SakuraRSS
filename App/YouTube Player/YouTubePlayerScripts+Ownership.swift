@@ -24,6 +24,10 @@ extension YouTubePlayerScripts {
                 && !state.exitedPiPRecently && video.readyState > 0;
         }
         HTMLMediaElement.prototype.pause = function() {
+            if (managed(this) && !this.paused) {
+                var stack = new Error().stack || '';
+                state.log('page media pause call ' + stack.split(String.fromCharCode(10)).slice(1, 4).join(' | '));
+            }
             if (blockPagePause(this)) {
                 if (!loggedPauses.has(this)) {
                     loggedPauses.add(this);
@@ -46,6 +50,11 @@ extension YouTubePlayerScripts {
             var originalPauseVideo = player.pauseVideo;
             var guardedPauseVideo = function() {
                 var video = state.getPlaybackVideo();
+                if (video && !video.paused) {
+                    var stack = new Error().stack || '';
+                    state.log('page player pauseVideo call '
+                        + stack.split(String.fromCharCode(10)).slice(1, 4).join(' | '));
+                }
                 if (video && blockPagePause(video)) {
                     state.logState('blocked page player pause during background/PiP playback', video);
                     return;

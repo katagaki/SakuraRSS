@@ -49,6 +49,8 @@ extension YouTubePlayerScripts {
                 + ' videoPaused=' + (video ? video.paused : 'missing')
                 + ' readyState=' + (video ? video.readyState : 'missing')
                 + ' networkState=' + (video ? video.networkState : 'missing')
+                + ' mediaError=' + (video && video.error
+                    ? video.error.code + ':' + video.error.message : 'none')
                 + ' bufferedAhead=' + bufferedAhead.toFixed(2)
                 + ' sourcePresent=' + (video ? !!(video.currentSrc || video.srcObject) : 'missing')
                 + ' mode=' + (video ? video.webkitPresentationMode : 'missing')
