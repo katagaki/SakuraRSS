@@ -66,7 +66,7 @@ extension YouTubePlayerScripts {
             }
             wrappedPlayers.add(player);
         }
-        document.addEventListener('play', function(event) {
+        window.addEventListener('play', function(event) {
             var video = event.target;
             if (!managed(video) || video.paused) return;
             protectPlayer();
@@ -76,7 +76,7 @@ extension YouTubePlayerScripts {
             loggedPauses.delete(video);
             state.logState('unwrapped video play', video);
         }, true);
-        document.addEventListener('pause', function(event) {
+        window.addEventListener('pause', function(event) {
             var video = event.target;
             if (!managed(video)) return;
             var pagePause = pagePauses.delete(video);
@@ -88,6 +88,22 @@ extension YouTubePlayerScripts {
             state.userPaused = true;
             state.logState('unwrapped video pause', video);
         }, true);
+
+        ['play', 'playing', 'pause'].forEach(function(type) {
+            window.addEventListener(type, function(event) {
+                var video = event.target;
+                if (!managed(video) || !state.isInPiP() || video.ended) return;
+                // Keep AVKit's events out of YouTube's stream state machine.
+                event.stopImmediatePropagation();
+                try {
+                    window.webkit.messageHandlers.\(playbackMessageHandlerName).postMessage({
+                        event: type, currentTime: video.currentTime,
+                        duration: video.duration || 0, rate: video.playbackRate
+                    });
+                } catch (error) {}
+                state.logState('isolated native PiP ' + type, video);
+            }, true);
+        });
 
         var originalPresentationMode = HTMLVideoElement.prototype.webkitSetPresentationMode;
         var originalRequestPiP = HTMLVideoElement.prototype.requestPictureInPicture;

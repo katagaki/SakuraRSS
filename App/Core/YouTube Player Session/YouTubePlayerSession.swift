@@ -102,12 +102,12 @@ final class YouTubePlayerSession {
 
     func togglePlayPause() {
         let script = """
-        var video = document.querySelector('video');
+        var video = window.__yt.getPlaybackVideo();
         if (!video) { return null; }
         var mediaMissing = (window.__yt && window.__yt.mediaMissing)
             ? window.__yt.mediaMissing(video)
             : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
-        if (video.paused || mediaMissing) {
+        if (video.paused || (mediaMissing && !window.__yt.isInPiP())) {
             if (window.__yt) {
                 window.__yt.autoplayBlocked = false;
                 window.__yt.userPaused = false;
@@ -140,7 +140,7 @@ final class YouTubePlayerSession {
 
     func play() {
         let script = """
-        var video = document.querySelector('video');
+        var video = window.__yt.getPlaybackVideo();
         if (!video) { return null; }
         if (window.__yt) {
             window.__yt.autoplayBlocked = false;
@@ -150,7 +150,9 @@ final class YouTubePlayerSession {
         var mediaMissing = (window.__yt && window.__yt.mediaMissing)
             ? window.__yt.mediaMissing(video)
             : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
-        if (!video.paused && mediaMissing) { window.__yt.pauseVideo(video); }
+        if (!video.paused && mediaMissing && !window.__yt.isInPiP()) {
+            window.__yt.pauseVideo(video);
+        }
         try { await window.__yt.resumeVideo(video); } catch (error) { return false; }
         return !video.paused;
         """
@@ -160,7 +162,7 @@ final class YouTubePlayerSession {
     func pause() {
         let script = """
         (function() {
-            var video = document.querySelector('video');
+            var video = window.__yt.getPlaybackVideo();
             if (!video) { return null; }
             if (window.__yt) { window.__yt.userPaused = true; }
             window.__yt.pauseVideo(video);

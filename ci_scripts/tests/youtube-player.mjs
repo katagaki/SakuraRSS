@@ -6,7 +6,8 @@ const scriptRoot = new URL('../../App/YouTube Player/', import.meta.url);
 function script(file, name) {
     const source = readFileSync(new URL(file, scriptRoot), 'utf8');
     const body = source.split(`static let ${name} = """`)[1].split('"""')[0];
-    return body.replaceAll('\\(pipMessageHandlerName)', 'ytPiP');
+    return body.replaceAll('\\(pipMessageHandlerName)', 'ytPiP')
+        .replaceAll('\\(playbackMessageHandlerName)', 'ytPlayback');
 }
 const policy = script('YouTubePlayerScripts+Policy.swift', 'playbackPolicy');
 const context = vm.createContext({ URLSearchParams });
@@ -66,6 +67,8 @@ const mediaEvents = [];
 const handlers = {};
 const interruptions = [];
 const messages = [];
+const playbackMessages = [];
+const windowEvents = new EventTarget();
 const observers = [];
 let timerCount = 0;
 class Document extends EventTarget {}
@@ -101,7 +104,15 @@ class Video extends MediaElement {
     dispatchEvent(event) {
         const captured = new Event(event.type);
         Object.defineProperty(captured, 'target', { value: this });
+        let propagationStopped = false;
+        captured.stopImmediatePropagation = function() {
+            propagationStopped = true;
+            Event.prototype.stopImmediatePropagation.call(this);
+        };
+        windowEvents.dispatchEvent(captured);
+        if (propagationStopped) return true;
         document.dispatchEvent(captured);
+        if (propagationStopped) return true;
         return super.dispatchEvent(event);
     }
 }
@@ -147,11 +158,15 @@ document.getElementById = () => player;
 const playbackContext = vm.createContext({
     document, Document, HTMLMediaElement: MediaElement, HTMLVideoElement: Video, EventTarget, DOMException,
     navigator: { mediaSession },
+    addEventListener: windowEvents.addEventListener.bind(windowEvents),
     MutationObserver: class { constructor(callback) { this.callback = callback; } observe(target) {
         observers.push({ target, callback: this.callback });
     } },
     setTimeout() { timerCount++; },
-    webkit: { messageHandlers: { ytPiP: { postMessage(message) { messages.push(message); } } } }
+    webkit: { messageHandlers: {
+        ytPiP: { postMessage(message) { messages.push(message); } },
+        ytPlayback: { postMessage(message) { playbackMessages.push(message); } }
+    } }
 });
 vm.runInContext('window = globalThis;', playbackContext);
 const originalAdd = EventTarget.prototype.addEventListener;
@@ -163,6 +178,10 @@ vm.runInContext(script('YouTubePlayerScripts+PiP.swift', 'pipEventBridge'), play
 vm.runInContext(script('YouTubePlayerScripts+Autoplay.swift', 'autoplayArmer'), playbackContext);
 assert.equal(observers[0].target, document, 'discovery works before documentElement exists');
 assert.equal(EventTarget.prototype.addEventListener, originalAdd);
+let pageMediaEvents = 0;
+for (const eventType of ['play', 'playing', 'pause']) {
+    windowEvents.addEventListener(eventType, () => pageMediaEvents++);
+}
 function flushMediaEvents() {
     let remainingEvents = 100;
     while (mediaEvents.length) {
@@ -204,6 +223,10 @@ flushMediaEvents();
 assert.equal(video.paused, true, 'system stop remains authoritative');
 assert.equal(pageCommands, 0, 'system commands never invoke page-owned callbacks');
 
+handlers.play();
+flushMediaEvents();
+const inlinePageMediaEvents = pageMediaEvents;
+assert.ok(inlinePageMediaEvents > 0, 'inline page listeners retain normal media events');
 nativePresentation.call(video, 'picture-in-picture');
 video.dispatchEvent(new Event('enterpictureinpicture'));
 assert.deepEqual(messages, ['enter']);
@@ -233,9 +256,29 @@ for (let attempt = 0; attempt < 3; attempt++) {
     flushMediaEvents();
     assert.equal(video.paused, true, 'immediate native PiP pause is respected');
     assert.equal(playbackContext.__yt.userPaused, true);
+    assert.equal(player.state, 1, 'a native PiP pause must not put the page stream controller into paused state');
+    assert.equal(playbackMessages.at(-1).event, 'pause', 'native UI still receives the isolated pause');
 }
 assert.equal(playerPlayCalls, 0, 'native PiP events never call the page player API');
 assert.equal(playerPauseCalls, 0, 'native PiP events never call the page player API');
+assert.equal(pageMediaEvents, inlinePageMediaEvents, 'PiP media events do not reach page capture listeners');
+
+const sessionSource = readFileSync(new URL('../../App/Core/YouTube Player Session/YouTubePlayerSession.swift', import.meta.url), 'utf8');
+const playSource = sessionSource.split('func play() {')[1].split('let script = """')[1].split('"""')[0];
+const savedPause = playbackContext.__yt.pauseVideo;
+let sessionPauseCalls = 0;
+playbackContext.__yt.pauseVideo = function(media) {
+    sessionPauseCalls++;
+    return savedPause(media);
+};
+video.readyState = 0;
+video.paused = false;
+assert.equal(await vm.runInContext(`(async function() {${playSource}})()`, playbackContext), true);
+assert.equal(sessionPauseCalls, 0, 'remote play does not pause a PiP video with transient missing media');
+video.readyState = 4;
+nativePause.call(video);
+flushMediaEvents();
+
 playbackContext.__yt.armAutoplay(12000);
 assert.equal(playbackContext.__yt.userPaused, true, 'autoplay cannot clear a PiP pause');
 assert.equal(vm.runInContext(script('YouTubePlayerScripts+Autoplay.swift', 'nativeAutoplayKick'), playbackContext),
