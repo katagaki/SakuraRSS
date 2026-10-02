@@ -55,9 +55,7 @@ extension YouTubePlayerView {
     func resyncPiPState() {
         let script = """
         (function() {
-            var v = document.querySelector('video');
-            if (!v) { return false; }
-            return v.webkitPresentationMode === 'picture-in-picture';
+            return !!(window.__yt && window.__yt.isInPiP());
         })();
         """
         webView?.evaluateJavaScript(script) { result, _ in

@@ -12,6 +12,17 @@ nonisolated enum YouTubePlayerScripts {
         var originalRequestPiP = HTMLVideoElement.prototype.requestPictureInPicture;
         var originalExitPiP = Document.prototype.exitPictureInPicture;
         var originalPresentationMode = HTMLVideoElement.prototype.webkitSetPresentationMode;
+        function propertyGetter(target, name) {
+            while (target) {
+                var descriptor = Object.getOwnPropertyDescriptor(target, name);
+                if (descriptor) return descriptor.get || null;
+                target = Object.getPrototypeOf(target);
+            }
+            return null;
+        }
+        var visibilityGetter = propertyGetter(document, 'visibilityState');
+        var presentationGetter = propertyGetter(HTMLVideoElement.prototype, 'webkitPresentationMode');
+        var pipElementGetter = propertyGetter(document, 'pictureInPictureElement');
         window.__yt = {
             autoplayBlocked: false,
             userPaused: false,
@@ -23,14 +34,22 @@ nonisolated enum YouTubePlayerScripts {
             removeListener: function(target, type, listener, options) {
                 target.removeEventListener(type, listener, options);
             },
-            realVisibilityState: function() { return document.visibilityState; },
+            realVisibilityState: function() {
+                return visibilityGetter ? visibilityGetter.call(document) : document.visibilityState;
+            },
+            realPresentationMode: function(video) {
+                return presentationGetter ? presentationGetter.call(video) : video.webkitPresentationMode;
+            },
+            realPiPElement: function() {
+                return pipElementGetter ? pipElementGetter.call(document) : document.pictureInPictureElement;
+            },
             resumeVideo: function(video) { return originalPlay.call(video); },
             pauseVideo: function(video) { return originalPause.call(video); },
             logState: function() {},
             getPiPVideo: function() {
                 return Array.from(document.querySelectorAll('video')).find(function(video) {
-                    return video.webkitPresentationMode === 'picture-in-picture'
-                        || document.pictureInPictureElement === video;
+                    return window.__yt.realPresentationMode(video) === 'picture-in-picture'
+                        || window.__yt.realPiPElement() === video;
                 }) || null;
             },
             getPlaybackVideo: function() {
@@ -51,7 +70,7 @@ nonisolated enum YouTubePlayerScripts {
                 this.logState('native exitPiP()', video);
                 if (video && originalPresentationMode) {
                     originalPresentationMode.call(video, 'inline');
-                } else if (document.pictureInPictureElement && originalExitPiP) {
+                } else if (this.realPiPElement() && originalExitPiP) {
                     originalExitPiP.call(document).catch(function() {});
                 }
             },

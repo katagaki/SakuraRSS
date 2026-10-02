@@ -53,7 +53,7 @@ extension YouTubePlayerScripts {
                     ? video.error.code + ':' + video.error.message : 'none')
                 + ' bufferedAhead=' + bufferedAhead.toFixed(2)
                 + ' sourcePresent=' + (video ? !!(video.currentSrc || video.srcObject) : 'missing')
-                + ' mode=' + (video ? video.webkitPresentationMode : 'missing')
+                + ' mode=' + (video ? state.realPresentationMode(video) : 'missing')
                 + ' nativePiP=' + state.isInPiP()
                 + ' playerState=' + playerState
                 + ' mediaSessionState=' + mediaSessionState

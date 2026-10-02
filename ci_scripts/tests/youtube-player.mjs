@@ -72,7 +72,26 @@ const observers = [];
 let timerCount = 0;
 let nextTimer = 0;
 const pendingTimers = new Map();
-class Document extends EventTarget {}
+class Document extends EventTarget {
+    nativeVisibility = 'visible';
+    get visibilityState() { return this.nativeVisibility; }
+    set visibilityState(value) { this.nativeVisibility = value; }
+    get hidden() { return this.nativeVisibility !== 'visible'; }
+    get pictureInPictureElement() { return null; }
+    hasFocus() { return this.nativeVisibility === 'visible'; }
+    dispatchEvent(event) {
+        const captured = new Event(event.type);
+        Object.defineProperty(captured, 'target', { value: this });
+        let propagationStopped = false;
+        captured.stopImmediatePropagation = function() {
+            propagationStopped = true;
+            Event.prototype.stopImmediatePropagation.call(this);
+        };
+        windowEvents.dispatchEvent(captured);
+        if (propagationStopped) return true;
+        return super.dispatchEvent(event);
+    }
+}
 const document = new Document();
 document.visibilityState = 'visible';
 class MediaElement extends EventTarget {
@@ -100,12 +119,13 @@ class MediaElement extends EventTarget {
     }
 }
 class Video extends MediaElement {
-    webkitPresentationMode = 'inline';
+    nativePresentationMode = 'inline';
+    get webkitPresentationMode() { return this.nativePresentationMode; }
     attributes = new Set();
     hasAttribute(name) { return this.attributes.has(name); }
     removeAttribute(name) { this.attributes.delete(name); }
     webkitSetPresentationMode(mode) {
-        this.webkitPresentationMode = mode;
+        this.nativePresentationMode = mode;
         this.dispatchEvent(new Event('webkitpresentationmodechanged'));
     }
     dispatchEvent(event) {
@@ -188,11 +208,16 @@ vm.runInContext('window = globalThis;', playbackContext);
 const originalAdd = EventTarget.prototype.addEventListener;
 vm.runInContext(script('YouTubePlayerScripts.swift', 'mediaIsolationBootstrap'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+Diagnostics.swift', 'playbackDiagnostics'), playbackContext);
+vm.runInContext(script('YouTubePlayerScripts+PiP.swift', 'pipEventBridge'), playbackContext);
+vm.runInContext(script('YouTubePlayerScripts+Environment.swift', 'pageEnvironmentMask'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+Ownership.swift', 'playbackOwnership'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+MediaSessionState.swift', 'mediaSessionPlaybackStateBridge'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+MediaSession.swift', 'mediaSessionUserActionBridge'), playbackContext);
-vm.runInContext(script('YouTubePlayerScripts+PiP.swift', 'pipEventBridge'), playbackContext);
 vm.runInContext(script('YouTubePlayerScripts+Autoplay.swift', 'autoplayArmer'), playbackContext);
+let pageVisibilityEvents = 0;
+let pagePiPEvents = 0;
+document.addEventListener('visibilitychange', () => pageVisibilityEvents++);
+video.addEventListener('webkitpresentationmodechanged', () => pagePiPEvents++);
 assert.equal(observers[0].target, document, 'discovery works before documentElement exists');
 assert.equal(EventTarget.prototype.addEventListener, originalAdd);
 let pageMediaEvents = 0;
@@ -214,8 +239,13 @@ handlers.play();
 flushMediaEvents();
 assert.equal(video.paused, false);
 assert.equal(mediaSession.playbackState, 'none', 'inline playback also uses native video state');
-document.visibilityState = 'hidden';
+document.nativeVisibility = 'hidden';
 document.dispatchEvent(new Event('visibilitychange'));
+assert.equal(document.visibilityState, 'visible', 'page sees the foreground state');
+assert.equal(document.hidden, false);
+assert.equal(document.hasFocus(), true);
+assert.equal(playbackContext.__yt.realVisibilityState(), 'hidden', 'app retains the native visibility');
+assert.equal(pageVisibilityEvents, 0, 'page does not receive background visibility events');
 mediaSession.playbackState = 'playing';
 video.pause();
 flushMediaEvents();
@@ -262,8 +292,11 @@ assert.ok(inlinePageMediaEvents > 0, 'inline page listeners retain normal media 
 nativePresentation.call(video, 'picture-in-picture');
 video.dispatchEvent(new Event('enterpictureinpicture'));
 assert.deepEqual(messages, ['enter']);
+assert.equal(video.webkitPresentationMode, 'inline', 'page cannot observe the native PiP mode');
+assert.equal(playbackContext.__yt.realPresentationMode(video), 'picture-in-picture');
+assert.equal(pagePiPEvents, 0, 'page does not receive the PiP presentation event');
 video.webkitSetPresentationMode('inline');
-assert.equal(video.webkitPresentationMode, 'picture-in-picture', 'page cannot close native PiP');
+assert.equal(playbackContext.__yt.realPresentationMode(video), 'picture-in-picture', 'page cannot close native PiP');
 player.pauseVideo = function() {
     playerPauseCalls++;
     nativePause.call(video);
@@ -328,11 +361,11 @@ assert.equal(vm.runInContext(script('YouTubePlayerScripts+Autoplay.swift', 'nati
     'done', 'native autoplay does not cycle the PiP media element');
 playbackContext.__yt.expectingPiPExit = true;
 playbackContext.__yt.exitPiP(video);
-assert.equal(video.webkitPresentationMode, 'inline', 'app retains original PiP exit API');
+assert.equal(playbackContext.__yt.realPresentationMode(video), 'inline', 'app retains original PiP exit API');
 assert.deepEqual(messages, ['enter', 'leave']);
 assert.equal(mediaSession.playbackState, 'none', 'PiP exit does not restore page session ownership');
 playbackContext.__yt.enterPiP(video);
-assert.equal(video.webkitPresentationMode, 'picture-in-picture', 'app retains original PiP entry API');
+assert.equal(playbackContext.__yt.realPresentationMode(video), 'picture-in-picture', 'app retains original PiP entry API');
 video.readyState = 0;
 video.paused = false;
 video.pause();
@@ -366,5 +399,5 @@ assert.ok(timerCount < 20, 'PiP playback does not create a timer loop');
 let visibilityEvents = 0;
 document.addEventListener('visibilitychange', () => visibilityEvents++);
 document.dispatchEvent(new Event('visibilitychange'));
-assert.equal(visibilityEvents, 1);
+assert.equal(visibilityEvents, 0);
 console.log('Policy, inline backgrounding, native controls, PiP ownership and lifecycle checks passed');

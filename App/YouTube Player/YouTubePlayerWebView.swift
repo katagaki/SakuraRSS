@@ -105,13 +105,14 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         let scripts: [InjectedUserScript] = [
             .init(source: YouTubePlayerScripts.mediaIsolationBootstrap, time: .atDocumentStart, mainFrameOnly: true),
             .init(source: YouTubePlayerScripts.playbackDiagnostics, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.pipEventBridge, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.pageEnvironmentMask, time: .atDocumentStart, mainFrameOnly: true),
             .init(
                 source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
                 time: .atDocumentStart,
                 mainFrameOnly: true
             ),
             .init(source: YouTubePlayerScripts.autoplayArmer, time: .atDocumentEnd, mainFrameOnly: true),
-            .init(source: YouTubePlayerScripts.pipEventBridge, time: .atDocumentEnd, mainFrameOnly: true),
             .init(source: YouTubePlayerScripts.playbackPolicy, time: .atDocumentStart, mainFrameOnly: true),
             .init(
                 source: YouTubePlayerScripts.playbackOwnership + YouTubePlayerScripts.mediaSessionPlaybackStateBridge

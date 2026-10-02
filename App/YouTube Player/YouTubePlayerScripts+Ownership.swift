@@ -15,7 +15,7 @@ extension YouTubePlayerScripts {
             return video instanceof HTMLVideoElement && video === state.getPlaybackVideo();
         }
         function protectedPlayback(video) {
-            return managed(video) && (document.visibilityState !== 'visible' || state.isInPiP());
+            return managed(video) && (state.realVisibilityState() !== 'visible' || state.isInPiP());
         }
         function blockPagePause(video) {
             if (!protectedPlayback(video) || video.paused || video.ended) return false;

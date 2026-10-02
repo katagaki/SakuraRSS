@@ -165,32 +165,31 @@ extension YouTubePlayerScripts {
 
     static let pipEventBridge = """
     (function() {
-        function attach(video) {
-            if (video.__ytPiPAttached) return;
-            video.__ytPiPAttached = true;
-            var wasInPiP = false;
-            function update() {
-                var inPiP = window.__yt.getPiPVideo() === video;
-                if (inPiP === wasInPiP) return;
-                wasInPiP = inPiP;
-                if (!inPiP) {
-                    window.__yt.exitedPiPRecently = !window.__yt.expectingPiPExit;
-                    window.__yt.expectingPiPExit = false;
-                }
-                window.__yt.logState(inPiP ? 'PiP enter' : 'PiP leave', video);
-                try {
-                    window.webkit.messageHandlers.\(pipMessageHandlerName)
-                        .postMessage(inPiP ? 'enter' : 'leave');
-                } catch (error) {}
+        var wasInPiP = false;
+        var activeVideo = null;
+        function update(event) {
+            if (!(event.target instanceof HTMLVideoElement)) return;
+            var video = event.target;
+            var inPiP = window.__yt.getPiPVideo() === video;
+            if (!inPiP && activeVideo !== video) return;
+            if (inPiP === wasInPiP) return;
+            wasInPiP = inPiP;
+            if (inPiP) {
+                activeVideo = video;
+            } else {
+                activeVideo = null;
+                window.__yt.exitedPiPRecently = !window.__yt.expectingPiPExit;
+                window.__yt.expectingPiPExit = false;
             }
-            ['enterpictureinpicture', 'leavepictureinpicture',
-                'webkitpresentationmodechanged'].forEach(function(type) {
-                video.addEventListener(type, update);
-            });
-            update();
+            window.__yt.logState(inPiP ? 'PiP enter' : 'PiP leave', video);
+            try {
+                window.webkit.messageHandlers.\(pipMessageHandlerName)
+                    .postMessage(inPiP ? 'enter' : 'leave');
+            } catch (error) {}
         }
-        window.__yt.onMutation(function() {
-            document.querySelectorAll('video').forEach(attach);
+        ['enterpictureinpicture', 'leavepictureinpicture',
+            'webkitpresentationmodechanged'].forEach(function(type) {
+            window.addEventListener(type, update, true);
         });
     })();
     """
