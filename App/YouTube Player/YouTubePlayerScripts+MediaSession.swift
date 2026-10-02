@@ -17,6 +17,7 @@ extension YouTubePlayerScripts {
                 var video = window.__yt.getPlaybackVideo();
                 if (!video) return;
                 window.__yt.logState('native mediaSession ' + action, video);
+                window.__yt.backgroundResumeEligible = false;
                 if (action === 'play') {
                     window.__yt.userPaused = false;
                     window.__yt.autoplayBlocked = false;

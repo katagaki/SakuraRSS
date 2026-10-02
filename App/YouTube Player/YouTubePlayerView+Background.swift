@@ -25,9 +25,19 @@ extension YouTubePlayerView {
             // closing it in the background is a deliberate stop.
             if oldPhase == .active {
                 wantsPlaybackInBackground = isPlaying && !isPiP
+                if wantsPlaybackInBackground {
+                    webView?.evaluateJavaScript(
+                        "window.__yt && (window.__yt.backgroundResumeEligible = true)",
+                        completionHandler: nil
+                    )
+                }
             }
             session.rememberPlaybackPosition()
         case .active:
+            webView?.evaluateJavaScript(
+                "window.__yt && (window.__yt.backgroundResumeEligible = false)",
+                completionHandler: nil
+            )
             if wantsPlaybackInBackground && !isPlaying {
                 resumePlaybackIfNeeded()
             }

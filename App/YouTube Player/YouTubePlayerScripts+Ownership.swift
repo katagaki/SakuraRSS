@@ -10,7 +10,7 @@ extension YouTubePlayerScripts {
         var pagePauses = new WeakSet();
         var loggedPauses = new WeakSet();
         var wrappedPlayers = new WeakSet();
-        var pendingResumes = new WeakMap();
+        state.backgroundResumeEligible = false;
         function managed(video) {
             return video instanceof HTMLVideoElement && video === state.getPlaybackVideo();
         }
@@ -76,27 +76,6 @@ extension YouTubePlayerScripts {
             }
             wrappedPlayers.add(player);
         }
-        function synchronizeResume(video) {
-            if (!state.isInPiP() || pendingResumes.has(video)) return;
-            var timeout = setTimeout(function() { finishResume(video); }, 750);
-            pendingResumes.set(video, timeout);
-        }
-        function finishResume(video) {
-            if (!pendingResumes.has(video)) return;
-            clearTimeout(pendingResumes.get(video));
-            pendingResumes.delete(video);
-            Promise.resolve().then(function() {
-                if (!managed(video) || !state.isInPiP() || video.paused || video.ended
-                    || state.userPaused || state.autoplayBlocked || state.exitedPiPRecently) return;
-                var player = document.getElementById('movie_player');
-                if (!player || typeof player.getPlayerState !== 'function'
-                    || typeof player.playVideo !== 'function') return;
-                var playerState = player.getPlayerState();
-                if (playerState === 1 || playerState === 3) return;
-                state.logState('synchronize stream controller after native PiP resume', video);
-                player.playVideo();
-            }).catch(function() { state.logState('stream controller resume failed', video); });
-        }
         window.addEventListener('play', function(event) {
             var video = event.target;
             if (!managed(video) || video.paused) return;
@@ -106,22 +85,29 @@ extension YouTubePlayerScripts {
             state.exitedPiPRecently = false;
             loggedPauses.delete(video);
             state.logState('unwrapped video play', video);
-            synchronizeResume(video);
-        }, true);
-        window.addEventListener('playing', function(event) {
-            if (managed(event.target)) finishResume(event.target);
         }, true);
         window.addEventListener('pause', function(event) {
             var video = event.target;
             if (!managed(video)) return;
-            if (pendingResumes.has(video)) {
-                clearTimeout(pendingResumes.get(video));
-                pendingResumes.delete(video);
-            }
             var pagePause = pagePauses.delete(video);
             if (!video.paused || video.ended || video.readyState === 0) return;
             if (pagePause) {
                 state.logState('page video pause', video);
+                return;
+            }
+            if (state.backgroundResumeEligible && !state.isInPiP() && !state.userPaused) {
+                state.backgroundResumeEligible = false;
+                state.logState('inline background interruption', video);
+                Promise.resolve().then(function() {
+                    if (!managed(video) || !video.paused || video.ended || state.userPaused
+                        || state.isInPiP()) return;
+                    var playback = state.resumeVideo(video);
+                    if (playback && typeof playback.catch === 'function') {
+                        playback.catch(function() {
+                            state.logState('inline background resume rejected', video);
+                        });
+                    }
+                });
                 return;
             }
             state.userPaused = true;
