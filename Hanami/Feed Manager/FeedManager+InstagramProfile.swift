@@ -33,7 +33,7 @@ public extension FeedManager {
         log("InstagramProfile", "fetching @\(handle) id=\(feed.id)")
 
         let fetcher = InstagramProvider()
-        let result = await fetcher.fetchProfile(profileURL: profileURL)
+        let result = try await fetcher.fetchProfile(profileURL: profileURL)
         // swiftlint:disable:next line_length
         log("InstagramProfile", "fetched @\(handle) posts=\(result.posts.count) displayName=\(result.displayName ?? "nil")")
 
