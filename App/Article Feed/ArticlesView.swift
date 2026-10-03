@@ -39,6 +39,7 @@ struct ArticlesView: View {
 
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
+    @Environment(\.isBrowserModeActive) private var isBrowserModeActive
     @Environment(\.homeSectionDisplayMenu) private var homeSectionDisplayMenu
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
@@ -141,6 +142,7 @@ struct ArticlesView: View {
                 onScrollOffsetChange?(newOffset)
             }
         }
+        .browserReaderSplit(isEnabled: usesReaderSplit(for: effectiveStyle))
         .sakuraBackground()
         .navigationTitle(title)
         #if !os(visionOS)
@@ -322,6 +324,11 @@ extension ArticlesView {
         model.showTimeline = feedKey != "all"
         model.showPodcast = isPodcastFeed || hasAudioArticles
         model.isActive = true
+    }
+
+    private func usesReaderSplit(for style: FeedDisplayStyle) -> Bool {
+        isBrowserModeActive && !isBrowserChromeActive && HomeLayout.usesPadLayout
+            && style.usesBrowserReaderSplit
     }
 
     var effectiveDisplayStyle: FeedDisplayStyle {
