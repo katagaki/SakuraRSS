@@ -7,22 +7,32 @@ import Hanami
 struct BrowserRegularShell: View {
 
     @Environment(BrowserTabStore.self) private var store
-    @Environment(BrowserPageSlots.self) private var slots
     @Environment(BrowserFavourites.self) private var favourites
     @Environment(\.browserBookmarksAction) private var openBookmarks
-    @Environment(\.browserOmniboxAction) private var openOmnibox
+    @Environment(BrowserOmniboxModel.self) private var omnibox
 
     var body: some View {
-        VStack(spacing: 0) {
-            BrowserTopTabBar()
-            addressRow
-            Divider()
-            BrowserTabStack()
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                BrowserTopTabBar()
+                addressRow(popupMaxHeight: min(480, max(120, geometry.size.height - 120)))
+                    .zIndex(1)
+                Divider()
+                BrowserTabStack()
+                    .overlay {
+                        if omnibox.isActive {
+                            Color.clear
+                                .contentShape(.rect)
+                                .onTapGesture { omnibox.deactivate() }
+                        }
+                    }
+            }
         }
         .background(.background.secondary)
+        .onChange(of: store.selectedTabID) { omnibox.deactivate() }
     }
 
-    private var addressRow: some View {
+    private func addressRow(popupMaxHeight: CGFloat) -> some View {
         HStack(spacing: 8) {
             Button {
                 store.goBack()
@@ -36,17 +46,7 @@ struct BrowserRegularShell: View {
             .disabled(!store.selectedTab.canGoBack)
             .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
 
-            BrowserAddressCapsule(
-                tab: store.selectedTab,
-                progress: slots.displayedProgress(for: store.selectedTabID, in: store)
-            ) {
-                openOmnibox?()
-            }
-            .frame(maxWidth: 560)
-            .compatibleGlassEffect(in: .capsule, interactive: true)
-            .contextMenu {
-                BrowserPageMenu(store: store, favourites: favourites)
-            }
+            BrowserRegularOmnibox(popupMaxHeight: popupMaxHeight)
 
             Button {
                 openBookmarks?()

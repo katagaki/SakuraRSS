@@ -10,6 +10,7 @@ struct BrowserOmniboxFollowingGrid: View {
 
     let openFeed: (Feed) -> Void
     let openSection: (FeedSection) -> Void
+    var fitsContent: Bool = false
 
     private let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 16)]
 
@@ -20,19 +21,30 @@ struct BrowserOmniboxFollowingGrid: View {
     }
 
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 24) {
-                let groupedFeeds = feeds.groupedByFeedSection()
-                ForEach(FeedSection.allCases, id: \.self) { section in
-                    if let sectionFeeds = groupedFeeds[section], !sectionFeeds.isEmpty {
-                        sectionGrid(section, feeds: sectionFeeds)
-                    }
+        Group {
+            if fitsContent {
+                ViewThatFits(in: .vertical) {
+                    gridContent
+                    ScrollView { gridContent }
                 }
+            } else {
+                ScrollView { gridContent }
             }
-            .padding()
         }
         .scrollContentBackground(.hidden)
         .compatibleInteractiveKeyboardDismissal()
+    }
+
+    private var gridContent: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            let groupedFeeds = feeds.groupedByFeedSection()
+            ForEach(FeedSection.allCases, id: \.self) { section in
+                if let sectionFeeds = groupedFeeds[section], !sectionFeeds.isEmpty {
+                    sectionGrid(section, feeds: sectionFeeds)
+                }
+            }
+        }
+        .padding()
     }
 
     private func sectionGrid(_ section: FeedSection, feeds: [Feed]) -> some View {
