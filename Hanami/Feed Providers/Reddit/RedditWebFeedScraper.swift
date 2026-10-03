@@ -66,21 +66,21 @@ public final class RedditWebFeedScraper: NSObject, WKNavigationDelegate {
         try await Task.sleep(for: .seconds(1))
     }
 
-    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    public func webView(_: WKWebView, didFinish _: WKNavigation!) {
         completeNavigation(.success(()))
     }
 
     public func webView(
-        _ webView: WKWebView,
-        didFail navigation: WKNavigation!,
+        _: WKWebView,
+        didFail _: WKNavigation!,
         withError error: Error
     ) {
         completeNavigation(.failure(error))
     }
 
     public func webView(
-        _ webView: WKWebView,
-        didFailProvisionalNavigation navigation: WKNavigation!,
+        _: WKWebView,
+        didFailProvisionalNavigation _: WKNavigation!,
         withError error: Error
     ) {
         completeNavigation(.failure(error))

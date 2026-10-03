@@ -21,9 +21,15 @@ public nonisolated struct RedditWebFeedURL: Sendable {
 
         let remainder = Array(segments.dropFirst(2))
         let rawSort = remainder.first ?? "hot"
-        let normalizedSort = rawSort.lowercased() == ".rss" ? "hot" : rawSort.lowercased().hasSuffix(".rss")
-            ? String(rawSort.dropLast(4)).lowercased() : rawSort.lowercased()
-        let sort = normalizedSort
+        let lowercasedSort = rawSort.lowercased()
+        let sort: String
+        if lowercasedSort == ".rss" {
+            sort = "hot"
+        } else if lowercasedSort.hasSuffix(".rss") {
+            sort = String(lowercasedSort.dropLast(4))
+        } else {
+            sort = lowercasedSort
+        }
         let allowedSorts: Set<String> = ["hot", "new", "top", "rising", "controversial"]
         guard allowedSorts.contains(sort),
               remainder.count <= 2,
