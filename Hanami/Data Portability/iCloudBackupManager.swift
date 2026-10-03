@@ -135,6 +135,18 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
             throw BackupError.backupNotFound
         }
 
+        let backupConnection = try Connection(backupURL.path, readonly: true)
+        let restoredRecipes = try PetalBackupArchive.read(from: backupConnection)
+        for entry in restoredRecipes {
+            try PetalStore.shared.save(entry.recipe)
+            if let iconData = entry.iconData {
+                try PetalStore.shared.saveIcon(iconData, for: entry.recipe.id)
+            }
+        }
+        let hasWebFeeds = (try backupConnection.scalar(
+            "SELECT count(*) FROM feeds WHERE url LIKE 'petal://%'"
+        ) as? Int64 ?? 0) > 0
+
         let dbPath = DatabaseManager.databasePath
         let dbURL = URL(fileURLWithPath: dbPath)
 
@@ -147,6 +159,9 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
 
         try FileManager.default.copyItem(at: backupURL, to: dbURL)
         try DatabaseManager.shared.reconnect()
+        if hasWebFeeds {
+            UserDefaults.standard.set(true, forKey: "Labs.PetalRecipes")
+        }
         // The restored database carries another device's sync bookkeeping;
         // start over so the engine reconciles against CloudKit from scratch.
         CloudSyncEngine.shared.resetAfterRestore()
@@ -164,37 +179,26 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
     }
 
     private func createCleanedBackup() throws -> URL {
-        let tempDir = FileManager.default.temporaryDirectory
-        let tempDB = tempDir.appendingPathComponent("Sakura-backup.feeds")
-
-        if FileManager.default.fileExists(atPath: tempDB.path) {
-            try FileManager.default.removeItem(at: tempDB)
-        }
-
-        let sourceURL = URL(fileURLWithPath: DatabaseManager.databasePath)
-        try FileManager.default.copyItem(at: sourceURL, to: tempDB)
-
-        // Copy WAL/SHM so the temp copy is complete.
-        for suffix in ["-wal", "-shm"] {
-            let src = URL(fileURLWithPath: DatabaseManager.databasePath + suffix)
-            let dst = tempDir.appendingPathComponent("Sakura-backup.feeds" + suffix)
-            if FileManager.default.fileExists(atPath: dst.path) {
-                try FileManager.default.removeItem(at: dst)
-            }
-            if FileManager.default.fileExists(atPath: src.path) {
-                try FileManager.default.copyItem(at: src, to: dst)
-            }
-        }
-
+        let tempDB = FileManager.default.temporaryDirectory
+            .appendingPathComponent("Sakura-backup-\(UUID().uuidString).feeds")
+        let sourceConnection = try Connection(DatabaseManager.databasePath, readonly: true)
         let connection = try Connection(tempDB.path)
+        let backup = try sourceConnection.backup(usingConnection: connection)
+        try backup.step()
+
         try connection.run("DELETE FROM image_cache")
         try connection.run("DELETE FROM summary_cache")
+        let entries = PetalStore.shared.allRecipes().map { recipe in
+            PetalBackupArchive.Entry(
+                recipe: recipe,
+                iconData: PetalStore.shared.iconData(for: recipe.id)
+            )
+        }
+        try PetalBackupArchive.write(entries, to: connection)
         try connection.run("VACUUM")
 
-        for suffix in ["-wal", "-shm"] {
-            let dst = tempDir.appendingPathComponent("Sakura-backup.feeds" + suffix)
-            try? FileManager.default.removeItem(at: dst)
-        }
+        try connection.run("PRAGMA wal_checkpoint(TRUNCATE)")
+        try connection.run("PRAGMA journal_mode = DELETE")
 
         return tempDB
     }
