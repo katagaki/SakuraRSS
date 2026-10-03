@@ -71,14 +71,18 @@ public nonisolated extension DatabaseManager {
 
     func updateFeedDetails(id: Int64, title: String, url: String,
                            customIconURL: String?,
-                           isTitleCustomized: Bool) throws {
+                           isTitleCustomized: Bool, siteURL: String? = nil) throws {
         let target = feeds.filter(feedID == id)
-        try database.run(target.update(
+        var setters: [Setter] = [
             feedTitle <- title,
             feedURL <- url,
             feedCustomIconURL <- customIconURL,
             feedIsTitleCustomized <- isTitleCustomized
-        ))
+        ]
+        if let siteURL {
+            setters.append(feedSiteURL <- siteURL)
+        }
+        try database.run(target.update(setters))
     }
 
     func updateFeedAcronymIcon(id: Int64, data: Data?) throws {
