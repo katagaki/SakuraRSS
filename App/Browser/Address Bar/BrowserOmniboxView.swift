@@ -185,8 +185,8 @@ struct BrowserOmniboxView: View {
             store.push(article)
         case .searchContent(let query):
             store.navigate(to: .search(query))
-        case .discoverFeeds(let host):
-            addFeed?("https://\(host)")
+        case .discoverFeeds(let urlString):
+            addFeed?(urlString)
         }
         dismiss()
     }

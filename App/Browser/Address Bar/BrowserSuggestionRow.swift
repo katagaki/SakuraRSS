@@ -51,9 +51,10 @@ struct BrowserSuggestionRow: View {
                 title: String(localized: "Suggestions.SearchFor \(query)", table: "Browser"),
                 symbolName: "magnifyingglass"
             )
-        case .discoverFeeds(let host):
+        case .discoverFeeds(let urlString):
             actionLabel(
-                title: String(localized: "Suggestions.FindFeeds \(host)", table: "Browser"),
+                title: String(localized: "Suggestions.FindFeeds \(BrowserAddressInput.displayString(for: urlString))",
+                              table: "Browser"),
                 symbolName: "antenna.radiowaves.left.and.right"
             )
         }

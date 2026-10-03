@@ -22,10 +22,10 @@ struct BrowserSuggestionResolver {
                 section: .actions
             )
         ]
-        if let host = BrowserAddressInput.siteHost(from: trimmed) {
+        if let urlString = BrowserAddressInput.normalizedURLString(from: trimmed) {
             results.append(BrowserSuggestion(
-                id: "discover:\(host)",
-                kind: .discoverFeeds(host),
+                id: "discover:\(urlString)",
+                kind: .discoverFeeds(urlString),
                 section: .actions
             ))
         }

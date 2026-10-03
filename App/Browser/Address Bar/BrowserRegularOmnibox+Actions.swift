@@ -58,7 +58,7 @@ extension BrowserRegularOmnibox {
         case .list(let list): store.navigate(to: .list(list.id))
         case .article(let article): store.push(article)
         case .searchContent(let query): store.navigate(to: .search(query))
-        case .discoverFeeds(let host): addFeed?("https://\(host)")
+        case .discoverFeeds(let urlString): addFeed?(urlString)
         }
         dismiss()
     }

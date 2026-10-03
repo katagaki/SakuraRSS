@@ -22,4 +22,12 @@ enum BrowserAddressInput {
         if trimmed.lowercased().hasPrefix("http") { return trimmed }
         return "https://\(trimmed)"
     }
+
+    static func displayString(for urlString: String) -> String {
+        var display = urlString
+        for prefix in ["https://", "http://"] where display.lowercased().hasPrefix(prefix) {
+            display.removeFirst(prefix.count)
+        }
+        return display
+    }
 }
