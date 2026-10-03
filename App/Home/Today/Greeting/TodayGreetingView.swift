@@ -57,7 +57,7 @@ struct TodayGreetingView: View {
         if isCompact {
             return .title2
         }
-        if HomeLayout.usesPadTodayLayout {
+        if HomeLayout.usesPadLayout {
             return .largeTitle
         }
         return UIDevice.current.userInterfaceIdiom == .pad ? .title3 : .largeTitle

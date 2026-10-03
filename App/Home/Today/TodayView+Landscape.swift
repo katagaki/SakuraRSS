@@ -8,13 +8,13 @@ import SwiftUI
 extension TodayView {
 
     var isLandscapeLayout: Bool {
-        verticalSizeClass == .compact || (HomeLayout.usesPadTodayLayout && isWideWindow)
+        verticalSizeClass == .compact || (HomeLayout.usesPadLayout && isWideWindow)
     }
 
     var landscapeLayout: some View {
         GeometryReader { geometry in
             let columnWidth = leadingColumnWidth(for: geometry.size.width)
-            if HomeLayout.usesPadTodayLayout {
+            if HomeLayout.usesPadLayout {
                 HStack(alignment: .top, spacing: 0) {
                     landscapeLeadingColumn
                         .frame(width: columnWidth)
@@ -60,7 +60,7 @@ extension TodayView {
 
     @ViewBuilder
     private var landscapeLeadingColumn: some View {
-        if HomeLayout.usesPadTodayLayout {
+        if HomeLayout.usesPadLayout {
             landscapeLeadingColumnContent
                 .background(.ultraThinMaterial)
         } else {
@@ -75,7 +75,7 @@ extension TodayView {
     private var landscapeLeadingColumnContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                TodayGreetingView(isCompact: true, isOnGlass: !HomeLayout.usesPadTodayLayout)
+                TodayGreetingView(isCompact: true, isOnGlass: !HomeLayout.usesPadLayout)
                     .padding(.horizontal)
 
                 pinnedSection

@@ -10,7 +10,7 @@ enum HomeLayout {
         #endif
     }
 
-    @MainActor static var usesPadTodayLayout: Bool {
+    @MainActor static var usesPadLayout: Bool {
         #if targetEnvironment(macCatalyst) || os(visionOS)
         return false
         #else
@@ -19,7 +19,7 @@ enum HomeLayout {
     }
 
     @MainActor static var showsTodayWeather: Bool {
-        usesPhoneTopBar || usesPadTodayLayout
+        usesPhoneTopBar || usesPadLayout
     }
 
     static let padTodayReadableWidth: CGFloat = 720
