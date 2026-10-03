@@ -15,26 +15,6 @@ public nonisolated struct IconDerivedMetrics: Codable, Sendable {
     public let isNearBlack: Bool
     public let prominentColors: [[Double]]?
     public let hasAnyTransparentPixel: Bool?
-
-    public init(
-        cornerAlphas: [UInt8],
-        centerAlpha: UInt8,
-        cornerSampleUnavailable: Bool,
-        averageColor: [Double]?,
-        averageLuminance: Double,
-        isNearBlack: Bool,
-        prominentColors: [[Double]]?,
-        hasAnyTransparentPixel: Bool?
-    ) {
-        self.cornerAlphas = cornerAlphas
-        self.centerAlpha = centerAlpha
-        self.cornerSampleUnavailable = cornerSampleUnavailable
-        self.averageColor = averageColor
-        self.averageLuminance = averageLuminance
-        self.isNearBlack = isNearBlack
-        self.prominentColors = prominentColors
-        self.hasAnyTransparentPixel = hasAnyTransparentPixel
-    }
 }
 
 private nonisolated final class IconDerivedMetricsBox: NSObject, @unchecked Sendable {
