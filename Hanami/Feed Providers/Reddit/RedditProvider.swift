@@ -1,9 +1,5 @@
 import Foundation
 
-/// Single entry point for Reddit-backed feeds: subreddit metadata
-/// (`/r/<sub>/about.json`), recent-post image listings (`/r/<sub>/new.json`),
-/// and per-post content (`/comments/<id>.json`). The post-content fetch keeps
-/// an LRU cache so reopening the same article is free.
 public final class RedditProvider: @unchecked Sendable {
 
     public static let shared = RedditProvider()
@@ -75,14 +71,13 @@ public final class RedditProvider: @unchecked Sendable {
     // MARK: - Public Fetch Methods
 
     public func fetchCommunity(subreddit: String) async -> RedditCommunityFetchResult {
+        if let iconURL = await RedditWebFeedScraper.communityIcon(subreddit: subreddit) {
+            return RedditCommunityFetchResult(communityIconURL: iconURL)
+        }
         guard let url = Self.aboutURL(for: subreddit) else {
             return RedditCommunityFetchResult(communityIconURL: nil)
         }
-        let aboutResult = await performCommunityFetch(url: url)
-        if aboutResult.communityIconURL != nil {
-            return aboutResult
-        }
-        return await performCommunityFeedLogoFetch(subreddit: subreddit)
+        return await performCommunityFetch(url: url)
     }
 
     public func fetchListing(subreddit: String) async -> RedditListingFetchResult {
@@ -103,15 +98,15 @@ public final class RedditProvider: @unchecked Sendable {
         }
 
         do {
-            let result = try await performPostFetch(postID: postID)
+            let result = try await RedditWebFeedScraper().fetchPost(from: url)
             storePostResult(result, for: postID)
             return result
         } catch {
-            guard let fallback = await Self.extractPostResult(fromEntryOf: article) else {
-                throw error
+            if let result = try? await performPostFetch(postID: postID) {
+                storePostResult(result, for: postID)
+                return result
             }
-            // swiftlint:disable:next line_length
-            log("RedditPost", "JSON fetch failed (\(error.localizedDescription)); using Atom entry fallback for post \(postID)")
+            guard let fallback = await Self.extractPostResult(fromEntryOf: article) else { throw error }
             storePostResult(fallback, for: postID)
             return fallback
         }

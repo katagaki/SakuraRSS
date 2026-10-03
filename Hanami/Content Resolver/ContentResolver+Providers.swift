@@ -11,7 +11,9 @@ public extension ContentResolver {
     func tryRedditExtraction() async -> RedditExtractionOutcome {
         let isRedditCandidate = feed?.isRedditFeed == true
             || URL(string: article.url).map { Self.isRedditPostURL($0) } == true
-        guard isRedditCandidate else { return .none }
+        guard isRedditCandidate,
+              let postURL = URL(string: article.url),
+              RedditProvider.postID(from: postURL) != nil else { return .none }
         do {
             let redditResult = try await RedditProvider.shared.fetchContent(for: article)
             switch redditResult {
@@ -19,15 +21,15 @@ public extension ContentResolver {
                 if !markerString.isEmpty {
                     result.text = markerString
                     persistCachedContent(markerString)
-                    return .handled
                 }
-                return .none
+                return .handled
             case .linkedArticle(let linkedURL):
                 return .linkedArticle(linkedURL)
             }
         } catch {
-            log("Extract", "Reddit fetch failed, falling through: \(error)")
-            return .none
+            log("Extract", "Reddit fetch failed: \(error)")
+            if case RedditWebFeedError.challenge = error { result.challenged = true }
+            return .handled
         }
     }
 

@@ -1,0 +1,26 @@
+name: RedditScrapeHarness
+options:
+  bundleIdPrefix: com.tsubuzaki
+settings:
+  base:
+    SWIFT_VERSION: 6.0
+    IPHONEOS_DEPLOYMENT_TARGET: 18.0
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+targets:
+  RedditScrapeHarness:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+      - path: ../../Hanami/UserAgent.swift
+      - path: ../../Hanami/Feed Providers/Reddit/RedditWebPost.swift
+      - path: ../../Hanami/Feed Providers/Reddit/RedditWebFeedScraper.swift
+      - path: ../../Hanami/Feed Providers/Reddit/RedditWebFeedScraper+Parsing.swift
+      - path: ../../Hanami/Feed Providers/Reddit/RedditWebFeedScraper+Pagination.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tsubuzaki.RedditScrapeHarness
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        TARGETED_DEVICE_FAMILY: 1

@@ -5,6 +5,7 @@ public nonisolated enum RefreshTimeoutDomains: DomainDefaults {
 
     public static let timeouts: [String: TimeInterval] = [
         "x.com": 5 * 60,
+        "reddit.com": 5 * 60,
         "instagram.com": 15 * 60
     ]
 

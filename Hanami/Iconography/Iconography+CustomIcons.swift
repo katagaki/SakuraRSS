@@ -27,7 +27,9 @@ public extension Iconography {
             }
         }
 
-        if feed.isXFeed || feed.isInstagramFeed,
+        if feed.isRedditFeed, let cached = customIcon(feedID: feed.id) { return cached }
+
+        if feed.isXFeed || feed.isInstagramFeed || feed.isRedditFeed,
            let siteURL = URL(string: feed.siteURL),
            let provider = FeedProviderRegistry.metadataFetcher(forSiteURL: siteURL),
            let metadata = await provider.fetchMetadata(for: siteURL),

@@ -6,6 +6,13 @@ public extension FeedDiscovery {
 
     /// Detects social media profile URLs and constructs their feed URLs.
     func detectSocialMediaFeed(url: URL) async -> DiscoveredFeed? {
+        if let redditPage = RedditWebFeedURL(url: url) {
+            return DiscoveredFeed(
+                title: "r/\(redditPage.subreddit)",
+                url: redditPage.pageURL.absoluteString,
+                siteURL: redditPage.pageURL.absoluteString
+            )
+        }
         if let arXivFeed = detectArXivListFeed(url: url) {
             return arXivFeed
         }
