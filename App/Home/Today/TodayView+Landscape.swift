@@ -4,7 +4,7 @@ import SwiftUI
 /// weather on the leading side, and the remaining Today
 /// sections scrolling beside it. Section carousels span the full width so
 /// their cards flow beneath the glass column instead of clipping at its edge.
-/// iPad drops the glass, so its columns sit side by side instead.
+/// iPad swaps the glass for a full-height material panel beside the content.
 extension TodayView {
 
     var isLandscapeLayout: Bool {
@@ -62,6 +62,7 @@ extension TodayView {
     private var landscapeLeadingColumn: some View {
         if HomeLayout.usesPadTodayLayout {
             landscapeLeadingColumnContent
+                .background(.ultraThinMaterial)
         } else {
             landscapeLeadingColumnContent
                 // Inset the scroll indicator so it isn't clipped by the rounded corners.
