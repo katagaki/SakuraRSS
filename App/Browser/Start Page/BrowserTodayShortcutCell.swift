@@ -9,15 +9,6 @@ struct BrowserTodayShortcutCell: View {
 
     private let iconSize: CGFloat = 56
     private let iconCornerRadius: CGFloat = 12
-    private let iconInnerPadding: CGFloat = 8
-
-    private var innerIconSize: CGFloat {
-        iconSize - (iconInnerPadding * 2)
-    }
-
-    private var innerIconCornerRadius: CGFloat {
-        iconCornerRadius * innerIconSize / iconSize
-    }
 
     var body: some View {
         VStack(alignment: .center, spacing: 6) {
@@ -43,27 +34,23 @@ struct BrowserTodayShortcutCell: View {
         }
     }
 
-    private var shortcutIcon: some View {
-        iconContent
-            .frame(width: iconSize, height: iconSize)
-            .compatibleGlassEffect(
-                in: RoundedRectangle(cornerRadius: iconCornerRadius),
-                clear: false
-            )
-    }
-
     @ViewBuilder
-    private var iconContent: some View {
+    private var shortcutIcon: some View {
         if let icon {
             Image(uiImage: icon)
                 .resizable()
-                .scaledToFit()
-                .frame(width: innerIconSize, height: innerIconSize)
-                .clipShape(RoundedRectangle(cornerRadius: innerIconCornerRadius))
+                .scaledToFill()
+                .frame(width: iconSize, height: iconSize)
+                .clipShape(RoundedRectangle(cornerRadius: iconCornerRadius))
         } else {
             Image(systemName: symbolName)
                 .font(.system(size: 24))
                 .foregroundStyle(.tint)
+                .frame(width: iconSize, height: iconSize)
+                .compatibleGlassEffect(
+                    in: RoundedRectangle(cornerRadius: iconCornerRadius),
+                    clear: false
+                )
         }
     }
 }
