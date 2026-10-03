@@ -38,6 +38,8 @@ extension TodayView {
             }
             .padding(.top, 8)
             .padding(.bottom, 24)
+            .frame(maxWidth: HomeLayout.usesPadTodayLayout ? HomeLayout.padTodayReadableWidth : nil)
+            .frame(maxWidth: .infinity)
         }
         .refreshable {
             startRefreshWithoutBlocking()

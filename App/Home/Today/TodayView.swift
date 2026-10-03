@@ -11,6 +11,7 @@ struct TodayView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(TodayManager.self) var todayManager
     @Environment(\.verticalSizeClass) var verticalSizeClass
+    @State var isWideWindow: Bool = false
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @Bindable var weatherService: TodayWeatherService = .shared
 
@@ -23,6 +24,11 @@ struct TodayView: View {
             }
         }
         .sakuraBackground()
+        .onGeometryChange(for: Bool.self) { proxy in
+            proxy.size.width > proxy.size.height && proxy.size.width >= 960
+        } action: { isWide in
+            isWideWindow = isWide
+        }
         #if os(visionOS)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -68,7 +74,7 @@ struct TodayView: View {
     }
 
     var isWeatherShowing: Bool {
-        HomeLayout.usesPhoneTopBar
+        HomeLayout.showsTodayWeather
             && weatherService.lastError == nil
             && weatherService.weather != nil
     }

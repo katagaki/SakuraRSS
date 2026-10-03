@@ -25,7 +25,7 @@ struct TodayGreetingView: View {
                 .font(greetingFont)
                 .fontWeight(.bold)
 
-            if HomeLayout.usesPhoneTopBar {
+            if HomeLayout.showsTodayWeather {
                 TodayWeatherCard(
                     usesFlatBackground: isCompact,
                     showsHourlyTimeLabels: !isCompact
@@ -54,6 +54,9 @@ struct TodayGreetingView: View {
     private var greetingFont: Font {
         if isCompact {
             return .title2
+        }
+        if HomeLayout.usesPadTodayLayout {
+            return .largeTitle
         }
         return UIDevice.current.userInterfaceIdiom == .pad ? .title3 : .largeTitle
     }

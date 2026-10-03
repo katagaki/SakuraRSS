@@ -7,7 +7,7 @@ import SwiftUI
 extension TodayView {
 
     var isLandscapeLayout: Bool {
-        verticalSizeClass == .compact
+        verticalSizeClass == .compact || (HomeLayout.usesPadTodayLayout && isWideWindow)
     }
 
     var landscapeLayout: some View {
