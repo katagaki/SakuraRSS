@@ -15,11 +15,14 @@ final class BrowserOmniboxModel {
 
     var text: String = ""
     var contentMatches: [Article] = []
+    /// The suggestion the arrow keys have moved to, on hardware keyboards.
+    var selectedSuggestionID: String?
     private(set) var isActive: Bool = false
 
     func activate(with query: String = "") {
         text = query
         contentMatches = []
+        selectedSuggestionID = nil
         isActive = true
     }
 
@@ -27,5 +30,6 @@ final class BrowserOmniboxModel {
         isActive = false
         text = ""
         contentMatches = []
+        selectedSuggestionID = nil
     }
 }

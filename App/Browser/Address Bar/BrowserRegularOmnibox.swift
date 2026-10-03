@@ -2,40 +2,27 @@ import EnhancedNavigation
 import SwiftUI
 import Hanami
 
+/// The visionOS shell's address field. iPad and Mac get the same field and
+/// popup through EnhancedNavigation's top bar instead.
 struct BrowserRegularOmnibox: View {
 
-    @Environment(FeedManager.self) var feedManager
-    @Environment(BrowserTabStore.self) var store
+    @Environment(FeedManager.self) private var feedManager
+    @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserPageSlots.self) private var slots
     @Environment(BrowserFavourites.self) private var favourites
-    @Environment(BrowserOmniboxModel.self) var omnibox
-    @Environment(\.browserAddFeedAction) var addFeed
+    @Environment(BrowserOmniboxModel.self) private var omnibox
     @Environment(\.browserOmniboxAction) private var openOmnibox
-    @Environment(\.browserOmniboxSubmit) var submitOmnibox
-    @FocusState var isFieldFocused: Bool
-    @State var selectedSuggestionID: String?
 
     let popupMaxHeight: CGFloat
-
-    var suggestions: [BrowserSuggestion] {
-        BrowserSuggestionResolver(feedManager: feedManager)
-            .suggestions(for: omnibox.text, contentMatches: omnibox.contentMatches)
-    }
-
-    private var isQueryEmpty: Bool {
-        omnibox.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
 
     var body: some View {
         Group {
             if omnibox.isActive {
-                BrowserOmniboxField(model: omnibox, onSubmit: submit, isFocused: $isFieldFocused)
+                BrowserOmniboxEditingField()
                     .onKeyPress(.escape) {
-                        dismiss()
+                        withAnimation(BrowserOmniboxModel.transition) { omnibox.deactivate() }
                         return .handled
                     }
-                    .onKeyPress(.downArrow) { moveSelection(forward: true) }
-                    .onKeyPress(.upArrow) { moveSelection(forward: false) }
             } else {
                 BrowserAddressCapsule(
                     tab: store.selectedTab,
@@ -57,7 +44,8 @@ struct BrowserRegularOmnibox: View {
         // that only hit-test within the capsule, so taps on the popup fell
         // through to the page.
         .overlay(alignment: .top) {
-            if omnibox.isActive, !(isQueryEmpty && feedManager.feeds.isEmpty) {
+            if omnibox.isActive,
+               BrowserOmniboxPopupContent.hasContent(omnibox: omnibox, feedManager: feedManager) {
                 // An overlay is proposed the field's height, which squeezed
                 // the popup down to a single row.
                 popup
@@ -66,40 +54,18 @@ struct BrowserRegularOmnibox: View {
                     .transition(.opacity)
             }
         }
-        .onChange(of: omnibox.isActive) {
-            if !omnibox.isActive {
-                isFieldFocused = false
-                selectedSuggestionID = nil
-            }
-        }
-        .onChange(of: omnibox.text) { selectedSuggestionID = nil }
-        .task(id: omnibox.text) { await refreshContentMatches() }
     }
 
     private var popup: some View {
-        Group {
-            if isQueryEmpty {
-                BrowserOmniboxFollowingGrid(
-                    openFeed: { feed in open(.feed(feed.id)) },
-                    openSection: { section in open(.feedSection(section)) },
-                    fitsContent: true
-                )
-            } else {
-                BrowserOmniboxSuggestionList(
-                    suggestions: suggestions,
-                    selectedSuggestionID: selectedSuggestionID,
-                    apply: apply
-                )
+        BrowserOmniboxPopupContent()
+            .frame(maxWidth: .infinity)
+            .background(.regularMaterial, in: .rect(cornerRadius: 20))
+            .clipShape(.rect(cornerRadius: 20))
+            .overlay {
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(.separator.opacity(0.4), lineWidth: 0.5)
             }
-        }
-        .frame(maxWidth: .infinity)
-        .background(.regularMaterial, in: .rect(cornerRadius: 20))
-        .clipShape(.rect(cornerRadius: 20))
-        .overlay {
-            RoundedRectangle(cornerRadius: 20)
-                .strokeBorder(.separator.opacity(0.4), lineWidth: 0.5)
-        }
-        .shadow(color: .black.opacity(0.15), radius: 20, y: 8)
-        .accessibilityIdentifier("browser.omnibox.popup")
+            .shadow(color: .black.opacity(0.15), radius: 20, y: 8)
+            .accessibilityIdentifier("browser.omnibox.popup")
     }
 }

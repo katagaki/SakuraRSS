@@ -9,6 +9,20 @@ struct BrowserAdaptiveShell: View {
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
+    @Environment(BrowserOmniboxModel.self) private var omnibox
+    @Environment(\.browserOmniboxAction) private var openOmnibox
+
+    private var isEditingAddress: Binding<Bool> {
+        Binding {
+            omnibox.isActive
+        } set: { isEditing in
+            if isEditing {
+                openOmnibox?()
+            } else {
+                withAnimation(BrowserOmniboxModel.transition) { omnibox.deactivate() }
+            }
+        }
+    }
 
     private var edgeToEdgeEdges: Edge.Set {
         BrowserLayout.usesWideTabs ? [] : .all
@@ -29,6 +43,14 @@ struct BrowserAdaptiveShell: View {
                 showsSubtitle: false
             )
         }
+        .tabOmniboxEditing(isEditing: isEditingAddress) {
+            BrowserOmniboxEditingField()
+        }
+        .tabOmniboxPopup(
+            isPresented: BrowserOmniboxPopupContent.hasContent(omnibox: omnibox, feedManager: feedManager)
+        ) {
+            BrowserOmniboxPopupContent()
+        }
         // Container only: swallowing the keyboard region too leaves the
         // bottom bar, and so the address field, under the keyboard.
         .ignoresSafeArea(.container, edges: edgeToEdgeEdges)
@@ -37,7 +59,9 @@ struct BrowserAdaptiveShell: View {
         // override, or with the keyboard down the editing bar rests against
         // the screen's edge instead of above the home indicator.
         .overlay {
-            BrowserOmniboxOverlay()
+            if !BrowserLayout.usesWideTabs {
+                BrowserOmniboxOverlay()
+            }
         }
     }
 
