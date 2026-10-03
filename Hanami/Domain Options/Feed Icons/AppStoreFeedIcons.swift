@@ -2,7 +2,6 @@ import Foundation
 
 public nonisolated enum AppStoreFeedIcons: DomainDefaults {
     public static let appIDs: [String: Int] = [
-        "instagram.com": 389801252,
         "x.com": 333903271,
         "twitter.com": 333903271,
         "reddit.com": 1064216828,

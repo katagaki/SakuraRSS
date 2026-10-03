@@ -12,6 +12,7 @@ public extension Iconography {
         let host = domain.lowercased()
         if host.contains("youtube.com") || host.contains("youtu.be") { return true }
         if host == "bsky.app" || host.hasSuffix(".bsky.app") { return true }
+        if host == "instagram.com" || host.hasSuffix(".instagram.com") { return true }
         if host == "reddit.com" || host.hasSuffix(".reddit.com") { return true }
         if host == "note.com" || host.hasSuffix(".note.com") { return true }
         if SubstackProvider.isSubstackPublicationHost(host) { return true }

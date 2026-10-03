@@ -40,6 +40,26 @@ public extension InstagramProvider {
         return result
     }
 
+    internal func fetchProfileMetadata(profileURL: URL) async throws -> InstagramProfileMetadata {
+        guard let handle = Self.extractIdentifier(from: profileURL) else {
+            throw URLError(.badURL)
+        }
+        guard let cookies = Self.getInstagramCookies() else {
+            throw InstagramFetchError.missingSession
+        }
+        let session = makeSession(cookies: cookies)
+        defer {
+            Self.persistRotatedCookies(from: session)
+            session.finishTasksAndInvalidate()
+        }
+        let profileData = try await Self.performRequest(buildHTMLRequest(url: profileURL), session: session)
+        guard let html = String(data: profileData, encoding: .utf8),
+              let metadata = Self.parseProfileMetadata(html, username: handle) else {
+            throw InstagramFetchError.invalidResponse
+        }
+        return metadata
+    }
+
     /// Writes rotated Instagram cookies from the URLSession jar back to Keychain.
     private static func persistRotatedCookies(from session: URLSession) {
         guard let storage = session.configuration.httpCookieStorage else { return }

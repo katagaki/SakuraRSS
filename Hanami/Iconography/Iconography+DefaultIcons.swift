@@ -22,7 +22,7 @@ public extension Iconography {
         let domain: String
         switch section {
         case .bluesky: domain = "bsky.app"
-        case .instagram: domain = "instagram.com"
+        case .instagram: return await appStoreIcon(appID: 389801252)
         case .note: domain = "note.com"
         case .reddit: domain = "reddit.com"
         case .substack: domain = "substack.com"

@@ -15,15 +15,28 @@ extension InstagramProvider {
             lsdToken = lsdToken ?? bootstrapToken(named: "LSD", in: payload)
             if dtsgToken != nil, lsdToken != nil { break }
         }
-        guard let dtsgToken, !dtsgToken.isEmpty, let lsdToken, !lsdToken.isEmpty else { return nil }
-        let title = try? document.select("meta[property=og:title]").first()?.attr("content")
-        let profileImageURL = try? document.select("meta[property=og:image]").first()?.attr("content")
-        let displayName = title.flatMap { profileDisplayName(title: $0, username: username) }
-        guard displayName != nil else { return nil }
+        guard let dtsgToken, !dtsgToken.isEmpty, let lsdToken, !lsdToken.isEmpty,
+              let metadata = parseProfileMetadata(document, username: username) else { return nil }
         return InstagramProfileBootstrap(
             dtsgToken: dtsgToken,
             lsdToken: lsdToken,
-            displayName: displayName,
+            displayName: metadata.displayName,
+            profileImageURL: metadata.profileImageURL
+        )
+    }
+
+    static func parseProfileMetadata(_ html: String, username: String) -> InstagramProfileMetadata? {
+        guard let document = try? SwiftSoup.parse(html) else { return nil }
+        return parseProfileMetadata(document, username: username)
+    }
+
+    private static func parseProfileMetadata(_ document: Document, username: String) -> InstagramProfileMetadata? {
+        guard let title = try? document.select("meta[property=og:title]").first()?.attr("content"),
+              let displayName = profileDisplayName(title: title, username: username) else { return nil }
+        let profileImageURL = (try? document.select("meta[property=og:image]").first()?.attr("content"))
+            .flatMap { $0.isEmpty ? nil : $0 }
+        return InstagramProfileMetadata(
+            displayName: displayName.isEmpty ? nil : displayName,
             profileImageURL: profileImageURL
         )
     }
