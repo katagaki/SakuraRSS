@@ -31,7 +31,7 @@ public extension Iconography {
                 replaceCustomIcon(with: image, feedID: feed.id)
             }
         default:
-            guard !feed.isFediverseFeed, AppStoreFeedIcons.appID(for: feed) == nil else { return }
+            guard feed.customIconURL == "photo" || !Self.hasServiceFallback(feed) else { return }
             await refetchProviderIcon(for: feed)
         }
     }

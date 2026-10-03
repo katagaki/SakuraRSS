@@ -24,6 +24,7 @@ public actor Iconography {
     public var failedLookups: [String: Date] = [:]
     var appStoreIconDates: [String: Date] = [:]
     var appStoreIconRequests: [Int: Task<PlatformImage?, Never>] = [:]
+    var profileIconRequests: [String: Task<PlatformImage?, Never>] = [:]
 
     private init() {
         let containerURL = FileManager.default.containerURL(
@@ -37,6 +38,10 @@ public actor Iconography {
 
     public func icon(for domain: String, siteURL: String? = nil) async -> PlatformImage? {
         if let appID = AppStoreFeedIcons.appID(for: domain) {
+            if let siteURL, Self.isProfileBased(domain: domain, siteURL: siteURL),
+               let image = await profileIcon(siteURL: siteURL) {
+                return image
+            }
             return await appStoreIcon(appID: appID)
         }
         let cacheKey = Self.cacheKey(domain: domain, siteURL: siteURL)

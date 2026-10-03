@@ -13,6 +13,8 @@ public extension Iconography {
         if host.contains("youtube.com") || host.contains("youtu.be") { return true }
         if host == "bsky.app" || host.hasSuffix(".bsky.app") { return true }
         if host == "instagram.com" || host.hasSuffix(".instagram.com") { return true }
+        if host == "x.com" || host.hasSuffix(".x.com") { return true }
+        if host == "twitter.com" || host.hasSuffix(".twitter.com") { return true }
         if host == "reddit.com" || host.hasSuffix(".reddit.com") { return true }
         if host == "note.com" || host.hasSuffix(".note.com") { return true }
         if SubstackProvider.isSubstackPublicationHost(host) { return true }

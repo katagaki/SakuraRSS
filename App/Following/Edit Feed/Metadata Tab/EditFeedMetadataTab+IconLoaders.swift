@@ -34,12 +34,8 @@ extension EditFeedMetadataTab {
         isFetchingIcon = true
         defer { isFetchingIcon = false }
 
-        if feed.isFediverseFeed || AppStoreFeedIcons.appID(for: feed) != nil {
-            if !feed.isFediverseFeed {
-                let iconDomain = feed.isSubstackFeed ? "substack.com" : feed.domain
-                await Iconography.shared.refreshIcons(for: [(domain: iconDomain, siteURL: feed.siteURL)])
-            }
-            guard let image = await Iconography.shared.defaultIcon(for: feed) else {
+        if Iconography.hasServiceFallback(feed) {
+            guard let image = await Iconography.shared.refreshDefaultIcon(for: feed) else {
                 showIconFetchError = true
                 return
             }

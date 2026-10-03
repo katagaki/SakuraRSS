@@ -94,9 +94,7 @@ public extension FeedManager {
         url: String,
         title: String
     ) async {
-        guard let image = prefetched.iconImage,
-              let feed = try? database.feed(byID: feedID), !feed.isFediverseFeed,
-              AppStoreFeedIcons.appID(for: feed) == nil else { return }
+        guard let image = prefetched.iconImage else { return }
         await Iconography.shared.setCustomIcon(image, feedID: feedID)
         try? database.updateFeedDetails(
             id: feedID, title: title, url: url,
@@ -121,8 +119,7 @@ public extension FeedManager {
         }
 
         var image: PlatformImage?
-        if !AppStoreFeedIcons.matches(url: url), provider.providerID != "pixelfed",
-           let iconURL = metadata.iconURL,
+        if let iconURL = metadata.iconURL,
            let (data, _) = try? await Iconography.urlSession.data(from: iconURL),
            let downloaded = PlatformImage(data: data) {
             image = metadata.iconNeedsSquareCrop

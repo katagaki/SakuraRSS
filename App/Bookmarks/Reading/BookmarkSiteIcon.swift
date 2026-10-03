@@ -31,7 +31,8 @@ struct BookmarkSiteIcon: View {
         .clipShape(.rect(cornerRadius: cornerRadius))
         .task(id: article.url) {
             guard let host else { return }
-            icon = await Iconography.shared.icon(for: host, siteURL: article.url)
+            let siteURL = AppStoreFeedIcons.appID(for: host) == nil ? article.url : nil
+            icon = await Iconography.shared.icon(for: host, siteURL: siteURL)
         }
     }
 }
