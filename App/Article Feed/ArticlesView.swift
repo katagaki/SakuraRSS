@@ -327,7 +327,7 @@ extension ArticlesView {
     }
 
     private func usesReaderSplit(for style: FeedDisplayStyle) -> Bool {
-        isBrowserModeActive && !isBrowserChromeActive && HomeLayout.usesPadLayout
+        isBrowserModeActive && HomeLayout.usesPadLayout
             && style.usesBrowserReaderSplit
     }
 

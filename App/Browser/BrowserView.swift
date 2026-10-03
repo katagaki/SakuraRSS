@@ -7,7 +7,6 @@ import Hanami
 struct BrowserView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State var store = BrowserTabStore.restored()
@@ -23,9 +22,7 @@ struct BrowserView: View {
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
 
-    private var layout: BrowserLayout {
-        BrowserLayout.resolve(horizontalSizeClass: horizontalSizeClass)
-    }
+    private let layout = BrowserLayout.current
 
     var body: some View {
         shell
@@ -116,8 +113,8 @@ struct BrowserView: View {
     @ViewBuilder
     private var shell: some View {
         switch layout {
-        case .compact:
-            BrowserCompactShell()
+        case .adaptive:
+            BrowserAdaptiveShell()
         case .regular:
             BrowserRegularShell()
         }

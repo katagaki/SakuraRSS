@@ -30,7 +30,7 @@ struct BrowserTabContentView: View {
                 .browserNavigationEnvironment(path: path, namespace: cardZoom)
                 .browserNavigationDestinations(path: path, namespace: cardZoom)
         }
-        .browserBottomBar(for: tabID, in: store, isEnabled: layout == .compact)
+        .browserTabBar(for: tabID, in: store, isEnabled: layout == .adaptive)
         .environment(\.browserTabID, tabID)
         .environment(\.browserPageReporter, reporters.page)
         .environment(\.browserOverlayPageReporter, reporters.overlayPage)

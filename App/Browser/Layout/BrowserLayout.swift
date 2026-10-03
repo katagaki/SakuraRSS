@@ -1,23 +1,31 @@
 import SwiftUI
 
-/// Safari uses two very different shells: a bottom address bar with a
-/// full-screen tab switcher on iPhone, and a top tab strip on iPad and Mac.
+/// EnhancedNavigation's adaptive shell everywhere it runs; visionOS keeps the
+/// app's own tab strip.
 enum BrowserLayout {
-    case compact
+    case adaptive
     case regular
 
-    static func resolve(horizontalSizeClass: UserInterfaceSizeClass?) -> BrowserLayout {
-        #if os(visionOS) || targetEnvironment(macCatalyst)
+    static var current: BrowserLayout {
+        #if os(visionOS)
         return .regular
         #else
-        guard UIDevice.current.userInterfaceIdiom == .pad else { return .compact }
-        return horizontalSizeClass == .regular ? .regular : .compact
+        return .adaptive
+        #endif
+    }
+
+    /// Mirrors when `AdaptiveTabContainer` swaps the bottom bar for its top bar.
+    static var usesWideTabs: Bool {
+        #if targetEnvironment(macCatalyst)
+        return true
+        #else
+        return UIDevice.current.userInterfaceIdiom == .pad
         #endif
     }
 }
 
 private struct BrowserLayoutKey: EnvironmentKey {
-    static let defaultValue: BrowserLayout = .compact
+    static let defaultValue: BrowserLayout = .adaptive
 }
 
 extension EnvironmentValues {

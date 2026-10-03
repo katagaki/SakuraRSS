@@ -1,8 +1,8 @@
 import EnhancedNavigation
 import SwiftUI
 
-/// Wires the app's navigation closures into a tab's path. In compact layout
-/// the page's chrome is the tab's `BrowserBottomBar`, so the top bar goes.
+/// Wires the app's navigation closures into a tab's path. In the adaptive
+/// layout the page's chrome is EnhancedNavigation's bar, so the top bar goes.
 struct BrowserNavigationEnvironment: ViewModifier {
 
     @Environment(\.browserLayout) private var layout
@@ -16,7 +16,7 @@ struct BrowserNavigationEnvironment: ViewModifier {
             .environment(\.navigateToFeed) { path.append($0) }
             .environment(\.navigateToEphemeralArticle) { path.append($0) }
             .environment(\.navigateToSummaryHeadline) { path.append($0) }
-            .toolbarVisibility(layout == .compact ? .hidden : .automatic, for: .navigationBar)
+            .toolbarVisibility(layout == .adaptive ? .hidden : .automatic, for: .navigationBar)
             .interactivePopGesture(for: store)
     }
 }
