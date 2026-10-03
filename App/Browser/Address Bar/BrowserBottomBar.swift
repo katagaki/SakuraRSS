@@ -30,6 +30,7 @@ struct BrowserBottomBar: View {
                     onOpenOmnibox: { openOmnibox?() }
                 )
                 .compatibleGlassEffect(in: .capsule, interactive: true)
+                .tabSwitchingGesture(for: tabID, in: store)
                 tabsButton
             }
         }
