@@ -17,7 +17,7 @@ public extension NSImage {
         self.init(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
     }
 
-    convenience init(cgImage: CGImage, scale: CGFloat, orientation: PlatformImageBakedOrientation) {
+    convenience init(cgImage: CGImage, scale: CGFloat, orientation _: PlatformImageBakedOrientation) {
         let divisor = scale > 0 ? scale : 1
         self.init(
             cgImage: cgImage,

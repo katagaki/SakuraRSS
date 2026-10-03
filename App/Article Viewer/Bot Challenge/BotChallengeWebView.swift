@@ -24,7 +24,9 @@ struct BotChallengeWebView: UIViewRepresentable {
         return webView
     }
 
-    func updateUIView(_: WKWebView, context _: Context) {}
+    func updateUIView(_: WKWebView, context _: Context) {
+        // The challenge page drives its own reloads.
+    }
 
     static func dismantleUIView(_: WKWebView, coordinator: Coordinator) {
         coordinator.stopPolling()

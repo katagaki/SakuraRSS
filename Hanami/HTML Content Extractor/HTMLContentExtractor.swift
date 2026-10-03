@@ -212,10 +212,9 @@ public nonisolated final class HTMLContentExtractor {
         fromURL url: URL,
         excludeTitle: String? = nil
     ) async -> ExtractionResult {
-        if WebViewExtractor.requiresWebView(for: url) {
-            if let text = await WebViewExtractor.extractText(from: url, excludeTitle: excludeTitle) {
-                return ExtractionResult(text: text)
-            }
+        if WebViewExtractor.requiresWebView(for: url),
+           let text = await WebViewExtractor.extractText(from: url, excludeTitle: excludeTitle) {
+            return ExtractionResult(text: text)
         }
 
         do {
