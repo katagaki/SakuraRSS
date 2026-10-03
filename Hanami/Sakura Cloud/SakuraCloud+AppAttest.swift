@@ -30,7 +30,7 @@ extension SakuraCloud {
             "attestation": attestation.base64EncodedString(),
             "challenge": challenge
         ])
-        let (data, response) = try await URLSession.shared.data(for: try Self.post("/v1/attest", body: body))
+        let (data, response) = try await URLSession.shared.data(for: try Self.post(.attest, body: body))
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard status == 200 || status == 409 else {
             throw SakuraCloudError.server(status, try? JSONDecoder().decode(Failure.self, from: data).error)
@@ -41,7 +41,7 @@ extension SakuraCloud {
     }
 
     private func fetchChallenge() async throws -> String {
-        let (data, response) = try await URLSession.shared.data(for: try Self.post("/v1/challenge", body: Data()))
+        let (data, response) = try await URLSession.shared.data(for: try Self.post(.challenge, body: Data()))
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard status == 200 else {
             throw SakuraCloudError.server(status, try? JSONDecoder().decode(Failure.self, from: data).error)

@@ -12,7 +12,13 @@ public actor SakuraCloud {
     /// ../SakuraCloud, which only accepts that on localhost with `SKIP_APP_ATTEST`.
     #if DEBUG && targetEnvironment(simulator)
     static let skipsAppAttest = true
-    private static let fallbackURL = "http://localhost:8787"
+    private static let fallbackURL = {
+        var components = URLComponents()
+        components.scheme = "http"
+        components.host = "localhost"
+        components.port = 8787
+        return components.string ?? ""
+    }()
     #else
     static let skipsAppAttest = false
     private static let fallbackURL = ""
@@ -38,7 +44,7 @@ public actor SakuraCloud {
             "blocks": blocks,
             "candidates": candidates
         ] as [String: Any])
-        let data = try await send("/v1/classify", body: body)
+        let data = try await send(.classify, body: body)
         guard let answer = try? JSONDecoder().decode(ClassifyAnswer.self, from: data),
               answer.probabilities.count == candidates.count else {
             throw SakuraCloudError.noResponse
@@ -48,20 +54,20 @@ public actor SakuraCloud {
 
     /// A key the Worker no longer knows, as after a reinstall or restore, is dropped and
     /// replaced once.
-    func send(_ path: String, body: Data) async throws -> Data {
+    func send(_ endpoint: SakuraCloudEndpoint, body: Data) async throws -> Data {
         do {
-            return try await sendOnce(path, body: body)
+            return try await sendOnce(endpoint, body: body)
         } catch SakuraCloudError.server(401, _) {
             SakuraCloudKeychain.write(nil, account: SakuraCloudKeychain.keyIDAccount)
-            return try await sendOnce(path, body: body)
+            return try await sendOnce(endpoint, body: body)
         } catch let error as DCError where error.code == .invalidKey {
             SakuraCloudKeychain.write(nil, account: SakuraCloudKeychain.keyIDAccount)
-            return try await sendOnce(path, body: body)
+            return try await sendOnce(endpoint, body: body)
         }
     }
 
-    private func sendOnce(_ path: String, body: Data) async throws -> Data {
-        var request = try Self.post(path, body: body)
+    private func sendOnce(_ endpoint: SakuraCloudEndpoint, body: Data) async throws -> Data {
+        var request = try Self.post(endpoint, body: body)
         if !Self.skipsAppAttest {
             let attestedKeyID = try await keyID()
             let assertion = try await DCAppAttestService.shared.generateAssertion(
@@ -84,9 +90,10 @@ public actor SakuraCloud {
         }
     }
 
-    static func post(_ path: String, body: Data) throws -> URLRequest {
+    static func post(_ endpoint: SakuraCloudEndpoint, body: Data) throws -> URLRequest {
         guard let baseURL else { throw SakuraCloudError.notConfigured }
-        var request = URLRequest(url: baseURL.appending(path: path))
+        let url = baseURL.appending(path: SakuraCloudEndpoint.version).appending(path: endpoint.rawValue)
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = body
         request.timeoutInterval = requestTimeout
