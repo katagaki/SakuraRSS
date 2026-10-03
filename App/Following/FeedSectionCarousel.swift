@@ -10,27 +10,9 @@ struct FeedSectionCarousel: View {
     @Binding var feedToDelete: Feed?
     let editTransitionNamespace: Namespace.ID
 
-    @ScaledMetric(relativeTo: .caption) private var minimumCellWidth: CGFloat = 72
-    @State private var carouselWidth: CGFloat = 0
-
-    private let cellSpacing: CGFloat = 12
+    private let cellWidth: CGFloat = 56
+    private let cellSpacing: CGFloat = 10
     private let leadingInset: CGFloat = 16
-
-    /// A fractional count leaves the last visible cell cut off, which is what
-    /// signals that the row scrolls.
-    private var cellWidth: CGFloat {
-        guard carouselWidth > 0 else { return minimumCellWidth }
-        let preferredWidth = cellWidth(showing: 4.2)
-        if preferredWidth >= minimumCellWidth {
-            return preferredWidth
-        }
-        return max(cellWidth(showing: 3.5), 0)
-    }
-
-    private func cellWidth(showing visibleCount: CGFloat) -> CGFloat {
-        let gapsWidth = visibleCount.rounded(.down) * cellSpacing
-        return (carouselWidth - leadingInset - gapsWidth) / visibleCount
-    }
 
     var body: some View {
         ScrollView(.horizontal) {
@@ -62,10 +44,5 @@ struct FeedSectionCarousel: View {
             .padding(.vertical, 4)
         }
         .scrollIndicators(.hidden)
-        .onGeometryChange(for: CGFloat.self) { proxy in
-            proxy.size.width
-        } action: { width in
-            carouselWidth = width
-        }
     }
 }
