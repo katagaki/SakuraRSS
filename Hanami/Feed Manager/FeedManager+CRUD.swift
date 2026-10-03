@@ -72,6 +72,8 @@ public extension FeedManager {
         guard feed.lastFetched == nil else { return }
         let effectiveTitle = feed.isTitleCustomized ? feed.title : fetchdTitle
         let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
+            && !feed.isFediverseFeed
+            && AppStoreFeedIcons.appID(for: feed) == nil
         let database = database
         if shouldInstallProfilePhoto, let image = profileImage {
             await Iconography.shared.setCustomIcon(image, feedID: feed.id)

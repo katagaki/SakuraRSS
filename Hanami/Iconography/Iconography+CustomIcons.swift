@@ -27,19 +27,7 @@ public extension Iconography {
             }
         }
 
-        if feed.isRedditFeed, let cached = customIcon(feedID: feed.id) { return cached }
-
-        if feed.isXFeed || feed.isInstagramFeed || feed.isRedditFeed,
-           let siteURL = URL(string: feed.siteURL),
-           let provider = FeedProviderRegistry.metadataFetcher(forSiteURL: siteURL),
-           let metadata = await provider.fetchMetadata(for: siteURL),
-           let iconURL = metadata.iconURL,
-           let image = await downloadImage(from: iconURL) {
-            setCustomIcon(image, feedID: feed.id)
-            return image
-        }
-
-        return await icon(for: feed.domain, siteURL: feed.siteURL)
+        return await defaultIcon(for: feed)
     }
 
     func setCustomIcon(_ image: PlatformImage, feedID: Int64) {

@@ -18,6 +18,7 @@ struct EditFeedMetadataTab: View {
     @State var currentIcon: UIImage?
     @State var hasRealIcon: Bool = false
     @State var isFetchingIcon = false
+    @State var hasFetchedServiceIcon = false
     @State var showIconFetchError = false
     @State var showPetalBuilder = false
     @State private var hasInitialized = false
@@ -121,7 +122,8 @@ struct EditFeedMetadataTab: View {
         Task {
             if let customIconImage, !useDefaultIcon {
                 await Iconography.shared.setCustomIcon(customIconImage, feedID: feed.id)
-            } else if useDefaultIcon && feed.customIconURL != nil && feed.customIconURL != "none" {
+            } else if (useDefaultIcon || hasFetchedServiceIcon && finalIconURL == nil)
+                && feed.customIconURL != nil && feed.customIconURL != "none" {
                 await Iconography.shared.removeCustomIcon(feedID: feed.id)
             }
             await MainActor.run {
@@ -147,6 +149,7 @@ struct EditFeedMetadataTab: View {
         if useDefaultIcon { return "none" }
         if customIconImage != nil { return "photo" }
         if !iconURLInput.isEmpty { return iconURLInput }
+        if hasFetchedServiceIcon { return nil }
         if feed.customIconURL == "photo" { return "photo" }
         return nil
     }

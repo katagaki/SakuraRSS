@@ -8,7 +8,8 @@ import AppKit
 public extension Iconography {
 
     func refreshAllIcons(for feeds: [Feed]) async {
-        let domainEntries = feeds.map { (domain: $0.domain, siteURL: $0.siteURL as String?) }
+        let domainEntries = feeds.filter { !$0.isFediverseFeed }
+            .map { (domain: $0.isSubstackFeed ? "substack.com" : $0.domain, siteURL: $0.siteURL as String?) }
         async let domainIcons: Void = refreshIcons(for: domainEntries)
         await withTaskGroup(of: Void.self) { group in
             for feed in feeds {
@@ -30,6 +31,7 @@ public extension Iconography {
                 replaceCustomIcon(with: image, feedID: feed.id)
             }
         default:
+            guard !feed.isFediverseFeed, AppStoreFeedIcons.appID(for: feed) == nil else { return }
             await refetchProviderIcon(for: feed)
         }
     }

@@ -22,6 +22,8 @@ public actor Iconography {
     public let cacheDirectory: URL
     public var memoryCache: [String: PlatformImage] = [:]
     public var failedLookups: [String: Date] = [:]
+    var appStoreIconDates: [String: Date] = [:]
+    var appStoreIconRequests: [Int: Task<PlatformImage?, Never>] = [:]
 
     private init() {
         let containerURL = FileManager.default.containerURL(
@@ -34,6 +36,9 @@ public actor Iconography {
     }
 
     public func icon(for domain: String, siteURL: String? = nil) async -> PlatformImage? {
+        if let appID = AppStoreFeedIcons.appID(for: domain) {
+            return await appStoreIcon(appID: appID)
+        }
         let cacheKey = Self.cacheKey(domain: domain, siteURL: siteURL)
 
         if isWithinFailureTTL(cacheKey) {
@@ -57,6 +62,8 @@ public actor Iconography {
 
     /// Clears caches for the given domains and re-fetches their icons.
     public func refreshIcons(for entries: [(domain: String, siteURL: String?)]) async {
+        let appIDs = Set(entries.compactMap { AppStoreFeedIcons.appID(for: $0.domain) })
+        for appID in appIDs { invalidateAppStoreIcon(appID: appID) }
         for entry in entries {
             let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
             memoryCache[cacheKey] = nil
@@ -67,13 +74,8 @@ public actor Iconography {
         }
         await withTaskGroup(of: Void.self) { group in
             for entry in entries {
-                let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
-                let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
                 group.addTask {
-                    _ = await self.fetchAndCacheIcon(
-                        for: entry.domain, siteURL: entry.siteURL,
-                        cacheKey: cacheKey, filePath: filePath
-                    )
+                    _ = await self.icon(for: entry.domain, siteURL: entry.siteURL)
                 }
             }
         }
@@ -81,6 +83,7 @@ public actor Iconography {
 
     public func clearCache() {
         memoryCache.removeAll()
+        appStoreIconDates.removeAll()
         forgetAllFailedLookups()
         try? FileManager.default.removeItem(at: cacheDirectory)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
