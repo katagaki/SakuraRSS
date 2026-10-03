@@ -25,39 +25,41 @@ struct BrowserTodayShortcutsGrid: View {
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 12) {
-            ForEach(feedSections, id: \.self) { section in
-                Button {
-                    store.navigate(to: .feedSection(section))
-                } label: {
-                    BrowserTodayShortcutCell(
-                        title: section.localizedTitle,
-                        symbolName: section.browserSymbolName,
-                        section: section
-                    )
+        CompatibleGlassEffectContainer {
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(feedSections, id: \.self) { section in
+                    Button {
+                        store.navigate(to: .feedSection(section))
+                    } label: {
+                        BrowserTodayShortcutCell(
+                            title: section.localizedTitle,
+                            symbolName: section.browserSymbolName,
+                            section: section
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .contextMenu {
+                        openInNewTabButton(.feedSection(section))
+                    }
                 }
-                .buttonStyle(.plain)
-                .contextMenu {
-                    openInNewTabButton(.feedSection(section))
+                ForEach(BrowserTodayShortcut.allCases) { shortcut in
+                    Button {
+                        open(shortcut)
+                    } label: {
+                        BrowserTodayShortcutCell(title: shortcut.title, symbolName: shortcut.symbolName)
+                    }
+                    .buttonStyle(.plain)
                 }
-            }
-            ForEach(BrowserTodayShortcut.allCases) { shortcut in
-                Button {
-                    open(shortcut)
-                } label: {
-                    BrowserTodayShortcutCell(title: shortcut.title, symbolName: shortcut.symbolName)
-                }
-                .buttonStyle(.plain)
-            }
-            ForEach(lists) { list in
-                Button {
-                    store.navigate(to: .list(list.id))
-                } label: {
-                    FollowingListGridCell(list: list)
-                }
-                .buttonStyle(.plain)
-                .contextMenu {
-                    openInNewTabButton(.list(list.id))
+                ForEach(lists) { list in
+                    Button {
+                        store.navigate(to: .list(list.id))
+                    } label: {
+                        FollowingListGridCell(list: list)
+                    }
+                    .buttonStyle(.plain)
+                    .contextMenu {
+                        openInNewTabButton(.list(list.id))
+                    }
                 }
             }
         }
