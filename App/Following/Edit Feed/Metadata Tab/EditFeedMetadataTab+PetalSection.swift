@@ -17,7 +17,8 @@ extension EditFeedMetadataTab {
                     }
                 }
                 Button {
-                    showPetalBuilder = true
+                    selectedPetalRecipe = PetalStore.shared.recipe(forFeedURL: feed.url)
+                        ?? PetalRecipe.recoveryRecipe(name: feed.title, feedURL: feed.url)
                 } label: {
                     Label(String(localized: "FeedEdit.EditRecipe", table: "Petal"),
                           systemImage: "wand.and.stars")

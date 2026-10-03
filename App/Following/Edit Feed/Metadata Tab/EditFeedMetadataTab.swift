@@ -20,7 +20,7 @@ struct EditFeedMetadataTab: View {
     @State var isFetchingIcon = false
     @State var hasFetchedServiceIcon = false
     @State var showIconFetchError = false
-    @State var showPetalBuilder = false
+    @State var selectedPetalRecipe: PetalRecipe?
     @State private var hasInitialized = false
 
     var body: some View {
@@ -57,12 +57,17 @@ struct EditFeedMetadataTab: View {
                isPresented: $showIconFetchError) {
             Button("Shared.OK", role: .cancel) { }
         }
-        .sheet(isPresented: $showPetalBuilder) {
-            if let feed, let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
+        .sheet(item: $selectedPetalRecipe, onDismiss: {
+            if let updatedFeed = feedManager.feedsByID[feedID] {
+                name = updatedFeed.title
+                url = updatedFeed.fetchURL
+            }
+        }, content: { recipe in
+            if let feed {
                 PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
                     .environment(feedManager)
             }
-        }
+        })
     }
 
     @ViewBuilder

@@ -102,7 +102,8 @@ struct PetalSettingsView: View {
 
     private func row(for feed: Feed) -> some View {
         Button {
-            guard let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) else { return }
+            guard let recipe = PetalStore.shared.recipe(forFeedURL: feed.url)
+                    ?? PetalRecipe.recoveryRecipe(name: feed.title, feedURL: feed.url) else { return }
             selectedRecipe = RecipeSelection(id: recipe.id, feed: feed, recipe: recipe)
         } label: {
             VStack(alignment: .leading, spacing: 2) {

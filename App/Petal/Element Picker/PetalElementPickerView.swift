@@ -26,6 +26,8 @@ struct PetalElementPickerView: View {
             .ignoresSafeArea()
             .navigationTitle(String(localized: "Picker.Title", table: "Petal"))
             .toolbarTitleDisplayMode(.inline)
+            .toolbarBackground(.background, for: .navigationBar)
+            .toolbarBackgroundVisibility(.visible, for: .navigationBar)
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -39,6 +41,7 @@ struct PetalElementPickerView: View {
                     onSelectAncestor: controller.selectAncestor(levelsUp:),
                     onSelectChild: controller.selectChild(atIndex:)
                 )
+                .background(.background)
             }
         }
         .interactiveDismissDisabled()
