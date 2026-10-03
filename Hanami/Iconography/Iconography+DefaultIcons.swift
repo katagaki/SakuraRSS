@@ -27,7 +27,7 @@ public extension Iconography {
         case .reddit: domain = "reddit.com"
         case .substack: domain = "substack.com"
         case .x: domain = "x.com"
-        case .youtube: domain = "youtube.com"
+        case .youtube: return await appStoreIcon(appID: 544007664)
         case .fediverse: return fediverseIcon()
         case .feeds, .podcasts, .vimeo, .niconico: return nil
         }
