@@ -1,5 +1,6 @@
 import EnhancedNavigation
 import SwiftUI
+import Hanami
 
 /// What the visible page calls itself. Pages report this upward because a
 /// `NavigationPath` is opaque once the existing `NavigationLink(value:)` call
@@ -9,6 +10,7 @@ struct BrowserPageIdentity: @MainActor TabPageIdentity {
     var subtitle: String?
     var symbolName: String
     var feedID: Int64?
+    var feedSection: FeedSection?
     /// Set by a search page, so tapping the bar reopens with the same term
     /// rather than an empty field.
     var searchQuery: String?
@@ -22,7 +24,8 @@ extension BrowserPageIdentity {
         if let pathToken, let otherPathToken = other.pathToken {
             return pathToken == otherPathToken
         }
-        return title == other.title && symbolName == other.symbolName && feedID == other.feedID
+        return title == other.title && symbolName == other.symbolName
+            && feedID == other.feedID && feedSection == other.feedSection
     }
 }
 
@@ -72,6 +75,7 @@ extension View {
         subtitle: String? = nil,
         symbolName: String,
         feedID: Int64? = nil,
+        feedSection: FeedSection? = nil,
         searchQuery: String? = nil
     ) -> some View {
         modifier(BrowserPageModifier(identity: BrowserPageIdentity(
@@ -79,6 +83,7 @@ extension View {
             subtitle: subtitle,
             symbolName: symbolName,
             feedID: feedID,
+            feedSection: feedSection,
             searchQuery: searchQuery
         )))
     }

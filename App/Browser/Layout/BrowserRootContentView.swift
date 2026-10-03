@@ -43,7 +43,8 @@ struct BrowserRootContentView: View {
                 .toolbarTitleDisplayMode(.inline)
                 .browserPage(
                     title: section.localizedTitle,
-                    symbolName: section.browserSymbolName
+                    symbolName: section.browserSymbolName,
+                    feedSection: section
                 )
                 .browserRefreshScope("section.\(section.rawValue)")
         case .topics:

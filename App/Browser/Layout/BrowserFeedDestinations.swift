@@ -27,7 +27,8 @@ struct BrowserFeedDestinations: ViewModifier {
                     .browserNavigationEnvironment(path: $path, namespace: namespace)
                     .browserPage(
                         title: section.localizedTitle,
-                        symbolName: section.browserSymbolName
+                        symbolName: section.browserSymbolName,
+                        feedSection: section
                     )
                     .browserRefreshScope("section.\(section.rawValue)")
                     .environment(\.browserPathToken, .feedSection(section.rawValue))

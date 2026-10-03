@@ -9,6 +9,7 @@ struct BrowserLocationDescription: Equatable {
     let subtitle: String?
     let symbolName: String
     let feed: Feed?
+    var feedSection: FeedSection?
 
     @MainActor
     static func describe(_ location: BrowserLocation, feedManager: FeedManager) -> BrowserLocationDescription {
@@ -31,7 +32,13 @@ struct BrowserLocationDescription: Equatable {
                 feed: nil
             )
         case .feedSection(let section):
-            symbolic(title: section.localizedTitle, symbolName: section.browserSymbolName)
+            BrowserLocationDescription(
+                title: section.localizedTitle,
+                subtitle: nil,
+                symbolName: section.browserSymbolName,
+                feed: nil,
+                feedSection: section
+            )
         case .topics:
             symbolic(
                 title: String(localized: "Location.Topics", table: "Browser"),
@@ -106,7 +113,8 @@ struct BrowserLocationDescription: Equatable {
             title: identity.title,
             subtitle: identity.subtitle,
             symbolName: identity.symbolName,
-            feed: identity.feedID.flatMap { feedManager.feedsByID[$0] }
+            feed: identity.feedID.flatMap { feedManager.feedsByID[$0] },
+            feedSection: identity.feedSection
         )
     }
 }

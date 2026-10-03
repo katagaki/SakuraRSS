@@ -32,7 +32,8 @@ struct BrowserTodayShortcutsGrid: View {
                 } label: {
                     BrowserTodayShortcutCell(
                         title: section.localizedTitle,
-                        symbolName: section.browserSymbolName
+                        symbolName: section.browserSymbolName,
+                        section: section
                     )
                 }
                 .buttonStyle(.plain)
@@ -79,41 +80,5 @@ struct BrowserTodayShortcutsGrid: View {
         case .topics: store.navigate(to: .topics)
         case .bookmarks: store.push(BrowserBookmarksDestination())
         }
-    }
-}
-
-struct BrowserTodayShortcutCell: View {
-
-    let title: String
-    let symbolName: String
-
-    private let iconSize: CGFloat = 56
-    private let iconCornerRadius: CGFloat = 12
-
-    var body: some View {
-        VStack(alignment: .center, spacing: 6) {
-            Image(systemName: symbolName)
-                .font(.system(size: 24))
-                .foregroundStyle(.tint)
-                .frame(width: iconSize, height: iconSize)
-                .compatibleGlassEffect(
-                    in: RoundedRectangle(cornerRadius: iconCornerRadius),
-                    clear: false
-                )
-                .contentShape(
-                    .hoverEffect,
-                    AnyShape(RoundedRectangle(cornerRadius: iconCornerRadius))
-                )
-                .hoverEffect(.highlight)
-
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.primary)
-                .multilineTextAlignment(.center)
-                .lineLimit(2, reservesSpace: true)
-                .truncationMode(.middle)
-        }
-        .frame(maxWidth: .infinity)
-        .contentShape(.rect)
     }
 }

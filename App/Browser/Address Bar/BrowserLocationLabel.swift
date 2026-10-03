@@ -43,6 +43,8 @@ struct BrowserLocationLabel: View {
     private var iconIdentity: String {
         if let feed = description.feed {
             "feed-\(feed.id)"
+        } else if let section = description.feedSection {
+            "section-\(section.rawValue)"
         } else {
             "symbol-\(description.symbolName)"
         }
@@ -55,6 +57,12 @@ struct BrowserLocationLabel: View {
                 feed: feed,
                 size: iconSize,
                 cornerRadius: BrowserIconMetrics.cornerRadius(for: iconSize)
+            )
+        } else if let section = description.feedSection {
+            FeedSectionIcon(
+                section: section,
+                symbolName: description.symbolName,
+                size: iconSize
             )
         } else {
             Image(systemName: description.symbolName)
