@@ -6,8 +6,8 @@ const scriptRoot = new URL('../../App/YouTube Player/', import.meta.url);
 function script(file, name) {
     const source = readFileSync(new URL(file, scriptRoot), 'utf8');
     const body = source.split(`static let ${name} = """`)[1].split('"""')[0];
-    return body.replaceAll('\\(pipMessageHandlerName)', 'ytPiP')
-        .replaceAll('\\(playbackMessageHandlerName)', 'ytPlayback');
+    return body.replaceAll(String.raw`\(pipMessageHandlerName)`, 'ytPiP')
+        .replaceAll(String.raw`\(playbackMessageHandlerName)`, 'ytPlayback');
 }
 const policy = script('YouTubePlayerScripts+Policy.swift', 'playbackPolicy');
 const context = vm.createContext({ URLSearchParams });
@@ -103,10 +103,12 @@ class MediaElement extends EventTarget {
     play() {
         if (this.paused) {
             this.paused = false;
-            mediaEvents.push(() => this.dispatchEvent(new Event('play')));
-            mediaEvents.push(() => {
-                if (!this.paused) this.dispatchEvent(new Event('playing'));
-            });
+            mediaEvents.push(
+                () => this.dispatchEvent(new Event('play')),
+                () => {
+                    if (!this.paused) this.dispatchEvent(new Event('playing'));
+                }
+            );
         }
         return Promise.resolve();
     }
@@ -307,7 +309,7 @@ video.attributes.add('disablepictureinpicture');
 observers.find(observer => observer.target === video).callback();
 assert.equal(video.hasAttribute('disablepictureinpicture'), false);
 video.addEventListener('play', () => video.pause());
-for (let attempt = 0; attempt < 3; attempt++) {
+async function resumeThenPauseInPiP() {
     nativePlay.call(video);
     player.pauseVideo();
     video.pause();
@@ -325,6 +327,9 @@ for (let attempt = 0; attempt < 3; attempt++) {
     assert.equal(playbackContext.__yt.userPaused, true);
     assert.equal(player.state, 2, 'the stream controller observes the real pause');
 }
+await resumeThenPauseInPiP();
+await resumeThenPauseInPiP();
+await resumeThenPauseInPiP();
 assert.equal(playerPlayCalls, 0, 'native PiP playback does not invoke the page play command');
 assert.equal(playerPauseCalls, 0, 'native PiP events never call the page player API');
 assert.ok(pageMediaEvents > inlinePageMediaEvents, 'PiP preserves normal media event delivery');
