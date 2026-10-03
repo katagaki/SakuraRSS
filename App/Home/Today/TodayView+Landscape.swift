@@ -4,6 +4,7 @@ import SwiftUI
 /// weather on the leading side, and the remaining Today
 /// sections scrolling beside it. Section carousels span the full width so
 /// their cards flow beneath the glass column instead of clipping at its edge.
+/// iPad drops the glass, so its columns sit side by side instead.
 extension TodayView {
 
     var isLandscapeLayout: Bool {
@@ -13,12 +14,20 @@ extension TodayView {
     var landscapeLayout: some View {
         GeometryReader { geometry in
             let columnWidth = leadingColumnWidth(for: geometry.size.width)
-            ZStack(alignment: .topLeading) {
-                landscapeTrailingScrollView(columnWidth: columnWidth)
-                landscapeLeadingColumn
-                    .frame(width: columnWidth)
-                    .padding(.leading, 16)
-                    .padding(.vertical, 8)
+            if HomeLayout.usesPadTodayLayout {
+                HStack(alignment: .top, spacing: 0) {
+                    landscapeLeadingColumn
+                        .frame(width: columnWidth)
+                    landscapeTrailingScrollView(leadingContentInset: 0)
+                }
+            } else {
+                ZStack(alignment: .topLeading) {
+                    landscapeTrailingScrollView(leadingContentInset: columnWidth + 16)
+                    landscapeLeadingColumn
+                        .frame(width: columnWidth)
+                        .padding(.leading, 16)
+                        .padding(.vertical, 8)
+                }
             }
         }
     }
@@ -27,7 +36,7 @@ extension TodayView {
         min(380, max(280, availableWidth * 0.4))
     }
 
-    private func landscapeTrailingScrollView(columnWidth: CGFloat) -> some View {
+    private func landscapeTrailingScrollView(leadingContentInset: CGFloat) -> some View {
         let episodes = visibleEpisodes
         let sections = contentSections(episodes: episodes)
         return ScrollView {
@@ -43,16 +52,29 @@ extension TodayView {
             .padding(.top, 8)
             .padding(.bottom, 24)
         }
-        .environment(\.todayLeadingContentInset, columnWidth + 16)
+        .environment(\.todayLeadingContentInset, leadingContentInset)
         .refreshable {
             startRefreshWithoutBlocking()
         }
     }
 
+    @ViewBuilder
     private var landscapeLeadingColumn: some View {
+        if HomeLayout.usesPadTodayLayout {
+            landscapeLeadingColumnContent
+        } else {
+            landscapeLeadingColumnContent
+                // Inset the scroll indicator so it isn't clipped by the rounded corners.
+                .contentMargins(.vertical, leadingColumnCornerRadius, for: .scrollIndicators)
+                .compatibleGlassEffect(in: .rect(cornerRadius: leadingColumnCornerRadius))
+                .clipShape(.rect(cornerRadius: leadingColumnCornerRadius))
+        }
+    }
+
+    private var landscapeLeadingColumnContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                TodayGreetingView(isCompact: true)
+                TodayGreetingView(isCompact: true, isOnGlass: !HomeLayout.usesPadTodayLayout)
                     .padding(.horizontal)
 
                 pinnedSection
@@ -65,10 +87,6 @@ extension TodayView {
             }
             .padding(.vertical, 16)
         }
-        // Inset the scroll indicator so it isn't clipped by the rounded corners.
-        .contentMargins(.vertical, leadingColumnCornerRadius, for: .scrollIndicators)
-        .compatibleGlassEffect(in: .rect(cornerRadius: leadingColumnCornerRadius))
-        .clipShape(.rect(cornerRadius: leadingColumnCornerRadius))
     }
 
     private var leadingColumnCornerRadius: CGFloat { 24 }
