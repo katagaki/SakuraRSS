@@ -6,10 +6,7 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
     public static let shared = DatabaseManager()
 
     public static let databasePath: String = {
-        let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
-        )!
-        return containerURL.appendingPathComponent("Sakura.feeds").path
+        AppGroup.storageURL.appendingPathComponent("Sakura.feeds").path
     }()
 
     public private(set) var database: Connection
@@ -47,7 +44,7 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
     /// `UserDefaults.standard` is per-process for extensions. Existing values are
     /// seeded from `.standard` so upgrading users don't re-run the migrations.
     nonisolated(unsafe) static let versionGateDefaults: UserDefaults = {
-        guard let sharedDefaults = UserDefaults(suiteName: "group.com.tsubuzaki.SakuraRSS") else {
+        guard let sharedDefaults = UserDefaults(suiteName: AppGroup.identifier) else {
             return .standard
         }
         for key in versionGateKeys where sharedDefaults.object(forKey: key) == nil {

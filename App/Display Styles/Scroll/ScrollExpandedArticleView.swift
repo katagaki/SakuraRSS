@@ -16,6 +16,7 @@ struct ScrollExpandedArticleView: View {
     @State var extractedText: String?
     @State var isExtracting = true
     @State var isPaywalled = false
+    @State var isChallenged = false
     @State var extractedAuthor: String?
     @State var extractedPublishedDate: Date?
     @State var extractedLeadImageURL: String?
@@ -31,7 +32,7 @@ struct ScrollExpandedArticleView: View {
     }
 
     private var displayTitle: String {
-        article.title
+        article.displayTitle
     }
 
     var body: some View {
@@ -95,6 +96,13 @@ struct ScrollExpandedArticleView: View {
         .navigationDestination(item: $imageViewerURL) { url in
             ImageViewerView(url: url)
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
+        }
+        .browserOverlayPage(item: $imageViewerURL) { url in
+            BrowserPageIdentity(
+                title: String(localized: "Overlay.Image", table: "Browser"),
+                subtitle: url.host,
+                symbolName: "photo"
+            )
         }
         .task {
             await extractArticleContent()

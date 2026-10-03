@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public struct GitHubExtractor: SiteContentExtractor {
+public nonisolated struct GitHubExtractor: SiteContentExtractor {
 
     public func canHandle(url: URL) -> Bool {
         matchesHost(url, ["github.com"])

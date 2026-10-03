@@ -7,6 +7,7 @@ struct ArticleLink<Label: View>: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
     @Environment(\.iPadArticleSelection) private var iPadArticleSelection
+    @Environment(\.bookmarkReadingOptions) private var bookmarkReadingOptions
     let article: Article
     var onNavigate: ((Article) -> Void)?
     /// When false, opening the article does not mark it as read.
@@ -20,6 +21,9 @@ struct ArticleLink<Label: View>: View {
     private let mediaPresenter = MediaPresenter.shared
 
     private var feedOpenMode: FeedOpenMode {
+        if let folderMode = bookmarkReadingOptions[article.id]?.openMode {
+            return folderMode
+        }
         guard let feed = feedManager.feed(forArticle: article),
               let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)"),
               let mode = FeedOpenMode(rawValue: raw) else {
@@ -33,6 +37,11 @@ struct ArticleLink<Label: View>: View {
     }
 
     private func markReadIfEnabled() {
+        if let folderPreference = bookmarkReadingOptions[article.id]?.marksReadOnOpen {
+            guard folderPreference else { return }
+            feedManager.markRead(article)
+            return
+        }
         guard marksRead else { return }
         feedManager.markRead(article)
     }

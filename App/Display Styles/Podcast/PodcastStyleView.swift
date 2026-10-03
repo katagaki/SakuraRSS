@@ -66,7 +66,7 @@ struct PodcastStyleView: View {
                     ArticleBookmarkMenuButton(article: article)
                     ArticleCopyLinkMenuButton(article: article)
                     ArticleShareMenuButton(article: article)
-                    MoveToFolderMenuItems(article: article)
+                    BookmarkMenuItems(article: article)
                 }
             }
             if let onLoadMore {

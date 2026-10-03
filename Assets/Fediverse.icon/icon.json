@@ -1,0 +1,123 @@
+{
+  "fill": {
+    "linear-gradient": [
+      "srgb:0.96000,0.97000,1.00000,1.00000",
+      "srgb:0.81000,0.84000,0.92000,1.00000"
+    ],
+    "orientation": {
+      "start": {
+        "x": 0.5,
+        "y": 0
+      },
+      "stop": {
+        "x": 0.5,
+        "y": 1
+      }
+    }
+  },
+  "fill-specializations": [
+    {
+      "appearance": "dark",
+      "value": {
+        "linear-gradient": [
+          "srgb:0.16000,0.18000,0.25000,1.00000",
+          "srgb:0.07000,0.08000,0.12000,1.00000"
+        ],
+        "orientation": {
+          "start": {
+            "x": 0.5,
+            "y": 0
+          },
+          "stop": {
+            "x": 0.5,
+            "y": 1
+          }
+        }
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "Fediverse",
+      "layers": [
+        {
+          "image-name": "Purple-diagonal.svg",
+          "name": "Purple diagonal"
+        },
+        {
+          "image-name": "Blue-diagonal.svg",
+          "name": "Blue diagonal"
+        },
+        {
+          "image-name": "Red-diagonal.svg",
+          "name": "Red diagonal"
+        },
+        {
+          "image-name": "Pink-edge.svg",
+          "name": "Pink edge"
+        },
+        {
+          "image-name": "Violet-edge.svg",
+          "name": "Violet edge"
+        },
+        {
+          "image-name": "Green-edge.svg",
+          "name": "Green edge"
+        },
+        {
+          "image-name": "Yellow-edge.svg",
+          "name": "Yellow edge"
+        },
+        {
+          "image-name": "Orange-edge.svg",
+          "name": "Orange edge"
+        },
+        {
+          "image-name": "Lime-diagonal.svg",
+          "name": "Lime diagonal"
+        },
+        {
+          "image-name": "Gold-diagonal.svg",
+          "name": "Gold diagonal"
+        },
+        {
+          "image-name": "Gold-node.svg",
+          "name": "Gold node"
+        },
+        {
+          "image-name": "Lime-node.svg",
+          "name": "Lime node"
+        },
+        {
+          "image-name": "Blue-node.svg",
+          "name": "Blue node"
+        },
+        {
+          "image-name": "Purple-node.svg",
+          "name": "Purple node"
+        },
+        {
+          "image-name": "Red-node.svg",
+          "name": "Red node"
+        }
+      ],
+      "lighting": "individual",
+      "specular": true,
+      "blur-material": 0.3,
+      "shadow": {
+        "kind": "layer-color",
+        "opacity": 0.3
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.55
+      }
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}

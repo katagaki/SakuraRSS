@@ -12,6 +12,7 @@ public nonisolated extension DatabaseManager {
             try database.run(articles.filter(dateClause && articleIsBookmarked == false).delete())
         }
         try pruneOrphanedBookmarkFolderItems()
+        try pruneOrphanedBookmarkTagItems()
     }
 
     func deleteAllArticlesOnly(includeBookmarks: Bool = false) throws {
@@ -20,7 +21,9 @@ public nonisolated extension DatabaseManager {
         } else {
             try database.run(articles.filter(articleIsBookmarked == false).delete())
         }
+        try clearAllHTTPValidators()
         try pruneOrphanedBookmarkFolderItems()
+        try pruneOrphanedBookmarkTagItems()
     }
 
     func vacuum() throws {

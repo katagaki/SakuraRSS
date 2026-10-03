@@ -9,27 +9,31 @@ extension Notification.Name {
 extension YouTubePlayerView {
 
     func togglePlayPause() {
-        log("YT Native", "togglePlayPause tapped, webView=\(webView != nil)")
+        let shouldPause = isPlaying
+        log("YT Native", "togglePlayPause tapped, action=\(shouldPause ? "pause" : "play") webView=\(webView != nil)")
         let script = """
         var video = document.querySelectorAll('video')[0];
         if (!video) { return null; }
-        if (video.paused) {
+        if (!\(shouldPause)) {
             if (window.__yt) {
                 window.__yt.autoplayBlocked = false;
                 window.__yt.userPaused = false;
                 window.__yt.exitedPiPRecently = false;
             }
+            if (!video.paused) return true;
             var player = document.getElementById('movie_player');
-            if (player && typeof player.playVideo === 'function') {
+            if (!window.__yt.isInPiP() && player && typeof player.playVideo === 'function') {
                 player.playVideo();
             }
             // The play promise can reject under the autoplay policy, so the
             // resulting state is only known once it settles.
-            try { await video.play(); } catch (error) { return false; }
+            try { await window.__yt.resumeVideo(video); } catch (error) { return false; }
             return !video.paused;
         }
-        if (window.__yt) { window.__yt.userPaused = true; }
-        video.pause();
+        if (window.__yt) {
+            window.__yt.userPaused = true;
+        }
+        window.__yt.pauseVideo(video);
         return !video.paused;
         """
         let startingID = playerID
@@ -57,7 +61,7 @@ extension YouTubePlayerView {
             var video = document.querySelector('video');
             if (video && !video.paused) {
                 if (window.__yt) { window.__yt.userPaused = true; }
-                video.pause();
+                window.__yt.pauseVideo(video);
             }
         })();
         """
@@ -114,11 +118,6 @@ extension YouTubePlayerView {
     }
 
     func togglePiP() {
-        // Goes through `__yt.enterPiP` / `__yt.exitPiP` which call the
-        // *saved-original* PiP methods.
-        // `expectingPiPExit` tells the PiP bridge that this exit is
-        // user-initiated, so it doesn't mistake it for a system teardown
-        // and suppress the pause guard.
         let script = """
         (function() {
             var video = document.querySelector('video');

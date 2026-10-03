@@ -1,9 +1,14 @@
-import UIKit
 import FaviconFinder
+import Foundation
+#if canImport(UIKit)
+import UIKit
+#else
+import AppKit
+#endif
 
 public extension Iconography {
 
-    func cache(_ image: UIImage, cacheKey: String, filePath: URL) -> UIImage {
+    func cache(_ image: PlatformImage, cacheKey: String, filePath: URL) -> PlatformImage {
         if let pngData = image.pngData() {
             try? pngData.write(to: filePath)
         }
@@ -15,7 +20,7 @@ public extension Iconography {
     func fetchAndCacheIcon(
         for domain: String, siteURL: String? = nil,
         cacheKey: String, filePath: URL
-    ) async -> UIImage? {
+    ) async -> PlatformImage? {
         log("Icon", "Fetching icon for domain: \(domain), cacheKey: \(cacheKey)")
 
         if Self.isProfileBased(domain: domain, siteURL: siteURL), let siteURL = siteURL,
@@ -42,7 +47,7 @@ public extension Iconography {
 
         if let touchURL = URL(string: "https://\(iconDomain)/apple-touch-icon.png"),
            let (data, _) = try? await Self.urlSession.data(from: touchURL),
-           let image = UIImage(data: data) {
+           let image = PlatformImage(data: data) {
             log("Icon", "Direct apple-touch-icon for \(domain)")
             return cache(image, cacheKey: cacheKey, filePath: filePath)
         }

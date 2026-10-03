@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// Extracts raw text from a code block element, preserving whitespace and newlines.
     static func codeContent(of element: Element) throws -> String {

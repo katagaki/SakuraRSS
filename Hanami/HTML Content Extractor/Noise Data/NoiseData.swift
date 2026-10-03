@@ -1,7 +1,7 @@
 import Foundation
 
 /// Loads noise-stripping rules used by `HTMLContentExtractor` from bundled JSON resources.
-public enum NoiseData {
+public nonisolated enum NoiseData {
 
     public static let selectors: [String] = loadGroupedList(
         resource: "NoiseSelectors",

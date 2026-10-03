@@ -6,7 +6,7 @@ public nonisolated final class LogManager: @unchecked Sendable {
 
     public static let maxBytesPerModule: Int64 = 128 * 1024
 
-    private static let appGroupIdentifier = "group.com.tsubuzaki.SakuraRSS"
+    private static let appGroupIdentifier = AppGroup.identifier
     private static let logsDirectoryName = "Logs"
     private static let truncationHeadroom: Int64 = 32 * 1024
 
@@ -17,26 +17,55 @@ public nonisolated final class LogManager: @unchecked Sendable {
         return formatter
     }()
 
-    public var directoryURL: URL? {
+    private var knownFileSizes: [URL: Int64] = [:]
+    private var pendingLines: [URL: Data] = [:]
+    private var isFlushScheduled = false
+    private static let flushDelay: DispatchTimeInterval = .seconds(2)
+
+    public let directoryURL: URL? = {
         guard let container = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: Self.appGroupIdentifier
+            forSecurityApplicationGroupIdentifier: LogManager.appGroupIdentifier
         ) else { return nil }
-        let directory = container.appendingPathComponent(Self.logsDirectoryName, isDirectory: true)
+        let directory = container.appendingPathComponent(LogManager.logsDirectoryName, isDirectory: true)
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
+    }()
+
+    /// Lines are batched per module and written every couple of seconds, so a
+    /// burst of logging costs one file append per module instead of one per line.
+    public func write(module: String, message: String) {
+        let date = Date()
+        queue.async { [weak self] in
+            guard let self, let url = self.fileURL(for: module) else { return }
+            let line = "[\(self.timestampFormatter.string(from: date))] \(message)\n"
+            self.pendingLines[url, default: Data()].append(contentsOf: line.utf8)
+            self.scheduleFlushIfNeeded()
+        }
     }
 
-    public func write(module: String, message: String) {
-        guard let url = fileURL(for: module) else { return }
-        let timestamp = timestampFormatter.string(from: Date())
-        let line = "[\(timestamp)] \(message)\n"
-        guard let data = line.data(using: .utf8) else { return }
-        queue.async { [weak self] in
-            self?.appendData(data, to: url)
+    public func flush() {
+        queue.sync { flushPendingLines() }
+    }
+
+    private func scheduleFlushIfNeeded() {
+        guard !isFlushScheduled else { return }
+        isFlushScheduled = true
+        queue.asyncAfter(deadline: .now() + Self.flushDelay) { [weak self] in
+            self?.flushPendingLines()
+        }
+    }
+
+    private func flushPendingLines() {
+        isFlushScheduled = false
+        let batches = pendingLines
+        pendingLines.removeAll(keepingCapacity: true)
+        for (url, data) in batches {
+            appendData(data, to: url)
         }
     }
 
     public func availableModules() -> [String] {
+        flush()
         guard let directory = directoryURL else { return [] }
         let contents = (try? FileManager.default.contentsOfDirectory(
             at: directory,
@@ -54,6 +83,7 @@ public nonisolated final class LogManager: @unchecked Sendable {
     }
 
     public func size(for module: String) -> Int64 {
+        flush()
         guard let url = fileURL(for: module),
               let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
               let size = attributes[.size] as? Int64 else { return 0 }
@@ -61,6 +91,7 @@ public nonisolated final class LogManager: @unchecked Sendable {
     }
 
     public func totalSize() -> Int64 {
+        flush()
         guard let directory = directoryURL else { return 0 }
         let contents = (try? FileManager.default.contentsOfDirectory(
             at: directory,
@@ -83,9 +114,14 @@ public nonisolated final class LogManager: @unchecked Sendable {
         for url in contents where url.pathExtension == "log" {
             try? FileManager.default.removeItem(at: url)
         }
+        queue.async { [weak self] in
+            self?.pendingLines.removeAll()
+            self?.knownFileSizes.removeAll()
+        }
     }
 
     public func contents(for module: String) -> String {
+        flush()
         guard let url = fileURL(for: module),
               let data = try? Data(contentsOf: url),
               let text = String(data: data, encoding: .utf8) else { return "" }
@@ -93,35 +129,44 @@ public nonisolated final class LogManager: @unchecked Sendable {
     }
 
     private func appendData(_ data: Data, to url: URL) {
-        if !FileManager.default.fileExists(atPath: url.path) {
-            try? data.write(to: url, options: .atomic)
-        } else if let handle = try? FileHandle(forWritingTo: url) {
+        let size: Int64
+        if let knownSize = knownFileSizes[url] {
+            size = knownSize
+        } else {
+            let attributes = try? FileManager.default.attributesOfItem(atPath: url.path)
+            size = (attributes?[.size] as? Int64) ?? -1
+        }
+        var baseSize = size
+        if size >= 0, let handle = try? FileHandle(forWritingTo: url) {
             defer { try? handle.close() }
             do {
                 try handle.seekToEnd()
                 try handle.write(contentsOf: data)
             } catch {
+                knownFileSizes[url] = nil
                 return
             }
+        } else {
+            try? data.write(to: url, options: .atomic)
+            baseSize = 0
         }
-        truncateIfNeeded(url: url)
+        let newSize = baseSize + Int64(data.count)
+        knownFileSizes[url] = newSize
+        if newSize > Self.maxBytesPerModule + Self.truncationHeadroom {
+            truncate(url: url)
+        }
     }
 
-    private func truncateIfNeeded(url: URL) {
-        let attributes = try? FileManager.default.attributesOfItem(atPath: url.path)
-        guard let size = attributes?[.size] as? Int64,
-              size > Self.maxBytesPerModule + Self.truncationHeadroom,
-              let data = try? Data(contentsOf: url),
-              let text = String(data: data, encoding: .utf8) else { return }
-        let lines = text.split(separator: "\n", omittingEmptySubsequences: false)
-        var keptLines = Array(lines)
-        var bytes = Int64(data.count)
-        while bytes > Self.maxBytesPerModule, keptLines.count > 1 {
-            let dropped = keptLines.removeFirst()
-            bytes -= Int64(dropped.utf8.count + 1)
-        }
-        let rewritten = keptLines.joined(separator: "\n")
-        try? rewritten.data(using: .utf8)?.write(to: url, options: .atomic)
+    private func truncate(url: URL) {
+        knownFileSizes[url] = nil
+        guard let data = try? Data(contentsOf: url),
+              data.count > Self.maxBytesPerModule else { return }
+        let earliestKeptOffset = data.count - Int(Self.maxBytesPerModule)
+        let lineStart = data[earliestKeptOffset...].firstIndex(of: UInt8(ascii: "\n"))
+            .map { data.index(after: $0) } ?? earliestKeptOffset
+        let kept = data[lineStart...]
+        try? Data(kept).write(to: url, options: .atomic)
+        knownFileSizes[url] = Int64(kept.count)
     }
 
     private func sanitizeFileName(_ module: String) -> String {

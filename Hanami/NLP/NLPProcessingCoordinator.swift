@@ -43,7 +43,7 @@ public enum NLPProcessingCoordinator {
             var processedSinceYield = 0
             for pending in toProcess {
                 if Task.isCancelled { break }
-                if let article = try? database.article(byID: pending.id) {
+                if let article = try? database.listArticle(byID: pending.id) {
                     processArticleSync(
                         article,
                         sentimentTagger: pending.needsSentiment ? sentimentTagger : nil,
@@ -81,7 +81,7 @@ public enum NLPProcessingCoordinator {
 
     /// Processes the given article IDs inline as part of a per-feed refresh pipeline.
     /// Skipped when content insights are disabled or in Low Power Mode.
-    public nonisolated static func processArticles(ids: [Int64]) async {
+    @concurrent public nonisolated static func processArticles(ids: [Int64]) async {
         guard !ids.isEmpty else { return }
         let defaults = UserDefaults.standard
         guard defaults.bool(forKey: "Intelligence.ContentInsights.Enabled") else { return }
@@ -93,7 +93,7 @@ public enum NLPProcessingCoordinator {
 
         for id in ids {
             if Task.isCancelled { return }
-            guard let article = try? database.article(byID: id) else { continue }
+            guard let article = try? database.listArticle(byID: id) else { continue }
             processArticleSync(
                 article,
                 sentimentTagger: sentimentTagger,
@@ -115,8 +115,6 @@ public enum NLPProcessingCoordinator {
         let text = [article.title, article.summary ?? ""]
             .filter { !$0.isEmpty }
             .joined(separator: " ")
-
-        log("NLPCoordinator", "processArticleSync: article=\(article.id) title=\"\(article.title.prefix(60))\"")
 
         if runSentiment {
             let sentiment: Double?

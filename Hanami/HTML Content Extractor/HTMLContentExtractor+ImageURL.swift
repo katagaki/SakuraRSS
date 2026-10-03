@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// Picks the best available source URL from an image-like element:
     /// `<img>`, `<amp-img>`, or `<picture>`.  Prefers `srcset` descriptors

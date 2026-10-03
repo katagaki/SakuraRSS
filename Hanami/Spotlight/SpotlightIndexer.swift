@@ -18,7 +18,7 @@ public nonisolated enum SpotlightIndexer {
         let entries = articles.map { article in
             IndexEntry(
                 identifier: uniqueIdentifier(for: article.id),
-                title: article.title,
+                title: article.displayTitle,
                 contentDescription: article.summary.flatMap { stripMarkup($0) }
                     ?? article.content.flatMap { stripHTML($0) },
                 author: article.author,

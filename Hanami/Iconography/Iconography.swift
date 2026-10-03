@@ -1,5 +1,9 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public actor Iconography {
 
@@ -16,12 +20,15 @@ public actor Iconography {
     }()
 
     public let cacheDirectory: URL
-    public var memoryCache: [String: UIImage] = [:]
+    public var memoryCache: [String: PlatformImage] = [:]
     public var failedLookups: [String: Date] = [:]
+    var appStoreIconDates: [String: Date] = [:]
+    var appStoreIconRequests: [Int: Task<PlatformImage?, Never>] = [:]
+    var profileIconRequests: [String: Task<PlatformImage?, Never>] = [:]
 
     private init() {
         let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         )!
         cacheDirectory = containerURL.appendingPathComponent("FaviconCache", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
@@ -29,7 +36,14 @@ public actor Iconography {
         failedLookups = Self.loadFailedLookupsFromDisk(at: failedLookupsURL)
     }
 
-    public func icon(for domain: String, siteURL: String? = nil) async -> UIImage? {
+    public func icon(for domain: String, siteURL: String? = nil) async -> PlatformImage? {
+        if let appID = AppStoreFeedIcons.appID(for: domain) {
+            if let siteURL, Self.isProfileBased(domain: domain, siteURL: siteURL),
+               let image = await profileIcon(siteURL: siteURL) {
+                return image
+            }
+            return await appStoreIcon(appID: appID)
+        }
         let cacheKey = Self.cacheKey(domain: domain, siteURL: siteURL)
 
         if isWithinFailureTTL(cacheKey) {
@@ -42,7 +56,7 @@ public actor Iconography {
 
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
         if let data = try? Data(contentsOf: filePath),
-           let image = UIImage(data: data) {
+           let image = PlatformImage(data: data) {
             attachDerivedMetrics(cacheKey: cacheKey, to: image)
             memoryCache[cacheKey] = image
             return image
@@ -53,6 +67,8 @@ public actor Iconography {
 
     /// Clears caches for the given domains and re-fetches their icons.
     public func refreshIcons(for entries: [(domain: String, siteURL: String?)]) async {
+        let appIDs = Set(entries.compactMap { AppStoreFeedIcons.appID(for: $0.domain) })
+        for appID in appIDs { invalidateAppStoreIcon(appID: appID) }
         for entry in entries {
             let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
             memoryCache[cacheKey] = nil
@@ -63,13 +79,8 @@ public actor Iconography {
         }
         await withTaskGroup(of: Void.self) { group in
             for entry in entries {
-                let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
-                let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
                 group.addTask {
-                    _ = await self.fetchAndCacheIcon(
-                        for: entry.domain, siteURL: entry.siteURL,
-                        cacheKey: cacheKey, filePath: filePath
-                    )
+                    _ = await self.icon(for: entry.domain, siteURL: entry.siteURL)
                 }
             }
         }
@@ -77,6 +88,7 @@ public actor Iconography {
 
     public func clearCache() {
         memoryCache.removeAll()
+        appStoreIconDates.removeAll()
         forgetAllFailedLookups()
         try? FileManager.default.removeItem(at: cacheDirectory)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
@@ -113,7 +125,7 @@ public actor Iconography {
     }
 
     /// Attaches cached metrics to the image, computing and persisting them if missing.
-    public func attachDerivedMetrics(cacheKey: String, to image: UIImage) {
+    public func attachDerivedMetrics(cacheKey: String, to image: PlatformImage) {
         let url = metricsSidecarURL(for: cacheKey)
         if let data = try? Data(contentsOf: url),
            let metrics = try? JSONDecoder().decode(IconDerivedMetrics.self, from: data) {

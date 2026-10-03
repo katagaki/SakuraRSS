@@ -1,17 +1,20 @@
 import Foundation
 
-public nonisolated struct ExtractionResult {
+public nonisolated struct ExtractionResult: Sendable {
     public var text: String?
     public var metadata: ArticleMetadata
     public var paywalled: Bool
+    public var challenged: Bool
 
     public init(
         text: String? = nil,
         metadata: ArticleMetadata = ArticleMetadata(),
-        paywalled: Bool = false
+        paywalled: Bool = false,
+        challenged: Bool = false
     ) {
         self.text = text
         self.metadata = metadata
         self.paywalled = paywalled
+        self.challenged = challenged
     }
 }

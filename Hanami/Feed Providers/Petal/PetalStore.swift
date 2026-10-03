@@ -9,9 +9,7 @@ public nonisolated final class PetalStore: @unchecked Sendable {
     private let iconDirectoryURL: URL
 
     private init() {
-        let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
-        )!
+        let containerURL = AppGroup.storageURL
         directoryURL = containerURL.appendingPathComponent("Petals", isDirectory: true)
         iconDirectoryURL = directoryURL
         try? FileManager.default.createDirectory(

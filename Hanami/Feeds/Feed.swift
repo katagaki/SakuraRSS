@@ -157,7 +157,8 @@ public nonisolated struct Feed: Identifiable, Hashable, Sendable {
 
     /// Feeds whose refresh path walks pages or runs a custom recipe.
     public var isSlowRefreshFeed: Bool {
-        isXFeed || isInstagramFeed || isYouTubePlaylistFeed || PetalRecipe.isPetalFeedURL(url)
+        isXFeed || isInstagramFeed || isYouTubePlaylistFeed || isRedditFeed
+            || PetalRecipe.isPetalFeedURL(url)
     }
 
     public var isOPMLPortable: Bool {

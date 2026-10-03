@@ -148,7 +148,7 @@ struct TimelineStyleView: View {
         Divider()
         ArticleReadMenuButton(article: article)
         #endif
-        MoveToFolderMenuItems(article: article)
+        BookmarkMenuItems(article: article)
     }
 
     private static func groupedArticles(from articles: [Article]) -> [(key: String, articles: [Article])] {
@@ -221,7 +221,7 @@ struct TimelineStyleView: View {
             TimelineConnector(isFirst: isFirst, isLast: isLast, isRead: isRead)
                 .frame(width: 28)
 
-            Text(article.title)
+            Text(article.displayTitle)
                 .font(isFeatured ? .body : .subheadline)
                 .fontWeight(titleWeight(isFeatured: isFeatured, isRead: isRead))
                 .foregroundStyle(isRead ? .secondary : .primary)

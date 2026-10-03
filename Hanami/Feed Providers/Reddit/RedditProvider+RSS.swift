@@ -1,23 +1,23 @@
 import Foundation
 
-extension RedditProvider: RSSFeedProvider {
+extension RedditProvider: WebFeedProvider {
 
     public nonisolated static var providerID: String { "reddit" }
 
     public nonisolated static var domains: Set<String> { ["reddit.com"] }
 
     public nonisolated static func matchesFeedURL(_ feedURL: String) -> Bool {
-        guard let url = URL(string: feedURL),
-              matchesHost(url.host) else { return false }
-        return url.path.lowercased().hasSuffix(".rss")
+        guard let url = URL(string: feedURL) else { return false }
+        return RedditWebFeedURL(url: url) != nil
     }
 
     public nonisolated static func inferredSiteURL(fromFeedURL feedURL: String) -> String? {
         guard let url = URL(string: feedURL),
-              matchesFeedURL(feedURL) else { return nil }
-        if let subreddit = extractSubredditName(from: url) {
-            return "https://www.reddit.com/r/\(subreddit)"
+              matchesHost(url.host) else { return nil }
+        if let page = RedditWebFeedURL(url: url) {
+            return page.pageURL.absoluteString
         }
+        guard url.path.lowercased().hasSuffix(".rss") else { return nil }
         let segments = url.pathComponents.filter { $0 != "/" }
         if let userIndex = segments.firstIndex(where: { $0.lowercased() == "user" }),
            userIndex + 1 < segments.count {
@@ -28,5 +28,13 @@ extension RedditProvider: RSSFeedProvider {
             }
         }
         return nil
+    }
+
+    public static func refresh(
+        feed: Feed,
+        on manager: FeedManager,
+        options: FeedRefreshOptions
+    ) async throws {
+        try await manager.refreshRedditFeed(feed, options: options)
     }
 }

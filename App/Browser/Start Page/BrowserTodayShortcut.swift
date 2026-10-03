@@ -1,0 +1,30 @@
+import SwiftUI
+import Hanami
+
+/// The fixed places Today opens onto, alongside one per followed feed type.
+/// A grid rather than a list: they are destinations of equal weight, not a
+/// ranking.
+enum BrowserTodayShortcut: String, CaseIterable, Identifiable {
+    case allContent
+    case bookmarks
+    case topics
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .allContent: String(localized: "Location.AllContent", table: "Browser")
+        case .bookmarks: String(localized: "Location.Bookmarks", table: "Browser")
+        case .topics: String(localized: "Location.Topics", table: "Browser")
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .allContent: "tray.full"
+        case .bookmarks: "bookmark"
+        case .topics: "number"
+        }
+    }
+
+}

@@ -1,29 +1,68 @@
 import Foundation
 import WebKit
 
+@MainActor
 public final class WebViewExtractor: NSObject, WKNavigationDelegate {
 
     // MARK: - Domain Whitelist
 
-    public static func requiresWebView(for url: URL) -> Bool {
+    public nonisolated static func requiresWebView(for url: URL) -> Bool {
         SiteContentExtractorRegistry.extractor(for: url)?.requiresWebView ?? false
     }
 
     // MARK: - Extraction
 
-    private var webView: WKWebView?
-    private var continuation: CheckedContinuation<String?, Never>?
-    private var timeoutTask: Task<Void, Never>?
-
-    public func extractText(from url: URL, excludeTitle: String? = nil) async -> String? {
-        let html = await loadAndExtractHTML(from: url)
-        guard let html, !html.isEmpty else { return nil }
-        return HTMLContentExtractor.extractText(
-            fromHTML: html, baseURL: url, excludeTitle: excludeTitle
-        )
+    public nonisolated struct Extraction: Sendable {
+        public var text: String?
+        public var pageTitle: String?
+        public var challenged: Bool
     }
 
-    private func loadAndExtractHTML(from url: URL) async -> String? {
+    private enum RenderedPage {
+        case html(String)
+        case challenged
+        case failed
+    }
+
+    private var webView: WKWebView?
+    private var continuation: CheckedContinuation<RenderedPage, Never>?
+    private var timeoutTask: Task<Void, Never>?
+    private var snapshotTask: Task<Void, Never>?
+
+    private static let hydrationDelay: Duration = .seconds(2)
+    private static let challengePollInterval: Duration = .seconds(1)
+    private static let challengeDeadline: Duration = .seconds(8)
+
+    /// Loads the page on the main actor, then parses the rendered HTML off it.
+    public nonisolated static func extractText(
+        from url: URL, excludeTitle: String? = nil
+    ) async -> String? {
+        await extract(from: url, excludeTitle: excludeTitle).text
+    }
+
+    public nonisolated static func extract(
+        from url: URL, excludeTitle: String? = nil
+    ) async -> Extraction {
+        switch await loadRenderedHTML(from: url) {
+        case .html(let html) where !html.isEmpty:
+            let text = await HTMLContentExtractor.extractText(
+                offMainActorFromHTML: html, baseURL: url, excludeTitle: excludeTitle
+            )
+            let pageTitle = await HTMLContentExtractor.pageTitle(offMainActorFromHTML: html)
+            return Extraction(text: text, pageTitle: pageTitle, challenged: false)
+        case .challenged:
+            return Extraction(text: nil, pageTitle: nil, challenged: true)
+        default:
+            return Extraction(text: nil, pageTitle: nil, challenged: false)
+        }
+    }
+
+    @MainActor
+    private static func loadRenderedHTML(from url: URL) async -> RenderedPage {
+        await WebViewExtractor().loadAndExtractHTML(from: url)
+    }
+
+    private func loadAndExtractHTML(from url: URL) async -> RenderedPage {
         await withCheckedContinuation { continuation in
             self.continuation = continuation
 
@@ -44,12 +83,18 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
     }
 
     private func handleTimeout() {
+        finish(returning: .failed)
+    }
+
+    private func finish(returning page: RenderedPage) {
         guard let continuation else { return }
         self.continuation = nil
         timeoutTask?.cancel()
         timeoutTask = nil
+        snapshotTask?.cancel()
+        snapshotTask = nil
         cleanup()
-        continuation.resume(returning: nil)
+        continuation.resume(returning: page)
     }
 
     private func cleanup() {
@@ -61,22 +106,19 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
     // MARK: - WKNavigationDelegate
 
     public func webView(_: WKWebView, didFinish _: WKNavigation!) {
-        // Give JS frameworks time to hydrate before snapshotting.
+        // Bot challenges reload the page once solved, so didFinish can fire
+        // again while the first snapshot is still waiting.
+        guard snapshotTask == nil else { return }
         timeoutTask?.cancel()
         timeoutTask = nil
-        Task {
-            try? await Task.sleep(for: .seconds(2))
-            self.extractHTML()
+        snapshotTask = Task { [weak self] in
+            await self?.waitForArticleAndSnapshot()
         }
     }
 
     public func webView(_: WKWebView, didFail _: WKNavigation!, withError _: Error) {
-        guard let continuation else { return }
-        self.continuation = nil
-        timeoutTask?.cancel()
-        timeoutTask = nil
-        cleanup()
-        continuation.resume(returning: nil)
+        guard snapshotTask == nil else { return }
+        finish(returning: .failed)
     }
 
     public func webView(
@@ -84,13 +126,38 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
         didFailProvisionalNavigation _: WKNavigation!,
         withError _: Error
     ) {
-        guard let continuation else { return }
-        self.continuation = nil
-        timeoutTask?.cancel()
-        timeoutTask = nil
-        cleanup()
-        continuation.resume(returning: nil)
+        guard snapshotTask == nil else { return }
+        finish(returning: .failed)
     }
+
+    private func waitForArticleAndSnapshot() async {
+        try? await Task.sleep(for: Self.hydrationDelay)
+        let deadline = ContinuousClock.now + Self.challengeDeadline
+        while !Task.isCancelled {
+            guard let html = await evaluate(Self.outerHTMLScript) else {
+                finish(returning: .failed)
+                return
+            }
+            if !BotChallengeDetector.looksLikeChallenge(html) {
+                let cleanedHTML = await evaluate(Self.cleanupScript)
+                finish(returning: cleanedHTML.map(RenderedPage.html) ?? .failed)
+                return
+            }
+            guard ContinuousClock.now < deadline else {
+                log("WebViewExtractor", "Bot challenge did not clear before the deadline")
+                finish(returning: .challenged)
+                return
+            }
+            try? await Task.sleep(for: Self.challengePollInterval)
+        }
+    }
+
+    private func evaluate(_ script: String) async -> String? {
+        guard let webView else { return nil }
+        return try? await webView.evaluateJavaScript(script) as? String
+    }
+
+    private static let outerHTMLScript = "document.documentElement.outerHTML"
 
     private static let cleanupScript = """
     (function() {
@@ -141,21 +208,4 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
         return document.documentElement.outerHTML;
     })()
     """
-
-    private func extractHTML() {
-        guard let continuation else { return }
-        self.continuation = nil
-        timeoutTask?.cancel()
-        timeoutTask = nil
-
-        guard let webView else {
-            continuation.resume(returning: nil)
-            return
-        }
-
-        webView.evaluateJavaScript(Self.cleanupScript) { [weak self] result, _ in
-            self?.cleanup()
-            continuation.resume(returning: result as? String)
-        }
-    }
 }

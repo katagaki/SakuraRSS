@@ -115,6 +115,6 @@ struct FeedStyleView: View {
         ArticleReadMenuButton(article: article)
         ArticleBookmarkMenuButton(article: article)
         #endif
-        MoveToFolderMenuItems(article: article)
+        BookmarkMenuItems(article: article)
     }
 }

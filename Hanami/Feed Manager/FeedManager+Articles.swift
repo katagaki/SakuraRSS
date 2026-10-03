@@ -175,11 +175,16 @@ public extension FeedManager {
     // MARK: - Read / Bookmark State
 
     func markRead(_ article: Article) {
+        try? database.updateLastAccessed(articleID: article.id)
+        // Reopened read content only moves up the recents; the read mask re-evaluates every row.
+        guard !isSettledAsRead(article) else {
+            bumpDataRevision()
+            return
+        }
         let wasRead = isRead(article)
         stagedReadChanges[article.id] = true
         cancelPendingScrollRead(for: article)
         try? database.markArticleRead(id: article.id, read: true)
-        try? database.updateLastAccessed(articleID: article.id)
         if !wasRead {
             adjustUnreadCount(for: article, delta: -1)
         }

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public struct WikipediaExtractor: SiteContentExtractor {
+public nonisolated struct WikipediaExtractor: SiteContentExtractor {
 
     public func canHandle(url: URL) -> Bool {
         matchesHost(url, ["wikipedia.org", "wikimedia.org"])

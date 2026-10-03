@@ -61,7 +61,7 @@ struct MagazineArticleCard: View {
             }
 
             HStack(spacing: 4) {
-                Text(article.title)
+                Text(article.displayTitle)
                     .font(.subheadline)
                     .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                     .lineLimit(2)

@@ -51,13 +51,9 @@ extension SakuraRSSApp {
             guard let task = task as? BGProcessingTask else { return }
             self.handleImageBackfill(task: task)
         }
-        BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: SummaryBackfillScheduler.taskIdentifier,
-            using: nil
-        ) { task in
-            guard let task = task as? BGProcessingTask else { return }
-            self.handleSummaryBackfill(task: task)
-        }
+        BGTaskScheduler.shared.cancel(
+            taskRequestWithIdentifier: "com.tsubuzaki.SakuraRSS.SummaryBackfill"
+        )
     }
 
     /// Submits a `BGAppRefreshTaskRequest` per category so each one gets its
@@ -108,14 +104,20 @@ extension SakuraRSSApp {
             let pluggedIn = await Self.deviceIsPluggedIn()
             let skipImagePreload = pathExpensive || !pluggedIn
 
-            let manager = await MainActor.run { FeedManager() }
+            let manager = await MainActor.run { FeedManager.forBackgroundRefresh() }
+            let latestArticleIDBefore = DatabaseManager.shared.latestArticleID()
             await manager.refreshFeeds(
                 in: category,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: skipImagePreload
             )
             if Task.isCancelled { return }
+            await MainActor.run { manager.reloadUnreadCounts() }
             manager.updateBadgeCount()
+            guard DatabaseManager.shared.latestArticleID() != latestArticleIDBefore else {
+                log("BackgroundRefresh", "no new articles category=\(category.rawValue), skipping widget reload")
+                return
+            }
             WidgetCenter.shared.reloadAllTimelines()
         }
 
@@ -131,7 +133,6 @@ extension SakuraRSSApp {
                 "BackgroundRefresh",
                 "handleAppRefresh end category=\(category.rawValue) cancelled=\(refreshTask.isCancelled)"
             )
-            SummaryBackfillScheduler.schedule()
             completion.complete(success: !refreshTask.isCancelled)
         }
     }
@@ -167,8 +168,11 @@ extension SakuraRSSApp {
 
     nonisolated private static func deviceIsPluggedIn() async -> Bool {
         await MainActor.run { () -> Bool in
-            UIDevice.current.isBatteryMonitoringEnabled = true
-            switch UIDevice.current.batteryState {
+            let device = UIDevice.current
+            let wasMonitoring = device.isBatteryMonitoringEnabled
+            device.isBatteryMonitoringEnabled = true
+            defer { device.isBatteryMonitoringEnabled = wasMonitoring }
+            switch device.batteryState {
             case .charging, .full: return true
             case .unplugged, .unknown: return false
             @unknown default: return false
@@ -305,27 +309,6 @@ extension SakuraRSSApp {
         }
     }
 
-    nonisolated func handleSummaryBackfill(task: BGProcessingTask) {
-        log("SummaryBackfill", "handleSummaryBackfill begin")
-
-        let completion = BackgroundTaskCompletion(task: task)
-
-        let work = Task {
-            await SummaryBackfillScheduler.runBackfill(isCancelled: { Task.isCancelled })
-        }
-
-        task.expirationHandler = {
-            log("SummaryBackfill", "handleSummaryBackfill expired")
-            work.cancel()
-            completion.complete(success: false)
-        }
-
-        Task {
-            _ = await work.value
-            log("SummaryBackfill", "handleSummaryBackfill end cancelled=\(work.isCancelled)")
-            completion.complete(success: !work.isCancelled)
-        }
-    }
 }
 
 nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {
@@ -345,6 +328,7 @@ nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {
         }
         didComplete = true
         lock.unlock()
+        LogManager.shared.flush()
         task.setTaskCompleted(success: success)
     }
 }

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public struct MothershipExtractor: SiteContentExtractor {
+public nonisolated struct MothershipExtractor: SiteContentExtractor {
 
     public func canHandle(url: URL) -> Bool {
         matchesHost(url, ["mothership.sg"])

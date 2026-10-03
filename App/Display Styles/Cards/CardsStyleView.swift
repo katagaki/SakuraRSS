@@ -100,6 +100,13 @@ struct CardsStyleView: View {
             ArticleDetailView(article: raw, marksReadOnAppear: false)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)
         }
+        .browserOverlayPage(item: $selectedArticle) { article in
+            BrowserPageIdentity(
+                title: feedManager.feed(forArticle: article)?.title ?? article.displayTitle,
+                subtitle: article.displayTitle,
+                symbolName: "doc.text"
+            )
+        }
         .onAppear {
             if deckArticleIDs == nil {
                 deckArticleIDs = Set(

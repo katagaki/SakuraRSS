@@ -23,29 +23,20 @@ public extension InstagramProvider {
               let url = Self.commentsPageURL(forShortcode: shortcode),
               let cookies = Self.getInstagramCookies() else { return [] }
 
-        await Self.awaitHumanPacing()
-
         let session = makeCommentsSession(cookies: cookies)
+        defer { session.finishTasksAndInvalidate() }
         let referer = "https://www.instagram.com/p/\(shortcode)/"
-        let request = buildHTMLRequest(url: url, cookies: cookies, referer: referer)
+        let request = buildHTMLRequest(url: url, referer: referer)
 
         let data: Data
-        let response: URLResponse
         do {
-            (data, response) = try await session.data(for: request)
+            data = try await Self.performRequest(request, session: session)
         } catch {
             log("InstagramProvider", "Comments page network error: \(error)")
-            Self.markRequestCompleted()
             return []
         }
-        Self.markRequestCompleted()
 
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200,
-              let html = String(data: data, encoding: .utf8) else {
-            log("InstagramProvider", "Comments page bad status: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
-            return []
-        }
+        guard let html = String(data: data, encoding: .utf8) else { return [] }
 
         let parsed = Self.parseCommentsHTML(html, shortcode: shortcode)
         let ranked = parsed
@@ -66,27 +57,4 @@ public extension InstagramProvider {
         return URLSession(configuration: config)
     }
 
-    /// Mirrors a Safari navigation: text/html Accept, document fetch dest,
-    /// no XHR/CSRF headers (the XHR variant returns a JSON shell rather
-    /// than the server-rendered comments).
-    private func buildHTMLRequest(url: URL, cookies: InstagramCookies,
-                                  referer: String) -> URLRequest {
-        var request = URLRequest(url: url, timeoutInterval: max(5, requestTimeoutInterval))
-        request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
-        request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                         forHTTPHeaderField: "Accept")
-        request.setValue(Self.acceptLanguageHeader, forHTTPHeaderField: "Accept-Language")
-        request.setValue(referer, forHTTPHeaderField: "referer")
-        request.setValue("https://www.instagram.com", forHTTPHeaderField: "origin")
-        request.setValue("same-origin", forHTTPHeaderField: "sec-fetch-site")
-        request.setValue("navigate", forHTTPHeaderField: "sec-fetch-mode")
-        request.setValue("document", forHTTPHeaderField: "sec-fetch-dest")
-        request.setValue("?1", forHTTPHeaderField: "sec-fetch-user")
-
-        let cookieHeader = HTTPCookie.requestHeaderFields(with: cookies.allCookies)
-        for (key, value) in cookieHeader {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
-        return request
-    }
 }

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// Removes lists where most items are just links (likely navigation menus).
     static func removeMenuLists(from element: Element) {

@@ -86,16 +86,28 @@ final class YouTubePlayerSession {
         artworkURL = nil
     }
 
+    /// Also hands the audio route back, so other apps can resume.
+    func stop() {
+        clear()
+        if isPrimary {
+            YouTubeAudioSession.deactivate()
+        }
+    }
+
+    func holds(_ article: Article) -> Bool {
+        currentArticle?.url == article.url
+    }
+
     var isActive: Bool { webView != nil }
 
     func togglePlayPause() {
         let script = """
-        var video = document.querySelector('video');
+        var video = window.__yt.getPlaybackVideo();
         if (!video) { return null; }
         var mediaMissing = (window.__yt && window.__yt.mediaMissing)
             ? window.__yt.mediaMissing(video)
             : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
-        if (video.paused || mediaMissing) {
+        if (video.paused || (mediaMissing && !window.__yt.isInPiP())) {
             if (window.__yt) {
                 window.__yt.autoplayBlocked = false;
                 window.__yt.userPaused = false;
@@ -104,12 +116,12 @@ final class YouTubePlayerSession {
             // A play() the page never observed leaves the element
             // un-paused with no media; cycle pause() so the mobile watch
             // page sees a fresh play event and attaches the media.
-            if (!video.paused) { video.pause(); }
-            try { await video.play(); } catch (error) { return false; }
+            if (!video.paused) { window.__yt.pauseVideo(video); }
+            try { await window.__yt.resumeVideo(video); } catch (error) { return false; }
             return !video.paused;
         }
         if (window.__yt) { window.__yt.userPaused = true; }
-        video.pause();
+        window.__yt.pauseVideo(video);
         return !video.paused;
         """
         evaluatePlaybackState(script)
@@ -128,7 +140,7 @@ final class YouTubePlayerSession {
 
     func play() {
         let script = """
-        var video = document.querySelector('video');
+        var video = window.__yt.getPlaybackVideo();
         if (!video) { return null; }
         if (window.__yt) {
             window.__yt.autoplayBlocked = false;
@@ -138,8 +150,10 @@ final class YouTubePlayerSession {
         var mediaMissing = (window.__yt && window.__yt.mediaMissing)
             ? window.__yt.mediaMissing(video)
             : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
-        if (!video.paused && mediaMissing) { video.pause(); }
-        try { await video.play(); } catch (error) { return false; }
+        if (!video.paused && mediaMissing && !window.__yt.isInPiP()) {
+            window.__yt.pauseVideo(video);
+        }
+        try { await window.__yt.resumeVideo(video); } catch (error) { return false; }
         return !video.paused;
         """
         evaluatePlaybackState(script)
@@ -148,10 +162,10 @@ final class YouTubePlayerSession {
     func pause() {
         let script = """
         (function() {
-            var video = document.querySelector('video');
+            var video = window.__yt.getPlaybackVideo();
             if (!video) { return null; }
             if (window.__yt) { window.__yt.userPaused = true; }
-            video.pause();
+            window.__yt.pauseVideo(video);
             return !video.paused;
         })();
         """

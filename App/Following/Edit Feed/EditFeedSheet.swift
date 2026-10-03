@@ -30,17 +30,23 @@ struct EditFeedSheet: View {
                     }
                 }
                 ToolbarItem(placement: .principal) {
-                    Picker("", selection: $selectedTab) {
-                        Text(String(localized: "FeedEditSheet.Tab.About", table: "Feeds"))
-                            .tag(FeedEditTab.about)
-                        Text(String(localized: "FeedEditSheet.Tab.Content", table: "Feeds"))
-                            .tag(FeedEditTab.content)
-                        Text(String(localized: "FeedEditSheet.Tab.Rules", table: "Feeds"))
-                            .tag(FeedEditTab.rules)
-                        Text(String(localized: "FeedEditSheet.Tab.Lists", table: "Feeds"))
-                            .tag(FeedEditTab.lists)
+                    // A menu rather than segments: five tabs no longer fit
+                    // across the sheet without truncating their titles.
+                    Menu {
+                        Picker("", selection: $selectedTab) {
+                            ForEach(FeedEditTab.allCases, id: \.self) { tab in
+                                Text(tab.localizedTitle).tag(tab)
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(selectedTab.localizedTitle)
+                            Image(systemName: "chevron.down.circle.fill")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.headline)
                     }
-                    .pickerStyle(.segmented)
                 }
             }
             .task {
@@ -60,6 +66,8 @@ struct EditFeedSheet: View {
                 EditFeedMetadataTab(feed: $feed, feedID: feedID)
             case .content:
                 EditFeedContentTab(feed: $feed, feedID: feedID)
+            case .display:
+                EditFeedDisplayTab(feedID: feedID)
             case .rules:
                 EditFeedRulesTab(feed: $feed, feedID: feedID)
             case .lists:

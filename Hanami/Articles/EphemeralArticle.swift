@@ -1,8 +1,8 @@
 import Foundation
 
-public let ephemeralArticleID: Int64 = 0
+public nonisolated let ephemeralArticleID: Int64 = 0
 
-public extension Article {
+public nonisolated extension Article {
     /// Articles created from the Open Article extension carry `id == 0`.
     var isEphemeral: Bool {
         id == ephemeralArticleID

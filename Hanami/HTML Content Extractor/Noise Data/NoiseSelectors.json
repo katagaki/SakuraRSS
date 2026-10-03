@@ -249,8 +249,7 @@
       "selectors": [
         "[data-testid=article-badge-and-breadcrumb]",
         "[data-testid=truncation-inner]",
-        ".dp_VC speakable-headline",
-        "time"
+        ".dp_VC speakable-headline"
       ]
     },
     {
@@ -394,7 +393,7 @@
         ".channel-promo",
         ".block-type--subscription_cta_block",
         "[widget-type*=widget]",
-        "[data-widget-type]",
+        "[data-widget-type]:not([data-widget-type=contentparsed])",
         "[data-block-type*=cta]",
         "[data-block-type*=subscription]",
         "[data-block-type*=newsletter]"

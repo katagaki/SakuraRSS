@@ -50,6 +50,12 @@ public nonisolated extension DatabaseManager {
         return try database.prepare(query).map(rowToArticle).first
     }
 
+    /// Same row as `article(byID:)` without the full-text `content` column.
+    func listArticle(byID id: Int64) throws -> Article? {
+        let query = selectingListColumns(articles).filter(articleID == id).limit(1)
+        return try database.prepare(query).map(rowToListArticle).first
+    }
+
     func articles(forFeedID fid: Int64, limit: Int? = nil) throws -> [Article] {
         var query = articles
             .filter(articleFeedID == fid)
@@ -72,6 +78,11 @@ public nonisolated extension DatabaseManager {
     }
 
     /// Returns the URLs already ingested for `fid`.
+    /// Highest article row id; grows whenever a refresh inserts anything.
+    func latestArticleID() -> Int64 {
+        (try? database.scalar(articles.select(articleID.max))) ?? 0
+    }
+
     func existingArticleURLs(forFeedID fid: Int64) throws -> Set<String> {
         let query = articles
             .filter(articleFeedID == fid)
@@ -81,6 +92,13 @@ public nonisolated extension DatabaseManager {
             result.insert(row[articleURL])
         }
         return result
+    }
+
+    func undatedArticleURLs(forFeedID fid: Int64) throws -> Set<String> {
+        let query = articles
+            .filter(articleFeedID == fid && articlePublishedDate == nil)
+            .select(articleURL)
+        return Set(try database.prepare(query).map { $0[articleURL] })
     }
 
     func articles(forFeedID fid: Int64, since date: Date) throws -> [Article] {

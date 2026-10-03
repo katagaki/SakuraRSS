@@ -20,6 +20,10 @@ public final class HTTPSPreferringSession: @unchecked Sendable {
     public func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         try await session.data(for: HTTPSRedirectDelegate.upgradeIfNeeded(request))
     }
+
+    public func bytes(for request: URLRequest) async throws -> (URLSession.AsyncBytes, URLResponse) {
+        try await session.bytes(for: HTTPSRedirectDelegate.upgradeIfNeeded(request))
+    }
 }
 
 private final class HTTPSRedirectDelegate: NSObject, URLSessionTaskDelegate {

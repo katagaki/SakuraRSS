@@ -9,7 +9,7 @@ public extension PodcastDownloadManager {
     nonisolated static var sharedDownloadsDirectory: URL? {
         let fileManager = FileManager.default
         guard let container = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         ) else { return nil }
         let dir = container.appendingPathComponent("PodcastDownloads", isDirectory: true)
         if !fileManager.fileExists(atPath: dir.path) {

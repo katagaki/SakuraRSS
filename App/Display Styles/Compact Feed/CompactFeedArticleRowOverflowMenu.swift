@@ -30,7 +30,7 @@ struct CompactFeedArticleRowOverflowMenu: View {
                 }
             }
 
-            MoveToFolderMenuItems(article: article)
+            BookmarkMenuItems(article: article)
         } label: {
             Image(systemName: "ellipsis")
                 .font(.footnote.weight(.semibold))

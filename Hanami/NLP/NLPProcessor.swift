@@ -56,7 +56,6 @@ public nonisolated enum NLPProcessor {
             }
             return true
         }
-        log("NLP", "Extracted \(results.count) entities from text (\(text.count) chars)")
         return results
     }
 
@@ -90,7 +89,6 @@ public nonisolated enum NLPProcessor {
             return nil
         }
         let average = scores.reduce(0, +) / Double(scores.count)
-        log("NLP", "Sentiment: \(String(format: "%.3f", average)) (from \(scores.count) paragraphs)")
         return average
     }
 

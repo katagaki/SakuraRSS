@@ -13,7 +13,7 @@ struct CompactStyleView: View {
     private func articleLabel(for article: Article) -> some View {
         let isRead = feedManager.isRead(article)
         return HStack(alignment: .top) {
-            Text(article.title)
+            Text(article.displayTitle)
                 .font(.caption)
                 .fontWeight(isRead ? .regular : .medium)
                 .foregroundStyle(isRead ? .secondary : .primary)
@@ -102,7 +102,7 @@ struct CompactStyleView: View {
             #endif
             ArticleReadMenuButton(article: article)
             ArticleBookmarkMenuButton(article: article)
-            MoveToFolderMenuItems(article: article)
+            BookmarkMenuItems(article: article)
         }
     }
 }

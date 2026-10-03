@@ -2,13 +2,34 @@ import Foundation
 
 public extension FeedManager {
 
-    nonisolated static func runStandardFeedPipeline(
+    @concurrent nonisolated static func runStandardFeedPipeline(
         feed: Feed,
         database: DatabaseManager,
         options: StandardFeedPipelineOptions
     ) async throws {
-        guard let parsedFeed = try await fetchAndParseStandardFeed(feed: feed) else { return }
+        switch try await fetchAndParseStandardFeed(feed: feed, database: database) {
+        case .failed:
+            return
+        case .unchanged:
+            try database.updateFeedLastFetched(id: feed.id, date: Date())
+        case .parsed(let parsedFeed, let validators):
+            try await ingestParsedStandardFeed(
+                parsedFeed,
+                validators: validators,
+                feed: feed,
+                database: database,
+                options: options
+            )
+        }
+    }
 
+    nonisolated private static func ingestParsedStandardFeed(
+        _ parsedFeed: ParsedFeed,
+        validators: FeedHTTPValidators,
+        feed: Feed,
+        database: DatabaseManager,
+        options: StandardFeedPipelineOptions
+    ) async throws {
         if !options.contentOnly,
            let generator = parsedFeed.generator,
            generator.lowercased().contains("substack"),
@@ -49,25 +70,32 @@ public extension FeedManager {
         )
         try Task.checkCancellation()
         try database.updateFeedLastFetched(id: feed.id, date: Date())
+        try? database.saveHTTPValidators(validators, forFeedID: feed.id)
         if !options.contentOnly {
             FeedManager.scheduleFediverseProbeIfNeeded(for: feed, database: database)
         }
         log("FeedRefresh.RSS", "pipeline complete id=\(feed.id)")
     }
 
-    nonisolated private static func fetchAndParseStandardFeed(feed: Feed) async throws -> ParsedFeed? {
+    nonisolated private static func fetchAndParseStandardFeed(
+        feed: Feed,
+        database: DatabaseManager
+    ) async throws -> StandardFeedFetchResult {
         guard let url = URL(string: feed.fetchURL) else {
             log("FeedRefresh.RSS", "invalid fetch URL id=\(feed.id) fetchURL=\(feed.fetchURL)")
-            return nil
+            return .failed
         }
         let fetchURL = RedirectDomains.redirectedURL(url)
         log("FeedRefresh.RSS", "fetch begin id=\(feed.id) url=\(fetchURL.absoluteString)")
 
+        let storedValidators = ((try? database.httpValidators(forFeedID: feed.id)) ?? nil)
+            .flatMap { $0.fetchURL == feed.fetchURL ? $0 : nil }
         var request = URLRequest.sakura(url: fetchURL, timeoutInterval: 3)
         if feed.isSubstackFeed, let host = fetchURL.host,
            let cookieHeader = SubstackAuth.cookieHeader(for: host) {
             request.setValue(cookieHeader, forHTTPHeaderField: "Cookie")
         }
+        storedValidators?.applyConditionalHeaders(to: &request)
         let data: Data
         let response: URLResponse
         do {
@@ -76,9 +104,18 @@ public extension FeedManager {
             log("FeedRefresh.RSS", "fetch timeout id=\(feed.id) url=\(fetchURL.absoluteString) retrying")
             (data, response) = try await HTTPSPreferringSession.shared.data(for: request)
         }
-        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-        let contentType = (response as? HTTPURLResponse)?
-            .value(forHTTPHeaderField: "Content-Type") ?? "unknown"
+        let httpResponse = response as? HTTPURLResponse
+        let statusCode = httpResponse?.statusCode ?? 0
+        if statusCode == 304 {
+            log("FeedRefresh.RSS", "not modified id=\(feed.id) status=304")
+            return .unchanged
+        }
+        let bodyHash = FeedHTTPValidators.bodyHash(of: data)
+        if let storedHash = storedValidators?.bodyHash, storedHash == bodyHash {
+            log("FeedRefresh.RSS", "not modified id=\(feed.id) bytes=\(data.count) reason=identical-body")
+            return .unchanged
+        }
+        let contentType = httpResponse?.value(forHTTPHeaderField: "Content-Type") ?? "unknown"
         // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "fetch ok id=\(feed.id) bytes=\(data.count) status=\(statusCode) contentType=\(contentType)")
         let parser = RSSParser()
@@ -86,11 +123,17 @@ public extension FeedManager {
             let bodyHint = bodyContentHint(data: data)
             // swiftlint:disable:next line_length
             log("FeedRefresh.RSS", "parse failed id=\(feed.id) status=\(statusCode) contentType=\(contentType) bytes=\(data.count) hint=\(bodyHint)")
-            return nil
+            return .failed
         }
         // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "parsed id=\(feed.id) articles=\(parsed.articles.count) title=\(parsed.title) isPodcast=\(parsed.isPodcast)")
-        return parsed
+        let validators = FeedHTTPValidators(
+            fetchURL: feed.fetchURL,
+            eTag: httpResponse?.value(forHTTPHeaderField: "ETag"),
+            lastModified: httpResponse?.value(forHTTPHeaderField: "Last-Modified"),
+            bodyHash: bodyHash
+        )
+        return .parsed(parsed, validators: validators)
     }
 
     // XMLParser assumes UTF-8 when the document carries no encoding declaration, so a feed
@@ -116,6 +159,7 @@ public extension FeedManager {
         skipImageFetch: Bool
     ) async -> [ArticleInsertItem] {
         let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
+        let undatedURLs = (try? database.undatedArticleURLs(forFeedID: feed.id)) ?? []
         let hasNewArticles = parsed.articles.contains { !existingURLs.contains($0.url) }
         let metadataImages: [String: String]
         if skipImageFetch {
@@ -128,7 +172,12 @@ public extension FeedManager {
         let redditImages: [String: String] = (!skipImageFetch && feed.isRedditFeed && hasNewArticles)
             ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
             : [:]
-        return parsed.articles.map { article in
+        // Stored articles only need a row when their published date can be backfilled.
+        let insertableArticles = parsed.articles.filter { article in
+            !existingURLs.contains(article.url)
+                || (article.publishedDate != nil && undatedURLs.contains(article.url))
+        }
+        return insertableArticles.map { article in
             let redditImage = FeedManager.redditImageURL(
                 for: article.url, in: redditImages
             )
@@ -182,7 +231,6 @@ public extension FeedManager {
         database: DatabaseManager
     ) {
         if feed.isFediverse != nil {
-            log("FediverseDetector", "skip id=\(feed.id) reason=cached value=\(feed.isFediverse == true)")
             return
         }
         if feed.isKnownFediverseHost {
@@ -224,7 +272,7 @@ public extension FeedManager {
         return predicates.first(where: { $0.predicate(feed) })?.label
     }
 
-    nonisolated static func runPostInsertPipeline(
+    @concurrent nonisolated static func runPostInsertPipeline(
         insertedIDs: [Int64],
         feedTitle: String,
         skipImagePreload: Bool,

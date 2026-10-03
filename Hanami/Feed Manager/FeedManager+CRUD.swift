@@ -1,5 +1,9 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension FeedManager {
 
@@ -63,7 +67,7 @@ public extension FeedManager {
     func applyFetcherMetadataRefresh(
         feed: Feed,
         fetchdTitle: String,
-        profileImage: UIImage?
+        profileImage: PlatformImage?
     ) async {
         guard feed.lastFetched == nil else { return }
         let effectiveTitle = feed.isTitleCustomized ? feed.title : fetchdTitle

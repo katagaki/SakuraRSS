@@ -1,9 +1,14 @@
+import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
-public extension UIImage {
+public extension PlatformImage {
 
     /// Returns a copy cropped to the largest centered square. No-op if already square.
-    nonisolated func centerSquareCropped() -> UIImage {
+    nonisolated func centerSquareCropped() -> PlatformImage {
         guard let cgImage else { return self }
         let width = cgImage.width
         let height = cgImage.height
@@ -13,6 +18,6 @@ public extension UIImage {
         let originY = (height - side) / 2
         let rect = CGRect(x: originX, y: originY, width: side, height: side)
         guard let cropped = cgImage.cropping(to: rect) else { return self }
-        return UIImage(cgImage: cropped, scale: scale, orientation: imageOrientation)
+        return PlatformImage(cgImage: cropped, scale: scale, orientation: imageOrientation)
     }
 }

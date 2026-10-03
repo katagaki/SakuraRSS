@@ -1,6 +1,6 @@
 import Foundation
 
-public nonisolated enum FeedSection: String, CaseIterable, Sendable {
+public nonisolated enum FeedSection: String, CaseIterable, Codable, Sendable {
     case feeds
     case podcasts
     case bluesky

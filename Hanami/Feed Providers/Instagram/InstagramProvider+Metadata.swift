@@ -11,7 +11,7 @@ extension InstagramProvider: MetadataProvider {
               let profileURL = profileURL(for: handle) else { return nil }
         let fetcher = InstagramProvider()
         fetcher.requestTimeoutInterval = 600
-        let result = await fetcher.fetchProfile(profileURL: profileURL)
+        guard let result = try? await fetcher.fetchProfileMetadata(profileURL: profileURL) else { return nil }
         return FetchedFeedMetadata(
             displayName: result.displayName,
             iconURL: result.profileImageURL.flatMap(URL.init(string:))

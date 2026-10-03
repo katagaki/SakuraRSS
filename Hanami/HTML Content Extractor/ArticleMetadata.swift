@@ -2,7 +2,7 @@ import Foundation
 
 /// Structured metadata extracted from an article page.  Used to back-fill
 /// feed-supplied fields when the RSS/Atom entry is sparse.
-public nonisolated struct ArticleMetadata {
+public nonisolated struct ArticleMetadata: Sendable {
     public var author: String?
     public var publishedDate: Date?
     public var leadImageURL: String?

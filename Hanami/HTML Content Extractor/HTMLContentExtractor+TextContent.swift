@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     static let imgOpenPlaceholder = "{{SAKURA_IMG_OPEN}}"
     static let imgClosePlaceholder = "{{SAKURA_IMG_CLOSE}}"

@@ -26,7 +26,7 @@ nonisolated final class ImageMemoryCache: @unchecked Sendable {
 }
 
 private enum CachedAsyncImageConfig {
-    nonisolated static let maxDisplayPixelSize: CGFloat = 2000
+    nonisolated static let maxDisplayPixelSize: CGFloat = ImageDownsampler.cacheMaxPixelSize
 }
 
 struct CachedAsyncImage<Placeholder: View>: View {
@@ -150,7 +150,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
            let cachedImage = ImageDownsampler.downsample(
                cachedData, maxPixelSize: maxPixelSize
            ) ?? UIImage(data: cachedData) {
-            attachDerivedMetrics(to: cachedImage, encodedData: cachedData)
+            attachDerivedMetrics(to: cachedImage)
             ImageAspectRatioCache.shared.recordAspectRatio(of: cachedImage, for: urlString)
             memoryCache.setImage(cachedImage, forKey: key)
             log("Image", "Cache hit for \(urlString) (\(cachedData.count) bytes)")
@@ -160,7 +160,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
         log("Image", "Cache miss, downloading \(urlString)")
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: .sakuraImage(url: url))
+            let (data, response) = try await URLSession.sakuraImages.data(for: .sakuraImage(url: url))
             let statusCode = (response as? HTTPURLResponse)?.statusCode
             log("Image", "Downloaded \(urlString): \(data.count) bytes, HTTP \(statusCode ?? 0)")
             let downsampled = ImageDownsampler.downsample(
@@ -170,10 +170,10 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 log("Image", "Failed to decode image data from \(urlString) (\(data.count) bytes)")
                 return nil
             }
-            attachDerivedMetrics(to: downsampled, encodedData: data)
+            attachDerivedMetrics(to: downsampled)
             ImageAspectRatioCache.shared.recordAspectRatio(of: downsampled, for: urlString)
             if memoryCache.image(forKey: key) == nil {
-                try? database.cacheImageData(data, for: urlString)
+                try? database.cacheImageData(ImageDownsampler.cacheableData(data), for: urlString)
             }
             memoryCache.setImage(downsampled, forKey: key)
             return downsampled
@@ -183,11 +183,34 @@ struct CachedAsyncImage<Placeholder: View>: View {
         }
     }
 
-    nonisolated private static func attachDerivedMetrics(to image: UIImage, encodedData: Data) {
-        if let metricsSource = ImageDownsampler.downsample(encodedData, maxPixelSize: 64) {
+    /// Metrics are sampled from a 64px redraw of the already-decoded image
+    /// rather than a second ImageIO decode of the encoded source.
+    nonisolated private static func attachDerivedMetrics(to image: UIImage) {
+        if let metricsSource = metricsSample(of: image, maxPixelSize: 64) {
             image.iconDerivedMetrics = metricsSource.ensureIconDerivedMetrics()
         } else {
             image.ensureIconDerivedMetrics()
         }
+    }
+
+    nonisolated private static func metricsSample(of image: UIImage, maxPixelSize: CGFloat) -> UIImage? {
+        guard let cgImage = image.cgImage else { return nil }
+        let longestSide = CGFloat(max(cgImage.width, cgImage.height))
+        guard longestSide > maxPixelSize else { return image }
+        let scale = maxPixelSize / longestSide
+        let width = max(1, Int((CGFloat(cgImage.width) * scale).rounded()))
+        let height = max(1, Int((CGFloat(cgImage.height) * scale).rounded()))
+        guard let context = CGContext(
+            data: nil,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return nil }
+        context.interpolationQuality = .medium
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+        return context.makeImage().map { UIImage(cgImage: $0) }
     }
 }

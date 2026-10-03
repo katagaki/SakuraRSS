@@ -10529,6 +10529,136 @@
           }
         }
       }
+    },
+    "FeedEditSheet.Display.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legt fest, wie die Inhalte dieses Feeds angeordnet werden. Ohne eigenen Stil folgt der Feed deinem Standardstil."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Determines how this feed's content is laid out. Without a custom style, the feed follows your default."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détermine la disposition du contenu de ce flux. Sans style personnalisé, le flux suit votre style par défaut."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Determina come vengono disposti i contenuti di questo feed. Senza uno stile personalizzato, il feed segue il tuo stile predefinito."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このフィードのコンテンツの表示方法を設定します。カスタムスタイルを使用しない場合は、デフォルトのスタイルが適用されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 피드의 콘텐츠를 어떻게 배치할지 설정합니다. 사용자 설정 스타일을 쓰지 않으면 기본 스타일을 따릅니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaalt hoe de inhoud van deze feed wordt weergegeven. Zonder eigen stijl volgt de feed je standaardstijl."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quyết định cách bố trí nội dung của nguồn cấp này. Nếu không dùng kiểu tùy chỉnh, nguồn cấp sẽ theo kiểu mặc định của bạn."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "决定此订阅源的内容如何排布。未使用自定显示样式时，将沿用你的默认样式。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "決定此訂閱源的內容如何排布。未使用自訂顯示樣式時，將沿用你的預設樣式。"
+          }
+        }
+      }
+    },
+    "FeedEditSheet.Display.UseCustom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenen Stil verwenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use a Custom Style"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser un style personnalisé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa uno stile personalizzato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カスタムスタイルを使用"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 설정 스타일 사용"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik een eigen stijl"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dùng kiểu tùy chỉnh"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用自定显示样式"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用自訂顯示樣式"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

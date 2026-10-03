@@ -1,5 +1,9 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension FeedManager {
 
@@ -100,14 +104,14 @@ public extension FeedManager {
 
     private func loadYouTubeChannelAvatar(
         result: YouTubePlaylistFetchResult, feed: Feed, contentOnly: Bool
-    ) async -> UIImage? {
+    ) async -> PlatformImage? {
         guard !contentOnly, feed.lastFetched == nil,
               let avatarURLString = result.channelAvatarURL,
               let avatarURL = URL(string: avatarURLString),
               let (imageData, _) = try? await Iconography.urlSession.data(from: avatarURL) else {
             return nil
         }
-        return UIImage(data: imageData)
+        return PlatformImage(data: imageData)
     }
 
     var hasYouTubePlaylistFeeds: Bool {

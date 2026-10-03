@@ -1,9 +1,14 @@
+import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension Iconography {
 
     /// Fetches a high-quality icon from a web app manifest or apple-touch-icon.
-    nonisolated func fetchPWAIcon(from siteURL: URL) async -> UIImage? {
+    nonisolated func fetchPWAIcon(from siteURL: URL) async -> PlatformImage? {
         do {
             let (data, _) = try await Self.urlSession.data(from: siteURL)
             guard let html = String(data: data, encoding: .utf8) else {
@@ -21,7 +26,7 @@ public extension Iconography {
             if let touchIconHref = extractLinkHref(from: html, rel: "apple-touch-icon"),
                let iconURL = URL(string: touchIconHref, relativeTo: siteURL) {
                 let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
-                if let image = UIImage(data: iconData), image.size.width >= 48 {
+                if let image = PlatformImage(data: iconData), image.size.width >= 48 {
                     // swiftlint:disable:next line_length
                     log("Icon", "PWA: found apple-touch-icon from \(iconURL.absoluteURL) (\(image.size.width)x\(image.size.height))")
                     return image
@@ -38,7 +43,7 @@ public extension Iconography {
     }
 
     /// Fetches the largest icon from a web app manifest JSON.
-    nonisolated func fetchManifestIcon(from manifestURL: URL) async -> UIImage? {
+    nonisolated func fetchManifestIcon(from manifestURL: URL) async -> PlatformImage? {
         do {
             let (data, _) = try await Self.urlSession.data(from: manifestURL)
             guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -57,7 +62,7 @@ public extension Iconography {
                   let iconURL = URL(string: iconSrc, relativeTo: manifestURL) else { return nil }
 
             let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
-            if let image = UIImage(data: iconData), image.size.width >= 64 {
+            if let image = PlatformImage(data: iconData), image.size.width >= 64 {
                 return image
             }
             return nil
@@ -67,7 +72,7 @@ public extension Iconography {
     }
 
     /// Fetches the apple-touch-icon referenced by the homepage's `<link rel="apple-touch-icon">` tag.
-    nonisolated func fetchAppleTouchIcon(from siteURL: URL) async -> UIImage? {
+    nonisolated func fetchAppleTouchIcon(from siteURL: URL) async -> PlatformImage? {
         do {
             let (data, _) = try await Self.urlSession.data(from: siteURL)
             guard let html = String(data: data, encoding: .utf8),
@@ -76,7 +81,7 @@ public extension Iconography {
                 return nil
             }
             let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
-            return UIImage(data: iconData)
+            return PlatformImage(data: iconData)
         } catch {
             return nil
         }

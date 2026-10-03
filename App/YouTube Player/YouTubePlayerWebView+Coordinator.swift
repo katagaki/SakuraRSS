@@ -69,9 +69,7 @@ extension YouTubePlayerWebView {
             Self.messageHandlerOwners[controllerID] = nil
             controller.removeScriptMessageHandler(forName: YouTubePlayerScripts.pipMessageHandlerName)
             controller.removeScriptMessageHandler(forName: YouTubePlayerScripts.playbackMessageHandlerName)
-            #if DEBUG
             controller.removeScriptMessageHandler(forName: "ytDebug")
-            #endif
         }
 
         func reloadChapters(in webView: WKWebView) {
@@ -177,6 +175,7 @@ extension YouTubePlayerWebView {
             if message.name == YouTubePlayerScripts.pipMessageHandlerName {
                 guard let state = message.body as? String else { return }
                 let entered = (state == "enter")
+                log("YT Native", "PiP bridge state=\(state) wasPiP=\(isPiP) isPlaying=\(isPlaying)")
                 isPiP = entered
                 return
             }

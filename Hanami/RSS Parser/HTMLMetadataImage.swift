@@ -36,11 +36,12 @@ public nonisolated enum HTMLMetadataImage {
         request.setValue("text/html,application/xhtml+xml", forHTTPHeaderField: "Accept")
 
         do {
-            let (data, response) = try await HTTPSPreferringSession.shared.data(for: request)
+            let (bytes, response) = try await HTTPSPreferringSession.shared.bytes(for: request)
+            defer { bytes.task.cancel() }
             if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
                 return nil
             }
-            let slice = data.prefix(maxBytes)
+            let slice = try await readHead(from: bytes)
             guard let html = String(data: slice, encoding: .utf8)
                     ?? String(data: slice, encoding: .isoLatin1) else {
                 return nil
@@ -51,13 +52,34 @@ public nonisolated enum HTMLMetadataImage {
         }
     }
 
+    /// Stops reading at `</head>` or `maxBytes` so the rest of the page is never downloaded.
+    private static func readHead(from bytes: URLSession.AsyncBytes) async throws -> Data {
+        let headEndMarkers = [Data("</head>".utf8), Data("</HEAD>".utf8)]
+        let scanInterval = 4 * 1024
+        var buffer = Data()
+        buffer.reserveCapacity(scanInterval * 4)
+        var scannedUpTo = 0
+        for try await byte in bytes {
+            buffer.append(byte)
+            if buffer.count >= maxBytes { break }
+            if buffer.count - scannedUpTo >= scanInterval {
+                let searchStart = max(0, scannedUpTo - headEndMarkers[0].count)
+                let window = buffer[searchStart...]
+                if headEndMarkers.contains(where: { window.range(of: $0) != nil }) { break }
+                scannedUpTo = buffer.count
+            }
+        }
+        return buffer
+    }
+
     public static func extractImageURL(from html: String, baseURL: URL?) -> String? {
         // Restrict scanning to <head> to avoid picking up inline article images.
+        // NSString's case-insensitive search is far cheaper than String's on large pages.
         let headSlice: String = {
-            if let range = html.range(of: "</head>", options: .caseInsensitive) {
-                return String(html[..<range.lowerBound])
-            }
-            return html
+            let nsHTML = html as NSString
+            let range = nsHTML.range(of: "</head>", options: .caseInsensitive)
+            guard range.location != NSNotFound else { return html }
+            return nsHTML.substring(to: range.location)
         }()
 
         let metaNamePatterns = [

@@ -1,5 +1,9 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension FeedManager {
 
@@ -118,14 +122,14 @@ public extension FeedManager {
 
     private func loadBlueskyProfileImage(
         result: BlueskyFeedFetchResult, feed: Feed, contentOnly: Bool
-    ) async -> UIImage? {
+    ) async -> PlatformImage? {
         guard !contentOnly, feed.lastFetched == nil,
               let imageURLString = result.profileImageURL,
               let imageURL = URL(string: imageURLString),
               let (imageData, _) = try? await Iconography.urlSession.data(from: imageURL) else {
             return nil
         }
-        return UIImage(data: imageData)
+        return PlatformImage(data: imageData)
     }
 
     var hasBlueskyFeeds: Bool {

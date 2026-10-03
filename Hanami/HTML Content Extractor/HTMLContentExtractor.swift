@@ -2,7 +2,7 @@ import Foundation
 import SwiftSoup
 
 /// HTML-to-text article body extraction.
-public final class HTMLContentExtractor {
+public nonisolated final class HTMLContentExtractor {
 
     private init() {}
 
@@ -147,7 +147,7 @@ public final class HTMLContentExtractor {
                                                       baseURL: baseURL,
                                                       excludeTitle: excludeTitle)
             let nonAdParagraphs = rawParagraphs.filter { !isAdvertisementText($0) }
-            let paragraphs = removeTrailingFeedCTAParagraphs(nonAdParagraphs)
+            let paragraphs = removeLinkDenseTail(removeTrailingFeedCTAParagraphs(nonAdParagraphs))
             let result = paragraphs.joined(separator: "\n\n")
             var cleaned = normalizeExtractedText(result)
             cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
@@ -189,8 +189,7 @@ public final class HTMLContentExtractor {
     ) async -> String? {
         if WebViewExtractor.requiresWebView(for: url) {
             log("Extract", "Extracting text using WebView from \(url)")
-            let extractor = WebViewExtractor()
-            if let text = await extractor.extractText(from: url, excludeTitle: excludeTitle) {
+            if let text = await WebViewExtractor.extractText(from: url, excludeTitle: excludeTitle) {
                 return text
             }
         }
@@ -213,11 +212,9 @@ public final class HTMLContentExtractor {
         fromURL url: URL,
         excludeTitle: String? = nil
     ) async -> ExtractionResult {
-        if WebViewExtractor.requiresWebView(for: url) {
-            let extractor = WebViewExtractor()
-            if let text = await extractor.extractText(from: url, excludeTitle: excludeTitle) {
-                return ExtractionResult(text: text)
-            }
+        if WebViewExtractor.requiresWebView(for: url),
+           let text = await WebViewExtractor.extractText(from: url, excludeTitle: excludeTitle) {
+            return ExtractionResult(text: text)
         }
 
         do {
@@ -226,8 +223,8 @@ public final class HTMLContentExtractor {
             guard let html = HTMLDataDecoder.decode(data, response: response) else {
                 return ExtractionResult()
             }
-            if BotChallengeDetector.looksLikeChallenge(html) {
-                if let webText = await WebViewExtractor().extractText(
+            if BotChallengeDetector.looksLikeChallenge(html, response: response) {
+                if let webText = await WebViewExtractor.extractText(
                     from: url, excludeTitle: excludeTitle
                 ) {
                     return ExtractionResult(text: webText)

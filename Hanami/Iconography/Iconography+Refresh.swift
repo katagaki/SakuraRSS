@@ -1,9 +1,15 @@
+import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension Iconography {
 
     func refreshAllIcons(for feeds: [Feed]) async {
-        let domainEntries = feeds.map { (domain: $0.domain, siteURL: $0.siteURL as String?) }
+        let domainEntries = feeds.filter { !$0.isFediverseFeed }
+            .map { (domain: $0.isSubstackFeed ? "substack.com" : $0.domain, siteURL: $0.siteURL as String?) }
         async let domainIcons: Void = refreshIcons(for: domainEntries)
         await withTaskGroup(of: Void.self) { group in
             for feed in feeds {
@@ -25,6 +31,7 @@ public extension Iconography {
                 replaceCustomIcon(with: image, feedID: feed.id)
             }
         default:
+            guard feed.customIconURL == "photo" || !Self.hasServiceFallback(feed) else { return }
             await refetchProviderIcon(for: feed)
         }
     }
@@ -43,7 +50,7 @@ public extension Iconography {
 
     /// Removes the old icon first so stale derived-metrics sidecars are not
     /// attached to the replacement image.
-    private func replaceCustomIcon(with image: UIImage, feedID: Int64) {
+    private func replaceCustomIcon(with image: PlatformImage, feedID: Int64) {
         removeCustomIcon(feedID: feedID)
         setCustomIcon(image, feedID: feedID)
     }

@@ -62,12 +62,15 @@ struct SakuraRSSApp: App {
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
                     reindexSpotlightIfSchemaChanged()
+                    await BookmarkPreviewResolver.backfillPendingPreviews()
+                    feedManager.bumpDataRevision()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
                 ) { _ in
                     feedManager.flushDebouncedReads()
                     reloadWidgetsIfNeeded()
+                    LogManager.shared.flush()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)

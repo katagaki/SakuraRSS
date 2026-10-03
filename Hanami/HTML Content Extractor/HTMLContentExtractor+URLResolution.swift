@@ -1,6 +1,6 @@
 import Foundation
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// Resolves a URL against a base and strips tracking query parameters.
     static func resolveURL(_ src: String, against baseURL: URL?) -> String? {

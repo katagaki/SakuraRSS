@@ -45,7 +45,7 @@ struct GridStyleView: View {
                             ArticleReadMenuButton(article: article)
                             Divider()
                             ArticleShareMenuButton(article: article)
-                            MoveToFolderMenuItems(article: article)
+                            BookmarkMenuItems(article: article)
                         }
                     }
                 }
