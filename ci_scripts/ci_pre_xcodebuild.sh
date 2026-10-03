@@ -25,11 +25,11 @@ fi
 
 case "$SAKURA_CLOUD_URL" in
     https://*) ;;
-    *) echo "error: SAKURA_CLOUD_URL must start with https://"; exit 1 ;;
+    *) echo "error: SAKURA_CLOUD_URL must start with https://" >&2; exit 1 ;;
 esac
 
 case "$SAKURA_CLOUD_URL" in
-    *\"* | *\\* | *\|*) echo "error: SAKURA_CLOUD_URL must not contain quotes, backslashes, or pipes"; exit 1 ;;
+    *\"* | *\\* | *\|*) echo "error: SAKURA_CLOUD_URL must not contain quotes, backslashes, or pipes" >&2; exit 1 ;;
 esac
 
 sed -i '' "s|static let url = \"\"|static let url = \"$SAKURA_CLOUD_URL\"|" "$ADDRESS_FILE"
