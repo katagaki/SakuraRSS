@@ -1,23 +1,23 @@
 import AppKit
 import Hanami
-import SwiftUI
 
 final class BrowserSplitViewController: NSSplitViewController {
 
     let feedManager: FeedManager
     let sidebarViewController: SidebarViewController
-    let contentListViewController: ContentListViewController
-    private let readerViewController: NSHostingController<ReaderPane>
+    private(set) var detailViewController: BrowserDetailViewController!
+    var onOpenLocation: ((BrowserLocation) -> Void)?
+    var onOpenLocationInNewTab: ((BrowserLocation) -> Void)?
 
     init(feedManager: FeedManager) {
         self.feedManager = feedManager
         sidebarViewController = SidebarViewController(feedManager: feedManager)
-        contentListViewController = ContentListViewController(feedManager: feedManager)
-        readerViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil))
-        // Left on, the hosting controller resizes the window to fit whatever the
-        // reader shows, shrinking it to the height of the empty state.
-        readerViewController.sizingOptions = []
         super.init(nibName: nil, bundle: nil)
+        let actions = TodayActions(
+            open: { [weak self] location in self?.onOpenLocation?(location) },
+            openInNewTab: { [weak self] location in self?.onOpenLocationInNewTab?(location) }
+        )
+        detailViewController = BrowserDetailViewController(feedManager: feedManager, actions: actions)
     }
 
     required init?(coder: NSCoder) {
@@ -30,29 +30,15 @@ final class BrowserSplitViewController: NSSplitViewController {
         sidebarItem.minimumThickness = 200
         sidebarItem.maximumThickness = 360
         sidebarItem.canCollapse = true
-        let listItem = NSSplitViewItem(contentListWithViewController: contentListViewController)
-        listItem.minimumThickness = 280
-        listItem.maximumThickness = 520
-        let readerItem = NSSplitViewItem(viewController: readerViewController)
-        readerItem.minimumThickness = 360
+        let detailItem = NSSplitViewItem(viewController: detailViewController)
+        detailItem.minimumThickness = 640
         addSplitViewItem(sidebarItem)
-        addSplitViewItem(listItem)
-        addSplitViewItem(readerItem)
-        splitView.autosaveName = "BrowserSplitView.Reader"
-        contentListViewController.onSelectArticle = { [weak self] article in
-            self?.showReader(for: article)
-        }
+        addSplitViewItem(detailItem)
+        splitView.autosaveName = "BrowserSplitView"
     }
 
     func show(_ location: BrowserLocation) {
         sidebarViewController.select(location)
-        contentListViewController.show(location)
-    }
-
-    private func showReader(for article: Article?) {
-        readerViewController.rootView = ReaderPane(
-            article: article,
-            feed: article.flatMap { feedManager.feedsByID[$0.feedID] }
-        )
+        detailViewController.show(location)
     }
 }

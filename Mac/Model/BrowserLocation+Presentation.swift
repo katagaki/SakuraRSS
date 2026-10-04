@@ -21,6 +21,8 @@ extension BrowserLocation {
                 ?? String(localized: "Location.MissingList", table: "Browser")
         case .search(let query):
             query
+        case .article(let articleID):
+            feedManager.article(byID: articleID)?.displayTitle ?? ""
         }
     }
 
@@ -33,6 +35,7 @@ extension BrowserLocation {
         case .feed: "dot.radiowaves.up.forward"
         case .list(let listID): feedManager.lists.first { $0.id == listID }?.icon ?? "list.bullet"
         case .search: "magnifyingglass"
+        case .article: "doc.text"
         }
     }
 }

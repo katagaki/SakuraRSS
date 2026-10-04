@@ -11,6 +11,7 @@ enum BrowserLocation: Hashable {
     case feed(Int64)
     case list(Int64)
     case search(String)
+    case article(Int64)
 }
 
 extension BrowserLocation {
@@ -24,6 +25,7 @@ extension BrowserLocation {
         case .feed(let feedID): "feed:\(feedID)"
         case .list(let listID): "list:\(listID)"
         case .search(let query): "search:\(query)"
+        case .article(let articleID): "article:\(articleID)"
         }
     }
 
@@ -52,6 +54,9 @@ extension BrowserLocation {
             self = .list(listID)
         case "search" where !value.isEmpty:
             self = .search(value)
+        case "article":
+            guard let articleID = Int64(value) else { return nil }
+            self = .article(articleID)
         default:
             return nil
         }

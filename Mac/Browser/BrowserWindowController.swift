@@ -36,6 +36,13 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         splitViewController.sidebarViewController.onSelectLocation = { [weak self] location in
             self?.navigate(to: location)
         }
+        splitViewController.onOpenLocation = { [weak self] location in
+            self?.navigate(to: location)
+        }
+        splitViewController.onOpenLocationInNewTab = { [weak self] location in
+            guard let window = self?.window, let registry = (NSApp.delegate as? AppDelegate)?.registry else { return }
+            registry.openTab(beside: window, history: BrowserHistory(current: location))
+        }
         titleObserver = ChangeObserver { [weak self] in
             guard let self else { return }
             _ = self.history.current.title(in: self.feedManager)

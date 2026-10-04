@@ -21,6 +21,8 @@ struct ContentQuery {
             } ?? []
         case .search(let query):
             (try? feedManager.database.searchArticles(query: query)) ?? []
+        case .article:
+            []
         }
     }
 }
