@@ -14,6 +14,7 @@ final class YouTubePictureInPicture {
     private(set) var isActive = false
     @ObservationIgnored private var panel: NSPanel?
     @ObservationIgnored private weak var originalSuperview: NSView?
+    @ObservationIgnored private var originalTranslatesAutoresizing = true
 
     func toggle(session: YouTubePlayerSession) {
         if isActive {
@@ -26,6 +27,7 @@ final class YouTubePictureInPicture {
     func enter(session: YouTubePlayerSession) {
         guard !isActive, let webView = session.webView else { return }
         originalSuperview = webView.superview
+        originalTranslatesAutoresizing = webView.translatesAutoresizingMaskIntoConstraints
         let panel = panel ?? makePanel(session: session)
         self.panel = panel
         let aspectRatio = max(session.videoAspectRatio, 0.5)
@@ -40,6 +42,8 @@ final class YouTubePictureInPicture {
         }
         webView.removeFromSuperview()
         if let container = panel.contentView {
+            // Follows the window when it's resized, whatever SwiftUI set.
+            webView.translatesAutoresizingMaskIntoConstraints = true
             webView.frame = container.bounds
             webView.autoresizingMask = [.width, .height]
             container.addSubview(webView, positioned: .below, relativeTo: container.subviews.first)
@@ -54,6 +58,7 @@ final class YouTubePictureInPicture {
         panel?.orderOut(nil)
         guard let webView = session.webView else { return }
         webView.removeFromSuperview()
+        webView.translatesAutoresizingMaskIntoConstraints = originalTranslatesAutoresizing
         if let originalSuperview, originalSuperview.window != nil {
             webView.frame = originalSuperview.bounds
             webView.autoresizingMask = [.width, .height]

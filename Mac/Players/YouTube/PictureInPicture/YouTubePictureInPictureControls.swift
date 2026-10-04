@@ -27,9 +27,7 @@ struct YouTubePictureInPictureControls: View {
     }
 
     private var buttons: some View {
-        ZStack {
-            LinearGradient(colors: [.black.opacity(0.45), .clear], startPoint: .bottom, endPoint: .top)
-                .allowsHitTesting(false)
+        GlassEffectContainer {
             VStack {
                 HStack {
                     Button(action: onClose) { Image(systemName: "xmark") }
@@ -40,15 +38,16 @@ struct YouTubePictureInPictureControls: View {
                 Spacer()
                 Button { session.togglePlayPause() } label: {
                     Image(systemName: session.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 28))
+                        .font(.system(size: 22))
+                        .frame(width: 32, height: 32)
                 }
                 Spacer()
             }
             .padding(10)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
+        .controlSize(.large)
         .font(.system(size: 13, weight: .semibold))
-        .foregroundStyle(.white)
-        .shadow(radius: 3)
     }
 }
