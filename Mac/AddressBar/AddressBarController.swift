@@ -86,7 +86,7 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     }
 
     func focus() {
-        field.window?.makeFirstResponder(field)
+        field.selectText(nil)
     }
 
     private func beginEditing() {
