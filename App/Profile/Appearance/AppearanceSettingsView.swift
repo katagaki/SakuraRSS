@@ -57,14 +57,14 @@ struct AppearanceSettingsView: View {
 
             contentWidthSection
 
-            if UIDevice.current.userInterfaceIdiom != .pad {
-                Section {
-                    Toggle(String(localized: "ZoomTransition", table: "Settings"),
-                           isOn: $zoomTransitionEnabled)
-                } header: {
-                    Text(String(localized: "Section.Navigation", table: "Settings"))
-                }
+            #if os(visionOS)
+            Section {
+                Toggle(String(localized: "ZoomTransition", table: "Settings"),
+                       isOn: $zoomTransitionEnabled)
+            } header: {
+                Text(String(localized: "Section.Navigation", table: "Settings"))
             }
+            #endif
 
             #if !os(visionOS) && !targetEnvironment(macCatalyst)
             Section {
