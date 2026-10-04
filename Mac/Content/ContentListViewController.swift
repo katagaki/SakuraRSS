@@ -1,5 +1,6 @@
 import AppKit
 import Hanami
+import SwiftUI
 
 final class ContentListViewController: NSViewController {
 
@@ -12,7 +13,7 @@ final class ContentListViewController: NSViewController {
     private(set) var location: BrowserLocation?
     private var dataObserver: ChangeObserver?
     private var readStateObserver: ChangeObserver?
-    private let emptyLabel = NSTextField(labelWithString: String(localized: "Empty.Title", table: "Articles"))
+    private let emptyStateView = NSHostingView(rootView: ContentEmptyStateView())
 
     init(feedManager: FeedManager) {
         self.feedManager = feedManager
@@ -37,15 +38,23 @@ final class ContentListViewController: NSViewController {
         let scrollView = NSScrollView()
         scrollView.documentView = tableView
         scrollView.hasVerticalScroller = true
-        emptyLabel.font = .preferredFont(forTextStyle: .title3)
-        emptyLabel.textColor = .secondaryLabelColor
-        emptyLabel.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(emptyLabel)
-        NSLayoutConstraint.activate([
-            emptyLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            emptyLabel.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor)
-        ])
-        view = scrollView
+        // Beside the scroll view rather than inside it: a scroll view lays
+        // out its own subviews and ignores constraints on extra ones.
+        let container = NSView()
+        for subview in [scrollView, emptyStateView] {
+            subview.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(subview)
+            NSLayoutConstraint.activate([
+                subview.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                subview.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                subview.topAnchor.constraint(equalTo: container.topAnchor),
+                subview.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            ])
+        }
+        // Content may already be loaded: the list is filled before its view is.
+        emptyStateView.isHidden = location == nil || !articles.isEmpty
+        emptyStateView.sizingOptions = []
+        view = container
     }
 
     override func viewDidLoad() {
@@ -78,7 +87,7 @@ final class ContentListViewController: NSViewController {
         let selectedID = keepingSelection ? selectedArticle?.id : nil
         articles = ContentQuery(feedManager: feedManager).articles(for: location)
         tableView.reloadData()
-        emptyLabel.isHidden = !articles.isEmpty
+        emptyStateView.isHidden = !articles.isEmpty
         if let selectedID, let row = articles.firstIndex(where: { $0.id == selectedID }) {
             tableView.selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
         } else if !keepingSelection {
