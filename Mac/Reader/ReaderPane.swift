@@ -9,7 +9,10 @@ struct ReaderPane: View {
     let feedManager: FeedManager
 
     var body: some View {
-        if let article, article.audioURL != nil {
+        if let article, article.isYouTubeURL {
+            YouTubeVideoPlayerView(article: article, feed: feed)
+                .id(article.id)
+        } else if let article, article.audioURL != nil {
             PodcastPlayerView(article: article, feed: feed, feedManager: feedManager)
                 .id(article.id)
         } else if let article {

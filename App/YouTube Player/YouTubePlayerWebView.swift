@@ -45,7 +45,9 @@ struct YouTubePlayerWebView {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.mediaTypesRequiringUserActionForPlayback = []
-        #if !os(macOS)
+        #if os(macOS)
+        config.preferences.isElementFullscreenEnabled = true
+        #else
         config.allowsInlineMediaPlayback = true
         config.allowsPictureInPictureMediaPlayback = true
         #endif
