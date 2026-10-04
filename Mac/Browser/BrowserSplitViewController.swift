@@ -8,6 +8,7 @@ final class BrowserSplitViewController: NSSplitViewController {
     private(set) var detailViewController: BrowserDetailViewController!
     var onOpenLocation: ((BrowserLocation) -> Void)?
     var onOpenLocationInNewTab: ((BrowserLocation) -> Void)?
+    var onReaderArticleChange: ((Article?) -> Void)?
 
     init(feedManager: FeedManager, activity: BrowserPageActivity) {
         self.feedManager = feedManager
@@ -25,6 +26,9 @@ final class BrowserSplitViewController: NSSplitViewController {
         let contentList = detailViewController.contentSplitViewController.contentListViewController
         contentList.onOpenInNewTab = actions.openInNewTab
         contentList.onOpenFullWidth = actions.open
+        detailViewController.contentSplitViewController.onReaderArticleChange = { [weak self] article in
+            self?.onReaderArticleChange?(article)
+        }
         sidebarViewController.onOpenInNewTab = actions.openInNewTab
     }
 

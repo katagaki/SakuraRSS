@@ -9,6 +9,7 @@ final class ContentSplitViewController: NSSplitViewController {
     let activity: BrowserPageActivity
     let contentListViewController: ContentListViewController
     private let readerViewController: NSHostingController<ReaderPane>
+    var onReaderArticleChange: ((Article?) -> Void)?
 
     init(feedManager: FeedManager, activity: BrowserPageActivity) {
         self.feedManager = feedManager
@@ -47,6 +48,7 @@ final class ContentSplitViewController: NSSplitViewController {
     }
 
     private func showReader(for article: Article?) {
+        onReaderArticleChange?(article)
         readerViewController.rootView = ReaderPane(
             article: article,
             feed: article.flatMap { feedManager.feedsByID[$0.feedID] },

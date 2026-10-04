@@ -64,6 +64,9 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         }
         displayStyleMenuPopulator = populator
         toolbarController.displayStyleMenuDelegate = populator
+        splitViewController.onReaderArticleChange = { [weak self] article in
+            self?.updateHandoff(for: article)
+        }
         toolbarController.onShowEpisode = { [weak self] articleID in
             self?.navigate(to: .article(articleID))
         }
@@ -99,6 +102,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         splitViewController.show(history.current)
         updateTitle()
         toolbarController.updateDisplayStyleItem(context: displayStyleContext)
+        updateHandoffForCurrentLocation()
         window?.toolbar?.validateVisibleItems()
         window?.invalidateRestorableState()
     }
