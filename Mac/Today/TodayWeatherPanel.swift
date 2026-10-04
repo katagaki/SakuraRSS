@@ -7,6 +7,7 @@ struct TodayWeatherPanel: View {
     @Bindable var weatherService: TodayWeatherService = .shared
     @AppStorage("Today.Weather.GraphMode") private var graphMode: WeatherGraphMode = .temperature
     @Environment(\.colorScheme) private var colorScheme
+    var showsHourlyTimeLabels = true
 
     var body: some View {
         if let weather = weatherService.weather {
@@ -47,7 +48,7 @@ struct TodayWeatherPanel: View {
                 TodayWeatherHeader(weather: weather)
                 if !weather.hourly.isEmpty {
                     Divider()
-                    TodayWeatherHourlyForecastView(hours: weather.hourly, showsTimeLabels: true)
+                    TodayWeatherHourlyForecastView(hours: weather.hourly, showsTimeLabels: showsHourlyTimeLabels)
                         .frame(maxWidth: .infinity)
                 }
             }

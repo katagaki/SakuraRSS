@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TodayHeader: View {
 
+    let isCompact: Bool
     private let weatherService = TodayWeatherService.shared
 
     var body: some View {
@@ -12,9 +13,9 @@ struct TodayHeader: View {
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
                 Text(TodayGreeting.text(at: context.date))
-                    .font(.largeTitle)
+                    .font(isCompact ? .title : .largeTitle)
                     .fontWeight(.bold)
-                TodayWeatherPanel()
+                TodayWeatherPanel(showsHourlyTimeLabels: !isCompact)
                     .padding(.top, 12)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
