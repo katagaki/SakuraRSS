@@ -14,7 +14,9 @@ final class ContentSplitViewController: NSSplitViewController {
         self.feedManager = feedManager
         self.activity = activity
         contentListViewController = ContentListViewController(feedManager: feedManager)
-        readerViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil, activity: activity))
+        readerViewController = NSHostingController(
+            rootView: ReaderPane(article: nil, feed: nil, activity: activity, feedManager: feedManager)
+        )
         // Left on, the hosting controller resizes the window to fit whatever the
         // reader shows, shrinking it to the height of the empty state.
         readerViewController.sizingOptions = []
@@ -48,7 +50,8 @@ final class ContentSplitViewController: NSSplitViewController {
         readerViewController.rootView = ReaderPane(
             article: article,
             feed: article.flatMap { feedManager.feedsByID[$0.feedID] },
-            activity: activity
+            activity: activity,
+            feedManager: feedManager
         )
     }
 }

@@ -17,7 +17,9 @@ final class BrowserDetailViewController: NSViewController {
         self.activity = activity
         contentSplitViewController = ContentSplitViewController(feedManager: feedManager, activity: activity)
         todayViewController = TodaySplitViewController(feedManager: feedManager, actions: actions)
-        articleViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil, activity: activity))
+        articleViewController = NSHostingController(
+            rootView: ReaderPane(article: nil, feed: nil, activity: activity, feedManager: feedManager)
+        )
         articleViewController.sizingOptions = []
         super.init(nibName: nil, bundle: nil)
     }
@@ -42,7 +44,8 @@ final class BrowserDetailViewController: NSViewController {
             articleViewController.rootView = ReaderPane(
                 article: article,
                 feed: article.flatMap { feedManager.feedsByID[$0.feedID] },
-                activity: activity
+                activity: activity,
+                feedManager: feedManager
             )
             display(articleViewController)
         default:
