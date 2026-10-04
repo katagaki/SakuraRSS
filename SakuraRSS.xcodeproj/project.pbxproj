@@ -166,6 +166,7 @@
 		4D41430A000000000000000F /* Exceptions for "App" folder in "Sakura for Mac" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"Article Viewer/Content Blocks/ContentBlock+Stripping.swift",
 				"Browser/Address Bar/BrowserAddressInput.swift",
 				Home/Today/TodayWeatherService.swift,
 				"Home/Today/TodayWeatherService+Cache.swift",

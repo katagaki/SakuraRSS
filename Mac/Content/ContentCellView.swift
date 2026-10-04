@@ -55,7 +55,7 @@ final class ContentCellView: NSTableCellView {
         titleField.textColor = isRead ? .secondaryLabelColor : .labelColor
         let date = article.publishedDate?.formatted(.relative(presentation: .named))
         detailField.stringValue = [feedTitle, date].compactMap { $0 }.joined(separator: " · ")
-        let summary = article.summary?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let summary = article.hasMeaningfulSummary ? article.summary.map(SummaryPreview.text(for:)) ?? "" : ""
         summaryField.stringValue = summary
         summaryField.isHidden = summary.isEmpty
         unreadDot.layer?.backgroundColor = isRead ? NSColor.clear.cgColor : NSColor.controlAccentColor.cgColor
