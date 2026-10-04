@@ -7,6 +7,9 @@ struct SidebarTreeBuilder {
 
     func build() -> [SidebarNode] {
         var nodes = [locationNode(.startPage), locationNode(.allContent), bookmarksNode()]
+        if UserDefaults.standard.bool(forKey: "Intelligence.ContentInsights.Enabled") {
+            nodes.append(locationNode(.topics))
+        }
         if !feedManager.lists.isEmpty {
             let lists = feedManager.lists
                 .sorted { $0.sortOrder < $1.sortOrder }

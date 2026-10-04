@@ -14,6 +14,9 @@ enum BrowserLocation: Hashable {
     case article(Int64)
     case bookmarkFolder(Int64)
     case bookmarkTag(Int64)
+    case topics
+    case topic(String)
+    case person(String)
 }
 
 extension BrowserLocation {
@@ -30,6 +33,9 @@ extension BrowserLocation {
         case .article(let articleID): "article:\(articleID)"
         case .bookmarkFolder(let folderID): "bookmarkFolder:\(folderID)"
         case .bookmarkTag(let tagID): "bookmarkTag:\(tagID)"
+        case .topics: "topics"
+        case .topic(let name): "topic:\(name)"
+        case .person(let name): "person:\(name)"
         }
     }
 
@@ -38,6 +44,7 @@ extension BrowserLocation {
         case "startPage": self = .startPage
         case "allContent": self = .allContent
         case "bookmarks": self = .bookmarks
+        case "topics": self = .topics
         default:
             let parts = token.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
             guard parts.count == 2 else { return nil }
@@ -50,9 +57,9 @@ extension BrowserLocation {
         case "feedSection":
             guard let section = FeedSection(rawValue: value) else { return nil }
             self = .feedSection(section)
-        case "search":
+        case "search", "topic", "person":
             guard !value.isEmpty else { return nil }
-            self = .search(value)
+            self = kind == "search" ? .search(value) : kind == "topic" ? .topic(value) : .person(value)
         default:
             guard let identifier = Int64(value), let make = Self.identifiedKinds[kind] else { return nil }
             self = make(identifier)

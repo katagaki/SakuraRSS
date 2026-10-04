@@ -10,6 +10,8 @@ final class SidebarViewController: NSViewController {
     var onOpenInNewTab: ((BrowserLocation) -> Void)?
     private var selectedLocation: BrowserLocation?
     private var treeObserver: ChangeObserver?
+    private var insightsObserver: NSObjectProtocol?
+    private var showsTopics = UserDefaults.standard.bool(forKey: "Intelligence.ContentInsights.Enabled")
     var isApplyingSelection = false
 
     init(feedManager: FeedManager) {
@@ -50,6 +52,21 @@ final class SidebarViewController: NSViewController {
             _ = SidebarTreeBuilder(feedManager: self.feedManager).build()
         } onChange: { [weak self] in
             self?.reloadTree()
+        }
+        // Topics shows only while Content Insights is on, a setting rather
+        // than data, so the tree is rebuilt when it changes.
+        insightsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                let showsTopics = UserDefaults.standard.bool(forKey: "Intelligence.ContentInsights.Enabled")
+                guard showsTopics != self.showsTopics else { return }
+                self.showsTopics = showsTopics
+                self.reloadTree()
+            }
         }
         reloadTree()
     }

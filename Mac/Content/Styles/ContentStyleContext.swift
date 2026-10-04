@@ -90,7 +90,9 @@ extension BrowserLocation {
         case .search: "search"
         case .bookmarkFolder(let folderID): "bookmarks.folder.\(folderID)"
         case .bookmarkTag(let tagID): "bookmarks.tag.\(tagID)"
-        case .startPage, .article: nil
+        case .topic(let name): "topic.\(name)"
+        case .person(let name): "person.\(name)"
+        case .startPage, .article, .topics: nil
         }
     }
 }

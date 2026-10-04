@@ -12,6 +12,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
     private var schedulingSettings = SchedulingSettings.current
 
     func applicationWillFinishLaunching(_ notification: Notification) {
+        // The same defaults iOS registers at launch.
+        UserDefaults.standard.register(defaults: ["Intelligence.ContentInsights.Enabled": true])
         NSApp.mainMenu = MainMenuBuilder.build()
         let feedManager = FeedManager()
         registry = BrowserWindowRegistry(feedManager: feedManager)

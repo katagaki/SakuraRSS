@@ -13,6 +13,7 @@ final class BrowserDetailViewController: NSViewController {
     private let todayViewController: TodaySplitViewController
     private let articleViewController: NSHostingController<ReaderPane>
     private let gridViewController: NSHostingController<ContentGridPage>
+    private let topicsViewController: NSHostingController<TopicsPage>
 
     init(feedManager: FeedManager, activity: BrowserPageActivity, actions: TodayActions) {
         self.feedManager = feedManager
@@ -23,6 +24,8 @@ final class BrowserDetailViewController: NSViewController {
             location: .allContent, style: .magazine, feedManager: feedManager, actions: actions
         ))
         gridViewController.sizingOptions = []
+        topicsViewController = NSHostingController(rootView: TopicsPage(feedManager: feedManager, actions: actions))
+        topicsViewController.sizingOptions = []
         self.actions = actions
         articleViewController = NSHostingController(
             rootView: ReaderPane(article: nil, feed: nil, activity: activity, feedManager: feedManager)
@@ -43,6 +46,8 @@ final class BrowserDetailViewController: NSViewController {
         switch location {
         case .startPage:
             display(todayViewController)
+        case .topics:
+            display(topicsViewController)
         case .article(let articleID):
             let article = feedManager.article(byID: articleID)
             if let article {
