@@ -5,12 +5,13 @@ import SwiftUI
 final class ContentListViewController: NSViewController {
 
     let feedManager: FeedManager
-    let tableView = NSTableView()
+    let tableView = ContentListTableView()
     var articles: [Article] = []
     var onSelectArticle: ((Article?) -> Void)?
     var reportedArticleID: Int64?
     private(set) var displayStyle: FeedDisplayStyle = .inbox
     var onOpenInNewTab: ((BrowserLocation) -> Void)?
+    var onOpenFullWidth: ((BrowserLocation) -> Void)?
     private(set) var location: BrowserLocation?
     private var dataObserver: ChangeObserver?
     private var readStateObserver: ChangeObserver?
@@ -36,6 +37,11 @@ final class ContentListViewController: NSViewController {
         let menu = NSMenu()
         menu.delegate = self
         tableView.menu = menu
+        tableView.target = self
+        tableView.doubleAction = #selector(openSelectedFullWidth)
+        tableView.onShortcut = { [weak self] shortcut in
+            self?.handle(shortcut)
+        }
         let scrollView = NSScrollView()
         scrollView.documentView = tableView
         scrollView.hasVerticalScroller = true

@@ -22,7 +22,9 @@ final class BrowserSplitViewController: NSSplitViewController {
             activity: activity,
             actions: actions
         )
-        detailViewController.contentSplitViewController.contentListViewController.onOpenInNewTab = actions.openInNewTab
+        let contentList = detailViewController.contentSplitViewController.contentListViewController
+        contentList.onOpenInNewTab = actions.openInNewTab
+        contentList.onOpenFullWidth = actions.open
         sidebarViewController.onOpenInNewTab = actions.openInNewTab
     }
 
