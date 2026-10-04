@@ -24,7 +24,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         )
         window.contentViewController = splitViewController
         window.setContentSize(NSSize(width: 1100, height: 720))
-        window.minSize = NSSize(width: 720, height: 420)
+        window.contentMinSize = NSSize(width: 880, height: 480)
         window.tabbingMode = .automatic
         window.tabbingIdentifier = Self.tabbingIdentifier
         window.toolbarStyle = .unified

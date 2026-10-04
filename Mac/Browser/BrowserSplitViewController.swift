@@ -14,6 +14,9 @@ final class BrowserSplitViewController: NSSplitViewController {
         sidebarViewController = SidebarViewController(feedManager: feedManager)
         contentListViewController = ContentListViewController(feedManager: feedManager)
         readerViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil))
+        // Left on, the hosting controller resizes the window to fit whatever the
+        // reader shows, shrinking it to the height of the empty state.
+        readerViewController.sizingOptions = []
         super.init(nibName: nil, bundle: nil)
     }
 
