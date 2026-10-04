@@ -18,7 +18,10 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         self.history = history
         splitViewController = BrowserSplitViewController(feedManager: feedManager)
         addressBarController = AddressBarController(feedManager: feedManager)
-        toolbarController = BrowserToolbarController(addressField: addressBarController.field)
+        toolbarController = BrowserToolbarController(
+            addressField: addressBarController.field,
+            refreshButton: RefreshToolbarButton(feedManager: feedManager)
+        )
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1100, height: 720),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],

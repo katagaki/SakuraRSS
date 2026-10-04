@@ -6,6 +6,13 @@ extension MainMenuBuilder {
     /// the tab bar and full screen items to this menu itself.
     static func viewMenu() -> NSMenu {
         let menu = NSMenu(title: String(localized: "Menu.View", table: "Mac"))
+        let refreshItem = NSMenuItem(
+            title: String(localized: "RefreshFeeds.Title", table: "AppIntents"),
+            action: #selector(RefreshActions.refreshFeeds(_:)),
+            keyEquivalent: "r"
+        )
+        menu.addItem(refreshItem)
+        menu.addItem(.separator())
         menu.addItem(item("Menu.ShowToolbar", action: #selector(NSWindow.toggleToolbarShown(_:)), keyEquivalent: "t",
                           modifiers: [.command, .option]))
         menu.addItem(item("Menu.CustomizeToolbar", action: #selector(NSWindow.runToolbarCustomizationPalette(_:))))

@@ -7,13 +7,16 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         static let forward = NSToolbarItem.Identifier("Forward")
         static let newTab = NSToolbarItem.Identifier("NewTab")
         static let address = NSToolbarItem.Identifier("Address")
+        static let refresh = NSToolbarItem.Identifier("Refresh")
     }
 
     let toolbar: NSToolbar
     private let addressField: NSView
+    private let refreshButton: NSView
 
-    init(addressField: NSView) {
+    init(addressField: NSView, refreshButton: NSView) {
         self.addressField = addressField
+        self.refreshButton = refreshButton
         toolbar = NSToolbar(identifier: "BrowserToolbar")
         super.init()
         toolbar.delegate = self
@@ -25,7 +28,7 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
 
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         [.toggleSidebar, .sidebarTrackingSeparator, ItemIdentifier.back, ItemIdentifier.forward,
-         .flexibleSpace, ItemIdentifier.address, .flexibleSpace, ItemIdentifier.newTab]
+         .flexibleSpace, ItemIdentifier.address, .flexibleSpace, ItemIdentifier.refresh, ItemIdentifier.newTab]
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
@@ -46,6 +49,8 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
                                       "chevron.forward", #selector(BrowserActions.goForward(_:))))
         case ItemIdentifier.address:
             addressItem()
+        case ItemIdentifier.refresh:
+            refreshItem()
         case ItemIdentifier.newTab:
             button(itemIdentifier, String(localized: "Menu.NewTab", table: "Browser"), "plus",
                    #selector(NSResponder.newWindowForTab(_:)))
@@ -70,6 +75,15 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         item.view = addressField
         item.visibilityPriority = .high
         item.isBordered = true
+        return item
+    }
+
+    private func refreshItem() -> NSToolbarItem {
+        let item = NSToolbarItem(itemIdentifier: ItemIdentifier.refresh)
+        let label = String(localized: "RefreshFeeds.ShortTitle", table: "AppIntents")
+        item.label = label
+        item.paletteLabel = label
+        item.view = refreshButton
         return item
     }
 

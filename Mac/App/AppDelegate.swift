@@ -1,19 +1,24 @@
 import AppKit
 import Hanami
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
 
     private(set) var registry: BrowserWindowRegistry!
+    private(set) var refreshCoordinator: RefreshCoordinator!
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSApp.mainMenu = MainMenuBuilder.build()
-        registry = BrowserWindowRegistry(feedManager: FeedManager())
+        let feedManager = FeedManager()
+        registry = BrowserWindowRegistry(feedManager: feedManager)
+        refreshCoordinator = RefreshCoordinator(feedManager: feedManager)
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         if registry.controllers.isEmpty {
             registry.openWindow()
         }
+        refreshCoordinator.refreshOnLaunchIfEnabled()
+        refreshCoordinator.schedulePeriodicRefresh()
         #if DEBUG
         DebugLaunchActions.perform(with: registry)
         DebugSnapshotRenderer.scheduleIfRequested()
@@ -37,5 +42,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func newBrowserWindow(_ sender: Any?) {
         registry.openWindow()
+    }
+
+    func refreshFeeds(_ sender: Any?) {
+        refreshCoordinator.refresh()
+    }
+
+    func stopRefreshing(_ sender: Any?) {
+        refreshCoordinator.stop()
     }
 }
