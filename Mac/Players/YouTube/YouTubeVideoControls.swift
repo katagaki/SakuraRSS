@@ -23,7 +23,7 @@ struct YouTubeVideoControls: View {
             if !chapters.isEmpty {
                 chapterMenu
             }
-            Button { YouTubePlaybackCommands.togglePictureInPicture(webView) } label: {
+            Button { YouTubePictureInPicture.shared.toggle(session: session) } label: {
                 Image(systemName: "pip.enter")
             }
             Button { YouTubePlaybackCommands.enterFullscreen(webView) } label: {
