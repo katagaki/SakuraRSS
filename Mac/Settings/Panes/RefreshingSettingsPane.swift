@@ -16,7 +16,7 @@ struct RefreshingSettingsPane: View {
                 LabeledContent(SettingsText.settings("Section.WhenAppOpen")) {
                     Toggle(SettingsText.settings("FetchOnStartup"), isOn: $fetchOnStartup)
                 }
-                FetchImagesPicker(selection: $foregroundImagesMode)
+                DownloadImagesToggle(mode: $foregroundImagesMode)
                 SettingsPicker(SettingsText.settings("FetchCooldown"), selection: $fetchCooldown) {
                     ForEach(FeedRefreshCooldown.allCases, id: \.self) { cooldown in
                         Text(cooldown.settingsTitle).tag(cooldown)
@@ -33,28 +33,33 @@ struct RefreshingSettingsPane: View {
                 LabeledContent(SettingsText.settings("Section.WhenAppClosed")) {
                     Toggle(SettingsText.settings("FetchContentPeriodically"), isOn: $periodicRefreshEnabled)
                 }
+                DownloadImagesToggle(mode: $backgroundImagesMode)
+                    .disabled(!periodicRefreshEnabled)
                 SettingsPicker(SettingsText.settings("FetchInterval"), selection: $fetchInterval) {
                     ForEach(RefreshIntervalOption.allCases, id: \.minutes) { option in
                         Text(option.title).tag(option.minutes)
                     }
                 }
                 .disabled(!periodicRefreshEnabled)
-                FetchImagesPicker(selection: $backgroundImagesMode)
-                    .disabled(!periodicRefreshEnabled)
             }
         }
     }
 }
 
-private struct FetchImagesPicker: View {
+/// A checkbox rather than iOS's menu, as Wi-Fi Only means little on a Mac.
+/// Wi-Fi Only, the default, still reads as on.
+private struct DownloadImagesToggle: View {
 
-    @Binding var selection: FetchImagesMode
+    @Binding var mode: FetchImagesMode
 
     var body: some View {
-        SettingsPicker(SettingsText.settings("FetchImages"), selection: $selection) {
-            Text(SettingsText.settings("FetchImages.Always")).tag(FetchImagesMode.always)
-            Text(SettingsText.settings("FetchImages.WiFiOnly")).tag(FetchImagesMode.wifiOnly)
-            Text(SettingsText.settings("FetchImages.Off")).tag(FetchImagesMode.off)
+        LabeledContent {
+            Toggle(
+                SettingsText.settings("FetchImages"),
+                isOn: Binding(get: { mode != .off }, set: { mode = $0 ? .always : .off })
+            )
+        } label: {
+            Text(verbatim: "")
         }
     }
 }
