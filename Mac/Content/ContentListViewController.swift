@@ -8,6 +8,7 @@ final class ContentListViewController: NSViewController {
     var articles: [Article] = []
     var onSelectArticle: ((Article?) -> Void)?
     var reportedArticleID: Int64?
+    var onOpenInNewTab: ((BrowserLocation) -> Void)?
     private var location: BrowserLocation?
     private var dataObserver: ChangeObserver?
     private var readStateObserver: ChangeObserver?
@@ -30,6 +31,9 @@ final class ContentListViewController: NSViewController {
         tableView.usesAutomaticRowHeights = true
         tableView.dataSource = self
         tableView.delegate = self
+        let menu = NSMenu()
+        menu.delegate = self
+        tableView.menu = menu
         let scrollView = NSScrollView()
         scrollView.documentView = tableView
         scrollView.hasVerticalScroller = true

@@ -7,6 +7,7 @@ final class SidebarViewController: NSViewController {
     let outlineView = NSOutlineView()
     var nodes: [SidebarNode] = []
     var onSelectLocation: ((BrowserLocation) -> Void)?
+    var onOpenInNewTab: ((BrowserLocation) -> Void)?
     private var selectedLocation: BrowserLocation?
     private var treeObserver: ChangeObserver?
     var isApplyingSelection = false
@@ -32,6 +33,9 @@ final class SidebarViewController: NSViewController {
         outlineView.delegate = self
         outlineView.autosaveName = "BrowserSidebar"
         outlineView.autosaveExpandedItems = true
+        let menu = NSMenu()
+        menu.delegate = self
+        outlineView.menu = menu
         let scrollView = NSScrollView()
         scrollView.documentView = outlineView
         scrollView.hasVerticalScroller = true

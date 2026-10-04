@@ -29,7 +29,7 @@ struct TodayCardRow: View {
                         }
                         .buttonStyle(.plain)
                         .contextMenu {
-                            TodayOpenInNewTabButton(location: .article(article.id), actions: actions)
+                            ContentContextMenu(article: article, feedManager: feedManager, actions: actions)
                         }
                     }
                 }

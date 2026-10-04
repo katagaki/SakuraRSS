@@ -22,6 +22,8 @@ final class BrowserSplitViewController: NSSplitViewController {
             activity: activity,
             actions: actions
         )
+        detailViewController.contentSplitViewController.contentListViewController.onOpenInNewTab = actions.openInNewTab
+        sidebarViewController.onOpenInNewTab = actions.openInNewTab
     }
 
     required init?(coder: NSCoder) {
