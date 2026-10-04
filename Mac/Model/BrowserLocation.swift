@@ -12,6 +12,8 @@ enum BrowserLocation: Hashable {
     case list(Int64)
     case search(String)
     case article(Int64)
+    case bookmarkFolder(Int64)
+    case bookmarkTag(Int64)
 }
 
 extension BrowserLocation {
@@ -26,6 +28,8 @@ extension BrowserLocation {
         case .list(let listID): "list:\(listID)"
         case .search(let query): "search:\(query)"
         case .article(let articleID): "article:\(articleID)"
+        case .bookmarkFolder(let folderID): "bookmarkFolder:\(folderID)"
+        case .bookmarkTag(let tagID): "bookmarkTag:\(tagID)"
         }
     }
 
@@ -46,19 +50,20 @@ extension BrowserLocation {
         case "feedSection":
             guard let section = FeedSection(rawValue: value) else { return nil }
             self = .feedSection(section)
-        case "feed":
-            guard let feedID = Int64(value) else { return nil }
-            self = .feed(feedID)
-        case "list":
-            guard let listID = Int64(value) else { return nil }
-            self = .list(listID)
-        case "search" where !value.isEmpty:
+        case "search":
+            guard !value.isEmpty else { return nil }
             self = .search(value)
-        case "article":
-            guard let articleID = Int64(value) else { return nil }
-            self = .article(articleID)
         default:
-            return nil
+            guard let identifier = Int64(value), let make = Self.identifiedKinds[kind] else { return nil }
+            self = make(identifier)
         }
     }
+
+    private static let identifiedKinds: [String: (Int64) -> BrowserLocation] = [
+        "feed": BrowserLocation.feed,
+        "list": BrowserLocation.list,
+        "article": BrowserLocation.article,
+        "bookmarkFolder": BrowserLocation.bookmarkFolder,
+        "bookmarkTag": BrowserLocation.bookmarkTag
+    ]
 }

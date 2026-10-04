@@ -6,6 +6,7 @@ struct ContentMenuBuilder {
 
     let feedManager: FeedManager
     let openInNewTab: (BrowserLocation) -> Void
+    var moveToFolder: ((Article) -> Void)?
 
     func items(for article: Article) -> [NSMenuItem] {
         let isRead = feedManager.isRead(article)
@@ -31,6 +32,12 @@ struct ContentMenuBuilder {
                 feedManager.toggleBookmark(article)
             }
         ]
+        if isBookmarked, let moveToFolder {
+            let moveTitle = String(localized: "Article.MoveToFolder", table: "Articles")
+            items.append(ActionMenuItem(moveTitle, symbolName: "folder") {
+                moveToFolder(article)
+            })
+        }
         guard let url = URL(string: article.url) else { return items }
         items += [
             .separator(),

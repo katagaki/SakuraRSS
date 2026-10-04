@@ -6,7 +6,7 @@ struct SidebarTreeBuilder {
     let feedManager: FeedManager
 
     func build() -> [SidebarNode] {
-        var nodes = [BrowserLocation.startPage, .allContent, .bookmarks].map { locationNode($0) }
+        var nodes = [locationNode(.startPage), locationNode(.allContent), bookmarksNode()]
         if !feedManager.lists.isEmpty {
             let lists = feedManager.lists
                 .sorted { $0.sortOrder < $1.sortOrder }
@@ -19,6 +19,18 @@ struct SidebarTreeBuilder {
             nodes.append(SidebarNode(.group(title: title), children: sections))
         }
         return nodes
+    }
+
+    /// Bookmarks, with its folders and then the tags in use beneath it.
+    private func bookmarksNode() -> SidebarNode {
+        let folders = feedManager.bookmarkFolders
+            .filter { $0.parentFolderID == nil }
+            .sorted { $0.sortOrder < $1.sortOrder }
+            .map { locationNode(.bookmarkFolder($0.id), unreadCount: feedManager.bookmarkCount(in: $0)) }
+        let tags = feedManager.bookmarkTagsInUse()
+            .sorted { $0.tag.name.localizedStandardCompare($1.tag.name) == .orderedAscending }
+            .map { locationNode(.bookmarkTag($0.tag.id), unreadCount: $0.count) }
+        return locationNode(.bookmarks, children: folders + tags)
     }
 
     private func sectionNode(_ section: FeedSection) -> SidebarNode? {

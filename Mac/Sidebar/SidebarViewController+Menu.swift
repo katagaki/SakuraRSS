@@ -25,6 +25,7 @@ extension SidebarViewController: NSMenuDelegate {
                 handler: markAllRead
             ))
         }
+        addBookmarkItems(for: location, to: menu)
         switch location {
         case .feed(let feedID):
             guard let feed = feedManager.feedsByID[feedID] else { return }

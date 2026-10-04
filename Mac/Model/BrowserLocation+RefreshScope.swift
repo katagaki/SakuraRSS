@@ -26,7 +26,7 @@ extension BrowserLocation {
                 key: "list.\(listID)",
                 feeds: feedManager.lists.first { $0.id == listID }.map(feedManager.feeds(for:)) ?? []
             )
-        case .allContent, .bookmarks, .search, .article:
+        case .allContent, .bookmarks, .search, .article, .bookmarkFolder, .bookmarkTag:
             RefreshScope(key: "section.all", feeds: feedManager.feeds)
         }
     }

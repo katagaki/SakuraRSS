@@ -23,6 +23,10 @@ extension BrowserLocation {
             query
         case .article(let articleID):
             feedManager.article(byID: articleID)?.displayTitle ?? ""
+        case .bookmarkFolder(let folderID):
+            feedManager.bookmarkFolders.first { $0.id == folderID }?.name ?? ""
+        case .bookmarkTag(let tagID):
+            feedManager.allBookmarkTags().first { $0.id == tagID }?.name ?? ""
         }
     }
 
@@ -36,6 +40,8 @@ extension BrowserLocation {
         case .list(let listID): feedManager.lists.first { $0.id == listID }?.icon ?? "list.bullet"
         case .search: "magnifyingglass"
         case .article: "doc.text"
+        case .bookmarkFolder(let folderID): feedManager.bookmarkFolders.first { $0.id == folderID }?.icon ?? "folder"
+        case .bookmarkTag: "tag"
         }
     }
 }

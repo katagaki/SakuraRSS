@@ -88,6 +88,8 @@ extension BrowserLocation {
         case .list(let listID): "list.\(listID)"
         case .bookmarks: "bookmarks"
         case .search: "search"
+        case .bookmarkFolder(let folderID): "bookmarks.folder.\(folderID)"
+        case .bookmarkTag(let tagID): "bookmarks.tag.\(tagID)"
         case .startPage, .article: nil
         }
     }

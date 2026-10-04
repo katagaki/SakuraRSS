@@ -23,6 +23,12 @@ struct ContentQuery {
             (try? feedManager.database.searchArticles(query: query)) ?? []
         case .article:
             []
+        case .bookmarkFolder(let folderID):
+            feedManager.bookmarkFolders.first { $0.id == folderID }.map(feedManager.bookmarkedArticles(in:)) ?? []
+        case .bookmarkTag(let tagID):
+            feedManager.allBookmarkTags()
+                .first { $0.id == tagID }
+                .map(feedManager.bookmarkedArticles(taggedWith:)) ?? []
         }
     }
 }
