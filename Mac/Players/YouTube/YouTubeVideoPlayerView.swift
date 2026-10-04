@@ -9,7 +9,7 @@ struct YouTubeVideoPlayerView: View {
     let article: Article
     let feed: Feed?
     private let session = YouTubePlayerSession.shared
-    private let pictureInPicture = YouTubePictureInPicture.shared
+    private let presenter = YouTubeVideoPresenter.shared
 
     @State private var isPlaying = false
     @State private var webView: WKWebView?
@@ -47,7 +47,7 @@ struct YouTubeVideoPlayerView: View {
             session.rememberPlaybackPosition()
             // Playing on keeps the session's web view, so the toolbar's mini
             // player can control it and returning to the video picks it up.
-            if !isPlaying && !pictureInPicture.isActive {
+            if !isPlaying && !presenter.isDetached {
                 session.stop()
             }
         }
@@ -83,11 +83,15 @@ struct YouTubeVideoPlayerView: View {
         .overlay {
             Color.clear
                 .contentShape(.rect)
-                .onTapGesture(count: 2) { pictureInPicture.enterFullscreen(session: session) }
+                .onTapGesture(count: 2) { presenter.toggleFullscreen(session: session) }
                 .onTapGesture { session.togglePlayPause() }
         }
         .overlay {
-            YouTubeVideoOverlays(isAd: isAd, isAdSkippable: isAdSkippable, isPiP: isPiP || pictureInPicture.isActive) {
+            YouTubeVideoOverlays(
+                isAd: isAd,
+                isAdSkippable: isAdSkippable,
+                isPiP: isPiP || presenter.isPictureInPicture
+            ) {
                 YouTubePlaybackCommands.skipAd(webView)
             }
         }

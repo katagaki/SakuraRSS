@@ -15,56 +15,41 @@ enum YouTubePlaybackCommands {
         webView?.evaluateJavaScript(YouTubePlayerScripts.skipAd, completionHandler: nil)
     }
 
-    /// Element fullscreen rather than iOS's `webkitEnterFullscreen`, whose
-    /// video presentation shows only black on the Mac.
-    static func enterFullscreen(_ webView: WKWebView?) {
-        guard let webView else { return }
-        YouTubeFullscreenFitter.track(webView)
+    /// Lays the page out as just the video, filling the floating or fullscreen
+    /// window it has moved into; `nil` puts the page back. The size comes from
+    /// the window since YouTube's own layout, sized for the inline player,
+    /// can't be trusted to follow it.
+    static func setVideoOnlyLayout(_ webView: WKWebView?, size: CGSize?) {
         let script = """
         (function() {
-            \(installVideoFillStyle)
-            var video = window.__yt ? window.__yt.getPlaybackVideo() : document.querySelector('video');
-            if (!video) { return; }
-            if (video.requestFullscreen) {
-                video.requestFullscreen().catch(function() {});
-            } else if (video.webkitRequestFullscreen) {
-                video.webkitRequestFullscreen();
-            }
-        })();
-        """
-        webView.evaluateJavaScript(script, completionHandler: nil)
-    }
-
-    /// Lays the page out as just the video while it plays in the floating
-    /// window, leaving fullscreen first so WebKit's own controls don't stack
-    /// on the window's.
-    static func setPictureInPictureLayout(_ webView: WKWebView?, isActive: Bool) {
-        let script = """
-        (function() {
-            \(installVideoFillStyle)
-            if (\(isActive) && document.fullscreenElement) { document.exitFullscreen().catch(function() {}); }
-            document.documentElement.classList.toggle('sakura-pip', \(isActive));
+            \(installVideoOnlyStyle)
+            var root = document.documentElement;
+            root.style.setProperty('--sakura-video-width', '\(Int(size?.width ?? 0))px');
+            root.style.setProperty('--sakura-video-height', '\(Int(size?.height ?? 0))px');
+            root.classList.toggle('sakura-video-only', \(size != nil));
         })();
         """
         webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
-    /// YouTube sizes the video with inline styles for the inline player, and
-    /// may fullscreen its player rather than the video, so these fill the
-    /// screen or window with the video whatever the page set.
-    private static let installVideoFillStyle = """
-    if (!document.getElementById('sakura-video-fill-style')) {
-        var fill = 'position: fixed !important; inset: 0 !important;'
-            + ' width: 100vw !important; height: 100vh !important;'
+    /// Transforms and filters on the video's ancestors would make it fixed to
+    /// them rather than the window, so they're dropped too.
+    private static let installVideoOnlyStyle = """
+    if (!document.getElementById('sakura-video-only-style')) {
+        var style = document.createElement('style');
+        style.id = 'sakura-video-only-style';
+        style.textContent = 'html.sakura-video-only video {'
+            + ' position: fixed !important; left: 0 !important; top: 0 !important;'
+            + ' right: auto !important; bottom: auto !important;'
+            + ' width: var(--sakura-video-width) !important; height: var(--sakura-video-height) !important;'
             + ' max-width: none !important; max-height: none !important;'
             + ' margin: 0 !important; transform: none !important;'
             + ' object-fit: contain !important; background: black !important;'
-            + ' z-index: 2147483646 !important;';
-        var style = document.createElement('style');
-        style.id = 'sakura-video-fill-style';
-        style.textContent = 'video:fullscreen, video:-webkit-full-screen,'
-            + ' :fullscreen video, :-webkit-full-screen video, html.sakura-pip video {' + fill + '}'
-            + ' html.sakura-pip, html.sakura-pip body { background: black !important; overflow: hidden !important; }';
+            + ' z-index: 2147483646 !important; }'
+            + ' html.sakura-video-only *:has(video) { transform: none !important; filter: none !important;'
+            + ' contain: none !important; perspective: none !important; will-change: auto !important; }'
+            + ' html.sakura-video-only, html.sakura-video-only body {'
+            + ' background: black !important; overflow: hidden !important; }';
         document.head.appendChild(style);
     }
     """
