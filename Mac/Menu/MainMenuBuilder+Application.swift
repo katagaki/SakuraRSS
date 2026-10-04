@@ -9,6 +9,13 @@ extension MainMenuBuilder {
             action: #selector(NSApplication.orderFrontStandardAboutPanel(_:))
         ))
         menu.addItem(.separator())
+        let settingsItem = NSMenuItem(
+            title: String(localized: "Menu.Settings", table: "Settings"),
+            action: #selector(AppDelegate.showSettings(_:)),
+            keyEquivalent: ","
+        )
+        menu.addItem(settingsItem)
+        menu.addItem(.separator())
         let servicesItem = item("Menu.Services", action: nil)
         let servicesMenu = NSMenu()
         servicesItem.submenu = servicesMenu

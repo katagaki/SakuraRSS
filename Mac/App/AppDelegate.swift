@@ -5,6 +5,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
 
     private(set) var registry: BrowserWindowRegistry!
     private(set) var refreshCoordinator: RefreshCoordinator!
+    private var settingsWindowController: SettingsWindowController?
+    private var defaultsObserver: NSObjectProtocol?
+    private var schedulingSettings = SchedulingSettings.current
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSApp.mainMenu = MainMenuBuilder.build()
@@ -19,6 +22,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         }
         refreshCoordinator.refreshOnLaunchIfEnabled()
         refreshCoordinator.schedulePeriodicRefresh()
+        AutomaticCleanupScheduler.scheduleNextCleanup()
+        observeSchedulingSettings()
         #if DEBUG
         DebugLaunchActions.perform(with: registry)
         DebugSnapshotRenderer.scheduleIfRequested()
@@ -42,6 +47,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
 
     @objc func newBrowserWindow(_ sender: Any?) {
         registry.openWindow()
+    }
+
+    @objc func showSettings(_ sender: Any?) {
+        if settingsWindowController == nil {
+            settingsWindowController = SettingsWindowController(feedManager: registry.feedManager)
+            settingsWindowController?.window?.center()
+        }
+        settingsWindowController?.showWindow(nil)
+    }
+
+    /// Settings changes land in user defaults; the schedules that read them
+    /// are rebuilt when they do.
+    private func observeSchedulingSettings() {
+        defaultsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.rescheduleIfSettingsChanged()
+            }
+        }
+    }
+
+    private func rescheduleIfSettingsChanged() {
+        let latest = SchedulingSettings.current
+        guard latest != schedulingSettings else { return }
+        if latest.isPeriodicRefreshEnabled != schedulingSettings.isPeriodicRefreshEnabled
+            || latest.refreshInterval != schedulingSettings.refreshInterval {
+            refreshCoordinator.schedulePeriodicRefresh()
+        }
+        if latest.isAutomaticCleanupEnabled != schedulingSettings.isAutomaticCleanupEnabled
+            || latest.cleanupCutoff != schedulingSettings.cleanupCutoff {
+            AutomaticCleanupScheduler.scheduleNextCleanup()
+        }
+        schedulingSettings = latest
     }
 
     func refreshFeeds(_ sender: Any?) {
