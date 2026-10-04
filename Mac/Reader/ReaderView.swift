@@ -5,6 +5,7 @@ struct ReaderView: View {
 
     let article: Article
     let feed: Feed?
+    let activity: BrowserPageActivity
     @State private var extraction = ContentExtraction()
 
     var body: some View {
@@ -39,6 +40,12 @@ struct ReaderView: View {
         }
         .task(id: article.id) {
             await extraction.extract(article: article, feed: feed)
+        }
+        .onChange(of: extraction.isExtracting, initial: true) { _, isExtracting in
+            activity.isExtractingContent = isExtracting
+        }
+        .onDisappear {
+            activity.isExtractingContent = false
         }
     }
 }

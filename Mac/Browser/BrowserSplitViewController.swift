@@ -9,7 +9,7 @@ final class BrowserSplitViewController: NSSplitViewController {
     var onOpenLocation: ((BrowserLocation) -> Void)?
     var onOpenLocationInNewTab: ((BrowserLocation) -> Void)?
 
-    init(feedManager: FeedManager) {
+    init(feedManager: FeedManager, activity: BrowserPageActivity) {
         self.feedManager = feedManager
         sidebarViewController = SidebarViewController(feedManager: feedManager)
         super.init(nibName: nil, bundle: nil)
@@ -17,7 +17,11 @@ final class BrowserSplitViewController: NSSplitViewController {
             open: { [weak self] location in self?.onOpenLocation?(location) },
             openInNewTab: { [weak self] location in self?.onOpenLocationInNewTab?(location) }
         )
-        detailViewController = BrowserDetailViewController(feedManager: feedManager, actions: actions)
+        detailViewController = BrowserDetailViewController(
+            feedManager: feedManager,
+            activity: activity,
+            actions: actions
+        )
     }
 
     required init?(coder: NSCoder) {

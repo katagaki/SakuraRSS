@@ -7,15 +7,17 @@ import SwiftUI
 final class BrowserDetailViewController: NSViewController {
 
     let feedManager: FeedManager
+    let activity: BrowserPageActivity
     let contentSplitViewController: ContentSplitViewController
     private let todayViewController: TodaySplitViewController
     private let articleViewController: NSHostingController<ReaderPane>
 
-    init(feedManager: FeedManager, actions: TodayActions) {
+    init(feedManager: FeedManager, activity: BrowserPageActivity, actions: TodayActions) {
         self.feedManager = feedManager
-        contentSplitViewController = ContentSplitViewController(feedManager: feedManager)
+        self.activity = activity
+        contentSplitViewController = ContentSplitViewController(feedManager: feedManager, activity: activity)
         todayViewController = TodaySplitViewController(feedManager: feedManager, actions: actions)
-        articleViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil))
+        articleViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil, activity: activity))
         articleViewController.sizingOptions = []
         super.init(nibName: nil, bundle: nil)
     }
@@ -39,7 +41,8 @@ final class BrowserDetailViewController: NSViewController {
             }
             articleViewController.rootView = ReaderPane(
                 article: article,
-                feed: article.flatMap { feedManager.feedsByID[$0.feedID] }
+                feed: article.flatMap { feedManager.feedsByID[$0.feedID] },
+                activity: activity
             )
             display(articleViewController)
         default:

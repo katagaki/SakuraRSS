@@ -1,21 +1,31 @@
 import AppKit
 import Hanami
+import SwiftUI
 
 final class AddressBarController: NSObject, NSTextFieldDelegate {
 
     let field = AddressField()
+    let containerView = NSView()
     let feedManager: FeedManager
+    let activity: BrowserPageActivity
+    private let progressView = NSHostingView(rootView: BrowserAddressProgressBackground(progress: nil))
+    private var location: BrowserLocation = .startPage
+    private var progressObserver: ChangeObserver?
     var onCommit: ((AddressSuggestion.Kind) -> Void)?
     private let suggestionsPanel = SuggestionsPanelController()
     private var displayedTitle = ""
     private var contentMatches: [Article] = []
     private var contentSearchTask: Task<Void, Never>?
 
-    init(feedManager: FeedManager) {
+    init(feedManager: FeedManager, activity: BrowserPageActivity) {
         self.feedManager = feedManager
+        self.activity = activity
         super.init()
+        layOutContainer()
         field.placeholderString = String(localized: "AddressField.Prompt", table: "Browser")
-        field.bezelStyle = .roundedBezel
+        field.isBezeled = false
+        field.drawsBackground = false
+        field.focusRingType = .none
         field.alignment = .center
         field.lineBreakMode = .byTruncatingTail
         field.usesSingleLineMode = true
@@ -26,9 +36,43 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
         suggestionsPanel.onCommit = { [weak self] suggestion in
             self?.commit(suggestion.kind)
         }
+        progressObserver = ChangeObserver { [weak self] in
+            _ = self?.currentProgress
+        } onChange: { [weak self] in
+            self?.updateProgress()
+        }
+    }
+
+    /// The fill sits behind a borderless field, inside the capsule the toolbar
+    /// item draws, the way iOS tints its address bar.
+    private func layOutContainer() {
+        for view in [progressView, field] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            containerView.addSubview(view)
+        }
+        NSLayoutConstraint.activate([
+            containerView.heightAnchor.constraint(equalToConstant: 30),
+            progressView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            progressView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            progressView.topAnchor.constraint(equalTo: containerView.topAnchor),
+            progressView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            field.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
+            field.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            field.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+        ])
+    }
+
+    private var currentProgress: BrowserAddressProgress? {
+        AddressProgress.current(for: location, feedManager: feedManager, activity: activity)
+    }
+
+    private func updateProgress() {
+        progressView.rootView = BrowserAddressProgressBackground(progress: currentProgress)
     }
 
     func display(_ location: BrowserLocation) {
+        self.location = location
+        updateProgress()
         displayedTitle = location.title(in: feedManager)
         if field.currentEditor() == nil {
             field.stringValue = displayedTitle

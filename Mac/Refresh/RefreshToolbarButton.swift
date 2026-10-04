@@ -1,43 +1,18 @@
 import AppKit
-import Hanami
 
-/// Refreshes when idle, and while a refresh runs shows its progress and stops
-/// it when clicked.
-final class RefreshToolbarButton: NSView {
+/// Reload while idle and stop while the page refreshes, as Safari's button
+/// does. The progress itself is drawn in the address bar.
+final class RefreshToolbarButton: NSButton {
 
-    private let feedManager: FeedManager
-    private let button = NSButton()
-    private let progressIndicator = NSProgressIndicator()
+    var isRefreshing: (() -> Bool)? {
+        didSet { observeRefreshing() }
+    }
     private var refreshObserver: ChangeObserver?
 
-    init(feedManager: FeedManager) {
-        self.feedManager = feedManager
+    init() {
         super.init(frame: NSRect(x: 0, y: 0, width: 32, height: 28))
-        button.bezelStyle = .toolbar
-        button.imagePosition = .imageOnly
-        button.isBordered = true
-        progressIndicator.style = .spinning
-        progressIndicator.controlSize = .small
-        progressIndicator.isIndeterminate = false
-        progressIndicator.isHidden = true
-        for view in [button, progressIndicator] {
-            view.translatesAutoresizingMaskIntoConstraints = false
-            addSubview(view)
-        }
-        NSLayoutConstraint.activate([
-            button.leadingAnchor.constraint(equalTo: leadingAnchor),
-            button.trailingAnchor.constraint(equalTo: trailingAnchor),
-            button.topAnchor.constraint(equalTo: topAnchor),
-            button.bottomAnchor.constraint(equalTo: bottomAnchor),
-            progressIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
-            progressIndicator.centerYAnchor.constraint(equalTo: centerYAnchor)
-        ])
-        refreshObserver = ChangeObserver { [weak self] in
-            guard let self else { return }
-            _ = (self.feedManager.isLoading, self.feedManager.refreshCompleted, self.feedManager.refreshTotal)
-        } onChange: { [weak self] in
-            self?.update()
-        }
+        bezelStyle = .toolbar
+        imagePosition = .imageOnly
         update()
     }
 
@@ -45,25 +20,22 @@ final class RefreshToolbarButton: NSView {
         fatalError("init(coder:) is not supported")
     }
 
-    private func update() {
-        let isRefreshing = feedManager.isLoading
-        progressIndicator.isHidden = !isRefreshing
-        button.image = isRefreshing ? nil : NSImage(
-            systemSymbolName: "arrow.clockwise",
-            accessibilityDescription: String(localized: "RefreshFeeds.ShortTitle", table: "AppIntents")
-        )
-        button.action = isRefreshing ? #selector(RefreshActions.stopRefreshing(_:))
-            : #selector(RefreshActions.refreshFeeds(_:))
-        if isRefreshing {
-            let total = max(feedManager.refreshTotal, 1)
-            progressIndicator.maxValue = Double(total)
-            progressIndicator.doubleValue = Double(feedManager.refreshCompleted)
-            button.toolTip = String(
-                localized: "Home.Refreshing \(Int64(feedManager.refreshCompleted)) \(Int64(total))",
-                table: "Home"
-            ) + "\n" + String(localized: "Refresh.Stop", table: "Home")
-        } else {
-            button.toolTip = String(localized: "RefreshFeeds.ShortTitle", table: "AppIntents")
+    private func observeRefreshing() {
+        refreshObserver = ChangeObserver { [weak self] in
+            _ = self?.isRefreshing?()
+        } onChange: { [weak self] in
+            self?.update()
         }
+        update()
+    }
+
+    private func update() {
+        let refreshing = isRefreshing?() ?? false
+        let label = refreshing
+            ? String(localized: "Refresh.Stop", table: "Home")
+            : String(localized: "RefreshFeeds.ShortTitle", table: "AppIntents")
+        image = NSImage(systemSymbolName: refreshing ? "xmark" : "arrow.clockwise", accessibilityDescription: label)
+        toolTip = label
+        action = refreshing ? #selector(RefreshActions.stopRefreshing(_:)) : #selector(RefreshActions.refreshFeeds(_:))
     }
 }

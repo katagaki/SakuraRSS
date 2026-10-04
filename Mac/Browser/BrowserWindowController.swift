@@ -7,6 +7,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
 
     let feedManager: FeedManager
     let splitViewController: BrowserSplitViewController
+    let activity = BrowserPageActivity()
     let addressBarController: AddressBarController
     private let toolbarController: BrowserToolbarController
     private(set) var history: BrowserHistory
@@ -16,11 +17,12 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
     init(feedManager: FeedManager, history: BrowserHistory) {
         self.feedManager = feedManager
         self.history = history
-        splitViewController = BrowserSplitViewController(feedManager: feedManager)
-        addressBarController = AddressBarController(feedManager: feedManager)
+        splitViewController = BrowserSplitViewController(feedManager: feedManager, activity: activity)
+        addressBarController = AddressBarController(feedManager: feedManager, activity: activity)
+        let refreshButton = RefreshToolbarButton()
         toolbarController = BrowserToolbarController(
-            addressField: addressBarController.field,
-            refreshButton: RefreshToolbarButton(feedManager: feedManager)
+            addressField: addressBarController.containerView,
+            refreshButton: refreshButton
         )
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1100, height: 720),
@@ -40,6 +42,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         window.restorationClass = BrowserWindowRestoration.self
         super.init(window: window)
         window.delegate = self
+        refreshButton.isRefreshing = { [weak self] in self?.isCurrentPageRefreshing ?? false }
         splitViewController.sidebarViewController.onSelectLocation = { [weak self] location in
             self?.navigate(to: location)
         }

@@ -6,13 +6,15 @@ import SwiftUI
 final class ContentSplitViewController: NSSplitViewController {
 
     let feedManager: FeedManager
+    let activity: BrowserPageActivity
     let contentListViewController: ContentListViewController
     private let readerViewController: NSHostingController<ReaderPane>
 
-    init(feedManager: FeedManager) {
+    init(feedManager: FeedManager, activity: BrowserPageActivity) {
         self.feedManager = feedManager
+        self.activity = activity
         contentListViewController = ContentListViewController(feedManager: feedManager)
-        readerViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil))
+        readerViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil, activity: activity))
         // Left on, the hosting controller resizes the window to fit whatever the
         // reader shows, shrinking it to the height of the empty state.
         readerViewController.sizingOptions = []
@@ -45,7 +47,8 @@ final class ContentSplitViewController: NSSplitViewController {
     private func showReader(for article: Article?) {
         readerViewController.rootView = ReaderPane(
             article: article,
-            feed: article.flatMap { feedManager.feedsByID[$0.feedID] }
+            feed: article.flatMap { feedManager.feedsByID[$0.feedID] },
+            activity: activity
         )
     }
 }

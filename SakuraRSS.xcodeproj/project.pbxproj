@@ -168,6 +168,8 @@
 			membershipExceptions = (
 				"Article Viewer/Content Blocks/ContentBlock+Stripping.swift",
 				"Browser/Address Bar/BrowserAddressInput.swift",
+				"Browser/Address Bar/BrowserAddressProgress.swift",
+				"Browser/Address Bar/BrowserAddressProgressBackground.swift",
 				Home/Today/TodayWeatherService.swift,
 				"Home/Today/TodayWeatherService+Cache.swift",
 				"Home/Today/TodayWeatherService+Geocoding.swift",
