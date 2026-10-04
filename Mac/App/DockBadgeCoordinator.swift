@@ -31,8 +31,7 @@ final class DockBadgeCoordinator {
     }
 
     static var isEnabled: Bool {
-        let mode = UserDefaults.standard.string(forKey: "Display.UnreadBadgeMode") ?? "none"
-        return mode == "homeScreenAndHomeTab" || mode == "homeScreenOnly"
+        UserDefaults.standard.string(forKey: UnreadBadgeMode.storageKey) == UnreadBadgeMode.homeScreenOnly.rawValue
     }
 
     private func scheduleUpdate() {

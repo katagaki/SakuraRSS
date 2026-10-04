@@ -8,13 +8,13 @@ struct BrowsingSettingsPane: View {
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead = false
     @AppStorage(LinkOpenMode.storageKey) private var linkOpenMode: LinkOpenMode = .inAppViewer
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode = false
-    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode = "none"
+    @AppStorage(UnreadBadgeMode.storageKey) private var unreadBadgeMode: UnreadBadgeMode = .none
 
     private var showsDockBadge: Binding<Bool> {
         Binding {
-            unreadBadgeMode == "homeScreenAndHomeTab" || unreadBadgeMode == "homeScreenOnly"
+            unreadBadgeMode == .homeScreenOnly
         } set: { isOn in
-            unreadBadgeMode = isOn ? "homeScreenOnly" : "none"
+            unreadBadgeMode = isOn ? .homeScreenOnly : .none
         }
     }
 

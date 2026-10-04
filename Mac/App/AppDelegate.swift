@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
     func applicationWillFinishLaunching(_ notification: Notification) {
         // The same defaults iOS registers at launch.
         UserDefaults.standard.register(defaults: ["Intelligence.ContentInsights.Enabled": true])
+        UnreadBadgeMode.migrateRemovedHomeTabModes(defaults: .standard)
         NSApp.mainMenu = MainMenuBuilder.build()
         let feedManager = FeedManager()
         registry = BrowserWindowRegistry(feedManager: feedManager)
