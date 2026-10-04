@@ -38,8 +38,8 @@ extension AudioPlayer {
     func loadArtwork(from urlString: String?) {
         guard let urlString, let url = URL(string: urlString) else { return }
         URLSession.shared.dataTask(with: URLRequest.sakuraImage(url: url)) { [weak self] data, _, _ in
-            guard let data, let image = UIImage(data: data), let cgImage = image.cgImage else { return }
-            let safeImage = UIImage(cgImage: cgImage)
+            guard let data, let image = PlatformImage(data: data), let cgImage = image.cgImage else { return }
+            let safeImage = PlatformImage(cgImage: cgImage)
             let size = safeImage.size
             let artwork = MPMediaItemArtwork(boundsSize: size) { _ in safeImage }
             DispatchQueue.main.async {

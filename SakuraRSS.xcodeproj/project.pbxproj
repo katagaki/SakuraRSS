@@ -167,6 +167,11 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Article Viewer/Content Blocks/ContentBlock+Stripping.swift",
+				"Core/Audio Player/AudioPlayer+NowPlaying.swift",
+				"Core/Audio Player/AudioPlayer+RemoteCommands.swift",
+				"Core/Audio Player/AudioPlayer.swift",
+				"Core/YouTube Player Session/YouTubePlaybackPositionStore.swift",
+				"Core/YouTube Player Session/YouTubePlayerSession.swift",
 				"Browser/Address Bar/BrowserAddressInput.swift",
 				"Browser/Address Bar/BrowserAddressProgress.swift",
 				"Browser/Address Bar/BrowserAddressProgressBackground.swift",
@@ -182,6 +187,7 @@
 				Home/Today/Weather/WeatherGraphMode.swift,
 				Home/Today/Weather/WeatherTemperatureFormat.swift,
 				Home/Today/Weather/WeatherTint.swift,
+				"YouTube Player/YouTubeAudioSession.swift",
 			);
 			target = 4D41430A000000000000000B /* Sakura for Mac */;
 		};
