@@ -58,8 +58,15 @@ final class BrowserDetailViewController: NSViewController {
             existing.removeFromParent()
         }
         addChild(child)
-        child.view.frame = view.bounds
-        child.view.autoresizingMask = [.width, .height]
+        child.view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(child.view)
+        // Below the toolbar rather than under it, so the list's divider and
+        // rows don't run up behind the toolbar's glass.
+        NSLayoutConstraint.activate([
+            child.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            child.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            child.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            child.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
     }
 }
