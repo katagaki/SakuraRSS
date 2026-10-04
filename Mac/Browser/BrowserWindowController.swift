@@ -85,17 +85,6 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         addressBarController.display(history.current)
     }
 
-    private func commitAddress(_ kind: AddressSuggestion.Kind) {
-        switch kind {
-        case .location(let location):
-            navigate(to: location)
-        case .searchContent(let query):
-            navigate(to: .search(query))
-        case .discoverFeeds:
-            break
-        }
-    }
-
     func window(_ window: NSWindow, willEncodeRestorableState state: NSCoder) {
         history.encode(with: state)
     }

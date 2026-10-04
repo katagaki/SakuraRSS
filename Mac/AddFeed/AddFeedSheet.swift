@@ -1,0 +1,69 @@
+import Hanami
+import SwiftUI
+
+struct AddFeedSheet: View {
+
+    let feedManager: FeedManager
+    let onDone: () -> Void
+    @State var session: FeedDiscoverySession
+
+    private var subscribedURLs: Set<String> {
+        Set(feedManager.feeds.map(\.url))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(localized: "AddFeed.Title", table: "Feeds"))
+                    .font(.title2)
+                    .fontWeight(.bold)
+                Text(BrowserAddressInput.displayString(for: session.urlString))
+                    .foregroundStyle(.secondary)
+            }
+            content
+                .frame(maxWidth: .infinity, minHeight: 180, maxHeight: 360)
+            HStack {
+                Spacer()
+                Button(String(localized: "Shared.Done"), action: onDone)
+                    .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20)
+        .frame(width: 520)
+        .task {
+            await session.search()
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if session.isSearching {
+            VStack(spacing: 10) {
+                ProgressView()
+                Text(String(localized: "AddFeed.Extension.Searching", table: "Feeds"))
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if session.discoveredFeeds.isEmpty {
+            Text(session.errorMessage ?? "")
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            List {
+                Section(String(localized: "AddFeed.Section.Discovered", table: "Feeds")) {
+                    ForEach(session.discoveredFeeds) { feed in
+                        DiscoveredFeedRow(
+                            feed: feed,
+                            isSubscribed: session.addedURLs.contains(feed.url) || subscribedURLs.contains(feed.url),
+                            isAdding: session.addingURLs.contains(feed.url),
+                            canAdd: session.canAdd(feed)
+                        ) {
+                            Task { await session.add(feed, to: feedManager) }
+                        }
+                    }
+                }
+            }
+            .listStyle(.inset)
+        }
+    }
+}

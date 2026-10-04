@@ -22,6 +22,16 @@ struct AddressSuggestionResolver {
             subtitle: nil,
             symbolName: "magnifyingglass"
         )]
+        if let urlString = BrowserAddressInput.normalizedURLString(from: trimmed) {
+            let display = BrowserAddressInput.displayString(for: urlString)
+            results.append(AddressSuggestion(
+                kind: .discoverFeeds(urlString),
+                section: .actions,
+                title: String(localized: "Suggestions.FindFeeds \(display)", table: "Browser"),
+                subtitle: nil,
+                symbolName: "antenna.radiowaves.left.and.right"
+            ))
+        }
         let needle = trimmed.lowercased()
         results += feedManager.feeds
             .filter { $0.title.lowercased().contains(needle) || $0.domain.lowercased().contains(needle) }
