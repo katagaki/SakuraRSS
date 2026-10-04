@@ -92,6 +92,13 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     private func beginEditing() {
         startWatchingForDismissal()
         field.alignment = .natural
+        // Starts from the search being shown, or empty, as iOS's omnibox does,
+        // rather than offering to search for the page's own name.
+        if case .search(let query) = location {
+            field.stringValue = query
+        } else {
+            field.stringValue = ""
+        }
         contentMatches = []
         DispatchQueue.main.async { [weak self] in
             // The field editor is already set up by now, so the field's own
