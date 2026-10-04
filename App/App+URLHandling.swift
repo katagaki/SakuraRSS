@@ -5,7 +5,7 @@ extension SakuraRSSApp {
 
     func handleOpenURL(_ url: URL) {
         guard url.scheme == "sakura" else {
-            pendingFeedURL = convertFeedURL(url)
+            pendingFeedURL = url.resolvingFeedScheme
             return
         }
         handleSakuraScheme(url)
@@ -189,19 +189,5 @@ extension SakuraRSSApp {
             if except.contains(entry.lastPathComponent) { continue }
             try? fileManager.removeItem(at: entry)
         }
-    }
-
-    func convertFeedURL(_ url: URL) -> String {
-        let urlString = url.absoluteString
-        if urlString.hasPrefix("feed:https://") || urlString.hasPrefix("feed:http://") {
-            return String(urlString.dropFirst("feed:".count))
-        } else if urlString.hasPrefix("feeds:https://") || urlString.hasPrefix("feeds:http://") {
-            return String(urlString.dropFirst("feeds:".count))
-        } else if urlString.hasPrefix("feed://") {
-            return "https://" + urlString.dropFirst("feed://".count)
-        } else if urlString.hasPrefix("feeds://") {
-            return "https://" + urlString.dropFirst("feeds://".count)
-        }
-        return urlString
     }
 }

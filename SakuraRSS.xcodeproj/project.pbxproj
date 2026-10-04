@@ -518,11 +518,21 @@
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};
+		4D41430A0000000000000020 /* Exceptions for "Mac" folder in "Sakura for Mac" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 4D41430A000000000000000B /* Sakura for Mac */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4D41430A000000000000000A /* Mac */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				4D41430A0000000000000020 /* Exceptions for "Mac" folder in "Sakura for Mac" target */,
+			);
 			path = Mac;
 			sourceTree = "<group>";
 		};
@@ -1145,6 +1155,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Mac/Mac.entitlements;
+				INFOPLIST_FILE = Mac/Info.plist;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 10;
@@ -1187,6 +1198,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Mac/Mac.entitlements;
+				INFOPLIST_FILE = Mac/Info.plist;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 10;
