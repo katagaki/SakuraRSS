@@ -11,13 +11,13 @@
 		4D41430A0000000000000002 /* Hanami.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AA000001AABB0001006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = AA000001AABB0002006081EF /* SQLite */; };
 		AA000001AABB0003006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = AA000001AABB0004006081EF /* SQLite */; };
-		E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, maccatalyst, ); productRef = E41D98A72F8B3B6E00FB2880 /* FluidAudio */; };
+		E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, ); productRef = E41D98A72F8B3B6E00FB2880 /* FluidAudio */; };
 		E444841A2FB09B0E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 		E444841B2FB09B0E003FDAD4 /* Hanami.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E444842A2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 		E444842B2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 		E444842C2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
-		E444844E2FB0A00E003FDAD4 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, maccatalyst, macos, ); productRef = E444844A2FB0A00E003FDAD4 /* FluidAudio */; };
+		E444844E2FB0A00E003FDAD4 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, macos, ); productRef = E444844A2FB0A00E003FDAD4 /* FluidAudio */; };
 		E444844F2FB0A00E003FDAD4 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E444844B2FB0A00E003FDAD4 /* SwiftSoup */; };
 		E44484502FB0A00E003FDAD4 /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E444844C2FB0A00E003FDAD4 /* FaviconFinder */; };
 		E44484512FB0A00E003FDAD4 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E444844D2FB0A00E003FDAD4 /* SQLite */; };
@@ -1266,7 +1266,7 @@
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -1314,7 +1314,7 @@
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -1642,7 +1642,7 @@
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -1695,7 +1695,7 @@
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
