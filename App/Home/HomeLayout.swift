@@ -3,7 +3,7 @@ import UIKit
 
 enum HomeLayout {
     @MainActor static var usesPhoneTopBar: Bool {
-        #if targetEnvironment(macCatalyst) || os(visionOS)
+        #if os(visionOS)
         return false
         #else
         return UIDevice.current.userInterfaceIdiom == .phone
@@ -11,7 +11,7 @@ enum HomeLayout {
     }
 
     @MainActor static var usesPadLayout: Bool {
-        #if targetEnvironment(macCatalyst) || os(visionOS)
+        #if os(visionOS)
         return false
         #else
         return UIDevice.current.userInterfaceIdiom == .pad

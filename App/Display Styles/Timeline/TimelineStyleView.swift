@@ -5,9 +5,6 @@ struct TimelineStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
-    #if targetEnvironment(macCatalyst)
-    @Environment(\.openWindow) private var openWindow
-    #endif
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -143,11 +140,6 @@ struct TimelineStyleView: View {
 
     @ViewBuilder
     private func rowContextMenu(for article: Article) -> some View {
-        #if targetEnvironment(macCatalyst)
-        OpenInNewWindowButton(article: article)
-        Divider()
-        ArticleReadMenuButton(article: article)
-        #endif
         BookmarkMenuItems(article: article)
     }
 

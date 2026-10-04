@@ -16,11 +16,7 @@ enum BrowserLayout {
 
     /// Mirrors when `AdaptiveTabContainer` swaps the bottom bar for its top bar.
     static var usesWideTabs: Bool {
-        #if targetEnvironment(macCatalyst)
-        return true
-        #else
         return UIDevice.current.userInterfaceIdiom == .pad
-        #endif
     }
 }
 

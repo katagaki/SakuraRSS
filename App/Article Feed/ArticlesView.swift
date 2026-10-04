@@ -150,17 +150,6 @@ struct ArticlesView: View {
                         Image(systemName: "envelope.open")
                             .font(.system(size: 14.0))
                     }
-                    #if targetEnvironment(macCatalyst)
-                    .alert(
-                        String(localized: "MarkAllRead.Confirm", table: "Articles"),
-                        isPresented: $isShowingMarkAllReadConfirmation
-                    ) {
-                        Button(String(localized: "MarkAllRead", table: "Articles")) {
-                            Task { @MainActor in onMarkAllRead() }
-                        }
-                        Button(role: .cancel) {}
-                    }
-                    #else
                     .popover(isPresented: $isShowingMarkAllReadConfirmation) {
                         VStack(spacing: 12) {
                             Text(String(localized: "MarkAllRead.Confirm", table: "Articles"))
@@ -178,7 +167,6 @@ struct ArticlesView: View {
                         .padding(20)
                         .presentationCompactAdaptation(.popover)
                     }
-                    #endif
                 }
             }
             if let additionalLeadingToolbar {

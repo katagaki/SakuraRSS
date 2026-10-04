@@ -5,9 +5,6 @@ struct InboxStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
-    #if targetEnvironment(macCatalyst)
-    @Environment(\.openWindow) private var openWindow
-    #endif
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -101,10 +98,6 @@ struct InboxStyleView: View {
                 .contentShape(.rect)
         })
         .contextMenu {
-            #if targetEnvironment(macCatalyst)
-            OpenInNewWindowButton(article: article)
-            Divider()
-            #endif
             ArticleReadMenuButton(article: article)
             ArticleBookmarkMenuButton(article: article)
             BookmarkMenuItems(article: article)

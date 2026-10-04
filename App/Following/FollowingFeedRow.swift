@@ -8,11 +8,7 @@ struct FollowingFeedRow: View {
     var showsDomain: Bool = true
 
     private var iconSize: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        return 28
-        #else
         return 32
-        #endif
     }
 
     var body: some View {

@@ -17,7 +17,7 @@ struct AppearanceSettingsView: View {
 
     var body: some View {
         List {
-            #if !os(visionOS) && !targetEnvironment(macCatalyst)
+            #if !os(visionOS)
             Section {
                 ThemePreviewSection()
                 Toggle(String(localized: "SakuraBackground", table: "Settings"),
@@ -66,7 +66,7 @@ struct AppearanceSettingsView: View {
             }
             #endif
 
-            #if !os(visionOS) && !targetEnvironment(macCatalyst)
+            #if !os(visionOS)
             Section {
                 Toggle(String(localized: "ShowStatusBar", table: "Settings"),
                        isOn: $showStatusBar)
@@ -116,13 +116,9 @@ struct AppearanceSettingsView: View {
 
     @ViewBuilder
     private var contentWidthSection: some View {
-        #if targetEnvironment(macCatalyst)
-        contentWidthPickerSection
-        #else
         if UIDevice.current.userInterfaceIdiom == .pad {
             contentWidthPickerSection
         }
-        #endif
     }
 
     @ViewBuilder

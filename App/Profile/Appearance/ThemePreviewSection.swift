@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 import Hanami
 
-#if !os(visionOS) && !targetEnvironment(macCatalyst)
+#if !os(visionOS)
 struct ThemePreviewSection: View {
 
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true

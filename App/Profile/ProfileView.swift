@@ -3,7 +3,6 @@ import Hanami
 
 struct ProfileView: View {
 
-    var showsCloseButton: Bool = true
     /// Sheets want the standard inline title; the tab keeps the large one.
     var titleDisplayMode: ToolbarTitleDisplayMode?
 
@@ -119,15 +118,10 @@ struct ProfileView: View {
                 titleDisplayMode
                     ?? (UIDevice.current.userInterfaceIdiom == .pad ? .inline : .inlineLarge)
             )
-            #if targetEnvironment(macCatalyst)
-            .toolbar(.hidden, for: .navigationBar)
-            #endif
             .toolbar {
-                if showsCloseButton {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {
-                            dismiss()
-                        }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) {
+                        dismiss()
                     }
                 }
             }

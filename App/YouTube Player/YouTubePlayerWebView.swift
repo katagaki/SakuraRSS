@@ -183,11 +183,10 @@ struct YouTubePlayerWebView {
         return components.url ?? url
     }
 
-    /// Catalyst needs an explicit desktop UA to get the desktop watch page, but it has to be
-    /// the Safari one: with a Chrome UA YouTube picks a media pipeline WebKit cannot feed, so
-    /// the video element never attaches media and playback stalls at 0:00.
+    /// The Mac's default desktop UA gets the desktop watch page, which the player scripts are
+    /// not written for, so it borrows the iPhone UA to get the same mobile page as iOS.
     static var youTubeUserAgent: String? {
-        #if targetEnvironment(macCatalyst) || os(macOS)
+        #if os(macOS)
         return sakuraUserAgent
         #else
         return nil

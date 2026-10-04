@@ -57,10 +57,6 @@ struct PodcastStyleView: View {
                     .tint(.blue)
                 }
                 .contextMenu {
-                    #if targetEnvironment(macCatalyst)
-                    OpenInNewWindowButton(article: article)
-                    Divider()
-                    #endif
                     ArticleReadMenuButton(article: article, labelStyle: .playedUnplayed)
                     Divider()
                     ArticleBookmarkMenuButton(article: article)

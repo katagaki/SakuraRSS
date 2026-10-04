@@ -31,7 +31,7 @@ struct FocusSettingsView: View {
                 Text(String(localized: "Focus.Settings.Setup.Title", table: "Settings"))
             }
 
-            #if !targetEnvironment(macCatalyst) && !os(macOS)
+            #if !os(macOS)
             Section {
                 Button {
                     if let url = URL(string: "App-Prefs:") {

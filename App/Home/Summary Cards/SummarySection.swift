@@ -227,20 +227,11 @@ struct SummarySection: View {
     }
 
     /// Reserves the same 4:3 footprint as a populated card so the height
-    /// doesn't change when the carousel materializes. On Mac Catalyst, uses
-    /// a fixed height instead since 4:3 of a wide column is unreasonably tall.
+    /// doesn't change when the carousel materializes.
     @ViewBuilder
     private func placeholderFrame<Content: View>(
         @ViewBuilder content: () -> Content
     ) -> some View {
-        #if targetEnvironment(macCatalyst)
-        Color.clear
-            .frame(maxWidth: .infinity)
-            .frame(height: 180)
-            .overlay {
-                content()
-            }
-        #else
         Color.clear
             .containerRelativeFrame(.horizontal) { value, _ in
                 max(0, value - 32)
@@ -250,7 +241,6 @@ struct SummarySection: View {
             .overlay {
                 content()
             }
-        #endif
     }
 
 }

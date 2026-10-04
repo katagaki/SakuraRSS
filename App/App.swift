@@ -35,16 +35,13 @@ struct SakuraRSSApp: App {
                 pendingArticleID: $pendingArticleID,
                 pendingOpenRequest: $pendingOpenRequest
             )
-                #if !os(visionOS) && !targetEnvironment(macCatalyst)
+                #if !os(visionOS)
                 .statusBarHidden(!showStatusBar)
                 #endif
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
                 .environment(todayManager)
                 .keepScreenOnDuringPodcastWork()
-                #if targetEnvironment(macCatalyst)
-                .stopsSharedMediaOnLastMainWindowClose()
-                #endif
                 .task {
                     feedManager.onBookmarkAdded = { [feedManager] article in
                         BookmarkToastManager.shared.show(article: article, feedManager: feedManager)
@@ -118,13 +115,6 @@ struct SakuraRSSApp: App {
         // Wide enough for the sidebar split view to stay expanded.
         .defaultSize(width: 1280, height: 820)
         #endif
-        #if targetEnvironment(macCatalyst)
-        .commands {
-            CommandGroup(replacing: .appSettings) {
-                OpenProfileSettingsButton()
-            }
-        }
-        #endif
 
         #if os(visionOS)
         WindowGroup(id: "YouTubePlayerWindow", for: Int64.self) { $articleID in
@@ -139,56 +129,6 @@ struct SakuraRSSApp: App {
         .defaultSize(width: 600, height: 900)
         #endif
 
-        #if targetEnvironment(macCatalyst)
-        WindowGroup(id: "ProfileWindow", for: String.self) { _ in
-            ProfileView(showsCloseButton: false)
-                .environment(feedManager)
-                .stopsMediaOnWindowClose()
-        }
-        .defaultSize(width: 600, height: 700)
-        .commandsRemoved()
-
-        WindowGroup(id: "ArticleWindow", for: Int64.self) { $articleID in
-            if let articleID {
-                ArticleDetailWindow(articleID: articleID)
-                    .environment(feedManager)
-            }
-        }
-        .defaultSize(width: 420, height: 520)
-        .commandsRemoved()
-
-        WindowGroup(id: "FeedWindow", for: Int64.self) { $feedID in
-            if let feedID {
-                FeedDetailWindow(feedID: feedID)
-                    .environment(feedManager)
-            }
-        }
-        .defaultSize(width: 480, height: 700)
-        .commandsRemoved()
-
-        WindowGroup(id: "ListWindow", for: Int64.self) { $listID in
-            if let listID {
-                ListDetailWindow(listID: listID)
-                    .environment(feedManager)
-            }
-        }
-        .defaultSize(width: 480, height: 700)
-        .commandsRemoved()
-
-        WindowGroup(id: "YouTubePlayerWindow", for: Int64.self) { $articleID in
-            DetachedYouTubePlayerWindow(articleID: articleID)
-                .environment(feedManager)
-        }
-        .defaultSize(width: 450, height: 700)
-        .commandsRemoved()
-
-        WindowGroup(id: "PodcastPlayerWindow", for: Int64.self) { $articleID in
-            DetachedPodcastPlayerWindow(articleID: articleID)
-                .environment(feedManager)
-        }
-        .defaultSize(width: 300, height: 550)
-        .commandsRemoved()
-        #endif
     }
 
     init() {

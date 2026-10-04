@@ -5,7 +5,7 @@ import Hanami
 struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
-    #if os(visionOS) || targetEnvironment(macCatalyst)
+    #if os(visionOS)
     @Environment(\.openWindow) private var openWindow
     #endif
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
@@ -19,14 +19,14 @@ struct MainTabView: View {
 
     var body: some View {
         Group {
-            #if os(iOS) && !targetEnvironment(macCatalyst)
+            #if os(iOS)
             browserView
             #else
             standardView
             #endif
         }
         .compatibleSoftScrollEdgeEffectStyle()
-        #if os(visionOS) || targetEnvironment(macCatalyst)
+        #if os(visionOS)
         .onAppear {
             mediaPresenter.detachedHandler = { item in
                 switch item {
