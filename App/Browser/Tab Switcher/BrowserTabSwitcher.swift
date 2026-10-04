@@ -18,7 +18,9 @@ struct BrowserTabSwitcher: View {
             },
             cardLabel: { tab in
                 BrowserLocationLabel(
-                    description: BrowserLocationDescription.describe(tab, feedManager: feedManager),
+                    description: BrowserLocationDescription.describe(
+                        tab, feedManager: feedManager, prefersContentTitle: true
+                    ),
                     iconSize: 16,
                     titleFont: .caption.weight(.medium),
                     showsSubtitle: false

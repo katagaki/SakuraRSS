@@ -104,6 +104,7 @@ struct CardsStyleView: View {
             BrowserPageIdentity(
                 title: feedManager.feed(forArticle: article)?.title ?? article.displayTitle,
                 subtitle: article.displayTitle,
+                contentTitle: article.displayTitle,
                 symbolName: "doc.text"
             )
         }

@@ -105,12 +105,16 @@ struct BrowserLocationDescription: Equatable {
     /// The label for a tab. A live tab reports its own title, which is how the
     /// address bar follows pushes the shell never sees.
     @MainActor
-    static func describe(_ tab: BrowserTab, feedManager: FeedManager) -> BrowserLocationDescription {
+    static func describe(
+        _ tab: BrowserTab,
+        feedManager: FeedManager,
+        prefersContentTitle: Bool = false
+    ) -> BrowserLocationDescription {
         guard let identity = tab.pageIdentity else {
             return describe(tab.root, feedManager: feedManager)
         }
         return BrowserLocationDescription(
-            title: identity.title,
+            title: prefersContentTitle ? identity.contentTitle ?? identity.title : identity.title,
             subtitle: identity.subtitle,
             symbolName: identity.symbolName,
             feed: identity.feedID.flatMap { feedManager.feedsByID[$0] },

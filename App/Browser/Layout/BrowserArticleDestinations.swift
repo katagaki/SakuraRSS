@@ -45,6 +45,7 @@ struct BrowserArticleDestinations: ViewModifier {
                 subtitle: feed == nil
                     ? URL(string: article.url)?.host
                     : article.displayTitle,
+                contentTitle: article.displayTitle,
                 symbolName: "doc.text",
                 feedID: feed?.id
             )
