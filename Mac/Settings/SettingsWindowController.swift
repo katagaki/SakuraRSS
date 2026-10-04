@@ -2,35 +2,39 @@ import AppKit
 import Hanami
 import SwiftUI
 
-/// The Settings window, with a tab per section of iOS's settings that
-/// applies on the Mac.
+/// The Settings window, laid out like Safari's: a toolbar of sections, each a
+/// column of labelled controls, with the window fitting whichever is shown.
 final class SettingsWindowController: NSWindowController {
 
     init(feedManager: FeedManager) {
-        let tabs = NSTabViewController()
+        let tabs = SettingsTabViewController()
         tabs.tabStyle = .toolbar
         tabs.canPropagateSelectedChildViewControllerTitle = true
+        tabs.transitionOptions = [.allowUserInteraction]
         let panes = [
-            SettingsTab("Section.Refreshing", "arrow.triangle.2.circlepath") { FetchingSettingsView() },
-            SettingsTab("Section.Browsing", "book.fill") { BrowsingSettingsView() },
-            SettingsTab("Section.Focus", "moon.fill") { FocusSettingsView() },
-            SettingsTab("Section.InsightsAndIntelligence", "sparkles") { OnDeviceIntelligenceSettingsView() },
-            SettingsTab("Section.Data", "externaldrive.fill") { DataSettingsView() }
+            SettingsTab("Section.Refreshing", "arrow.triangle.2.circlepath") { RefreshingSettingsPane() },
+            SettingsTab("Section.Browsing", "book") { BrowsingSettingsPane() },
+            SettingsTab("Section.Focus", "moon") { FocusSettingsPane(feedManager: feedManager) },
+            SettingsTab("Section.InsightsAndIntelligence", "sparkles") {
+                IntelligenceSettingsPane(feedManager: feedManager)
+            },
+            SettingsTab("Section.Data", "externaldrive") { DataSettingsPane(feedManager: feedManager) }
         ]
         for pane in panes {
-            let view = SettingsPane(feedManager: feedManager) { pane.content }
-            let hostingController = NSHostingController(rootView: view)
-            hostingController.sizingOptions = []
-            hostingController.preferredContentSize = SettingsPane<EmptyView>.size
+            let hostingController = NSHostingController(rootView: pane.content)
+            hostingController.sizingOptions = .intrinsicContentSize
             hostingController.title = String(localized: pane.titleKey, table: "Settings")
             let item = NSTabViewItem(viewController: hostingController)
-            item.label = String(localized: pane.titleKey, table: "Settings")
+            item.label = hostingController.title ?? ""
             item.image = NSImage(systemSymbolName: pane.symbolName, accessibilityDescription: item.label)
             tabs.addTabViewItem(item)
         }
         let window = NSWindow(contentViewController: tabs)
         window.styleMask = [.titled, .closable]
         window.toolbarStyle = .preference
+        if let first = tabs.tabViewItems.first?.viewController {
+            tabs.resize(window, toFit: first, animated: false)
+        }
         super.init(window: window)
     }
 
