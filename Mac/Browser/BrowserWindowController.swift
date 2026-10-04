@@ -29,6 +29,8 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         window.tabbingIdentifier = Self.tabbingIdentifier
         window.toolbarStyle = .unified
         window.toolbar = toolbarController.toolbar
+        window.identifier = BrowserWindowRestoration.windowIdentifier
+        window.restorationClass = BrowserWindowRestoration.self
         super.init(window: window)
         window.delegate = self
         splitViewController.sidebarViewController.onSelectLocation = { [weak self] location in
@@ -61,10 +63,15 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         splitViewController.show(history.current)
         updateTitle()
         window?.toolbar?.validateVisibleItems()
+        window?.invalidateRestorableState()
     }
 
     private func updateTitle() {
         window?.title = history.current.title(in: feedManager)
+    }
+
+    func window(_ window: NSWindow, willEncodeRestorableState state: NSCoder) {
+        history.encode(with: state)
     }
 
     func windowWillClose(_ notification: Notification) {

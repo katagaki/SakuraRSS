@@ -11,6 +11,12 @@ struct BrowserHistory {
         self.current = current
     }
 
+    init(backStack: [BrowserLocation], current: BrowserLocation, forwardStack: [BrowserLocation]) {
+        self.backStack = backStack
+        self.current = current
+        self.forwardStack = forwardStack
+    }
+
     var canGoBack: Bool { !backStack.isEmpty }
     var canGoForward: Bool { !forwardStack.isEmpty }
 
