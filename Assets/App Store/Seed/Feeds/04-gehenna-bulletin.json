@@ -1,0 +1,52 @@
+{
+  "key": "gehenna-bulletin",
+  "title": {"en": "Gehenna Prefect Bulletin", "ja": "ゲヘナ風紀委員会だより"},
+  "url": "https://prefects.gehenna.kivotos/feed",
+  "site": "https://prefects.gehenna.kivotos",
+  "hue": 352,
+  "icon": {"style": "solid", "background": "#B3122E", "foreground": "#FFFFFF", "text": "風", "font": "kanji", "fill": 0.58},
+  "articles": [
+    {
+      "slug": "cafeteria-incident",
+      "age": 34,
+      "author": "Prefect Team",
+      "title": {
+        "en": "Cafeteria reopens after this week's \"minor\" explosion",
+        "ja": "今週の「小規模な」爆発から学食が営業再開"
+      },
+      "summary": {
+        "en": "The Prefect Team reminds students that the kitchen is not a testing range.",
+        "ja": "風紀委員会は、厨房は射撃場ではないと改めて注意を呼びかけた。"
+      },
+      "entities": [["Prefect Team", "organization"], ["Gehenna Academy", "organization"]]
+    },
+    {
+      "slug": "hina-rest",
+      "age": 180,
+      "author": "Prefect Team",
+      "title": {
+        "en": "Chairwoman Hina takes her first full day off this year",
+        "ja": "ヒナ委員長、今年初めて丸一日の休暇を取得"
+      },
+      "summary": {
+        "en": "The Bulletin asks everyone to make sure nothing happens today. Please.",
+        "ja": "本日は何も起こさないよう、全生徒にお願いしたい。本当に。"
+      },
+      "entities": [["Hina", "person"], ["Prefect Team", "organization"]]
+    },
+    {
+      "slug": "patrol-schedule",
+      "age": 300,
+      "author": "Prefect Team",
+      "title": {
+        "en": "Night patrol routes change from Monday",
+        "ja": "月曜から夜間パトロールのルートを変更"
+      },
+      "summary": {
+        "en": "Two new routes cover the market streets, where most of last month's reports came from.",
+        "ja": "先月の通報の大半があった商店街を、新たに二つのルートでカバーする。"
+      },
+      "entities": [["Gehenna Academy", "organization"]]
+    }
+  ]
+}

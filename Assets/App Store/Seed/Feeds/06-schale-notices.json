@@ -1,0 +1,52 @@
+{
+  "key": "schale-notices",
+  "title": {"en": "Schale Notices", "ja": "シャーレ公報"},
+  "url": "https://schale.kivotos/notices/feed",
+  "site": "https://schale.kivotos",
+  "hue": 202,
+  "icon": {"style": "solid", "background": "#E8F4FF", "foreground": "#1E7BD8", "text": "S", "font": "rounded"},
+  "articles": [
+    {
+      "slug": "office-hours",
+      "age": 64,
+      "author": "Arona",
+      "title": {
+        "en": "Office hours change for the festival week",
+        "ja": "祭り週間の対応時間の変更について"
+      },
+      "summary": {
+        "en": "Sensei will be at the office from ten until six. Arona will be on the tablet the whole time.",
+        "ja": "先生は十時から十八時まで執務室にいます。アロナはずっとタブレットの中にいます。"
+      },
+      "entities": [["Schale", "organization"], ["Arona", "person"], ["Sensei", "person"]]
+    },
+    {
+      "slug": "lost-and-found",
+      "age": 350,
+      "author": "Arona",
+      "title": {
+        "en": "Lost and found: one bag of strawberry milk, slightly warm",
+        "ja": "落とし物：いちごミルク一袋（少しぬるいです）"
+      },
+      "summary": {
+        "en": "Please collect it from the front desk before Sensei drinks it.",
+        "ja": "先生が飲んでしまう前に、受付まで取りに来てください。"
+      },
+      "entities": [["Schale", "organization"]]
+    },
+    {
+      "slug": "request-form",
+      "age": 610,
+      "author": "Arona",
+      "title": {
+        "en": "Requests can now be sent through MomoTalk",
+        "ja": "モモトークから依頼を送れるようになりました"
+      },
+      "summary": {
+        "en": "No more forms in triplicate. Just send a message, and attach a photo if something is on fire.",
+        "ja": "三枚綴りの書類はもう不要です。メッセージを送るだけ。何かが燃えていたら写真も添えてください。"
+      },
+      "entities": [["Schale", "organization"], ["MomoTalk", "organization"]]
+    }
+  ]
+}

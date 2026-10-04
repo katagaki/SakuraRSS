@@ -1,0 +1,66 @@
+{
+  "key": "momoi-midori",
+  "kind": "video",
+  "title": {"en": "Momoi & Midori Plays", "ja": "モモイとミドリのゲーム実況"},
+  "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCkivotosMomoiMidori0",
+  "site": "https://www.youtube.com/channel/UCkivotosMomoiMidori0",
+  "hue": 300,
+  "articles": [
+    {
+      "slug": "speedrun-tsc",
+      "age": 55,
+      "author": "Momoi & Midori Plays",
+      "title": {
+        "en": "We tried to speedrun our own game (it did not go well)",
+        "ja": "自分たちのゲームをRTAしてみた（うまくいかなかった）"
+      },
+      "summary": {
+        "en": "Thirty-one minutes, four crashes, and one very confused refrigerator.",
+        "ja": "31分、4回のクラッシュ、そしてとても混乱した冷蔵庫。"
+      },
+      "entities": [["Momoi", "person"], ["Midori", "person"]]
+    },
+    {
+      "slug": "aris-reacts",
+      "age": 390,
+      "author": "Momoi & Midori Plays",
+      "title": {
+        "en": "Aris plays a horror game for the first time",
+        "ja": "アリス、初めてのホラーゲームに挑戦"
+      },
+      "summary": {
+        "en": "She was not scared. Everyone else was.",
+        "ja": "アリスは怖がらなかった。怖がったのはほかの全員だった。"
+      },
+      "entities": [["Aris", "person"]]
+    },
+    {
+      "slug": "retro-arcade",
+      "age": 1500,
+      "author": "Momoi & Midori Plays",
+      "title": {
+        "en": "Every game in the D.U. retro arcade, ranked",
+        "ja": "D.U.のレトロゲーセン、全ゲームランキング"
+      },
+      "summary": {
+        "en": "Number one will surprise you. Number two will surprise Yuzu.",
+        "ja": "一位はきっと意外。二位はユズにとって意外。"
+      },
+      "entities": [["D.U. Shiratori District", "place"], ["Yuzu", "person"]]
+    },
+    {
+      "slug": "devlog-video",
+      "age": 4200,
+      "author": "Momoi & Midori Plays",
+      "title": {
+        "en": "How we make a game in a clubroom",
+        "ja": "部室でゲームを作る方法"
+      },
+      "summary": {
+        "en": "A day in the Game Development Department, from the first coffee to the last commit.",
+        "ja": "最初のコーヒーから最後のコミットまで、ゲーム開発部の一日。"
+      },
+      "entities": [["Game Development Department", "organization"]]
+    }
+  ]
+}

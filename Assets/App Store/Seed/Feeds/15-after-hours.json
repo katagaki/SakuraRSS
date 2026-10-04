@@ -1,0 +1,56 @@
+{
+  "key": "after-hours",
+  "kind": "podcast",
+  "title": {"en": "Kivotos After Hours", "ja": "キヴォトス・アフターアワーズ"},
+  "url": "https://podcasts.kronos.kivotos/after-hours.rss",
+  "site": "https://podcasts.kronos.kivotos/after-hours",
+  "hue": 262,
+  "icon": {"style": "rings", "background": "#1B1033", "foreground": "#A78BFA"},
+  "articles": [
+    {
+      "slug": "ep-112",
+      "age": 300,
+      "duration": 2715,
+      "author": "Kronos School of Journalism",
+      "title": {
+        "en": "112: What really happened at the Eden Treaty",
+        "ja": "第112回：エデン条約で本当は何があったのか"
+      },
+      "summary": {
+        "en": "Three reporters who were there go through the day, hour by hour.",
+        "ja": "現場にいた三人の記者が、あの日を一時間ごとに振り返る。"
+      },
+      "entities": [["Trinity General School", "organization"], ["Gehenna Academy", "organization"]]
+    },
+    {
+      "slug": "ep-111",
+      "age": 10400,
+      "duration": 3120,
+      "author": "Kronos School of Journalism",
+      "title": {
+        "en": "111: The economics of the Black Market",
+        "ja": "第111回：ブラックマーケットの経済学"
+      },
+      "summary": {
+        "en": "Who sets the prices, who pays them, and why everything costs more on a Tuesday.",
+        "ja": "価格を決めるのは誰か、払うのは誰か、そしてなぜ火曜日は何でも高いのか。"
+      },
+      "entities": [["Black Market", "place"]]
+    },
+    {
+      "slug": "ep-110",
+      "age": 20500,
+      "duration": 2480,
+      "author": "Kronos School of Journalism",
+      "title": {
+        "en": "110: A week in the life of a Schale intern",
+        "ja": "第110回：シャーレ当番の一週間"
+      },
+      "summary": {
+        "en": "Paperwork, MomoTalk, and the occasional armoured train.",
+        "ja": "書類仕事とモモトーク、そしてたまに装甲列車。"
+      },
+      "entities": [["Schale", "organization"]]
+    }
+  ]
+}
