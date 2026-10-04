@@ -65,19 +65,19 @@ struct BookmarkFolderEditSheet: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
+            .settingsListStyle()
             .navigationTitle(isEditing
                              ? String(localized: "FolderEdit.Title.Edit", table: "Articles")
                              : String(localized: "FolderEdit.Title.New", table: "Articles"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .sheetLeading) {
                     Button(role: .cancel) {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .sheetTrailing) {
                     Button(role: .confirm) {
                         save()
                     }

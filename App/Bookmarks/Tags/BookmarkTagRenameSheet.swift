@@ -22,12 +22,12 @@ struct BookmarkTagRenameSheet: View {
                     .focused($isNameFieldFocused)
             }
             .navigationTitle(String(localized: "TagMenu.Rename", table: "Articles"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .sheetLeading) {
                     Button(role: .cancel) { dismiss() }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .sheetTrailing) {
                     Button(role: .confirm) {
                         feedManager.renameBookmarkTag(tag, to: trimmedName)
                         dismiss()
