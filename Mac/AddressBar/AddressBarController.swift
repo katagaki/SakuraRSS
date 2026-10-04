@@ -101,10 +101,10 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     }
 
     /// Runs once the field editor is installed, so the text and alignment go
-    /// to the editor: set on the field, they wouldn't reach it.
+    /// to the editor. The field's own alignment is left alone: changing it
+    /// mid-edit aborts the edit, dropping focus.
     private func beginEditing() {
         startWatchingForDismissal()
-        field.alignment = .natural
         if let editor = field.currentEditor() as? NSTextView {
             editor.string = initialEditingText
             editor.alignment = .natural
