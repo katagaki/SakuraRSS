@@ -43,18 +43,21 @@ extension SidebarViewController: NSOutlineViewDataSource, NSOutlineViewDelegate 
         case .location(let location, let title, let symbolName, let unreadCount):
             let cell = outlineView.makeView(withIdentifier: SidebarCellView.identifier, owner: self) as? SidebarCellView
                 ?? SidebarCellView()
-            var feed: Feed?
-            if case .feed(let feedID) = location {
-                feed = feedManager.feedsByID[feedID]
-            }
-            cell.configure(
-                title: title,
-                symbolName: symbolName,
-                unreadCount: unreadCount,
-                feed: feed,
-                iconRevision: feedManager.iconRevision
-            )
+            let icon = iconSource(for: location, symbolName: symbolName)
+            cell.configure(title: title, icon: icon, unreadCount: unreadCount)
             return cell
+        }
+    }
+
+    private func iconSource(for location: BrowserLocation, symbolName: String) -> SidebarIcons.Source {
+        switch location {
+        case .feed(let feedID):
+            guard let feed = feedManager.feedsByID[feedID] else { return .symbol(symbolName) }
+            return .feed(feed, revision: feedManager.iconRevision)
+        case .feedSection(let section):
+            return .section(section, fallbackSymbol: symbolName)
+        default:
+            return .symbol(symbolName)
         }
     }
 

@@ -39,29 +39,30 @@ final class SidebarCellView: NSTableCellView {
         fatalError("init(coder:) is not supported")
     }
 
-    func configure(title: String, symbolName: String, unreadCount: Int, feed: Feed? = nil, iconRevision: Int = 0) {
+    func configure(title: String, icon: SidebarIcons.Source, unreadCount: Int) {
         titleField.stringValue = title
         iconTask?.cancel()
-        if let feed {
-            showIcon(for: feed, revision: iconRevision)
-        } else {
-            iconView.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
-            iconView.contentTintColor = .controlAccentColor
-        }
+        showIcon(icon)
         badgeField.stringValue = unreadCount > 0 ? unreadCount.formatted() : ""
         badgeField.isHidden = unreadCount == 0
     }
 
-    private func showIcon(for feed: Feed, revision: Int) {
-        iconView.contentTintColor = nil
-        if let cached = SidebarFeedIcons.cachedIcon(for: feed, revision: revision) {
+    private func showIcon(_ source: SidebarIcons.Source) {
+        if let cached = SidebarIcons.cachedIcon(for: source) {
+            iconView.contentTintColor = nil
             iconView.image = cached
             return
         }
-        iconView.image = nil
+        switch source {
+        case .symbol(let symbolName), .section(_, let symbolName):
+            iconView.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
+            iconView.contentTintColor = .controlAccentColor
+        case .feed:
+            iconView.image = nil
+        }
         iconTask = Task { [weak self] in
-            let icon = await SidebarFeedIcons.loadIcon(for: feed, revision: revision)
-            guard !Task.isCancelled else { return }
+            guard let icon = await SidebarIcons.loadIcon(for: source), !Task.isCancelled else { return }
+            self?.iconView.contentTintColor = nil
             self?.iconView.image = icon
         }
     }
