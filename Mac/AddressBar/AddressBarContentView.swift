@@ -9,7 +9,9 @@ final class AddressBarContentView: NSView {
 
     override func hitTest(_ point: NSPoint) -> NSView? {
         guard let hit = super.hitTest(point) else { return nil }
-        guard let field else { return hit }
-        return hit.isDescendant(of: field) ? hit : field
+        guard let field, !hit.isDescendant(of: field) else { return hit }
+        // While editing, the field editor has to take the click: handing it
+        // to the field starts a new editing session, ending the current one.
+        return (field.currentEditor() as? NSView) ?? field
     }
 }
