@@ -82,9 +82,19 @@ struct PetalSettingsView: View {
             PetalBuilderView(mode: .edit(feed: selection.feed, recipe: selection.recipe))
                 .environment(feedManager)
         }
+        #if os(macOS)
+        // A save panel suits exporting a file on the Mac better than sharing.
+        .fileMover(
+            isPresented: Binding(get: { shareItem != nil }, set: { if !$0 { shareItem = nil } }),
+            file: shareItem?.url
+        ) { _ in
+            shareItem = nil
+        }
+        #else
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
         }
+        #endif
         .alert(String(localized: "Error.Title", table: "Petal"), isPresented: $showImportError) {
             Button("Shared.OK") {}
         } message: {
@@ -176,6 +186,7 @@ struct PetalSettingsView: View {
 
 // MARK: - UIActivityViewController wrapper
 
+#if !os(macOS)
 private struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
 
@@ -185,3 +196,4 @@ private struct ShareSheet: UIViewControllerRepresentable {
 
     func updateUIViewController(_: UIActivityViewController, context: Context) {}
 }
+#endif

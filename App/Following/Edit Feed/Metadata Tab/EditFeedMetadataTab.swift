@@ -63,12 +63,10 @@ struct EditFeedMetadataTab: View {
                 url = updatedFeed.fetchURL
             }
         }, content: { recipe in
-            #if !os(macOS)
             if let feed {
                 PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
                     .environment(feedManager)
             }
-            #endif
         })
     }
 

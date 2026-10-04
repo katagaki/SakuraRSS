@@ -16,7 +16,9 @@ struct PetalSelectorField: View {
             TextField(placeholder, text: $text)
                 .font(.system(.body, design: .monospaced))
                 .autocorrectionDisabled()
+                #if !os(macOS)
                 .textInputAutocapitalization(.never)
+                #endif
         }
     }
 }

@@ -3,7 +3,7 @@ import WebKit
 import Hanami
 
 /// `WKWebView` with a tap-to-identify overlay; element taps emit `PickedElement`.
-struct PetalElementPickerWebView: UIViewRepresentable {
+struct PetalElementPickerWebView: WebViewRepresentable {
 
     let html: String
     let baseURL: URL?
@@ -28,7 +28,7 @@ struct PetalElementPickerWebView: UIViewRepresentable {
         Coordinator(onElementPicked: onElementPicked)
     }
 
-    func makeUIView(context: Context) -> WKWebView {
+    func makeWebView(context: Context) -> WKWebView {
         let userController = WKUserContentController()
         userController.add(context.coordinator, name: "elementPicked")
         userController.addUserScript(WKUserScript(
@@ -46,11 +46,17 @@ struct PetalElementPickerWebView: UIViewRepresentable {
         return webView
     }
 
-    func updateUIView(_ uiView: WKWebView, context: Context) {
-        controller.webView = uiView
+    func updateWebView(_ webView: WKWebView, context: Context) {
+        controller.webView = webView
     }
 
+    #if os(macOS)
+    static func dismantleNSView(_ nsView: WKWebView, coordinator: Coordinator) {
+        nsView.configuration.userContentController.removeScriptMessageHandler(forName: "elementPicked")
+    }
+    #else
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         uiView.configuration.userContentController.removeScriptMessageHandler(forName: "elementPicked")
     }
+    #endif
 }
