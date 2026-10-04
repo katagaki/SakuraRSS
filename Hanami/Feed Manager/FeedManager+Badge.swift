@@ -30,7 +30,7 @@ public extension FeedManager {
     private func performBadgeUpdate() {
         let mode = UserDefaults.standard.string(forKey: "Display.UnreadBadgeMode") ?? "none"
         let center = UNUserNotificationCenter.current()
-        guard mode == "homeScreenAndHomeTab" || mode == "homeScreenOnly" else {
+        guard mode == "homeScreenOnly" else {
             Task { try? await center.setBadgeCount(0) }
             return
         }

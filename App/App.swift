@@ -198,6 +198,7 @@ struct SakuraRSSApp: App {
             "Intelligence.ContentInsights.Enabled": true
         ])
         Self.enableHomeTopicsByDefaultIfNeeded(defaults: defaults)
+        UnreadBadgeMode.migrateRemovedHomeTabModes(defaults: defaults)
 
         if defaults.bool(forKey: "App.StartupInProgress") {
             Self.resetSavedNavigationState(defaults: defaults)

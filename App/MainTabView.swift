@@ -11,7 +11,6 @@ struct MainTabView: View {
     #endif
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
-    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
@@ -107,8 +106,6 @@ struct MainTabView: View {
                     pendingOpenRequest: $pendingOpenRequest
                 )
             }
-            .badge(unreadBadgeMode == .homeScreenAndHomeTab || unreadBadgeMode == .homeTabOnly
-                ? feedManager.unreadBadgeCount : 0)
 
             Tab("Tabs.Feeds", systemImage: "dot.radiowaves.up.forward", value: .feeds) {
                 FollowingView()

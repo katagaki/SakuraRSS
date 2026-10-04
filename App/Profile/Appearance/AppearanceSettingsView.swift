@@ -82,34 +82,24 @@ struct AppearanceSettingsView: View {
                             set: { markAllReadPosition = $0 ? .top : .none }
                        ))
                 Picker(String(localized: "UnreadBadgeMode", table: "Settings"), selection: $unreadBadgeMode) {
-                    if UIDevice.current.userInterfaceIdiom == .pad {
-                        Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
-                            .tag(UnreadBadgeMode.homeScreenOnly)
-                    } else {
-                        Text(String(localized: "UnreadBadgeMode.HomeScreenAndHomeTab", table: "Settings"))
-                            .tag(UnreadBadgeMode.homeScreenAndHomeTab)
-                        Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
-                            .tag(UnreadBadgeMode.homeScreenOnly)
-                        Text(String(localized: "UnreadBadgeMode.HomeTabOnly", table: "Settings"))
-                            .tag(UnreadBadgeMode.homeTabOnly)
-                    }
+                    Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
+                        .tag(UnreadBadgeMode.homeScreenOnly)
                     Text(String(localized: "UnreadBadgeMode.Off", table: "Settings"))
                         .tag(UnreadBadgeMode.none)
                 }
                 .onChange(of: unreadBadgeMode) { _, newValue in
                     switch newValue {
-                    case .homeScreenAndHomeTab, .homeScreenOnly:
+                    case .homeScreenOnly:
                         Task {
                             let granted = try? await UNUserNotificationCenter.current()
                                 .requestAuthorization(options: [.badge])
                             if granted == true {
                                 feedManager.updateBadgeCount()
                             } else {
-                                unreadBadgeMode = newValue == .homeScreenAndHomeTab
-                                    ? .homeTabOnly : .none
+                                unreadBadgeMode = .none
                             }
                         }
-                    case .homeTabOnly, .none:
+                    case .none:
                         Task {
                             try? await UNUserNotificationCenter.current().setBadgeCount(0)
                         }
