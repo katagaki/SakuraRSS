@@ -9,6 +9,7 @@ final class ContentListViewController: NSViewController {
     var articles: [Article] = []
     var onSelectArticle: ((Article?) -> Void)?
     var reportedArticleID: Int64?
+    private(set) var displayStyle: FeedDisplayStyle = .inbox
     var onOpenInNewTab: ((BrowserLocation) -> Void)?
     private(set) var location: BrowserLocation?
     private var dataObserver: ChangeObserver?
@@ -86,6 +87,8 @@ final class ContentListViewController: NSViewController {
         guard let location else { return }
         let selectedID = keepingSelection ? selectedArticle?.id : nil
         articles = ContentQuery(feedManager: feedManager).articles(for: location)
+        displayStyle = ContentStyleContext(location: location, articles: articles, feedManager: feedManager)?
+            .effectiveStyle ?? .inbox
         tableView.reloadData()
         emptyStateView.isHidden = !articles.isEmpty
         if let selectedID, let row = articles.firstIndex(where: { $0.id == selectedID }) {
@@ -94,6 +97,11 @@ final class ContentListViewController: NSViewController {
             reportedArticleID = nil
             onSelectArticle?(nil)
         }
+    }
+
+    /// Re-reads the page's style after it's been changed from a menu.
+    func reloadStyle() {
+        reloadArticles(keepingSelection: true)
     }
 
     var selectedArticle: Article? {

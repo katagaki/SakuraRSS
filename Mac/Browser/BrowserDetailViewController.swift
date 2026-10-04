@@ -8,15 +8,22 @@ final class BrowserDetailViewController: NSViewController {
 
     let feedManager: FeedManager
     let activity: BrowserPageActivity
+    private let actions: TodayActions
     let contentSplitViewController: ContentSplitViewController
     private let todayViewController: TodaySplitViewController
     private let articleViewController: NSHostingController<ReaderPane>
+    private let gridViewController: NSHostingController<ContentGridPage>
 
     init(feedManager: FeedManager, activity: BrowserPageActivity, actions: TodayActions) {
         self.feedManager = feedManager
         self.activity = activity
         contentSplitViewController = ContentSplitViewController(feedManager: feedManager, activity: activity)
         todayViewController = TodaySplitViewController(feedManager: feedManager, actions: actions)
+        gridViewController = NSHostingController(rootView: ContentGridPage(
+            location: .allContent, style: .magazine, feedManager: feedManager, actions: actions
+        ))
+        gridViewController.sizingOptions = []
+        self.actions = actions
         articleViewController = NSHostingController(
             rootView: ReaderPane(article: nil, feed: nil, activity: activity, feedManager: feedManager)
         )
@@ -49,8 +56,29 @@ final class BrowserDetailViewController: NSViewController {
             )
             display(articleViewController)
         default:
+            showContent(at: location)
+        }
+    }
+
+    /// After a style change, so the list re-reads its style or the page swaps
+    /// between the list and a grid.
+    func reloadStyle(at location: BrowserLocation) {
+        contentSplitViewController.contentListViewController.reloadStyle()
+        showContent(at: location)
+    }
+
+    private func showContent(at location: BrowserLocation) {
+        let articles = ContentQuery(feedManager: feedManager).articles(for: location)
+        let style = ContentStyleContext(location: location, articles: articles, feedManager: feedManager)?
+            .effectiveStyle ?? .inbox
+        if style.isListStyle {
             contentSplitViewController.show(location)
             display(contentSplitViewController)
+        } else {
+            gridViewController.rootView = ContentGridPage(
+                location: location, style: style, feedManager: feedManager, actions: actions
+            )
+            display(gridViewController)
         }
     }
 

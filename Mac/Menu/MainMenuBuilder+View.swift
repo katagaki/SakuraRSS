@@ -19,6 +19,12 @@ extension MainMenuBuilder {
         )
         markAllReadItem.keyEquivalentModifierMask = [.command, .shift]
         menu.addItem(markAllReadItem)
+        let displayStyleItem = NSMenuItem()
+        displayStyleItem.title = String(localized: "DisplayStyle", table: "Articles")
+        let displayStyleMenu = NSMenu()
+        displayStyleMenu.delegate = DisplayStyleMenuDelegate.shared
+        displayStyleItem.submenu = displayStyleMenu
+        menu.addItem(displayStyleItem)
         menu.addItem(.separator())
         menu.addItem(item("Menu.ShowToolbar", action: #selector(NSWindow.toggleToolbarShown(_:)), keyEquivalent: "t",
                           modifiers: [.command, .option]))

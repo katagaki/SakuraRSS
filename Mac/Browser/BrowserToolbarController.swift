@@ -1,4 +1,5 @@
 import AppKit
+import Hanami
 
 final class BrowserToolbarController: NSObject, NSToolbarDelegate {
 
@@ -9,9 +10,14 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         static let address = NSToolbarItem.Identifier("Address")
         static let refresh = NSToolbarItem.Identifier("Refresh")
         static let markAllRead = NSToolbarItem.Identifier("MarkAllRead")
+        static let displayStyle = NSToolbarItem.Identifier("DisplayStyle")
     }
 
     let toolbar: NSToolbar
+    let displayStyleItem = NSMenuToolbarItem(itemIdentifier: ItemIdentifier.displayStyle)
+    var displayStyleMenuDelegate: NSMenuDelegate? {
+        didSet { displayStyleItem.menu.delegate = displayStyleMenuDelegate }
+    }
     private let addressField: NSView
     private let refreshButton: NSView
 
@@ -22,6 +28,15 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         super.init()
         toolbar.delegate = self
         toolbar.centeredItemIdentifiers = [ItemIdentifier.address]
+        let styleLabel = String(localized: "DisplayStyle", table: "Articles")
+        displayStyleItem.label = styleLabel
+        displayStyleItem.paletteLabel = styleLabel
+        displayStyleItem.toolTip = styleLabel
+        displayStyleItem.showsIndicator = false
+        displayStyleItem.image = NSImage(
+            systemSymbolName: FeedDisplayStyle.inbox.symbol,
+            accessibilityDescription: styleLabel
+        )
         toolbar.displayMode = .iconOnly
         toolbar.allowsUserCustomization = true
         toolbar.autosavesConfiguration = true
@@ -31,7 +46,7 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         [
             .toggleSidebar, .sidebarTrackingSeparator, ItemIdentifier.back, ItemIdentifier.forward,
             .flexibleSpace, ItemIdentifier.address, .flexibleSpace,
-            ItemIdentifier.markAllRead, ItemIdentifier.refresh, ItemIdentifier.newTab
+            ItemIdentifier.displayStyle, ItemIdentifier.markAllRead, ItemIdentifier.refresh, ItemIdentifier.newTab
         ]
     }
 
@@ -55,6 +70,8 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
             addressItem()
         case ItemIdentifier.refresh:
             refreshItem()
+        case ItemIdentifier.displayStyle:
+            displayStyleItem
         case ItemIdentifier.markAllRead:
             button(itemIdentifier, String(localized: "MarkAllRead", table: "Articles"), "checkmark.circle",
                    #selector(BrowserActions.markAllRead(_:)))
@@ -83,6 +100,12 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         item.visibilityPriority = .high
         item.isBordered = false
         return item
+    }
+
+    func updateDisplayStyleItem(context: ContentStyleContext?) {
+        let symbol = (context?.effectiveStyle ?? .inbox).symbol
+        displayStyleItem.image = NSImage(systemSymbolName: symbol, accessibilityDescription: displayStyleItem.label)
+        displayStyleItem.isEnabled = context != nil
     }
 
     private func refreshItem() -> NSToolbarItem {

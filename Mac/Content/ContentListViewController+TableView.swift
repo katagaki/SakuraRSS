@@ -8,15 +8,31 @@ extension ContentListViewController: NSTableViewDataSource, NSTableViewDelegate 
     }
 
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        let cell = tableView.makeView(withIdentifier: ContentCellView.identifier, owner: self) as? ContentCellView
-            ?? ContentCellView()
         let article = articles[row]
-        cell.configure(
-            article: article,
-            feedTitle: feedManager.feedsByID[article.feedID]?.title,
-            isRead: feedManager.isRead(article)
-        )
-        return cell
+        let feed = feedManager.feedsByID[article.feedID]
+        let isRead = feedManager.isRead(article)
+        switch displayStyle {
+        case .compact:
+            let cell = reusableCell(ContentCompactCellView.identifier) { ContentCompactCellView() }
+            cell.configure(article: article, isRead: isRead)
+            return cell
+        case .timeline:
+            let cell = reusableCell(ContentTimelineCellView.identifier) { ContentTimelineCellView() }
+            cell.configure(article: article, feedTitle: feed?.title, isRead: isRead)
+            return cell
+        case .feed, .feedCompact:
+            let cell = reusableCell(ContentPostCellView.identifier) { ContentPostCellView() }
+            cell.configure(article: article, feed: feed, isRead: isRead, showsMedia: displayStyle == .feed)
+            return cell
+        default:
+            let cell = reusableCell(ContentCellView.identifier) { ContentCellView() }
+            cell.configure(article: article, feedTitle: feed?.title, isRead: isRead)
+            return cell
+        }
+    }
+
+    private func reusableCell<Cell: NSView>(_ identifier: NSUserInterfaceItemIdentifier, make: () -> Cell) -> Cell {
+        tableView.makeView(withIdentifier: identifier, owner: self) as? Cell ?? make()
     }
 
     func tableViewSelectionDidChange(_ notification: Notification) {

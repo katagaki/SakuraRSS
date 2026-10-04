@@ -9,10 +9,11 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
     let splitViewController: BrowserSplitViewController
     let activity = BrowserPageActivity()
     let addressBarController: AddressBarController
-    private let toolbarController: BrowserToolbarController
+    let toolbarController: BrowserToolbarController
     private(set) var history: BrowserHistory
     var onClose: ((BrowserWindowController) -> Void)?
     private var titleObserver: ChangeObserver?
+    private var displayStyleMenuPopulator: MenuPopulator?
 
     init(feedManager: FeedManager, history: BrowserHistory) {
         self.feedManager = feedManager
@@ -46,9 +47,23 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         // window becomes key, ringing the first button on Today.
         window.initialFirstResponder = splitViewController.sidebarViewController.outlineView
         refreshButton.isRefreshing = { [weak self] in self?.isCurrentPageRefreshing ?? false }
+        connectCallbacks()
+        showCurrentLocation()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
+
+    private func connectCallbacks() {
         splitViewController.sidebarViewController.onSelectLocation = { [weak self] location in
             self?.navigate(to: location)
         }
+        let populator = MenuPopulator { [weak self] menu in
+            self?.populateDisplayStyleMenu(menu)
+        }
+        displayStyleMenuPopulator = populator
+        toolbarController.displayStyleMenuDelegate = populator
         addressBarController.onCommit = { [weak self] kind in
             self?.commitAddress(kind)
         }
@@ -65,11 +80,6 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         } onChange: { [weak self] in
             self?.updateTitle()
         }
-        showCurrentLocation()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) is not supported")
     }
 
     func navigate(to location: BrowserLocation) {
@@ -85,6 +95,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
     private func showCurrentLocation() {
         splitViewController.show(history.current)
         updateTitle()
+        toolbarController.updateDisplayStyleItem(context: displayStyleContext)
         window?.toolbar?.validateVisibleItems()
         window?.invalidateRestorableState()
     }
