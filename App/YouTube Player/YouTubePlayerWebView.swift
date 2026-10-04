@@ -3,7 +3,7 @@ import SwiftUI
 import WebKit
 import Hanami
 
-struct YouTubePlayerWebView: UIViewRepresentable {
+struct YouTubePlayerWebView {
 
     let urlString: String
     let session: YouTubePlayerSession
@@ -35,36 +35,42 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         )
     }
 
-    func makeUIView(context: Context) -> WKWebView {
+    func makeWebView(coordinator: Coordinator) -> WKWebView {
         YouTubeAudioSession.prepare()
 
-        if let existing = reuseExistingWebViewIfMatching(coordinator: context.coordinator) {
+        if let existing = reuseExistingWebViewIfMatching(coordinator: coordinator) {
             return existing
         }
 
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
-        config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
+        #if !os(macOS)
+        config.allowsInlineMediaPlayback = true
         config.allowsPictureInPictureMediaPlayback = true
-        config.userContentController = makeUserContentController(coordinator: context.coordinator)
+        #endif
+        config.userContentController = makeUserContentController(coordinator: coordinator)
 
         let webView = WKWebView(frame: .zero, configuration: config)
         #if DEBUG
         webView.isInspectable = true
         #endif
-        webView.navigationDelegate = context.coordinator
+        webView.navigationDelegate = coordinator
+        #if os(macOS)
+        webView.underPageBackgroundColor = .black
+        #else
         webView.scrollView.isScrollEnabled = false
         webView.isOpaque = true
         webView.backgroundColor = .black
         webView.scrollView.backgroundColor = .black
-        webView.customUserAgent = Self.youTubeUserAgent
         webView.isUserInteractionEnabled = false
+        #endif
+        webView.customUserAgent = Self.youTubeUserAgent
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: Self.normalizedURL(url)))
         }
         if autoplay {
-            context.coordinator.beginAutoplayKick(in: webView)
+            coordinator.beginAutoplayKick(in: webView)
         }
         session.attach(webView: webView, for: urlString)
         DispatchQueue.main.async {
@@ -80,7 +86,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         }
         existing.removeFromSuperview()
         existing.navigationDelegate = coordinator
+        #if !os(macOS)
         existing.isUserInteractionEnabled = false
+        #endif
         let userContent = existing.configuration.userContentController
         userContent.removeAllScriptMessageHandlers()
         userContent.add(coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
@@ -152,8 +160,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         return controller
     }
 
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
-
     /// Rewrites Shorts and live URLs to the regular watch URL so the WebView
     /// uses the standard player.
     static func normalizedURL(_ url: URL) -> URL {
@@ -179,17 +185,45 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     /// the Safari one: with a Chrome UA YouTube picks a media pipeline WebKit cannot feed, so
     /// the video element never attaches media and playback stalls at 0:00.
     static var youTubeUserAgent: String? {
-        #if targetEnvironment(macCatalyst)
+        #if targetEnvironment(macCatalyst) || os(macOS)
         return sakuraUserAgent
         #else
         return nil
         #endif
     }
 
-    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+    static func release(_ webView: WKWebView, coordinator: Coordinator) {
         coordinator.cancelAutoplayKick()
-        coordinator.releaseMessageHandlers(on: uiView.configuration.userContentController)
+        coordinator.releaseMessageHandlers(on: webView.configuration.userContentController)
         // Leave the WKWebView alive if the session still owns it so audio
         // continues while collapsed into the tab bar bottom accessory.
     }
 }
+
+#if os(macOS)
+extension YouTubePlayerWebView: NSViewRepresentable {
+
+    func makeNSView(context: Context) -> WKWebView {
+        makeWebView(coordinator: context.coordinator)
+    }
+
+    func updateNSView(_ nsView: WKWebView, context: Context) {}
+
+    static func dismantleNSView(_ nsView: WKWebView, coordinator: Coordinator) {
+        release(nsView, coordinator: coordinator)
+    }
+}
+#else
+extension YouTubePlayerWebView: UIViewRepresentable {
+
+    func makeUIView(context: Context) -> WKWebView {
+        makeWebView(coordinator: context.coordinator)
+    }
+
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
+
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        release(uiView, coordinator: coordinator)
+    }
+}
+#endif
