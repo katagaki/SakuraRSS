@@ -129,19 +129,19 @@ struct ListEditSheet: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
+            .settingsListStyle()
             .navigationTitle(isEditing
                              ? String(localized: "ListEdit.Title.Edit", table: "Lists")
                              : String(localized: "ListEdit.Title.New", table: "Lists"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .sheetLeading) {
                     Button(role: .cancel) {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .sheetTrailing) {
                     Button(role: .confirm) {
                         save()
                     }
