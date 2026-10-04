@@ -14,7 +14,10 @@ nonisolated enum SakuraCloudKeychain {
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
         var result: AnyObject?
-        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
+        let status = KeychainAccess.perform(query) { query in
+            SecItemCopyMatching(query as CFDictionary, &result)
+        }
+        guard status == errSecSuccess,
               let data = result as? Data else { return nil }
         return String(data: data, encoding: .utf8)
     }
@@ -25,11 +28,15 @@ nonisolated enum SakuraCloudKeychain {
             kSecAttrService as String: service,
             kSecAttrAccount as String: account
         ]
-        SecItemDelete(query as CFDictionary)
+        _ = KeychainAccess.perform(query) { query in
+            SecItemDelete(query as CFDictionary)
+        }
         guard let value, !value.isEmpty else { return }
         var item = query
         item[kSecValueData as String] = Data(value.utf8)
         item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
-        SecItemAdd(item as CFDictionary, nil)
+        _ = KeychainAccess.perform(item) { query in
+            SecItemAdd(query as CFDictionary, nil)
+        }
     }
 }
