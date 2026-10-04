@@ -16,7 +16,9 @@ enum DebugSnapshotRenderer {
 
     private static func render(to url: URL) {
         guard UserDefaults.standard.bool(forKey: "DebugSnapshotAllWindows") else {
-            if let window = NSApp.keyWindow ?? NSApp.windows.first(where: \.isVisible) {
+            let settingsWindow = UserDefaults.standard.object(forKey: "DebugOpenSettingsTab") == nil ? nil
+                : NSApp.windows.first { $0.contentViewController is NSTabViewController }
+            if let window = settingsWindow ?? NSApp.keyWindow ?? NSApp.windows.first(where: \.isVisible) {
                 render(window, to: url)
             }
             return

@@ -12,7 +12,10 @@ enum DebugLaunchActions {
             TodayWeatherService.shared.simulateCondition(style: style)
         }
         if UserDefaults.standard.object(forKey: "DebugOpenSettingsTab") != nil {
-            openSettings(at: UserDefaults.standard.integer(forKey: "DebugOpenSettingsTab"))
+            // After window restoration, so Settings ends up the key window.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                openSettings(at: UserDefaults.standard.integer(forKey: "DebugOpenSettingsTab"))
+            }
         }
         guard let tokens = UserDefaults.standard.string(forKey: "DebugOpenLocations") else { return }
         for token in tokens.split(separator: ",") {
