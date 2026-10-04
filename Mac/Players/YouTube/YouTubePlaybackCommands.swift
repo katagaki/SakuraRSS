@@ -17,7 +17,8 @@ enum YouTubePlaybackCommands {
 
     /// Element fullscreen rather than iOS's `webkitEnterFullscreen`, whose
     /// video presentation shows only black on the Mac. YouTube sizes the video
-    /// with inline styles, which would keep it small without the override.
+    /// with inline styles, and may fullscreen its player rather than the video,
+    /// so the override covers a video inside a fullscreen element too.
     static func enterFullscreen(_ webView: WKWebView?) {
         let script = """
         (function() {
@@ -26,12 +27,14 @@ enum YouTubePlaybackCommands {
             if (!document.getElementById('sakura-fullscreen-style')) {
                 var style = document.createElement('style');
                 style.id = 'sakura-fullscreen-style';
-                style.textContent = 'video:fullscreen, video:-webkit-full-screen {'
+                style.textContent = 'video:fullscreen, video:-webkit-full-screen,'
+                    + ' :fullscreen video, :-webkit-full-screen video {'
                     + ' position: fixed !important; inset: 0 !important;'
                     + ' width: 100vw !important; height: 100vh !important;'
                     + ' max-width: none !important; max-height: none !important;'
                     + ' margin: 0 !important; transform: none !important;'
-                    + ' object-fit: contain !important; background: black !important; }';
+                    + ' object-fit: contain !important; background: black !important;'
+                    + ' z-index: 2147483646 !important; }';
                 document.head.appendChild(style);
             }
             if (video.requestFullscreen) {
