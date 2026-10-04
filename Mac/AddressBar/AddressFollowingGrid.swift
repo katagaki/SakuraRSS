@@ -28,7 +28,7 @@ struct AddressFollowingGrid: View {
                 }
             }
         }
-        .padding(16)
+        .padding(.horizontal, 16)
     }
 
     private func sectionGrid(_ section: FeedSection, feeds: [Feed]) -> some View {

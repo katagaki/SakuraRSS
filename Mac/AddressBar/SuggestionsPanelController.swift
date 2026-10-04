@@ -47,6 +47,10 @@ final class SuggestionsPanelController: NSObject {
         gridScrollView.drawsBackground = false
         gridScrollView.hasVerticalScroller = true
         gridScrollView.isHidden = true
+        for scrollView in [tableScrollView, gridScrollView] {
+            scrollView.automaticallyAdjustsContentInsets = false
+            scrollView.contentInsets = NSEdgeInsetsZero
+        }
         let background = NSVisualEffectView()
         background.material = .menu
         background.state = .active
@@ -59,8 +63,8 @@ final class SuggestionsPanelController: NSObject {
             NSLayoutConstraint.activate([
                 scrollView.leadingAnchor.constraint(equalTo: background.leadingAnchor),
                 scrollView.trailingAnchor.constraint(equalTo: background.trailingAnchor),
-                scrollView.topAnchor.constraint(equalTo: background.topAnchor, constant: 6),
-                scrollView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -6)
+                scrollView.topAnchor.constraint(equalTo: background.topAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: background.bottomAnchor)
             ])
         }
         panel.contentView = background
@@ -82,7 +86,7 @@ final class SuggestionsPanelController: NSObject {
             hide()
             return
         }
-        present(below: field, contentHeight: CGFloat(rows.count) * 34)
+        present(below: field, contentHeight: tableView.rect(ofRow: rows.count - 1).maxY)
     }
 
     /// The Following grid, shown in place of suggestions before anything is
@@ -113,7 +117,7 @@ final class SuggestionsPanelController: NSObject {
     private func present(below field: NSView, contentHeight: CGFloat) {
         guard let window = field.window else { return }
         let fieldFrame = window.convertToScreen(field.convert(field.bounds, to: nil))
-        let height = min(480, contentHeight + 12)
+        let height = min(480, contentHeight)
         let width = panelWidth(below: field)
         let frame = NSRect(
             x: fieldFrame.midX - width / 2,
