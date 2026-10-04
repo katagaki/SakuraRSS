@@ -50,7 +50,6 @@ struct iPadSidebarList: View {
         .sheet(isPresented: $showingMore) {
             ProfileView()
                 .environment(feedManager)
-                .environment(\.isSakuraBackgroundDisabled, true)
         }
         .sheet(isPresented: $showingNewList) {
             ListEditSheet(list: nil)

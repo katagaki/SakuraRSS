@@ -5,17 +5,13 @@ import Hanami
 struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #if os(visionOS) || targetEnvironment(macCatalyst)
     @Environment(\.openWindow) private var openWindow
     #endif
-    @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
-    @State private var showingAddFeed = false
-    @State private var addFeedSession = AddFeedSession()
     @State private var showingOnboarding = false
     private let audioPlayer = AudioPlayer.shared
     private let youTubeSession = YouTubePlayerSession.shared
@@ -75,95 +71,11 @@ struct MainTabView: View {
         .environment(feedManager)
     }
 
-    @ViewBuilder
     private var standardView: some View {
-        Group {
-            #if os(visionOS)
-            iPadSidebarView(
-                pendingFeedURL: $pendingFeedURL,
-                pendingArticleID: $pendingArticleID,
-                pendingOpenRequest: $pendingOpenRequest
-            )
-            #else
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                iPadSidebarView(
-                    pendingFeedURL: $pendingFeedURL,
-                    pendingArticleID: $pendingArticleID,
-                    pendingOpenRequest: $pendingOpenRequest
-                )
-            } else {
-                iPhoneTabView
-            }
-            #endif
-        }
-    }
-
-    private var tabView: some View {
-        TabView(selection: $selectedTab) {
-            Tab("Tabs.Home", systemImage: "newspaper", value: .home) {
-                HomeView(
-                    pendingArticleID: $pendingArticleID,
-                    pendingOpenRequest: $pendingOpenRequest
-                )
-            }
-
-            Tab("Tabs.Feeds", systemImage: "dot.radiowaves.up.forward", value: .feeds) {
-                FollowingView()
-            }
-
-            Tab("Tabs.Bookmarks", systemImage: "bookmark", value: .bookmarks) {
-                BookmarksView()
-            }
-
-            Tab("Tabs.Profile", systemImage: "person.crop.circle", value: .profile) {
-                ProfileView(showsCloseButton: false)
-            }
-
-            Tab("Tabs.Discover", systemImage: "magnifyingglass", value: .search) {
-                SearchView()
-            }
-        }
-        #if !os(visionOS)
-        .tabBarMinimizeBehavior(.onScrollDown)
-        #endif
-    }
-
-    private var iPhoneTabView: some View {
-        tabView
-            .miniPlayerAccessory(
-                audioPlayer: audioPlayer,
-                youTubeSession: youTubeSession,
-                mediaPresenter: mediaPresenter
-            )
-            .sheet(isPresented: $showingAddFeed) {
-                AddFeedView(initialURL: pendingFeedURL ?? "", session: addFeedSession)
-                    .environment(feedManager)
-                    .onDisappear {
-                        pendingFeedURL = nil
-                    }
-            }
-            .sheet(isPresented: $showingOnboarding) {
-                onboardingSheet
-            }
-            .onChange(of: pendingFeedURL) {
-                if pendingFeedURL != nil {
-                    showingAddFeed = true
-                }
-            }
-            .onChange(of: pendingArticleID) {
-                if pendingArticleID != nil {
-                    selectedTab = .home
-                }
-            }
-            .onChange(of: pendingOpenRequest) {
-                if pendingOpenRequest != nil {
-                    selectedTab = .home
-                }
-            }
-            .onAppear {
-                if !onboardingCompleted {
-                    showingOnboarding = true
-                }
-            }
+        iPadSidebarView(
+            pendingFeedURL: $pendingFeedURL,
+            pendingArticleID: $pendingArticleID,
+            pendingOpenRequest: $pendingOpenRequest
+        )
     }
 }

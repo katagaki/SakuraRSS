@@ -3,17 +3,6 @@ import SwiftUI
 import TipKit
 import Hanami
 
-private struct HidesMarkAllReadToolbarKey: EnvironmentKey {
-    static let defaultValue: Bool = false
-}
-
-extension EnvironmentValues {
-    var hidesMarkAllReadToolbar: Bool {
-        get { self[HidesMarkAllReadToolbarKey.self] }
-        set { self[HidesMarkAllReadToolbarKey.self] = newValue }
-    }
-}
-
 struct ArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -37,10 +26,8 @@ struct ArticlesView: View {
     var effectiveStyleBinding: Binding<FeedDisplayStyle?>?
     var onScrollOffsetChange: ((CGFloat) -> Void)?
 
-    @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @Environment(\.isBrowserModeActive) private var isBrowserModeActive
-    @Environment(\.homeSectionDisplayMenu) private var homeSectionDisplayMenu
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
@@ -155,8 +142,7 @@ struct ArticlesView: View {
             BrowserPageDisplayMenu(options: browserDisplayStyleOptions, markAllRead: onMarkAllRead)
         }
         .toolbar {
-            if !hidesMarkAllReadToolbar, !isBrowserChromeActive,
-               markAllReadPosition == .top, let onMarkAllRead {
+            if !isBrowserChromeActive, markAllReadPosition == .top, let onMarkAllRead {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     Button {
                         isShowingMarkAllReadConfirmation = true
@@ -203,41 +189,33 @@ struct ArticlesView: View {
                     additionalLeadingToolbar
                 }
             }
-            if homeSectionDisplayMenu == nil {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    #if os(visionOS)
-                    if let onRefresh {
-                        Button {
-                            Task { await onRefresh() }
-                        } label: {
-                            Image(systemName: "arrow.clockwise")
-                        }
-                    }
-                    #endif
-                    Menu {
-                        DisplayStylePicker(
-                            displayStyle: $displayStyle,
-                            hasImages: hasImages,
-                            showTimeline: feedKey != "all",
-                            showPodcast: isPodcastFeed || hasAudioArticles
-                        )
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                #if os(visionOS)
+                if let onRefresh {
+                    Button {
+                        Task { await onRefresh() }
                     } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
+                        Image(systemName: "arrow.clockwise")
                     }
-                    .menuActionDismissBehavior(.disabled)
-                    .popoverTip(viewStyleSwitcherTip)
                 }
+                #endif
+                Menu {
+                    DisplayStylePicker(
+                        displayStyle: $displayStyle,
+                        hasImages: hasImages,
+                        showTimeline: feedKey != "all",
+                        showPodcast: isPodcastFeed || hasAudioArticles
+                    )
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease")
+                }
+                .menuActionDismissBehavior(.disabled)
+                .popoverTip(viewStyleSwitcherTip)
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
         .task(id: effectiveStyle) {
             effectiveStyleBinding?.wrappedValue = effectiveStyle
-        }
-        .task(id: homeMenuSignature) {
-            publishHomeDisplayMenu()
-        }
-        .onDisappear {
-            homeSectionDisplayMenu?.isActive = false
         }
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
@@ -311,19 +289,6 @@ extension ArticlesView {
             fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
         }
         return raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback
-    }
-
-    var homeMenuSignature: String {
-        "\(feedKey)|\(displayStyle.rawValue)|\(hasImages)|\(hasAudioArticles)|\(isPodcastFeed)"
-    }
-
-    func publishHomeDisplayMenu() {
-        guard let model = homeSectionDisplayMenu else { return }
-        model.styleBinding = $displayStyle
-        model.hasImages = hasImages
-        model.showTimeline = feedKey != "all"
-        model.showPodcast = isPodcastFeed || hasAudioArticles
-        model.isActive = true
     }
 
     private func usesReaderSplit(for style: FeedDisplayStyle) -> Bool {

@@ -101,19 +101,18 @@ struct BrowsingSettingsView: View {
 
             Section {
                 Picker(selection: $linkOpenMode) {
-                    Text(String(localized: "LinkOpenMode.Browser", table: "Settings"))
-                        .tag(LinkOpenMode.browser)
                     Text(String(localized: "LinkOpenMode.InAppViewer", table: "Settings"))
                         .tag(LinkOpenMode.inAppViewer)
+                    Text(String(localized: "LinkOpenMode.Browser", table: "Settings"))
+                        .tag(LinkOpenMode.browser)
                 } label: {
                     Text(String(localized: "LinkOpenMode", table: "Settings"))
                 }
             } header: {
-                Text(String(localized: "Section.InAppViewer", table: "Settings"))
+                Text(String(localized: "Section.Links", table: "Settings"))
             }
         }
         .settingsListStyle()
-        .sakuraBackground()
         .navigationTitle(String(localized: "Section.Browsing", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
     }

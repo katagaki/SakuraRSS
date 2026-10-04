@@ -29,7 +29,6 @@ struct OnDeviceIntelligenceSettingsView: View {
         }
         .navigationTitle(String(localized: "Section.InsightsAndIntelligence", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
-        .sakuraBackground()
         .confirmationDialog(
             String(localized: "Personalization.ClearHistory.Confirm.Title", table: "Settings"),
             isPresented: $showingClearConfirmation,

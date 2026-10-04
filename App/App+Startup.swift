@@ -6,7 +6,6 @@ import Hanami
 extension SakuraRSSApp {
 
     static let navigationStateKeys: [String] = [
-        "App.SelectedTab",
         "Home.SelectedSection",
         "Home.FeedID",
         "Home.ArticleID",

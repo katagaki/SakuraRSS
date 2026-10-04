@@ -20,7 +20,6 @@ struct DataSettingsView: View {
             LogsSection()
         }
         .settingsListStyle()
-        .sakuraBackground()
         .navigationTitle(String(localized: "Section.Data", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
         .task {

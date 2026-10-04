@@ -28,17 +28,6 @@ struct ProfileView: View {
                             color: .orange
                         )
                     }
-                    if UIDevice.current.userInterfaceIdiom != .pad {
-                        NavigationLink {
-                            HomeSettingsView()
-                        } label: {
-                            SettingsIconLabel(
-                                String(localized: "Section.Home", table: "Settings"),
-                                systemImage: "newspaper.fill",
-                                color: .red
-                            )
-                        }
-                    }
                     NavigationLink {
                         BrowsingSettingsView()
                     } label: {
@@ -124,7 +113,6 @@ struct ProfileView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .sakuraBackground()
             .navigationTitle("Tabs.Profile")
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbarTitleDisplayMode(
@@ -157,5 +145,6 @@ struct ProfileView: View {
                     .environment(\.zoomNamespace, cardZoom)
             }
         }
+        .environment(\.isSakuraBackgroundDisabled, true)
     }
 }

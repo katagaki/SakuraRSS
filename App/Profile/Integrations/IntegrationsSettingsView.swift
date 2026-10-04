@@ -48,7 +48,6 @@ struct IntegrationsSettingsView: View {
             }
         }
         .settingsListStyle()
-        .sakuraBackground()
         .navigationTitle(String(localized: "Section.Integrations", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
     }
