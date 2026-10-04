@@ -8,7 +8,8 @@ import Observation
 @Observable
 final class FeedDiscoverySession {
 
-    let urlString: String
+    private(set) var urlString: String
+    private(set) var hasSearched = false
     private(set) var discoveredFeeds: [DiscoveredFeed] = []
     private(set) var isSearching = false
     private(set) var errorMessage: String?
@@ -19,7 +20,15 @@ final class FeedDiscoverySession {
         self.urlString = urlString
     }
 
-    func search() async {
+    func search(_ input: String) async {
+        guard let normalized = BrowserAddressInput.normalizedURLString(from: input) else {
+            errorMessage = String(localized: "AddFeed.InvalidURL", table: "Feeds")
+            discoveredFeeds = []
+            hasSearched = true
+            return
+        }
+        urlString = normalized
+        hasSearched = true
         isSearching = true
         defer { isSearching = false }
         var results: [DiscoveredFeed] = []

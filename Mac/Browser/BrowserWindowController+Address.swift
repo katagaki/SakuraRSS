@@ -14,7 +14,7 @@ extension BrowserWindowController {
         }
     }
 
-    private func presentAddFeedSheet(for urlString: String) {
+    func presentAddFeedSheet(for urlString: String) {
         let sheet = NSHostingController(rootView: AnyView(EmptyView()))
         sheet.rootView = AnyView(AddFeedSheet(
             feedManager: feedManager,

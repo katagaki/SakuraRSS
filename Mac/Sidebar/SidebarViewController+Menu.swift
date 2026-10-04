@@ -32,6 +32,18 @@ extension SidebarViewController: NSMenuDelegate {
         case .list(let listID):
             guard let list = feedManager.lists.first(where: { $0.id == listID }) else { return }
             menu.addItem(.separator())
+            let editTitle = String(localized: "ListMenu.Edit", table: "Lists")
+            menu.addItem(ActionMenuItem(editTitle, symbolName: "pencil") { [weak self] in
+                guard let self else { return }
+                self.presentSwiftUISheet(ListEditSheet(list: list), feedManager: self.feedManager)
+            })
+            menu.addItem(ActionMenuItem(
+                String(localized: "ListMenu.Rules", table: "Lists"),
+                symbolName: "line.3.horizontal.decrease.circle"
+            ) { [weak self] in
+                guard let self else { return }
+                self.presentSwiftUISheet(ListRulesSheet(list: list), feedManager: self.feedManager)
+            })
             let deleteTitle = String(localized: "ListMenu.Delete", table: "Lists")
             menu.addItem(ActionMenuItem(deleteTitle, symbolName: "trash") { [weak self] in
                 self?.confirmDeleting(list)

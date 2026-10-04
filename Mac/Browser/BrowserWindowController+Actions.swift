@@ -19,6 +19,14 @@ extension BrowserWindowController: BrowserActions, NSMenuItemValidation, NSToolb
         history.current.markAllReadAction(in: feedManager)?()
     }
 
+    func followNewFeed(_ sender: Any?) {
+        presentAddFeedSheet(for: "")
+    }
+
+    func createList(_ sender: Any?) {
+        contentViewController?.presentSwiftUISheet(ListEditSheet(list: nil), feedManager: feedManager)
+    }
+
     func goBack(_ sender: Any?) {
         updateHistory { $0.goBack() }
     }

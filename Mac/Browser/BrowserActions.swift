@@ -8,4 +8,6 @@ import AppKit
     func newBrowserWindow(_ sender: Any?)
     func focusAddressField(_ sender: Any?)
     func markAllRead(_ sender: Any?)
+    func followNewFeed(_ sender: Any?)
+    func createList(_ sender: Any?)
 }
