@@ -15,8 +15,21 @@ enum DebugSnapshotRenderer {
     }
 
     private static func render(to url: URL) {
-        guard let window = NSApp.keyWindow ?? NSApp.windows.first(where: \.isVisible),
-              let windowFrameView = window.contentView?.superview else { return }
+        guard UserDefaults.standard.bool(forKey: "DebugSnapshotAllWindows") else {
+            if let window = NSApp.keyWindow ?? NSApp.windows.first(where: \.isVisible) {
+                render(window, to: url)
+            }
+            return
+        }
+        let windows = NSApp.windows.filter { $0.windowController is BrowserWindowController }
+        for (index, window) in windows.enumerated() {
+            let name = url.deletingPathExtension().lastPathComponent + "-\(index).png"
+            render(window, to: url.deletingLastPathComponent().appendingPathComponent(name))
+        }
+    }
+
+    private static func render(_ window: NSWindow, to url: URL) {
+        guard let windowFrameView = window.contentView?.superview else { return }
         let frameView = UserDefaults.standard.string(forKey: "DebugSnapshotViewClass")
             .flatMap { firstSubview(named: $0, in: windowFrameView) } ?? windowFrameView
         guard let layer = frameView.layer else { return }

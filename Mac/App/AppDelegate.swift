@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             registry.openWindow()
         }
         #if DEBUG
+        DebugLaunchActions.perform(with: registry)
         DebugSnapshotRenderer.scheduleIfRequested()
         #endif
     }
