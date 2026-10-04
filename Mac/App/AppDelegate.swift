@@ -3,30 +3,35 @@ import Hanami
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
-    private(set) var feedManager: FeedManager?
-    private var scaffoldWindowController: NSWindowController?
+    private(set) var registry: BrowserWindowRegistry!
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSApp.mainMenu = MainMenuBuilder.build()
+        registry = BrowserWindowRegistry(feedManager: FeedManager())
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let feedManager = FeedManager()
-        self.feedManager = feedManager
-        let window = NSWindow(contentViewController: FeedTitlesViewController(feedManager: feedManager))
-        window.title = "Sakura"
-        window.setContentSize(NSSize(width: 480, height: 600))
-        let windowController = NSWindowController(window: window)
-        windowController.showWindow(nil)
-        window.center()
-        scaffoldWindowController = windowController
+        if registry.controllers.isEmpty {
+            registry.openWindow()
+        }
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        true
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag, registry.controllers.isEmpty {
+            registry.openWindow()
+        }
+        return true
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         true
+    }
+
+    @objc func newWindowForTab(_ sender: Any?) {
+        registry.openWindow()
+    }
+
+    @objc func newBrowserWindow(_ sender: Any?) {
+        registry.openWindow()
     }
 }

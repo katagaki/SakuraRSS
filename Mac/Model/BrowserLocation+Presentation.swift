@@ -1,0 +1,38 @@
+import Foundation
+import Hanami
+
+extension BrowserLocation {
+
+    func title(in feedManager: FeedManager) -> String {
+        switch self {
+        case .startPage:
+            String(localized: "StartPage.Title", table: "Browser")
+        case .allContent:
+            String(localized: "Location.AllContent", table: "Browser")
+        case .bookmarks:
+            String(localized: "Location.Bookmarks", table: "Browser")
+        case .feedSection(let section):
+            section.localizedTitle
+        case .feed(let feedID):
+            feedManager.feedsByID[feedID]?.title
+                ?? String(localized: "Location.MissingFeed", table: "Browser")
+        case .list(let listID):
+            feedManager.lists.first { $0.id == listID }?.name
+                ?? String(localized: "Location.MissingList", table: "Browser")
+        case .search(let query):
+            query
+        }
+    }
+
+    func symbolName(in feedManager: FeedManager) -> String {
+        switch self {
+        case .startPage: "newspaper"
+        case .allContent: "tray.full"
+        case .bookmarks: "bookmark"
+        case .feedSection(let section): section.symbolName
+        case .feed: "dot.radiowaves.up.forward"
+        case .list(let listID): feedManager.lists.first { $0.id == listID }?.icon ?? "list.bullet"
+        case .search: "magnifyingglass"
+        }
+    }
+}
