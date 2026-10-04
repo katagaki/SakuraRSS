@@ -7,6 +7,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
 
     let feedManager: FeedManager
     let splitViewController: BrowserSplitViewController
+    private let toolbarController = BrowserToolbarController()
     private(set) var history: BrowserHistory
     var onClose: ((BrowserWindowController) -> Void)?
     private var titleObserver: ChangeObserver?
@@ -27,6 +28,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         window.tabbingMode = .automatic
         window.tabbingIdentifier = Self.tabbingIdentifier
         window.toolbarStyle = .unified
+        window.toolbar = toolbarController.toolbar
         super.init(window: window)
         window.delegate = self
         splitViewController.sidebarViewController.onSelectLocation = { [weak self] location in
@@ -58,6 +60,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
     private func showCurrentLocation() {
         splitViewController.show(history.current)
         updateTitle()
+        window?.toolbar?.validateVisibleItems()
     }
 
     private func updateTitle() {

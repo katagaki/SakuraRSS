@@ -1,6 +1,6 @@
 import AppKit
 
-extension BrowserWindowController: BrowserActions, NSMenuItemValidation {
+extension BrowserWindowController: BrowserActions, NSMenuItemValidation, NSToolbarItemValidation {
 
     override func newWindowForTab(_ sender: Any?) {
         guard let window else { return }
@@ -20,7 +20,15 @@ extension BrowserWindowController: BrowserActions, NSMenuItemValidation {
     }
 
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        switch menuItem.action {
+        validate(menuItem.action)
+    }
+
+    func validateToolbarItem(_ item: NSToolbarItem) -> Bool {
+        validate(item.action)
+    }
+
+    private func validate(_ action: Selector?) -> Bool {
+        switch action {
         case #selector(goBack(_:)): history.canGoBack
         case #selector(goForward(_:)): history.canGoForward
         default: true
