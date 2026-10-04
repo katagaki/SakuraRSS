@@ -1,5 +1,6 @@
 import AppKit
 import Hanami
+import SwiftUI
 
 final class BrowserToolbarController: NSObject, NSToolbarDelegate {
 
@@ -11,6 +12,7 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         static let refresh = NSToolbarItem.Identifier("Refresh")
         static let markAllRead = NSToolbarItem.Identifier("MarkAllRead")
         static let displayStyle = NSToolbarItem.Identifier("DisplayStyle")
+        static let nowPlaying = NSToolbarItem.Identifier("NowPlaying")
     }
 
     let toolbar: NSToolbar
@@ -20,6 +22,7 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
     }
     private let addressField: NSView
     private let refreshButton: NSView
+    var onShowEpisode: ((Int64) -> Void)?
 
     init(addressField: NSView, refreshButton: NSView) {
         self.addressField = addressField
@@ -46,7 +49,8 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         [
             .toggleSidebar, .sidebarTrackingSeparator, ItemIdentifier.back, ItemIdentifier.forward,
             .flexibleSpace, ItemIdentifier.address, .flexibleSpace,
-            ItemIdentifier.displayStyle, ItemIdentifier.markAllRead, ItemIdentifier.refresh, ItemIdentifier.newTab
+            ItemIdentifier.nowPlaying, ItemIdentifier.displayStyle, ItemIdentifier.markAllRead,
+            ItemIdentifier.refresh, ItemIdentifier.newTab
         ]
     }
 
@@ -72,6 +76,8 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
             refreshItem()
         case ItemIdentifier.displayStyle:
             displayStyleItem
+        case ItemIdentifier.nowPlaying:
+            nowPlayingItem()
         case ItemIdentifier.markAllRead:
             button(itemIdentifier, String(localized: "MarkAllRead", table: "Articles"), "checkmark.circle",
                    #selector(BrowserActions.markAllRead(_:)))
@@ -106,6 +112,17 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         let symbol = (context?.effectiveStyle ?? .inbox).symbol
         displayStyleItem.image = NSImage(systemSymbolName: symbol, accessibilityDescription: displayStyleItem.label)
         displayStyleItem.isEnabled = context != nil
+    }
+
+    private func nowPlayingItem() -> NSToolbarItem {
+        let item = NSToolbarItem(itemIdentifier: ItemIdentifier.nowPlaying)
+        let label = String(localized: "Player.NowPlaying", table: "Mac")
+        item.label = label
+        item.paletteLabel = label
+        item.view = NSHostingView(rootView: NowPlayingButton(player: .shared) { [weak self] articleID in
+            self?.onShowEpisode?(articleID)
+        })
+        return item
     }
 
     private func refreshItem() -> NSToolbarItem {

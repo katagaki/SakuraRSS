@@ -64,6 +64,9 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         }
         displayStyleMenuPopulator = populator
         toolbarController.displayStyleMenuDelegate = populator
+        toolbarController.onShowEpisode = { [weak self] articleID in
+            self?.navigate(to: .article(articleID))
+        }
         addressBarController.onCommit = { [weak self] kind in
             self?.commitAddress(kind)
         }
