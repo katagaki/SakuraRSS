@@ -13,6 +13,9 @@ struct DataSettingsPane: View {
                 LabeledContent(SettingsText.settings("Section.Storage")) {
                     StorageBarSection(deviceStats: deviceStats)
                         .frame(width: 360)
+                        // The bar has no text, so the label would otherwise
+                        // line up with the first legend row instead of it.
+                        .alignmentGuide(.firstTextBaseline) { $0[.top] + 21 }
                 }
                 CleanupSettingsSection()
             }
