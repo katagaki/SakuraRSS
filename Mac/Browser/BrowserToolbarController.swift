@@ -8,6 +8,7 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         static let newTab = NSToolbarItem.Identifier("NewTab")
         static let address = NSToolbarItem.Identifier("Address")
         static let refresh = NSToolbarItem.Identifier("Refresh")
+        static let markAllRead = NSToolbarItem.Identifier("MarkAllRead")
     }
 
     let toolbar: NSToolbar
@@ -27,8 +28,11 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
     }
 
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.toggleSidebar, .sidebarTrackingSeparator, ItemIdentifier.back, ItemIdentifier.forward,
-         .flexibleSpace, ItemIdentifier.address, .flexibleSpace, ItemIdentifier.refresh, ItemIdentifier.newTab]
+        [
+            .toggleSidebar, .sidebarTrackingSeparator, ItemIdentifier.back, ItemIdentifier.forward,
+            .flexibleSpace, ItemIdentifier.address, .flexibleSpace,
+            ItemIdentifier.markAllRead, ItemIdentifier.refresh, ItemIdentifier.newTab
+        ]
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
@@ -51,6 +55,9 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
             addressItem()
         case ItemIdentifier.refresh:
             refreshItem()
+        case ItemIdentifier.markAllRead:
+            button(itemIdentifier, String(localized: "MarkAllRead", table: "Articles"), "checkmark.circle",
+                   #selector(BrowserActions.markAllRead(_:)))
         case ItemIdentifier.newTab:
             button(itemIdentifier, String(localized: "Menu.NewTab", table: "Browser"), "plus",
                    #selector(NSResponder.newWindowForTab(_:)))

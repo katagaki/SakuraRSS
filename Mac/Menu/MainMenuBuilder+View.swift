@@ -12,6 +12,13 @@ extension MainMenuBuilder {
             keyEquivalent: "r"
         )
         menu.addItem(refreshItem)
+        let markAllReadItem = NSMenuItem(
+            title: String(localized: "MarkAllRead", table: "Articles"),
+            action: #selector(BrowserActions.markAllRead(_:)),
+            keyEquivalent: "k"
+        )
+        markAllReadItem.keyEquivalentModifierMask = [.command, .shift]
+        menu.addItem(markAllReadItem)
         menu.addItem(.separator())
         menu.addItem(item("Menu.ShowToolbar", action: #selector(NSWindow.toggleToolbarShown(_:)), keyEquivalent: "t",
                           modifiers: [.command, .option]))

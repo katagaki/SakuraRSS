@@ -15,6 +15,10 @@ extension BrowserWindowController: BrowserActions, NSMenuItemValidation, NSToolb
         addressBarController.focus()
     }
 
+    func markAllRead(_ sender: Any?) {
+        history.current.markAllReadAction(in: feedManager)?()
+    }
+
     func goBack(_ sender: Any?) {
         updateHistory { $0.goBack() }
     }
@@ -35,6 +39,7 @@ extension BrowserWindowController: BrowserActions, NSMenuItemValidation, NSToolb
         switch action {
         case #selector(goBack(_:)): history.canGoBack
         case #selector(goForward(_:)): history.canGoForward
+        case #selector(markAllRead(_:)): history.current.markAllReadAction(in: feedManager) != nil
         default: true
         }
     }

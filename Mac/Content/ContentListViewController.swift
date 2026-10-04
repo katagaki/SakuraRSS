@@ -9,7 +9,7 @@ final class ContentListViewController: NSViewController {
     var onSelectArticle: ((Article?) -> Void)?
     var reportedArticleID: Int64?
     var onOpenInNewTab: ((BrowserLocation) -> Void)?
-    private var location: BrowserLocation?
+    private(set) var location: BrowserLocation?
     private var dataObserver: ChangeObserver?
     private var readStateObserver: ChangeObserver?
     private let emptyLabel = NSTextField(labelWithString: String(localized: "Empty.Title", table: "Articles"))

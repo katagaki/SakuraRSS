@@ -7,4 +7,5 @@ import AppKit
     func goForward(_ sender: Any?)
     func newBrowserWindow(_ sender: Any?)
     func focusAddressField(_ sender: Any?)
+    func markAllRead(_ sender: Any?)
 }

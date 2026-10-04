@@ -17,7 +17,7 @@ extension SidebarViewController: NSMenuDelegate {
         ) { [weak self] in
             self?.onOpenInNewTab?(location)
         })
-        if let markAllRead = markAllReadAction(for: location) {
+        if let markAllRead = location.markAllReadAction(in: feedManager) {
             menu.addItem(.separator())
             menu.addItem(ActionMenuItem(
                 String(localized: "MarkAllRead", table: "Articles"),
@@ -38,24 +38,6 @@ extension SidebarViewController: NSMenuDelegate {
             })
         default:
             break
-        }
-    }
-
-    private func markAllReadAction(for location: BrowserLocation) -> (@MainActor () -> Void)? {
-        let feedManager = feedManager
-        switch location {
-        case .allContent:
-            return { feedManager.markAllRead() }
-        case .feedSection(let section):
-            return { feedManager.markAllRead(for: section) }
-        case .feed(let feedID):
-            guard let feed = feedManager.feedsByID[feedID] else { return nil }
-            return { feedManager.markAllRead(feed: feed) }
-        case .list(let listID):
-            guard let list = feedManager.lists.first(where: { $0.id == listID }) else { return nil }
-            return { feedManager.markAllRead(for: list) }
-        default:
-            return nil
         }
     }
 
