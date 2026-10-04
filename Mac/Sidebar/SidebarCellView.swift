@@ -1,4 +1,5 @@
 import AppKit
+import Hanami
 
 final class SidebarCellView: NSTableCellView {
 
@@ -7,6 +8,7 @@ final class SidebarCellView: NSTableCellView {
     private let iconView = NSImageView()
     private let titleField = NSTextField(labelWithString: "")
     private let badgeField = NSTextField(labelWithString: "")
+    private var iconTask: Task<Void, Never>?
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -37,11 +39,30 @@ final class SidebarCellView: NSTableCellView {
         fatalError("init(coder:) is not supported")
     }
 
-    func configure(title: String, symbolName: String, unreadCount: Int) {
+    func configure(title: String, symbolName: String, unreadCount: Int, feed: Feed? = nil, iconRevision: Int = 0) {
         titleField.stringValue = title
-        iconView.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
-        iconView.contentTintColor = .controlAccentColor
+        iconTask?.cancel()
+        if let feed {
+            showIcon(for: feed, revision: iconRevision)
+        } else {
+            iconView.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
+            iconView.contentTintColor = .controlAccentColor
+        }
         badgeField.stringValue = unreadCount > 0 ? unreadCount.formatted() : ""
         badgeField.isHidden = unreadCount == 0
+    }
+
+    private func showIcon(for feed: Feed, revision: Int) {
+        iconView.contentTintColor = nil
+        if let cached = SidebarFeedIcons.cachedIcon(for: feed, revision: revision) {
+            iconView.image = cached
+            return
+        }
+        iconView.image = nil
+        iconTask = Task { [weak self] in
+            let icon = await SidebarFeedIcons.loadIcon(for: feed, revision: revision)
+            guard !Task.isCancelled else { return }
+            self?.iconView.image = icon
+        }
     }
 }

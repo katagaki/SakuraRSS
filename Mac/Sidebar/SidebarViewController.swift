@@ -50,6 +50,7 @@ final class SidebarViewController: NSViewController {
         treeObserver = ChangeObserver { [weak self] in
             guard let self else { return }
             _ = SidebarTreeBuilder(feedManager: self.feedManager).build()
+            _ = self.feedManager.iconRevision
         } onChange: { [weak self] in
             self?.reloadTree()
         }

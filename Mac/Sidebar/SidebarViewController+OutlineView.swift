@@ -1,4 +1,5 @@
 import AppKit
+import Hanami
 
 extension SidebarViewController: NSOutlineViewDataSource, NSOutlineViewDelegate {
 
@@ -39,10 +40,20 @@ extension SidebarViewController: NSOutlineViewDataSource, NSOutlineViewDelegate 
             field.font = .preferredFont(forTextStyle: .subheadline)
             field.textColor = .secondaryLabelColor
             return field
-        case .location(_, let title, let symbolName, let unreadCount):
+        case .location(let location, let title, let symbolName, let unreadCount):
             let cell = outlineView.makeView(withIdentifier: SidebarCellView.identifier, owner: self) as? SidebarCellView
                 ?? SidebarCellView()
-            cell.configure(title: title, symbolName: symbolName, unreadCount: unreadCount)
+            var feed: Feed?
+            if case .feed(let feedID) = location {
+                feed = feedManager.feedsByID[feedID]
+            }
+            cell.configure(
+                title: title,
+                symbolName: symbolName,
+                unreadCount: unreadCount,
+                feed: feed,
+                iconRevision: feedManager.iconRevision
+            )
             return cell
         }
     }
