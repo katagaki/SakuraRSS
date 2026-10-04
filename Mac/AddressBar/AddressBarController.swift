@@ -6,7 +6,7 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
 
     let field = AddressField()
     let containerView = NSGlassEffectView()
-    private let contentView = NSView()
+    private let contentView = AddressBarContentView()
     let feedManager: FeedManager
     let activity: BrowserPageActivity
     private let progressView = NSHostingView(rootView: BrowserAddressProgressBackground(progress: nil))
@@ -52,6 +52,7 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
         let height: CGFloat = 36
         containerView.cornerRadius = height / 2
         containerView.contentView = contentView
+        contentView.field = field
         for view in [progressView, field] {
             view.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview(view)

@@ -7,6 +7,10 @@ extension SidebarViewController: NSMenuDelegate {
         menu.removeAllItems()
         guard let node = outlineView.item(atRow: outlineView.clickedRow) as? SidebarNode,
               let location = node.location else { return }
+        populate(menu, for: location)
+    }
+
+    func populate(_ menu: NSMenu, for location: BrowserLocation) {
         menu.addItem(ActionMenuItem(
             String(localized: "Menu.OpenInNewTab", table: "Browser"),
             symbolName: "plus.square.on.square"
