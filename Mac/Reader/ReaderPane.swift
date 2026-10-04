@@ -7,6 +7,7 @@ struct ReaderPane: View {
     let feed: Feed?
     let activity: BrowserPageActivity
     let feedManager: FeedManager
+    var actions: TodayActions?
 
     var body: some View {
         if let article, article.isYouTubeURL {
@@ -16,7 +17,7 @@ struct ReaderPane: View {
             PodcastPlayerView(article: article, feed: feed, feedManager: feedManager)
                 .id(article.id)
         } else if let article {
-            ReaderView(article: article, feed: feed, activity: activity)
+            ReaderView(article: article, feed: feed, activity: activity, feedManager: feedManager, actions: actions)
                 .id(article.id)
         } else {
             ContentUnavailableView(

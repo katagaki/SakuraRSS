@@ -7,7 +7,7 @@ import Observation
 @Observable
 final class ContentExtraction {
 
-    private(set) var blocks: [IdentifiedContentBlock] = []
+    private(set) var text: String?
     private(set) var isExtracting = false
     private(set) var isPaywalled = false
     private(set) var author: String?
@@ -21,7 +21,7 @@ final class ContentExtraction {
         isPaywalled = result.paywalled
         author = result.metadata.author
         publishedDate = result.metadata.publishedDate
-        let text = result.text ?? article.content ?? article.summary ?? ""
-        blocks = text.isEmpty ? [] : ContentBlock.cachedIdentifiedBlocks(text)
+        let resolved = result.text ?? article.content ?? article.summary ?? ""
+        text = resolved.isEmpty ? nil : resolved
     }
 }

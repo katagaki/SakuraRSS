@@ -27,6 +27,7 @@ final class BrowserDetailViewController: NSViewController {
         topicsViewController = NSHostingController(rootView: TopicsPage(feedManager: feedManager, actions: actions))
         topicsViewController.sizingOptions = []
         self.actions = actions
+        contentSplitViewController.actions = actions
         articleViewController = NSHostingController(
             rootView: ReaderPane(article: nil, feed: nil, activity: activity, feedManager: feedManager)
         )
@@ -57,7 +58,8 @@ final class BrowserDetailViewController: NSViewController {
                 article: article,
                 feed: article.flatMap { feedManager.feedsByID[$0.feedID] },
                 activity: activity,
-                feedManager: feedManager
+                feedManager: feedManager,
+                actions: actions
             )
             display(articleViewController)
         default:

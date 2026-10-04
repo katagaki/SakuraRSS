@@ -6,31 +6,44 @@ struct ReaderView: View {
     let article: Article
     let feed: Feed?
     let activity: BrowserPageActivity
+    let feedManager: FeedManager
+    let actions: TodayActions?
+    let isPreview: Bool
     @State private var extraction = ContentExtraction()
+    @State private var assistant: ContentAssistant
+
+    init(
+        article: Article,
+        feed: Feed?,
+        activity: BrowserPageActivity,
+        feedManager: FeedManager,
+        actions: TodayActions? = nil,
+        isPreview: Bool = false
+    ) {
+        self.article = article
+        self.feed = feed
+        self.activity = activity
+        self.feedManager = feedManager
+        self.actions = actions
+        self.isPreview = isPreview
+        _assistant = State(initialValue: ContentAssistant(article: article, translatesTitle: true))
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 ReaderHeader(
-                    article: article,
+                    title: assistant.displayTitle(original: article.displayTitle),
                     feed: feed,
                     author: extraction.author,
                     publishedDate: extraction.publishedDate ?? article.publishedDate
                 )
-                if extraction.isExtracting && extraction.blocks.isEmpty {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 40)
-                } else {
-                    if extraction.isPaywalled || extraction.blocks.isEmpty {
-                        OpenInBrowserButton(
-                            url: URL(string: article.url),
-                            titleKey: extraction.isPaywalled ? "Article.Paywall.Banner" : "Article.OpenInBrowser"
-                        )
-                    }
-                    ForEach(extraction.blocks) { identified in
-                        ContentBlockView(block: identified.block)
-                    }
+                if extraction.text != nil && !isPreview {
+                    ContentAssistBar(assistant: assistant, source: extraction.text)
+                }
+                content
+                if !isPreview {
+                    ReaderInsightsSection(article: article, feedManager: feedManager, actions: actions)
                 }
             }
             .padding(.horizontal, 32)
@@ -39,13 +52,36 @@ struct ReaderView: View {
             .frame(maxWidth: .infinity)
         }
         .task(id: article.id) {
+            await assistant.loadCached()
             await extraction.extract(article: article, feed: feed)
         }
-        .onChange(of: extraction.isExtracting, initial: true) { _, isExtracting in
-            activity.isExtractingContent = isExtracting
+        .onChange(of: extraction.isExtracting || assistant.isWorking, initial: true) { _, isBusy in
+            activity.isExtractingContent = isBusy
         }
         .onDisappear {
             activity.isExtractingContent = false
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if extraction.isExtracting && extraction.text == nil {
+            ProgressView()
+                .frame(maxWidth: .infinity)
+                .padding(.top, 40)
+        } else {
+            if extraction.isPaywalled || extraction.text == nil {
+                OpenInBrowserButton(
+                    url: URL(string: article.url),
+                    titleKey: extraction.isPaywalled ? "Article.Paywall.Banner" : "Article.OpenInBrowser"
+                )
+            }
+            if let displayText = assistant.displayText(original: extraction.text) {
+                ForEach(ContentBlock.cachedIdentifiedBlocks(displayText)) { identified in
+                    ContentBlockView(block: identified.block)
+                }
+                .id("\(assistant.showingSummary)-\(assistant.showingTranslation)")
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ final class ContentSplitViewController: NSSplitViewController {
     let contentListViewController: ContentListViewController
     private let readerViewController: NSHostingController<ReaderPane>
     var onReaderArticleChange: ((Article?) -> Void)?
+    var actions: TodayActions?
 
     init(feedManager: FeedManager, activity: BrowserPageActivity) {
         self.feedManager = feedManager
@@ -53,7 +54,8 @@ final class ContentSplitViewController: NSSplitViewController {
             article: article,
             feed: article.flatMap { feedManager.feedsByID[$0.feedID] },
             activity: activity,
-            feedManager: feedManager
+            feedManager: feedManager,
+            actions: actions
         )
     }
 }

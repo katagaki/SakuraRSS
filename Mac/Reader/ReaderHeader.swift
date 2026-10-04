@@ -3,14 +3,14 @@ import SwiftUI
 
 struct ReaderHeader: View {
 
-    let article: Article
+    let title: String
     let feed: Feed?
     let author: String?
     let publishedDate: Date?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(article.displayTitle)
+            Text(title)
                 .font(.system(size: 26, weight: .bold))
                 .textSelection(.enabled)
             HStack(spacing: 6) {
