@@ -8,9 +8,24 @@ struct BrowsingSettingsPane: View {
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead = false
     @AppStorage(LinkOpenMode.storageKey) private var linkOpenMode: LinkOpenMode = .inAppViewer
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode = false
+    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode = "none"
+
+    private var showsDockBadge: Binding<Bool> {
+        Binding {
+            unreadBadgeMode == "homeScreenAndHomeTab" || unreadBadgeMode == "homeScreenOnly"
+        } set: { isOn in
+            unreadBadgeMode = isOn ? "homeScreenOnly" : "none"
+        }
+    }
 
     var body: some View {
         SettingsForm {
+            Group {
+                LabeledContent(SettingsText.settings("UnreadBadgeMode")) {
+                    Toggle(String(localized: "Settings.DockBadge", table: "Mac"), isOn: showsDockBadge)
+                }
+            }
+            SettingsGroupSpacer()
             Group {
                 LabeledContent(SettingsText.settings("Section.Feeds")) {
                     Toggle(SettingsText.settings("HideViewedContent"), isOn: $hideViewedContent)

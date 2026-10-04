@@ -6,6 +6,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
     private(set) var registry: BrowserWindowRegistry!
     private(set) var refreshCoordinator: RefreshCoordinator!
     private var settingsWindowController: SettingsWindowController?
+    private var dockBadgeCoordinator: DockBadgeCoordinator?
     private var defaultsObserver: NSObjectProtocol?
     private var schedulingSettings = SchedulingSettings.current
 
@@ -24,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         refreshCoordinator.schedulePeriodicRefresh()
         AutomaticCleanupScheduler.scheduleNextCleanup()
         observeSchedulingSettings()
+        dockBadgeCoordinator = DockBadgeCoordinator(feedManager: registry.feedManager)
         #if DEBUG
         DebugLaunchActions.perform(with: registry)
         DebugSnapshotRenderer.scheduleIfRequested()
