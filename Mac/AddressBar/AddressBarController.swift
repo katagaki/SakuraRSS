@@ -82,7 +82,7 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
         updateProgress()
         displayedTitle = location.title(in: feedManager)
         if field.currentEditor() == nil {
-            field.stringValue = displayedTitle
+            showDisplayedTitle()
         }
     }
 
@@ -190,7 +190,17 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
         stopWatchingForDismissal()
         contentSearchTask?.cancel()
         suggestionsPanel.hide()
+        showDisplayedTitle()
+        // The field takes back the editor's left-aligned text after this
+        // runs, so the centred title has to go back once that's done.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.field.currentEditor() == nil else { return }
+            self.showDisplayedTitle()
+        }
+    }
+
+    private func showDisplayedTitle() {
         field.alignment = .center
-        field.stringValue = displayedTitle
+        field.attributedStringValue = NSAttributedString(string: displayedTitle)
     }
 }
