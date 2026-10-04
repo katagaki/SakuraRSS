@@ -66,7 +66,7 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         item.paletteLabel = label
         addressField.translatesAutoresizingMaskIntoConstraints = false
         let preferredWidth = addressField.widthAnchor.constraint(equalToConstant: 520)
-        preferredWidth.priority = .defaultLow
+        preferredWidth.priority = .defaultHigh - 1
         NSLayoutConstraint.activate([
             addressField.widthAnchor.constraint(greaterThanOrEqualToConstant: 220),
             addressField.widthAnchor.constraint(lessThanOrEqualToConstant: 640),
@@ -74,7 +74,7 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         ])
         item.view = addressField
         item.visibilityPriority = .high
-        item.isBordered = true
+        item.isBordered = false
         return item
     }
 

@@ -5,7 +5,8 @@ import SwiftUI
 final class AddressBarController: NSObject, NSTextFieldDelegate {
 
     let field = AddressField()
-    let containerView = NSView()
+    let containerView = NSGlassEffectView()
+    private let contentView = NSView()
     let feedManager: FeedManager
     let activity: BrowserPageActivity
     private let progressView = NSHostingView(rootView: BrowserAddressProgressBackground(progress: nil))
@@ -43,22 +44,25 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
         }
     }
 
-    /// The fill sits behind a borderless field, inside the capsule the toolbar
-    /// item draws, the way iOS tints its address bar.
+    /// Draws its own glass rather than taking the toolbar item's border, so the
+    /// progress fill can reach the capsule's edges, as iOS's does.
     private func layOutContainer() {
+        let height: CGFloat = 36
+        containerView.cornerRadius = height / 2
+        containerView.contentView = contentView
         for view in [progressView, field] {
             view.translatesAutoresizingMaskIntoConstraints = false
-            containerView.addSubview(view)
+            contentView.addSubview(view)
         }
         NSLayoutConstraint.activate([
-            containerView.heightAnchor.constraint(equalToConstant: 30),
-            progressView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            progressView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            progressView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            progressView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-            field.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            field.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
-            field.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+            containerView.heightAnchor.constraint(equalToConstant: height),
+            progressView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            progressView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            progressView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            progressView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            field.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 14),
+            field.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14),
+            field.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
 
