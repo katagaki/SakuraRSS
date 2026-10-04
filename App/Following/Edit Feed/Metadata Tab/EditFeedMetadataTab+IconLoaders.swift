@@ -3,7 +3,7 @@ import Hanami
 
 extension EditFeedMetadataTab {
 
-    func loadCurrentIcon() async -> UIImage? {
+    func loadCurrentIcon() async -> PlatformImage? {
         guard let feed else { return nil }
         if let customURL = feed.customIconURL {
             if customURL == "none" {
@@ -17,7 +17,7 @@ extension EditFeedMetadataTab {
             }
             if let url = URL(string: customURL),
                let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: url)),
-               let image = UIImage(data: data) {
+               let image = PlatformImage(data: data) {
                 await Iconography.shared.setCustomIcon(image, feedID: feed.id)
                 return image
             }
@@ -70,7 +70,7 @@ extension EditFeedMetadataTab {
         defer { isFetchingIcon = false }
         do {
             let (data, _) = try await URLSession.shared.data(for: .sakuraImage(url: url))
-            if let image = UIImage(data: data) {
+            if let image = PlatformImage(data: data) {
                 customIconImage = image
                 selectedPhoto = nil
                 useDefaultIcon = false

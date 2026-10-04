@@ -16,6 +16,8 @@ extension EditFeedMetadataTab {
                             .lineLimit(1)
                     }
                 }
+                // The recipe builder hasn't been brought to the Mac yet.
+                #if !os(macOS)
                 Button {
                     selectedPetalRecipe = PetalStore.shared.recipe(forFeedURL: feed.url)
                         ?? PetalRecipe.recoveryRecipe(name: feed.title, feedURL: feed.url)
@@ -23,6 +25,7 @@ extension EditFeedMetadataTab {
                     Label(String(localized: "FeedEdit.EditRecipe", table: "Petal"),
                           systemImage: "wand.and.stars")
                 }
+                #endif
             } header: {
                 Text(String(localized: "FeedEdit.Header", table: "Petal"))
             }

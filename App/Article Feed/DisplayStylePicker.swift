@@ -63,7 +63,9 @@ struct DisplayStylePicker: View {
                 .labelsVisibility(.visible)
             }
         }
+        #if !os(macOS)
         .menuActionDismissBehavior(.disabled)
+        #endif
     }
 
     private func styleLabel(_ style: FeedDisplayStyle) -> some View {

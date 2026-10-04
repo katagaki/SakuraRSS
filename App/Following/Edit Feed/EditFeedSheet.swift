@@ -21,10 +21,10 @@ struct EditFeedSheet: View {
                 tabContent(hasFeed: feed != nil)
             }
             .navigationTitle(feed?.title ?? String(localized: "FeedEdit.Title", table: "Feeds"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .sheetTrailing) {
                     Button(role: .confirm) {
                         dismiss()
                     }

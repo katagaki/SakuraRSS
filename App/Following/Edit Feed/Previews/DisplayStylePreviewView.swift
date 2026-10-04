@@ -30,7 +30,7 @@ struct DisplayStylePreviewView: View {
         }
         .sakuraBackground()
         .navigationTitle(String(localized: "FeedEdit.Preview.Title", table: "Feeds"))
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 
     private func previewArticles(for feed: Feed) -> [Article] {

@@ -1,8 +1,7 @@
 import SwiftUI
-import UIKit
 import Hanami
 
-extension UIImage {
+extension PlatformImage {
 
     var averageColor: Color {
         guard let rgb = ensureIconDerivedMetrics().averageColor, rgb.count >= 3 else {
@@ -47,7 +46,7 @@ extension UIImage {
     var nearWhiteAverageGradient: LinearGradient {
         guard let rgb = ensureIconDerivedMetrics().averageColor, rgb.count >= 3 else {
             return LinearGradient(
-                colors: [Color(.secondarySystemBackground)],
+                colors: [secondaryBackgroundColor],
                 startPoint: .bottom,
                 endPoint: .top
             )
@@ -73,4 +72,12 @@ extension UIImage {
         )
         return LinearGradient(colors: [bottom, top], startPoint: .bottom, endPoint: .top)
     }
+}
+
+private var secondaryBackgroundColor: Color {
+    #if os(macOS)
+    Color(nsColor: .controlBackgroundColor)
+    #else
+    Color(.secondarySystemBackground)
+    #endif
 }

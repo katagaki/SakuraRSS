@@ -29,9 +29,7 @@ extension EditFeedMetadataTab {
             Section {
                 TextField(String(localized: "FeedEdit.URL", table: "Feeds"), text: $url)
                     .frame(maxWidth: .infinity)
-                    .textContentType(.URL)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
+                    .urlTextInput()
                     .labelsHidden()
                     .onSubmit { commitNameAndIcon() }
             } header: {
