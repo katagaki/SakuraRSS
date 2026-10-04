@@ -13,10 +13,12 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     private var location: BrowserLocation = .startPage
     private var progressObserver: ChangeObserver?
     var onCommit: ((AddressSuggestion.Kind) -> Void)?
-    private let suggestionsPanel = SuggestionsPanelController()
+    let suggestionsPanel = SuggestionsPanelController()
     private var displayedTitle = ""
     private var contentMatches: [Article] = []
     private var contentSearchTask: Task<Void, Never>?
+    var outsideClickMonitor: Any?
+    var resignKeyObserver: NSObjectProtocol?
 
     init(feedManager: FeedManager, activity: BrowserPageActivity) {
         self.feedManager = feedManager
@@ -88,6 +90,7 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     }
 
     private func beginEditing() {
+        startWatchingForDismissal()
         field.alignment = .natural
         contentMatches = []
         DispatchQueue.main.async { [weak self] in
@@ -165,6 +168,7 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     }
 
     private func endEditing() {
+        stopWatchingForDismissal()
         contentSearchTask?.cancel()
         suggestionsPanel.hide()
         field.alignment = .center

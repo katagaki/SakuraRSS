@@ -58,6 +58,10 @@ final class SuggestionsPanelController: NSObject {
 
     var isVisible: Bool { panel.isVisible }
 
+    func owns(_ window: NSWindow?) -> Bool {
+        window === panel
+    }
+
     func show(_ suggestions: [AddressSuggestion], below field: NSView) {
         rows = Self.rows(for: suggestions)
         tableView.reloadData()
