@@ -14,6 +14,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if registry.controllers.isEmpty {
             registry.openWindow()
         }
+        #if DEBUG
+        DebugSnapshotRenderer.scheduleIfRequested()
+        #endif
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
