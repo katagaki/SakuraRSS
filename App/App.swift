@@ -58,7 +58,7 @@ struct SakuraRSSApp: App {
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
-                    reindexSpotlightIfSchemaChanged()
+                    feedManager.reindexSpotlightIfSchemaChanged()
                     await BookmarkPreviewResolver.backfillPendingPreviews()
                     feedManager.bumpDataRevision()
                 }

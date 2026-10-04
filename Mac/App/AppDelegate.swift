@@ -27,6 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
             registry.openWindow()
         }
         connectServices()
+        registry.feedManager.reindexSpotlightIfSchemaChanged()
         refreshCoordinator.refreshOnLaunchIfEnabled()
         refreshCoordinator.schedulePeriodicRefresh()
         AutomaticCleanupScheduler.scheduleNextCleanup()
