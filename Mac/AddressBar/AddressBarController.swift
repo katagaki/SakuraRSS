@@ -142,9 +142,15 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     }
 
     private func showSuggestions() {
+        guard !field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            suggestionsPanel.showFollowingGrid(feedManager: feedManager, below: containerView) { [weak self] location in
+                self?.commit(.location(location))
+            }
+            return
+        }
         let suggestions = AddressSuggestionResolver(feedManager: feedManager)
             .suggestions(for: field.stringValue, contentMatches: contentMatches)
-        suggestionsPanel.show(suggestions, below: field)
+        suggestionsPanel.show(suggestions, below: containerView)
     }
 
     private func searchContent(matching query: String) {

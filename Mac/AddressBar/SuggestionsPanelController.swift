@@ -1,4 +1,6 @@
 import AppKit
+import Hanami
+import SwiftUI
 
 /// The list that drops down from the address field. A child panel that never
 /// takes key status, so typing stays in the field while it's open.
@@ -13,6 +15,8 @@ final class SuggestionsPanelController: NSObject {
     let tableView = NSTableView()
     var rows: [Row] = []
     var onCommit: ((AddressSuggestion) -> Void)?
+    private let tableScrollView = NSScrollView()
+    private let gridScrollView = NSScrollView()
 
     override init() {
         panel = NSPanel(
@@ -26,6 +30,8 @@ final class SuggestionsPanelController: NSObject {
         panel.hasShadow = true
         panel.backgroundColor = .clear
         panel.becomesKeyOnlyIfNeeded = true
+        // Editing ends when the window resigns key, which closes the panel.
+        panel.hidesOnDeactivate = false
         let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("Suggestion"))
         tableView.addTableColumn(column)
         tableView.headerView = nil
@@ -35,24 +41,28 @@ final class SuggestionsPanelController: NSObject {
         tableView.delegate = self
         tableView.target = self
         tableView.action = #selector(commitClickedRow)
-        let scrollView = NSScrollView()
-        scrollView.documentView = tableView
-        scrollView.drawsBackground = false
-        scrollView.hasVerticalScroller = true
+        tableScrollView.documentView = tableView
+        tableScrollView.drawsBackground = false
+        tableScrollView.hasVerticalScroller = true
+        gridScrollView.drawsBackground = false
+        gridScrollView.hasVerticalScroller = true
+        gridScrollView.isHidden = true
         let background = NSVisualEffectView()
         background.material = .menu
         background.state = .active
         background.wantsLayer = true
         background.layer?.cornerRadius = 12
         background.layer?.masksToBounds = true
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        background.addSubview(scrollView)
-        NSLayoutConstraint.activate([
-            scrollView.leadingAnchor.constraint(equalTo: background.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: background.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: background.topAnchor, constant: 6),
-            scrollView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -6)
-        ])
+        for scrollView in [tableScrollView, gridScrollView] {
+            scrollView.translatesAutoresizingMaskIntoConstraints = false
+            background.addSubview(scrollView)
+            NSLayoutConstraint.activate([
+                scrollView.leadingAnchor.constraint(equalTo: background.leadingAnchor),
+                scrollView.trailingAnchor.constraint(equalTo: background.trailingAnchor),
+                scrollView.topAnchor.constraint(equalTo: background.topAnchor, constant: 6),
+                scrollView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -6)
+            ])
+        }
         panel.contentView = background
     }
 
@@ -66,13 +76,45 @@ final class SuggestionsPanelController: NSObject {
         rows = Self.rows(for: suggestions)
         tableView.reloadData()
         selectFirstSuggestion()
-        guard let window = field.window, !rows.isEmpty else {
+        tableScrollView.isHidden = false
+        gridScrollView.isHidden = true
+        guard !rows.isEmpty else {
             hide()
             return
         }
+        present(below: field, contentHeight: CGFloat(rows.count) * 34)
+    }
+
+    /// The Following grid, shown in place of suggestions before anything is
+    /// typed.
+    func showFollowingGrid(feedManager: FeedManager, below field: NSView, onOpen: @escaping (BrowserLocation) -> Void) {
+        rows = []
+        tableView.reloadData()
+        guard !feedManager.feeds.isEmpty else {
+            hide()
+            return
+        }
+        let grid = AddressFollowingGrid(feedManager: feedManager, onOpen: onOpen)
+        let gridView = NSHostingView(rootView: grid)
+        gridScrollView.documentView = gridView
+        tableScrollView.isHidden = true
+        gridScrollView.isHidden = false
+        let width = panelWidth(below: field)
+        let contentHeight = NSHostingController(rootView: grid)
+            .sizeThatFits(in: CGSize(width: width, height: .greatestFiniteMagnitude)).height
+        gridView.frame = NSRect(x: 0, y: 0, width: width, height: contentHeight)
+        present(below: field, contentHeight: contentHeight)
+    }
+
+    private func panelWidth(below field: NSView) -> CGFloat {
+        max(field.bounds.width, 440)
+    }
+
+    private func present(below field: NSView, contentHeight: CGFloat) {
+        guard let window = field.window else { return }
         let fieldFrame = window.convertToScreen(field.convert(field.bounds, to: nil))
-        let height = min(440, CGFloat(rows.count) * 34 + 12)
-        let width = max(fieldFrame.width, 440)
+        let height = min(480, contentHeight + 12)
+        let width = panelWidth(below: field)
         let frame = NSRect(
             x: fieldFrame.midX - width / 2,
             y: fieldFrame.minY - height - 6,

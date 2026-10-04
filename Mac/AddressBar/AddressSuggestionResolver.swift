@@ -12,9 +12,7 @@ struct AddressSuggestionResolver {
 
     func suggestions(for query: String, contentMatches: [Article]) -> [AddressSuggestion] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            return [BrowserLocation.startPage, .allContent, .bookmarks].map { place($0, section: .places) }
-        }
+        guard !trimmed.isEmpty else { return [] }
         var results = [AddressSuggestion(
             kind: .searchContent(trimmed),
             section: .actions,
