@@ -44,5 +44,6 @@ struct TodayShortcutsGrid: View {
         .contextMenu {
             TodayOpenInNewTabButton(location: location, actions: actions)
         }
+        .frame(maxWidth: .infinity, alignment: .top)
     }
 }
