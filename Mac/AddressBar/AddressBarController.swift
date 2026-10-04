@@ -11,6 +11,7 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     let activity: BrowserPageActivity
     private let progressView = NSHostingView(rootView: BrowserAddressProgressBackground(progress: nil))
     private var location: BrowserLocation = .startPage
+    private var isEditingAddress = false
     private var progressObserver: ChangeObserver?
     var onCommit: ((AddressSuggestion.Kind) -> Void)?
     let suggestionsPanel = SuggestionsPanelController()
@@ -86,9 +87,12 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
         }
     }
 
+    /// `selectText` installs the field editor without the field's own
+    /// `becomeFirstResponder`, so editing is set up here as well as there.
     func focus() {
         field.stringValue = initialEditingText
         field.selectText(nil)
+        beginEditing()
     }
 
     /// The search being shown, or nothing, as iOS's omnibox starts from,
@@ -104,6 +108,8 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     /// to the editor. The field's own alignment is left alone: changing it
     /// mid-edit aborts the edit, dropping focus.
     private func beginEditing() {
+        guard !isEditingAddress else { return }
+        isEditingAddress = true
         startWatchingForDismissal()
         if let editor = field.currentEditor() as? NSTextView {
             editor.string = initialEditingText
@@ -187,6 +193,7 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
     }
 
     private func endEditing() {
+        isEditingAddress = false
         stopWatchingForDismissal()
         contentSearchTask?.cancel()
         suggestionsPanel.hide()
