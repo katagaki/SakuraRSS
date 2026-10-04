@@ -26,6 +26,7 @@ struct BrowserTodayShortcutsGrid: View {
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 12) {
+            shortcutButton(.following)
             ForEach(feedSections, id: \.self) { section in
                 Button {
                     store.navigate(to: .feedSection(section))
@@ -41,13 +42,8 @@ struct BrowserTodayShortcutsGrid: View {
                     openInNewTabButton(.feedSection(section))
                 }
             }
-            ForEach(BrowserTodayShortcut.allCases) { shortcut in
-                Button {
-                    open(shortcut)
-                } label: {
-                    BrowserTodayShortcutCell(title: shortcut.title, symbolName: shortcut.symbolName)
-                }
-                .buttonStyle(.plain)
+            ForEach(BrowserTodayShortcut.allCases.filter { $0 != .following }) { shortcut in
+                shortcutButton(shortcut)
             }
             ForEach(lists) { list in
                 Button {
@@ -65,6 +61,15 @@ struct BrowserTodayShortcutsGrid: View {
         .animation(.smooth.speed(2.0), value: feedManager.lists)
     }
 
+    private func shortcutButton(_ shortcut: BrowserTodayShortcut) -> some View {
+        Button {
+            open(shortcut)
+        } label: {
+            BrowserTodayShortcutCell(title: shortcut.title, symbolName: shortcut.symbolName)
+        }
+        .buttonStyle(.plain)
+    }
+
     private func openInNewTabButton(_ location: BrowserLocation) -> some View {
         Button {
             store.openTab(at: location, inBackground: true)
@@ -76,6 +81,7 @@ struct BrowserTodayShortcutsGrid: View {
 
     private func open(_ shortcut: BrowserTodayShortcut) {
         switch shortcut {
+        case .following: store.navigate(to: .feeds)
         case .allContent: store.navigate(to: .allContent)
         case .topics: store.navigate(to: .topics)
         case .bookmarks: store.push(BrowserBookmarksDestination())

@@ -5,6 +5,7 @@ import Hanami
 /// A grid rather than a list: they are destinations of equal weight, not a
 /// ranking.
 enum BrowserTodayShortcut: String, CaseIterable, Identifiable {
+    case following
     case allContent
     case bookmarks
     case topics
@@ -13,6 +14,7 @@ enum BrowserTodayShortcut: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .following: String(localized: "Tabs.Feeds")
         case .allContent: String(localized: "Location.AllContent", table: "Browser")
         case .bookmarks: String(localized: "Location.Bookmarks", table: "Browser")
         case .topics: String(localized: "Location.Topics", table: "Browser")
@@ -21,6 +23,7 @@ enum BrowserTodayShortcut: String, CaseIterable, Identifiable {
 
     var symbolName: String {
         switch self {
+        case .following: "dot.radiowaves.up.forward"
         case .allContent: "tray.full"
         case .bookmarks: "bookmark"
         case .topics: "number"
