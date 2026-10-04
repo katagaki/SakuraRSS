@@ -81,7 +81,6 @@ struct FetchingSettingsView: View {
         }
         .animation(.smooth.speed(2.0), value: backgroundRefreshEnabled)
         .settingsListStyle()
-        .sakuraBackground()
         .navigationTitle(String(localized: "Section.Refreshing", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
     }

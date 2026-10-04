@@ -18,7 +18,6 @@ struct LogModuleView: View {
                     .ignoresSafeArea(.container)
             }
         }
-        .sakuraBackground()
         .navigationTitle(module)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {

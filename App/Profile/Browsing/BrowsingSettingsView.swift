@@ -113,7 +113,6 @@ struct BrowsingSettingsView: View {
             }
         }
         .settingsListStyle()
-        .sakuraBackground()
         .navigationTitle(String(localized: "Section.Browsing", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
     }

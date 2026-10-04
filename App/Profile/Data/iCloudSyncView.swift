@@ -68,7 +68,6 @@ struct iCloudSyncView: View {
         }
         .navigationTitle(String(localized: "iCloudSync.Title", table: "DataManagement"))
         .toolbarTitleDisplayMode(.inline)
-        .sakuraBackground()
         .task {
             accountStatus = await CloudSyncEngine.shared.accountStatus()
             refreshLastSyncedAt()

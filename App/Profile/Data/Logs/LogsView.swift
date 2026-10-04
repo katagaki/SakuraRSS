@@ -32,7 +32,6 @@ struct LogsView: View {
             }
         }
         .listStyle(.plain)
-        .sakuraBackground()
         .navigationTitle(String(localized: "Section.Logs", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
         .toolbar {

@@ -113,7 +113,6 @@ struct ProfileView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .sakuraBackground()
             .navigationTitle("Tabs.Profile")
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbarTitleDisplayMode(
@@ -146,5 +145,6 @@ struct ProfileView: View {
                     .environment(\.zoomNamespace, cardZoom)
             }
         }
+        .environment(\.isSakuraBackgroundDisabled, true)
     }
 }

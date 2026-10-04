@@ -47,7 +47,6 @@ struct FocusSettingsView: View {
             #endif
         }
         .settingsListStyle()
-        .sakuraBackground()
         .navigationTitle(String(localized: "Section.Focus", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
     }
