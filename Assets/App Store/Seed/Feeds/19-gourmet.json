@@ -1,0 +1,38 @@
+{
+  "key": "gourmet",
+  "title": {"en": "Gourmet Research Society", "ja": "美食研究会"},
+  "url": "https://gourmet.gehenna.kivotos/feed",
+  "site": "https://gourmet.gehenna.kivotos",
+  "hue": 8,
+  "icon": {"style": "solid", "background": "#FFF4E0", "foreground": "#C2410C", "text": "食", "font": "kanji", "fill": 0.56},
+  "articles": [
+    {
+      "slug": "ramen-review",
+      "age": 100,
+      "author": "Haruna",
+      "title": {
+        "en": "Shibaseki Ramen: still the best bowl in Kivotos",
+        "ja": "柴関ラーメン：やはりキヴォトス一の一杯"
+      },
+      "summary": {
+        "en": "Five stars, and for once, nothing was blown up afterwards.",
+        "ja": "星五つ。そして珍しく、食後に何も爆破しなかった。"
+      },
+      "entities": [["Shibaseki Ramen", "organization"], ["Haruna", "person"], ["Abydos", "place"]]
+    },
+    {
+      "slug": "cafeteria-review",
+      "age": 600,
+      "author": "Haruna",
+      "title": {
+        "en": "We reviewed the Gehenna cafeteria's new menu so you do not have to",
+        "ja": "ゲヘナ学食の新メニューを代わりに食べてきました"
+      },
+      "summary": {
+        "en": "The curry is good. The rest is under investigation by the Prefect Team.",
+        "ja": "カレーは美味しい。それ以外は風紀委員会が調査中だ。"
+      },
+      "entities": [["Gehenna Academy", "organization"], ["Prefect Team", "organization"]]
+    }
+  ]
+}

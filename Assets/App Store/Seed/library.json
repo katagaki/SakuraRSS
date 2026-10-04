@@ -1,0 +1,76 @@
+{
+  "lists": [
+    {"name": {"en": "Millennium", "ja": "ミレニアム"}, "feeds": ["millennium-times", "gamedev", "tech-board", "network-status", "veritas-hour"]},
+    {"name": {"en": "Trinity", "ja": "トリニティ"}, "feeds": ["trinity-gazette", "trinity-sweets"]},
+    {"name": {"en": "Gehenna", "ja": "ゲヘナ"}, "feeds": ["gehenna-bulletin", "gourmet"]},
+    {"name": {"en": "Videos", "ja": "動画"}, "feeds": ["momoi-midori", "trinity-sweets"]},
+    {"name": {"en": "Socials", "ja": "SNS"}, "feeds": ["r-kivotos", "schale-social"]}
+  ],
+  "bookmarks": {
+    "book.closed": ["engineering-railgun", "abydos-water-line", "library-wing", "ramen-review", "tales-of-sega-2"],
+    "play.rectangle": ["aris-reacts", "chestnut-tart"],
+    "headphones": ["ep-112", "vh-57"],
+    "unsorted": ["sunset-from-tower", "quantum-lab", "festival-dates", "maple-viewing", "pixel-art", "tea-party-menu", "bike-thefts", "kivotos-mesh-network"]
+  },
+  "bookmarkTags": [
+    {"name": {"en": "Must Read", "ja": "必読"}, "articles": ["engineering-railgun", "schale-open-house", "abydos-water-line"]},
+    {"name": {"en": "Events", "ja": "イベント"}, "articles": ["festival-dates", "maple-viewing", "tea-party-menu"]},
+    {"name": {"en": "Tech", "ja": "テクノロジー"}, "articles": ["quantum-lab", "kivotos-mesh-network", "pixel-art", "tales-of-sega-2"]},
+    {"name": {"en": "Photos", "ja": "写真"}, "articles": ["sunset-from-tower"]},
+    {"name": {"en": "Food", "ja": "グルメ"}, "articles": ["ramen-review", "chestnut-tart", "tea-party-menu"]}
+  ],
+  "bookmarkFolders": {
+    "book.closed": {"en": "Read Later", "ja": "あとで読む"},
+    "play.rectangle": {"en": "Watch Later", "ja": "あとで見る"},
+    "headphones": {"en": "Listen Later", "ja": "あとで聴く"}
+  },
+  "read": ["train-delays", "snow-forecast", "lantern-making", "new-students", "request-form"],
+  "entityNames": {
+    "ja": {
+      "Abydos": "アビドス",
+      "Abydos Desert": "アビドス砂漠",
+      "Abydos High School": "アビドス高等学校",
+      "Arona": "アロナ",
+      "Aris": "アリス",
+      "Black Market": "ブラックマーケット",
+      "Cherino": "チェリノ",
+      "Chihiro": "チヒロ",
+      "Cleaning & Clearing": "C&C",
+      "D.U. Shiratori District": "D.U.シラトリ区",
+      "Engineering Department": "エンジニア部",
+      "Game Development Department": "ゲーム開発部",
+      "Gehenna Academy": "ゲヘナ学園",
+      "General Student Council": "連邦生徒会",
+      "Hare": "ハレ",
+      "Haruna": "ハルナ",
+      "Hina": "ヒナ",
+      "Hoshino": "ホシノ",
+      "Hyakkiyako Alliance Academy": "百鬼夜行連合学院",
+      "Justice Task Force": "正義実現委員会",
+      "Kivotos": "キヴォトス",
+      "Midori": "ミドリ",
+      "Mika": "ミカ",
+      "Millennium Science School": "ミレニアムサイエンススクール",
+      "MomoTalk": "モモトーク",
+      "Momoi": "モモイ",
+      "Nagisa": "ナギサ",
+      "Ninjutsu Research Club": "忍術研究部",
+      "Prefect Team": "風紀委員会",
+      "Red Winter Federal Academy": "レッドウィンター連邦学園",
+      "Schale": "シャーレ",
+      "Seminar": "セミナー",
+      "Sensei": "先生",
+      "Shibaseki Ramen": "柴関ラーメン",
+      "Shiroko": "シロコ",
+      "Sisterhood": "シスターフッド",
+      "Tea Party": "ティーパーティー",
+      "Toki": "トキ",
+      "Trinity General School": "トリニティ総合学園",
+      "Utaha": "ウタハ",
+      "Valkyrie Police School": "ヴァルキューレ警察学校",
+      "Veritas": "ヴェリタス",
+      "Yuuka": "ユウカ",
+      "Yuzu": "ユズ"
+    }
+  }
+}

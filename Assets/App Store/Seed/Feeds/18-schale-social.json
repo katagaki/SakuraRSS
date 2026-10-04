@@ -1,0 +1,54 @@
+{
+  "key": "schale-social",
+  "kind": "fediverse",
+  "title": {"en": "Schale", "ja": "シャーレ"},
+  "url": "https://kivotos.social/@schale.rss",
+  "site": "https://kivotos.social/@schale",
+  "hue": 196,
+  "articles": [
+    {
+      "slug": "post-coffee",
+      "age": 15,
+      "author": "@schale@kivotos.social",
+      "image": false,
+      "title": {
+        "en": "Sensei has had three coffees and it is not yet nine. Please send fewer requests before lunch.",
+        "ja": "九時前なのに先生はもうコーヒー三杯目です。お昼までは依頼を控えめにお願いします。"
+      },
+      "summary": {
+        "en": "Sensei has had three coffees and it is not yet nine. Please send fewer requests before lunch.",
+        "ja": "九時前なのに先生はもうコーヒー三杯目です。お昼までは依頼を控えめにお願いします。"
+      },
+      "entities": [["Sensei", "person"]]
+    },
+    {
+      "slug": "post-open-house",
+      "age": 210,
+      "author": "@schale@kivotos.social",
+      "title": {
+        "en": "Thank you to everyone who came to the open house! Photos coming soon.",
+        "ja": "オープンハウスに来てくれた皆さん、ありがとうございました！写真は近日公開します。"
+      },
+      "summary": {
+        "en": "Thank you to everyone who came to the open house! Photos coming soon.",
+        "ja": "オープンハウスに来てくれた皆さん、ありがとうございました！写真は近日公開します。"
+      },
+      "entities": [["Schale", "organization"]]
+    },
+    {
+      "slug": "post-arona",
+      "age": 900,
+      "author": "@schale@kivotos.social",
+      "image": false,
+      "title": {
+        "en": "Arona has reorganised the filing cabinet. Nobody can find anything, but it looks very nice.",
+        "ja": "アロナが書類棚を整理しました。誰も何も見つけられませんが、とてもきれいです。"
+      },
+      "summary": {
+        "en": "Arona has reorganised the filing cabinet. Nobody can find anything, but it looks very nice.",
+        "ja": "アロナが書類棚を整理しました。誰も何も見つけられませんが、とてもきれいです。"
+      },
+      "entities": [["Arona", "person"]]
+    }
+  ]
+}

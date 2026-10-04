@@ -1,0 +1,68 @@
+{
+  "key": "network-status",
+  "kind": "status",
+  "title": {"en": "Millennium Network Status", "ja": "ミレニアム ネットワーク稼働状況"},
+  "url": "https://status.millennium.kivotos/history.rss",
+  "site": "https://status.millennium.kivotos",
+  "hue": 158,
+  "icon": {"style": "rings", "background": "#0F1F1A", "foreground": "#34D399"},
+  "articles": [
+    {
+      "slug": "momotalk-delays",
+      "age": 45,
+      "title": {
+        "en": "Delayed messages on MomoTalk",
+        "ja": "モモトークでメッセージの遅延"
+      },
+      "updates": [
+        {"after": 0, "status": {"en": "Investigating", "ja": "調査中"}, "text": {"en": "Some messages are taking several minutes to arrive. We are looking into it.", "ja": "一部のメッセージの到着に数分かかっています。原因を調査しています。"}}
+      ]
+    },
+    {
+      "slug": "halo-sync-errors",
+      "age": 2900,
+      "title": {
+        "en": "Elevated errors on the Halo Sync API",
+        "ja": "ヘイロー同期APIでエラーが増加"
+      },
+      "updates": [
+        {"after": 95, "status": {"en": "Resolved", "ja": "解決済み"}, "text": {"en": "Error rates are back to normal.", "ja": "エラー率は通常に戻りました。"}},
+        {"after": 0, "status": {"en": "Investigating", "ja": "調査中"}, "text": {"en": "We are seeing more errors than usual from the Halo Sync API.", "ja": "ヘイロー同期APIで通常より多くのエラーが発生しています。"}}
+      ]
+    },
+    {
+      "slug": "tower-elevator",
+      "age": 4400,
+      "title": {
+        "en": "Millennium Tower access gates unavailable",
+        "ja": "ミレニアムタワーの入館ゲートが利用不可"
+      },
+      "updates": [
+        {"after": 40, "status": {"en": "Resolved", "ja": "解決済み"}, "text": {"en": "The gates are working again. Thank you for using the stairs.", "ja": "ゲートは復旧しました。階段をご利用いただきありがとうございました。"}},
+        {"after": 0, "status": {"en": "Identified", "ja": "特定済み"}, "text": {"en": "A firmware update stopped the gates reading student cards.", "ja": "ファームウェア更新により、学生証が読み取れなくなっていました。"}}
+      ]
+    },
+    {
+      "slug": "printer-queue",
+      "age": 5900,
+      "title": {
+        "en": "Print queue stuck in the Seminar office",
+        "ja": "セミナー室の印刷キューが停止"
+      },
+      "updates": [
+        {"after": 20, "status": {"en": "Resolved", "ja": "解決済み"}, "text": {"en": "The queue has been cleared. All 400 copies of the budget report have printed.", "ja": "キューを解消しました。予算報告書400部はすべて印刷済みです。"}}
+      ]
+    },
+    {
+      "slug": "game-servers",
+      "age": 8700,
+      "title": {
+        "en": "Game servers unreachable during the Tales Saga Chronicle 2 beta",
+        "ja": "テイルズ・サガ・クロニクル2ベータ中にゲームサーバーへ接続不可"
+      },
+      "updates": [
+        {"after": 180, "status": {"en": "Resolved", "ja": "解決済み"}, "text": {"en": "Capacity has been added. Please do not all log in at once again.", "ja": "サーバーを増強しました。次は一斉にログインしないでください。"}}
+      ]
+    }
+  ]
+}

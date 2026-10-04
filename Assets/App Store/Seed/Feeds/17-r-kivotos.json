@@ -1,0 +1,71 @@
+{
+  "key": "r-kivotos",
+  "kind": "reddit",
+  "title": {"en": "r/Kivotos", "ja": "r/Kivotos"},
+  "url": "https://www.reddit.com/r/Kivotos/hot/",
+  "site": "https://www.reddit.com/r/Kivotos/hot/",
+  "hue": 16,
+  "icon": {"style": "solid", "background": "#FF4500", "foreground": "#FFFFFF", "text": "r/", "font": "rounded"},
+  "articles": [
+    {
+      "slug": "sunset-from-tower",
+      "age": 30,
+      "author": "u/millennium_photo_club",
+      "title": {
+        "en": "Sunset from the top of Millennium Tower",
+        "ja": "ミレニアムタワーの屋上から見た夕焼け"
+      },
+      "summary": {"en": "", "ja": ""}
+    },
+    {
+      "slug": "abydos-dunes",
+      "age": 140,
+      "author": "u/shiroko_rides",
+      "title": {
+        "en": "The dunes outside Abydos after this morning's wind",
+        "ja": "今朝の風の後のアビドス郊外の砂丘"
+      },
+      "summary": {"en": "", "ja": ""}
+    },
+    {
+      "slug": "trinity-garden",
+      "age": 260,
+      "author": "u/tea_party_gardener",
+      "title": {
+        "en": "The rose garden at Trinity is in its second bloom",
+        "ja": "トリニティのバラ園が二番花の季節に"
+      },
+      "summary": {"en": "", "ja": ""}
+    },
+    {
+      "slug": "hyakkiyako-lanterns",
+      "age": 380,
+      "author": "u/lantern_walker",
+      "title": {
+        "en": "Lantern test run on the Hyakkiyako riverbank",
+        "ja": "百鬼夜行の河川敷で灯籠の試験点灯"
+      },
+      "summary": {"en": "", "ja": ""}
+    },
+    {
+      "slug": "red-winter-aurora",
+      "age": 700,
+      "author": "u/federal_night_owl",
+      "title": {
+        "en": "Caught the aurora over Red Winter last night",
+        "ja": "昨夜、レッドウィンターの上空でオーロラを撮影"
+      },
+      "summary": {"en": "", "ja": ""}
+    },
+    {
+      "slug": "gehenna-night",
+      "age": 950,
+      "author": "u/prefect_off_duty",
+      "title": {
+        "en": "Gehenna at night, from the clock tower",
+        "ja": "時計塔から見た夜のゲヘナ"
+      },
+      "summary": {"en": "", "ja": ""}
+    }
+  ]
+}

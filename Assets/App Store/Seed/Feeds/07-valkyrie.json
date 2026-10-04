@@ -1,0 +1,38 @@
+{
+  "key": "valkyrie",
+  "title": {"en": "Valkyrie Police Bulletin", "ja": "ヴァルキューレ警察だより"},
+  "url": "https://valkyrie.kivotos/bulletin/rss",
+  "site": "https://valkyrie.kivotos",
+  "hue": 228,
+  "icon": {"style": "stripes", "bands": ["#1E3A8A", "#FFFFFF", "#1E3A8A"], "foreground": "#F2C230", "text": "V"},
+  "articles": [
+    {
+      "slug": "bike-thefts",
+      "age": 120,
+      "author": "Valkyrie Police School",
+      "title": {
+        "en": "Bicycle thefts fall by half after new racks go in",
+        "ja": "新しい駐輪ラックの設置で自転車盗難が半減"
+      },
+      "summary": {
+        "en": "Officers thank the Engineering Department for the racks, and ask that they stop adding rocket boosters to them.",
+        "ja": "エンジニア部にはラックの協力に感謝しつつ、ロケットブースターを付けるのはやめてほしいとのこと。"
+      },
+      "entities": [["Valkyrie Police School", "organization"], ["Engineering Department", "organization"]]
+    },
+    {
+      "slug": "road-closure",
+      "age": 450,
+      "author": "Valkyrie Police School",
+      "title": {
+        "en": "Main street closed on Saturday for the Kivotos marathon",
+        "ja": "土曜はキヴォトス・マラソンのため大通りを通行止め"
+      },
+      "summary": {
+        "en": "Detours are signposted from the station. Runners have right of way, even the slow ones.",
+        "ja": "迂回路は駅から案内があります。ランナー優先です。ゆっくりな人も含めて。"
+      },
+      "entities": [["Kivotos", "place"]]
+    }
+  ]
+}

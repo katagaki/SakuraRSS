@@ -1,0 +1,81 @@
+{
+  "key": "millennium-times",
+  "title": {"en": "Millennium Science Times", "ja": "ミレニアム科学新聞"},
+  "url": "https://times.millennium.kivotos/rss",
+  "site": "https://times.millennium.kivotos",
+  "hue": 188,
+  "icon": {"style": "solid", "background": "#0E1A2E", "foreground": "#5EE6F2", "text": "M", "font": "sans"},
+  "articles": [
+    {
+      "slug": "engineering-railgun",
+      "age": 26,
+      "author": "Millennium Science Times",
+      "body": "millennium-engineering-railgun",
+      "title": {
+        "en": "Engineering Department unveils a railgun small enough to carry, and Aris has already named it",
+        "ja": "エンジニア部が持ち運べるレールガンを発表、アリスはもう名前を付けていた"
+      },
+      "summary": {
+        "en": "The new design weighs a third of the Super Nova and charges in under a minute. Seminar has asked for a full safety review before anyone fires it indoors.",
+        "ja": "新型はスーパーノヴァの三分の一の重さで、充電は一分以内。屋内での発射前に、セミナーは安全審査を求めている。"
+      },
+      "entities": [["Engineering Department", "organization"], ["Aris", "person"], ["Seminar", "organization"], ["Millennium Science School", "organization"]]
+    },
+    {
+      "slug": "seminar-budget",
+      "age": 70,
+      "author": "Millennium Science Times",
+      "title": {
+        "en": "Seminar's budget review finds three clubs spent more on snacks than on equipment",
+        "ja": "セミナーの予算監査、三つの部活で備品よりお菓子の支出が多いと判明"
+      },
+      "summary": {
+        "en": "Treasurer Yuuka says the findings are \"not a surprise, only a disappointment\".",
+        "ja": "会計のユウカは「驚きはない、ただ残念なだけ」とコメントした。"
+      },
+      "entities": [["Seminar", "organization"], ["Yuuka", "person"]]
+    },
+    {
+      "slug": "quantum-lab",
+      "age": 140,
+      "author": "Millennium Science Times",
+      "title": {
+        "en": "New quantum lab opens in the Millennium Tower basement",
+        "ja": "ミレニアムタワー地下に量子研究室が新設"
+      },
+      "summary": {
+        "en": "The lab will be shared by four research clubs, and booked in two-hour slots.",
+        "ja": "研究室は四つの研究部で共用し、二時間単位で予約する仕組みだ。"
+      },
+      "entities": [["Millennium Science School", "organization"]]
+    },
+    {
+      "slug": "veritas-audit",
+      "age": 210,
+      "author": "Millennium Science Times",
+      "title": {
+        "en": "Veritas finds and fixes a bug in the school's attendance system",
+        "ja": "ヴェリタス、学園の出欠システムの不具合を発見・修正"
+      },
+      "summary": {
+        "en": "The bug let students mark themselves present from anywhere in Kivotos. It has been there since last spring.",
+        "ja": "キヴォトスのどこからでも出席登録ができてしまう不具合で、昨年の春から存在していた。"
+      },
+      "entities": [["Veritas", "organization"], ["Kivotos", "place"]]
+    },
+    {
+      "slug": "robotics-cup",
+      "age": 330,
+      "author": "Millennium Science Times",
+      "title": {
+        "en": "Millennium takes first place at the Kivotos Robotics Cup",
+        "ja": "キヴォトス・ロボティクス杯でミレニアムが優勝"
+      },
+      "summary": {
+        "en": "The winning robot sorted three hundred parcels in four minutes, then politely bowed to the judges.",
+        "ja": "優勝ロボットは四分で三百個の荷物を仕分け、審査員に丁寧にお辞儀をしてみせた。"
+      },
+      "entities": [["Millennium Science School", "organization"], ["Kivotos", "place"]]
+    }
+  ]
+}

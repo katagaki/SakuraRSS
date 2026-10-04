@@ -1,0 +1,54 @@
+{
+  "key": "trinity-sweets",
+  "kind": "video",
+  "title": {"en": "Trinity After-School Sweets", "ja": "トリニティ放課後スイーツ"},
+  "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCkivotosTrinitySweets",
+  "site": "https://www.youtube.com/channel/UCkivotosTrinitySweets",
+  "hue": 14,
+  "icon": {"style": "solid", "background": "#FFE3EC", "foreground": "#C2416B", "text": "S", "font": "serif", "fill": 0.6},
+  "articles": [
+    {
+      "slug": "chestnut-tart",
+      "youtube": {"id": "aqz-KE-bpKQ", "credit": "Big Buck Bunny (c) 2008 Blender Foundation, www.bigbuckbunny.org, CC BY 3.0"},
+      "age": 110,
+      "author": "Trinity After-School Sweets",
+      "title": {
+        "en": "The Tea Party's chestnut tart, made at home",
+        "ja": "ティーパーティーの栗のタルトを家で作る"
+      },
+      "summary": {
+        "en": "Everything you need, and a tip for keeping the pastry crisp.",
+        "ja": "必要な材料と、生地をサクサクに保つコツ。"
+      },
+      "entities": [["Tea Party", "organization"]]
+    },
+    {
+      "slug": "roll-cake",
+      "age": 1700,
+      "author": "Trinity After-School Sweets",
+      "title": {
+        "en": "A roll cake that will not crack",
+        "ja": "ひび割れないロールケーキ"
+      },
+      "summary": {
+        "en": "Roll it warm, roll it once, and do not look away.",
+        "ja": "温かいうちに、一度で巻く。目を離さないこと。"
+      },
+      "entities": [["Trinity General School", "organization"]]
+    },
+    {
+      "slug": "macaron-tower",
+      "age": 5100,
+      "author": "Trinity After-School Sweets",
+      "title": {
+        "en": "Building a macaron tower for the cathedral bake sale",
+        "ja": "大聖堂のバザーに向けてマカロンタワーを作る"
+      },
+      "summary": {
+        "en": "Three hundred macarons, eight colours, one very steady hand.",
+        "ja": "マカロン三百個、八色、そしてとても安定した手。"
+      },
+      "entities": [["Sisterhood", "organization"]]
+    }
+  ]
+}
