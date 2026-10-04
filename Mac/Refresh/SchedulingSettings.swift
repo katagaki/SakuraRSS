@@ -8,6 +8,7 @@ struct SchedulingSettings: Equatable {
     let refreshInterval: Int
     let isAutomaticCleanupEnabled: Bool
     let cleanupCutoff: String?
+    let backupInterval: Int
 
     static var current: SchedulingSettings {
         let defaults = UserDefaults.standard
@@ -15,7 +16,8 @@ struct SchedulingSettings: Equatable {
             isPeriodicRefreshEnabled: defaults.object(forKey: "BackgroundRefresh.Enabled") as? Bool ?? true,
             refreshInterval: defaults.integer(forKey: "BackgroundRefresh.Interval"),
             isAutomaticCleanupEnabled: defaults.bool(forKey: "Cleanup.Automatic.Enabled"),
-            cleanupCutoff: defaults.string(forKey: "Cleanup.Automatic.Cutoff")
+            cleanupCutoff: defaults.string(forKey: "Cleanup.Automatic.Cutoff"),
+            backupInterval: defaults.integer(forKey: "iCloudBackup.Interval")
         )
     }
 }

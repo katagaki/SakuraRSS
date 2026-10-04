@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
     private(set) var refreshCoordinator: RefreshCoordinator!
     private var settingsWindowController: SettingsWindowController?
     private var dockBadgeCoordinator: DockBadgeCoordinator?
+    private let backupScheduler = BackupScheduler()
     private var defaultsObserver: NSObjectProtocol?
     private var schedulingSettings = SchedulingSettings.current
 
@@ -21,9 +22,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         if registry.controllers.isEmpty {
             registry.openWindow()
         }
+        connectServices()
         refreshCoordinator.refreshOnLaunchIfEnabled()
         refreshCoordinator.schedulePeriodicRefresh()
         AutomaticCleanupScheduler.scheduleNextCleanup()
+        backupScheduler.schedule()
         observeSchedulingSettings()
         dockBadgeCoordinator = DockBadgeCoordinator(feedManager: registry.feedManager)
         #if DEBUG
@@ -49,6 +52,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
 
     @objc func newBrowserWindow(_ sender: Any?) {
         registry.openWindow()
+    }
+
+    /// What iOS connects at startup, with iCloud sync only when this build is
+    /// signed with CloudKit.
+    private func connectServices() {
+        let feedManager = registry.feedManager
+        feedManager.connectProviderSessions()
+        if AppEntitlements.hasCloudKit {
+            feedManager.connectCloudSync()
+        }
+        Task {
+            await FeedProviderRegistry.migrateAuthenticatedCookies()
+        }
     }
 
     @objc func showSettings(_ sender: Any?) {
@@ -83,6 +99,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         if latest.isAutomaticCleanupEnabled != schedulingSettings.isAutomaticCleanupEnabled
             || latest.cleanupCutoff != schedulingSettings.cleanupCutoff {
             AutomaticCleanupScheduler.scheduleNextCleanup()
+        }
+        if latest.backupInterval != schedulingSettings.backupInterval {
+            backupScheduler.schedule()
         }
         schedulingSettings = latest
     }
