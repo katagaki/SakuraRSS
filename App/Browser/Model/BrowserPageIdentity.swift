@@ -8,6 +8,9 @@ import Hanami
 struct BrowserPageIdentity: @MainActor TabPageIdentity {
     var title: String
     var subtitle: String?
+    /// Set by content pages, whose bar names the feed but whose tab card
+    /// should name the content itself.
+    var contentTitle: String?
     var symbolName: String
     var feedID: Int64?
     var feedSection: FeedSection?
@@ -73,6 +76,7 @@ extension View {
     func browserPage(
         title: String,
         subtitle: String? = nil,
+        contentTitle: String? = nil,
         symbolName: String,
         feedID: Int64? = nil,
         feedSection: FeedSection? = nil,
@@ -81,6 +85,7 @@ extension View {
         modifier(BrowserPageModifier(identity: BrowserPageIdentity(
             title: title,
             subtitle: subtitle,
+            contentTitle: contentTitle,
             symbolName: symbolName,
             feedID: feedID,
             feedSection: feedSection,
