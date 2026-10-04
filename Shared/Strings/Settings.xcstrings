@@ -2737,61 +2737,61 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Browser"
+            "value" : "Standardbrowser"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Browser"
+            "value" : "Default Browser"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Navigateur"
+            "value" : "Navigateur par défaut"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Browser"
+            "value" : "Browser predefinito"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ブラウザ"
+            "value" : "デフォルトのブラウザ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "브라우저"
+            "value" : "기본 브라우저"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Browser"
+            "value" : "Standaardbrowser"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trình duyệt"
+            "value" : "Trình duyệt mặc định"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "浏览器"
+            "value" : "默认浏览器"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "瀏覽器"
+            "value" : "預設瀏覽器"
           }
         }
       }
@@ -2802,61 +2802,61 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In-App-Viewer"
+            "value" : "Sakura"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In-App Viewer"
+            "value" : "Sakura"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Visionneuse intégrée"
+            "value" : "Sakura"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Visualizzatore in-app"
+            "value" : "Sakura"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アプリ内ビューア"
+            "value" : "サクラ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "앱 내 뷰어"
+            "value" : "사쿠라"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ingebouwde weergave"
+            "value" : "Sakura"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trình xem trong ứng dụng"
+            "value" : "Sakura"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "应用内查看器"
+            "value" : "樱花阅读器"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "應用程式內檢視器"
+            "value" : "櫻花閱讀器"
           }
         }
       }
@@ -5394,71 +5394,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "訂閱源"
-          }
-        }
-      }
-    },
-    "Section.InAppViewer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In-App-Viewer"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In-App Viewer"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visionneuse intégrée"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visualizzatore in-app"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アプリ内ビューア"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "앱 내 뷰어"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ingebouwde weergave"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trình xem trong ứng dụng"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "应用内查看器"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "應用程式內檢視器"
           }
         }
       }
@@ -8969,6 +8904,71 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "瀏覽器"
+          }
+        }
+      }
+    },
+    "Section.Links" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Links"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Links"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liens"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リンク"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "링크"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koppelingen"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liên kết"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "链接"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "連結"
           }
         }
       }
