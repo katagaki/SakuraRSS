@@ -6,6 +6,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private(set) var feedManager: FeedManager?
     private var scaffoldWindowController: NSWindowController?
 
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        NSApp.mainMenu = MainMenuBuilder.build()
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         let feedManager = FeedManager()
         self.feedManager = feedManager
