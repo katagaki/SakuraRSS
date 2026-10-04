@@ -7,6 +7,8 @@ struct AddFeedSheet: View {
     let onDone: () -> Void
     @State var session: FeedDiscoverySession
     @State private var input = ""
+    @State private var isGeneratingWebFeed = false
+    @AppStorage("Labs.PetalRecipes") private var webFeedsEnabled = false
 
     private var subscribedURLs: Set<String> {
         Set(feedManager.feeds.map(\.url))
@@ -27,6 +29,10 @@ struct AddFeedSheet: View {
             content
                 .frame(maxWidth: .infinity, minHeight: 180, maxHeight: 360)
             HStack {
+                if webFeedsEnabled {
+                    Button(String(localized: "AddFeed.Generate", table: "Petal")) { isGeneratingWebFeed = true }
+                        .disabled(input.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
                 Spacer()
                 Button(String(localized: "Shared.Done"), action: onDone)
                     .keyboardShortcut(.defaultAction)
@@ -34,6 +40,11 @@ struct AddFeedSheet: View {
         }
         .padding(20)
         .frame(width: 520)
+        .sheet(isPresented: $isGeneratingWebFeed) {
+            PetalBuilderView(mode: .create(initialURL: BrowserAddressInput.normalizedURLString(from: input) ?? input))
+                .environment(feedManager)
+                .frame(minWidth: 600, minHeight: 640)
+        }
         .onAppear {
             guard !session.urlString.isEmpty else { return }
             input = BrowserAddressInput.displayString(for: session.urlString)

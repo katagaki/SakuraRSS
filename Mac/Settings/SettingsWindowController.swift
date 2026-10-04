@@ -18,7 +18,9 @@ final class SettingsWindowController: NSWindowController {
             SettingsTab("Section.InsightsAndIntelligence", "sparkles") {
                 IntelligenceSettingsPane(feedManager: feedManager)
             },
-            SettingsTab("Section.Integrations", "person.crop.circle") { AccountsSettingsPane() },
+            SettingsTab("Section.Integrations", "person.crop.circle") {
+                AccountsSettingsPane().environment(feedManager)
+            },
             SettingsTab("Section.Data", "externaldrive") { DataSettingsPane(feedManager: feedManager) }
         ]
         for pane in panes {
