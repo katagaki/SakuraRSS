@@ -12,7 +12,7 @@ final class BackupScheduler {
         scheduler = nil
         let intervalRaw = UserDefaults.standard.integer(forKey: "iCloudBackup.Interval")
         let interval = iCloudBackupManager.BackupInterval(rawValue: intervalRaw) ?? .everyNight
-        guard AppEntitlements.hasCloudKit, interval != .off else { return }
+        guard CloudKitEntitlement.isAvailable, interval != .off else { return }
         let scheduler = NSBackgroundActivityScheduler(identifier: "com.tsubuzaki.SakuraRSS.iCloudBackup")
         scheduler.repeats = true
         scheduler.interval = 3 * 60 * 60

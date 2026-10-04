@@ -64,7 +64,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
     private func connectServices() {
         let feedManager = registry.feedManager
         feedManager.connectProviderSessions()
-        if AppEntitlements.hasCloudKit {
+        if CloudKitEntitlement.isAvailable {
             feedManager.connectCloudSync()
         }
         Task {
