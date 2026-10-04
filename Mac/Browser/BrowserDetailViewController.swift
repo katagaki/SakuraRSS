@@ -8,15 +8,14 @@ final class BrowserDetailViewController: NSViewController {
 
     let feedManager: FeedManager
     let contentSplitViewController: ContentSplitViewController
-    private let todayViewController: NSHostingController<TodayPage>
+    private let todayViewController: TodaySplitViewController
     private let articleViewController: NSHostingController<ReaderPane>
 
     init(feedManager: FeedManager, actions: TodayActions) {
         self.feedManager = feedManager
         contentSplitViewController = ContentSplitViewController(feedManager: feedManager)
-        todayViewController = NSHostingController(rootView: TodayPage(feedManager: feedManager, actions: actions))
+        todayViewController = TodaySplitViewController(feedManager: feedManager, actions: actions)
         articleViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil))
-        todayViewController.sizingOptions = []
         articleViewController.sizingOptions = []
         super.init(nibName: nil, bundle: nil)
     }
