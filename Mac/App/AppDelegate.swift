@@ -104,14 +104,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         ) { [weak self] notification in
             let articleID = notification.userInfo?["articleID"] as? Int64
             MainActor.assumeIsolated {
-                guard let self, let articleID else { return }
-                let controller = (NSApp.keyWindow?.windowController as? BrowserWindowController)
-                    ?? self.registry.controllers.last
-                    ?? self.registry.openWindow()
-                controller.navigate(to: .article(articleID))
-                controller.window?.makeKeyAndOrderFront(nil)
+                guard let articleID else { return }
+                self?.openContent(articleID)
             }
         }
+    }
+
+    func openContent(_ articleID: Int64) {
+        frontWindowController().navigate(to: .article(articleID))
+    }
+
+    func frontWindowController() -> BrowserWindowController {
+        let controller = (NSApp.keyWindow?.windowController as? BrowserWindowController)
+            ?? registry.controllers.last
+            ?? registry.openWindow()
+        controller.window?.makeKeyAndOrderFront(nil)
+        return controller
     }
 
     private func rescheduleIfSettingsChanged() {
