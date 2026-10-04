@@ -54,6 +54,15 @@ extension SidebarViewController: NSMenuDelegate {
     }
 
     private func addFeedItems(for feed: Feed, to menu: NSMenu) {
+        menu.addItem(.separator())
+        menu.addItem(editFeedItem("FeedMenu.Edit", symbolName: "pencil", feed: feed, tab: .about))
+        let rulesSymbol = "line.3.horizontal.decrease.circle"
+        menu.addItem(editFeedItem("FeedMenu.Rules", symbolName: rulesSymbol, feed: feed, tab: .rules))
+        menu.addItem(editFeedItem("FeedMenu.AddToList", symbolName: "text.badge.plus", feed: feed, tab: .lists))
+        let muteTitle = String(localized: feed.isMuted ? "FeedMenu.Unmute" : "FeedMenu.Mute", table: "Feeds")
+        menu.addItem(ActionMenuItem(muteTitle, symbolName: feed.isMuted ? "bell" : "bell.slash") { [weak self] in
+            self?.feedManager.toggleMuted(feed)
+        })
         if let url = URL(string: feed.url) {
             menu.addItem(ActionMenuItem(String(localized: "Article.CopyLink", table: "Articles"), symbolName: "link") {
                 NSPasteboard.general.clearContents()
@@ -65,5 +74,17 @@ extension SidebarViewController: NSMenuDelegate {
         menu.addItem(ActionMenuItem(unfollowTitle, symbolName: "minus.circle") { [weak self] in
             self?.confirmUnfollowing(feed)
         })
+    }
+
+    private func editFeedItem(
+        _ titleKey: String.LocalizationValue,
+        symbolName: String,
+        feed: Feed,
+        tab: FeedEditTab
+    ) -> NSMenuItem {
+        ActionMenuItem(String(localized: titleKey, table: "Feeds"), symbolName: symbolName) { [weak self] in
+            guard let self else { return }
+            self.presentSwiftUISheet(EditFeedSheet(feedID: feed.id, initialTab: tab), feedManager: self.feedManager)
+        }
     }
 }
