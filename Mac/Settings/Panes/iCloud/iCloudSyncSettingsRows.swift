@@ -6,7 +6,7 @@ import SwiftUI
 struct iCloudSyncSettingsRows: View {
 
     @AppStorage(CloudSyncEngine.enabledDefaultsKey) private var isSyncEnabled = false
-    @State private var accountStatus: CKAccountStatus?
+    @State private var accountStatus: CKAccountStatus = .available
     @State private var isSyncing = false
     @State private var lastSyncedAt: Date?
     @State private var showSyncError = false
@@ -36,7 +36,7 @@ struct iCloudSyncSettingsRows: View {
                         }
                     }
                 }
-            } else if accountStatus != nil {
+            } else {
                 LabeledContent(SettingsText.data("iCloudSync.Title")) {
                     SettingsNote(text: SettingsText.data("iCloudSync.Unavailable"))
                 }
