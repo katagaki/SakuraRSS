@@ -10,6 +10,10 @@ struct NowPlayingButton: View {
     let onShowContent: (Int64) -> Void
     @State private var isShowingControls = false
 
+    static func hasContent(player: AudioPlayer, session: YouTubePlayerSession) -> Bool {
+        player.currentArticleID != nil || (session.isActive && session.currentArticle != nil)
+    }
+
     var body: some View {
         if let articleID = player.currentArticleID {
             button(artworkURL: player.currentArtworkURL, isPlaying: player.isPlaying, aspectRatio: 1) {

@@ -22,6 +22,7 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
     }
     private let addressField: NSView
     private let refreshButton: NSView
+    private var nowPlayingObserver: ChangeObserver?
     var onShowEpisode: ((Int64) -> Void)?
 
     init(addressField: NSView, refreshButton: NSView) {
@@ -123,6 +124,13 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
             self?.onShowEpisode?(articleID)
         }
         item.view = NSHostingView(rootView: button)
+        // An empty item would still leave a gap in the toolbar's group.
+        item.isHidden = !NowPlayingButton.hasContent(player: .shared, session: .shared)
+        nowPlayingObserver = ChangeObserver {
+            _ = NowPlayingButton.hasContent(player: .shared, session: .shared)
+        } onChange: { [weak item] in
+            item?.isHidden = !NowPlayingButton.hasContent(player: .shared, session: .shared)
+        }
         return item
     }
 
