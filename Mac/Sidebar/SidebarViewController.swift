@@ -93,8 +93,8 @@ final class SidebarViewController: NSViewController {
             outlineView.deselectAll(nil)
             return
         }
-        if let parent = outlineView.parent(forItem: node), !outlineView.isItemExpanded(parent) {
-            outlineView.expandItem(parent)
+        for ancestor in ancestors(of: node) where !outlineView.isItemExpanded(ancestor) {
+            outlineView.expandItem(ancestor)
         }
         let row = outlineView.row(forItem: node)
         guard row >= 0 else { return }
@@ -112,5 +112,16 @@ final class SidebarViewController: NSViewController {
             if let match = self.node(withIdentifier: identifier, in: node.children) { return match }
         }
         return nil
+    }
+
+    /// Found in the tree rather than the outline view, which only knows the
+    /// parents of rows inside expanded sections.
+    private func ancestors(of target: SidebarNode, in candidates: [SidebarNode]? = nil) -> [SidebarNode] {
+        for node in candidates ?? nodes {
+            if node.children.contains(target) { return [node] }
+            let path = ancestors(of: target, in: node.children)
+            if !path.isEmpty { return [node] + path }
+        }
+        return []
     }
 }
