@@ -37,7 +37,9 @@ struct BrowserAdaptiveShell: View {
             tabStack
         } tabLabel: { tab in
             BrowserLocationLabel(
-                description: BrowserLocationDescription.describe(tab, feedManager: feedManager),
+                description: BrowserLocationDescription.describe(
+                    tab, feedManager: feedManager, prefersContentTitle: true
+                ),
                 iconSize: 18,
                 titleFont: .subheadline,
                 showsSubtitle: false
