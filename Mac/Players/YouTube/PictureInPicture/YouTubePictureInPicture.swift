@@ -26,6 +26,7 @@ final class YouTubePictureInPicture {
 
     func enter(session: YouTubePlayerSession) {
         guard !isActive, let webView = session.webView else { return }
+        YouTubePlaybackCommands.setPictureInPictureLayout(webView, isActive: true)
         originalSuperview = webView.superview
         originalTranslatesAutoresizing = webView.translatesAutoresizingMaskIntoConstraints
         let panel = panel ?? makePanel(session: session)
@@ -57,6 +58,7 @@ final class YouTubePictureInPicture {
         isActive = false
         panel?.orderOut(nil)
         guard let webView = session.webView else { return }
+        YouTubePlaybackCommands.setPictureInPictureLayout(webView, isActive: false)
         webView.removeFromSuperview()
         webView.translatesAutoresizingMaskIntoConstraints = originalTranslatesAutoresizing
         if let originalSuperview, originalSuperview.window != nil {
@@ -72,6 +74,19 @@ final class YouTubePictureInPicture {
             )
         }
         originalSuperview = nil
+    }
+
+    /// Fullscreen starts from the player page, so the video goes back there
+    /// first when it's floating.
+    func enterFullscreen(session: YouTubePlayerSession) {
+        guard isActive else {
+            YouTubePlaybackCommands.enterFullscreen(session.webView)
+            return
+        }
+        exit(session: session, returningToContent: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            YouTubePlaybackCommands.enterFullscreen(session.webView)
+        }
     }
 
     private func makePanel(session: YouTubePlayerSession) -> NSPanel {

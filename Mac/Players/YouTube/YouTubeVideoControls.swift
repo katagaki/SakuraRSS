@@ -26,7 +26,7 @@ struct YouTubeVideoControls: View {
             Button { YouTubePictureInPicture.shared.toggle(session: session) } label: {
                 Image(systemName: "pip.enter")
             }
-            Button { YouTubePlaybackCommands.enterFullscreen(webView) } label: {
+            Button { YouTubePictureInPicture.shared.enterFullscreen(session: session) } label: {
                 Image(systemName: "arrow.up.left.and.arrow.down.right")
             }
             if let videoURL {

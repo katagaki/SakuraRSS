@@ -83,7 +83,7 @@ struct YouTubeVideoPlayerView: View {
         .overlay {
             Color.clear
                 .contentShape(.rect)
-                .onTapGesture(count: 2) { YouTubePlaybackCommands.enterFullscreen(webView) }
+                .onTapGesture(count: 2) { pictureInPicture.enterFullscreen(session: session) }
                 .onTapGesture { session.togglePlayPause() }
         }
         .overlay {
