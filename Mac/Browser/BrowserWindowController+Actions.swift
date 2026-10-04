@@ -11,6 +11,10 @@ extension BrowserWindowController: BrowserActions, NSMenuItemValidation, NSToolb
         appDelegate?.registry.openWindow()
     }
 
+    func focusAddressField(_ sender: Any?) {
+        addressBarController.focus()
+    }
+
     func goBack(_ sender: Any?) {
         updateHistory { $0.goBack() }
     }

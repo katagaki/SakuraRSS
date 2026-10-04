@@ -11,6 +11,11 @@ extension MainMenuBuilder {
         )
         menu.addItem(newTabItem)
         menu.addItem(item("Menu.NewWindow", action: #selector(BrowserActions.newBrowserWindow(_:)), keyEquivalent: "n"))
+        menu.addItem(item(
+            "Menu.OpenLocation",
+            action: #selector(BrowserActions.focusAddressField(_:)),
+            keyEquivalent: "l"
+        ))
         menu.addItem(.separator())
         menu.addItem(item("Menu.Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
         return menu

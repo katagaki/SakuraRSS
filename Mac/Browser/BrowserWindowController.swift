@@ -7,7 +7,8 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
 
     let feedManager: FeedManager
     let splitViewController: BrowserSplitViewController
-    private let toolbarController = BrowserToolbarController()
+    let addressBarController: AddressBarController
+    private let toolbarController: BrowserToolbarController
     private(set) var history: BrowserHistory
     var onClose: ((BrowserWindowController) -> Void)?
     private var titleObserver: ChangeObserver?
@@ -16,6 +17,8 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         self.feedManager = feedManager
         self.history = history
         splitViewController = BrowserSplitViewController(feedManager: feedManager)
+        addressBarController = AddressBarController(feedManager: feedManager)
+        toolbarController = BrowserToolbarController(addressField: addressBarController.field)
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1100, height: 720),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
@@ -28,6 +31,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         window.tabbingMode = .automatic
         window.tabbingIdentifier = Self.tabbingIdentifier
         window.toolbarStyle = .unified
+        window.titleVisibility = .hidden
         window.toolbar = toolbarController.toolbar
         window.identifier = BrowserWindowRestoration.windowIdentifier
         window.restorationClass = BrowserWindowRestoration.self
@@ -35,6 +39,9 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         window.delegate = self
         splitViewController.sidebarViewController.onSelectLocation = { [weak self] location in
             self?.navigate(to: location)
+        }
+        addressBarController.onCommit = { [weak self] kind in
+            self?.commitAddress(kind)
         }
         splitViewController.onOpenLocation = { [weak self] location in
             self?.navigate(to: location)
@@ -75,6 +82,18 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
 
     private func updateTitle() {
         window?.title = history.current.title(in: feedManager)
+        addressBarController.display(history.current)
+    }
+
+    private func commitAddress(_ kind: AddressSuggestion.Kind) {
+        switch kind {
+        case .location(let location):
+            navigate(to: location)
+        case .searchContent(let query):
+            navigate(to: .search(query))
+        case .discoverFeeds:
+            break
+        }
     }
 
     func window(_ window: NSWindow, willEncodeRestorableState state: NSCoder) {

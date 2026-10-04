@@ -6,4 +6,5 @@ import AppKit
     func goBack(_ sender: Any?)
     func goForward(_ sender: Any?)
     func newBrowserWindow(_ sender: Any?)
+    func focusAddressField(_ sender: Any?)
 }

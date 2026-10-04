@@ -6,14 +6,18 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         static let back = NSToolbarItem.Identifier("Back")
         static let forward = NSToolbarItem.Identifier("Forward")
         static let newTab = NSToolbarItem.Identifier("NewTab")
+        static let address = NSToolbarItem.Identifier("Address")
     }
 
     let toolbar: NSToolbar
+    private let addressField: NSView
 
-    override init() {
+    init(addressField: NSView) {
+        self.addressField = addressField
         toolbar = NSToolbar(identifier: "BrowserToolbar")
         super.init()
         toolbar.delegate = self
+        toolbar.centeredItemIdentifiers = [ItemIdentifier.address]
         toolbar.displayMode = .iconOnly
         toolbar.allowsUserCustomization = true
         toolbar.autosavesConfiguration = true
@@ -21,7 +25,7 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
 
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         [.toggleSidebar, .sidebarTrackingSeparator, ItemIdentifier.back, ItemIdentifier.forward,
-         .flexibleSpace, ItemIdentifier.newTab]
+         .flexibleSpace, ItemIdentifier.address, .flexibleSpace, ItemIdentifier.newTab]
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
@@ -40,12 +44,33 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         case ItemIdentifier.forward:
             navigationalButton(button(itemIdentifier, String(localized: "Menu.Forward", table: "Mac"),
                                       "chevron.forward", #selector(BrowserActions.goForward(_:))))
+        case ItemIdentifier.address:
+            addressItem()
         case ItemIdentifier.newTab:
             button(itemIdentifier, String(localized: "Menu.NewTab", table: "Browser"), "plus",
                    #selector(NSResponder.newWindowForTab(_:)))
         default:
             nil
         }
+    }
+
+    private func addressItem() -> NSToolbarItem {
+        let item = NSToolbarItem(itemIdentifier: ItemIdentifier.address)
+        let label = String(localized: "AddressField.Prompt", table: "Browser")
+        item.label = label
+        item.paletteLabel = label
+        addressField.translatesAutoresizingMaskIntoConstraints = false
+        let preferredWidth = addressField.widthAnchor.constraint(equalToConstant: 520)
+        preferredWidth.priority = .defaultLow
+        NSLayoutConstraint.activate([
+            addressField.widthAnchor.constraint(greaterThanOrEqualToConstant: 220),
+            addressField.widthAnchor.constraint(lessThanOrEqualToConstant: 640),
+            preferredWidth
+        ])
+        item.view = addressField
+        item.visibilityPriority = .high
+        item.isBordered = true
+        return item
     }
 
     private func navigationalButton(_ item: NSToolbarItem) -> NSToolbarItem {
