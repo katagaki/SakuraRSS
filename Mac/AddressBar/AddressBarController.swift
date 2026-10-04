@@ -199,8 +199,10 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
         }
     }
 
+    /// Text first, then alignment: setting the alignment afterwards applies it
+    /// to the whole value, replacing the left alignment the editor leaves.
     private func showDisplayedTitle() {
+        field.stringValue = displayedTitle
         field.alignment = .center
-        field.attributedStringValue = NSAttributedString(string: displayedTitle)
     }
 }
