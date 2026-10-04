@@ -15,10 +15,12 @@ public enum AppGroup {
     }
 
     /// Where shared storage lives. Unprovisioned local macOS builds are handed
-    /// a group container path that does not exist and cannot be created, so the
-    /// directory is confirmed usable before it is trusted.
+    /// a group container path that either does not exist or, once another app
+    /// owns it, is blocked by container protection, so the directory is
+    /// confirmed readable before it is trusted.
     public nonisolated static var storageURL: URL {
-        if let containerURL, FileManager.default.fileExists(atPath: containerURL.path) {
+        if let containerURL,
+           (try? FileManager.default.contentsOfDirectory(atPath: containerURL.path)) != nil {
             return containerURL
         }
         let fallback = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
