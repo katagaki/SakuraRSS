@@ -15,11 +15,20 @@ enum YouTubePlaybackCommands {
         webView?.evaluateJavaScript(YouTubePlayerScripts.skipAd, completionHandler: nil)
     }
 
+    /// Element fullscreen rather than iOS's `webkitEnterFullscreen`, whose
+    /// video presentation shows only black on the Mac.
     static func enterFullscreen(_ webView: WKWebView?) {
         let script = """
         (function() {
-            var video = document.querySelector('video');
-            if (video && video.webkitEnterFullscreen) { video.webkitEnterFullscreen(); }
+            var video = window.__yt ? window.__yt.getPlaybackVideo() : document.querySelector('video');
+            if (!video) { return; }
+            if (video.requestFullscreen) {
+                video.requestFullscreen().catch(function() {});
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            } else if (video.webkitEnterFullscreen) {
+                video.webkitEnterFullscreen();
+            }
         })();
         """
         webView?.evaluateJavaScript(script, completionHandler: nil)
