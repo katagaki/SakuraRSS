@@ -197,7 +197,6 @@ struct SakuraRSSApp: App {
         defaults.register(defaults: [
             "Intelligence.ContentInsights.Enabled": true
         ])
-        Self.enableHomeTopicsByDefaultIfNeeded(defaults: defaults)
         UnreadBadgeMode.migrateRemovedHomeTabModes(defaults: defaults)
 
         if defaults.bool(forKey: "App.StartupInProgress") {
@@ -217,16 +216,5 @@ struct SakuraRSSApp: App {
         }
         lastWidgetReloadAt = now
         WidgetCenter.shared.reloadAllTimelines()
-    }
-
-    private static func enableHomeTopicsByDefaultIfNeeded(defaults: UserDefaults) {
-        let key = "Home.BarConfiguration.TopicsDefaultEnabled.Migrated"
-        guard !defaults.bool(forKey: key) else { return }
-        var config = HomeBarConfiguration.load()
-        if !config.enabledItems.contains(.topics) {
-            config.enabledItems.insert(.topics)
-            config.save()
-        }
-        defaults.set(true, forKey: key)
     }
 }

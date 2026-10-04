@@ -28,17 +28,6 @@ struct ProfileView: View {
                             color: .orange
                         )
                     }
-                    if UIDevice.current.userInterfaceIdiom != .pad {
-                        NavigationLink {
-                            HomeSettingsView()
-                        } label: {
-                            SettingsIconLabel(
-                                String(localized: "Section.Home", table: "Settings"),
-                                systemImage: "newspaper.fill",
-                                color: .red
-                            )
-                        }
-                    }
                     NavigationLink {
                         BrowsingSettingsView()
                     } label: {
