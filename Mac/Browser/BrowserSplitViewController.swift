@@ -6,14 +6,14 @@ final class BrowserSplitViewController: NSSplitViewController {
 
     let feedManager: FeedManager
     let sidebarViewController: SidebarViewController
-    private let locationViewController: NSHostingController<LocationPlaceholderView>
+    let contentListViewController: ContentListViewController
+    private let readerViewController: NSHostingController<ReaderPane>
 
     init(feedManager: FeedManager) {
         self.feedManager = feedManager
         sidebarViewController = SidebarViewController(feedManager: feedManager)
-        locationViewController = NSHostingController(
-            rootView: LocationPlaceholderView(title: "", symbolName: "newspaper")
-        )
+        contentListViewController = ContentListViewController(feedManager: feedManager)
+        readerViewController = NSHostingController(rootView: ReaderPane(article: nil, feed: nil))
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -27,18 +27,29 @@ final class BrowserSplitViewController: NSSplitViewController {
         sidebarItem.minimumThickness = 200
         sidebarItem.maximumThickness = 360
         sidebarItem.canCollapse = true
-        let locationItem = NSSplitViewItem(viewController: locationViewController)
-        locationItem.minimumThickness = 420
+        let listItem = NSSplitViewItem(contentListWithViewController: contentListViewController)
+        listItem.minimumThickness = 280
+        listItem.maximumThickness = 520
+        let readerItem = NSSplitViewItem(viewController: readerViewController)
+        readerItem.minimumThickness = 360
         addSplitViewItem(sidebarItem)
-        addSplitViewItem(locationItem)
-        splitView.autosaveName = "BrowserSplitView"
+        addSplitViewItem(listItem)
+        addSplitViewItem(readerItem)
+        splitView.autosaveName = "BrowserSplitView.Reader"
+        contentListViewController.onSelectArticle = { [weak self] article in
+            self?.showReader(for: article)
+        }
     }
 
     func show(_ location: BrowserLocation) {
         sidebarViewController.select(location)
-        locationViewController.rootView = LocationPlaceholderView(
-            title: location.title(in: feedManager),
-            symbolName: location.symbolName(in: feedManager)
+        contentListViewController.show(location)
+    }
+
+    private func showReader(for article: Article?) {
+        readerViewController.rootView = ReaderPane(
+            article: article,
+            feed: article.flatMap { feedManager.feedsByID[$0.feedID] }
         )
     }
 }
