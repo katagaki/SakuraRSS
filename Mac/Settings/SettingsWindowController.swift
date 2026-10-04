@@ -21,6 +21,7 @@ final class SettingsWindowController: NSWindowController {
             SettingsTab("Section.Integrations", "person.crop.circle") {
                 AccountsSettingsPane().environment(feedManager)
             },
+            SettingsTab("iCloud", "icloud") { iCloudSettingsPane() },
             SettingsTab("Section.Data", "externaldrive") { DataSettingsPane(feedManager: feedManager) }
         ]
         for pane in panes {

@@ -10,15 +10,6 @@ struct DataSettingsPane: View {
     var body: some View {
         SettingsForm {
             Group {
-                LabeledContent("iCloud") {
-                    HStack {
-                        Button(SettingsText.data("iCloudSync.Title") + "…") { presentedPage = .iCloudSync }
-                        Button(SettingsText.data("iCloudBackup.Title") + "…") { presentedPage = .iCloudBackup }
-                    }
-                }
-            }
-            SettingsGroupSpacer()
-            Group {
                 LabeledContent(SettingsText.settings("Section.Storage")) {
                     StorageBarSection(deviceStats: deviceStats)
                         .frame(width: 360)
@@ -52,7 +43,7 @@ struct DataSettingsPane: View {
 }
 
 enum DataSettingsPage: String, Identifiable {
-    case iCloudSync, iCloudBackup, logs
+    case logs
 
     var id: String { rawValue }
 }
@@ -67,8 +58,6 @@ private struct DataSettingsPageSheet: View {
         NavigationStack {
             Group {
                 switch page {
-                case .iCloudSync: iCloudSyncView()
-                case .iCloudBackup: iCloudBackupView()
                 case .logs: LogsView()
                 }
             }
