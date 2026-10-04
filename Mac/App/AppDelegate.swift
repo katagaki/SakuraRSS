@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
     private var dockBadgeCoordinator: DockBadgeCoordinator?
     private let backupScheduler = BackupScheduler()
     private var defaultsObserver: NSObjectProtocol?
+    private var openContentObserver: NSObjectProtocol?
     private var schedulingSettings = SchedulingSettings.current
 
     func applicationWillFinishLaunching(_ notification: Notification) {
@@ -30,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         AutomaticCleanupScheduler.scheduleNextCleanup()
         backupScheduler.schedule()
         observeSchedulingSettings()
+        observeOpenContentRequests()
         dockBadgeCoordinator = DockBadgeCoordinator(feedManager: registry.feedManager)
         #if DEBUG
         DebugLaunchActions.perform(with: registry)
@@ -87,6 +89,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         ) { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.rescheduleIfSettingsChanged()
+            }
+        }
+    }
+
+    /// The Open Content shortcut posts its content here, as on iOS; the Mac
+    /// opens it full width in the frontmost window.
+    private func observeOpenContentRequests() {
+        openContentObserver = NotificationCenter.default.addObserver(
+            forName: .openArticleFromIntent,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            let articleID = notification.userInfo?["articleID"] as? Int64
+            MainActor.assumeIsolated {
+                guard let self, let articleID else { return }
+                let controller = (NSApp.keyWindow?.windowController as? BrowserWindowController)
+                    ?? self.registry.controllers.last
+                    ?? self.registry.openWindow()
+                controller.navigate(to: .article(articleID))
+                controller.window?.makeKeyAndOrderFront(nil)
             }
         }
     }
