@@ -119,9 +119,10 @@ final class BrowserToolbarController: NSObject, NSToolbarDelegate {
         let label = String(localized: "Player.NowPlaying", table: "Mac")
         item.label = label
         item.paletteLabel = label
-        item.view = NSHostingView(rootView: NowPlayingButton(player: .shared) { [weak self] articleID in
+        let button = NowPlayingButton(player: .shared, session: .shared) { [weak self] articleID in
             self?.onShowEpisode?(articleID)
-        })
+        }
+        item.view = NSHostingView(rootView: button)
         return item
     }
 

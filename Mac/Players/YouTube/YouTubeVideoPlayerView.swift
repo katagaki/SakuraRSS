@@ -39,9 +39,16 @@ struct YouTubeVideoPlayerView: View {
             .frame(maxWidth: .infinity)
         }
         .onAppear(perform: prepareSession)
+        .onChange(of: isPlaying) { _, playing in
+            session.isPlaying = playing
+        }
         .onDisappear {
             session.rememberPlaybackPosition()
-            session.stop()
+            // Playing on keeps the session's web view, so the toolbar's mini
+            // player can control it and returning to the video picks it up.
+            if !isPlaying {
+                session.stop()
+            }
         }
         .onChange(of: isPlayerReady) { _, isReady in
             guard isReady, let resumePosition else { return }
