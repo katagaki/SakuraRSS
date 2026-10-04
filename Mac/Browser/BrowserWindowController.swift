@@ -42,6 +42,9 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         window.restorationClass = BrowserWindowRestoration.self
         super.init(window: window)
         window.delegate = self
+        // Without one, AppKit focuses the first key view it finds when the
+        // window becomes key, ringing the first button on Today.
+        window.initialFirstResponder = splitViewController.sidebarViewController.outlineView
         refreshButton.isRefreshing = { [weak self] in self?.isCurrentPageRefreshing ?? false }
         splitViewController.sidebarViewController.onSelectLocation = { [weak self] location in
             self?.navigate(to: location)
