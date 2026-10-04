@@ -36,7 +36,7 @@ struct LogsView: View {
         .navigationTitle(String(localized: "Section.Logs", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .primaryAction) {
                 Button(role: .destructive) {
                     isShowingClearConfirmation = true
                 } label: {

@@ -112,7 +112,7 @@ struct BrowsingSettingsView: View {
                 Text(String(localized: "Section.InAppViewer", table: "Settings"))
             }
         }
-        .listStyle(.insetGrouped)
+        .settingsListStyle()
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Browsing", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)

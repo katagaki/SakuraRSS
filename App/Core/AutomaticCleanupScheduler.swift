@@ -1,4 +1,6 @@
+#if !os(macOS)
 @preconcurrency import BackgroundTasks
+#endif
 import Foundation
 import Hanami
 
@@ -11,6 +13,9 @@ nonisolated enum AutomaticCleanupScheduler {
         let isEnabled = defaults.bool(forKey: "Cleanup.Automatic.Enabled")
         let cutoffRaw = defaults.string(forKey: "Cleanup.Automatic.Cutoff") ?? CleanupCutoff.last30Days.rawValue
         let cutoff = CleanupCutoff(rawValue: cutoffRaw) ?? .last30Days
+        #if os(macOS)
+        scheduleOnMac(isEnabled: isEnabled && cutoff != .off)
+        #else
         guard isEnabled, cutoff != .off else {
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: taskIdentifier)
             return
@@ -24,8 +29,31 @@ nonisolated enum AutomaticCleanupScheduler {
         } catch {
             log("AutomaticCleanup", "submit failed error=\(describe(error))")
         }
+        #endif
     }
 
+    #if os(macOS)
+    nonisolated(unsafe) private static var macScheduler: NSBackgroundActivityScheduler?
+
+    /// macOS has no background tasks to submit; the system runs this daily
+    /// while the app is open, at a moment that suits it.
+    private static func scheduleOnMac(isEnabled: Bool) {
+        macScheduler?.invalidate()
+        macScheduler = nil
+        guard isEnabled else { return }
+        let scheduler = NSBackgroundActivityScheduler(identifier: taskIdentifier)
+        scheduler.repeats = true
+        scheduler.interval = 24 * 60 * 60
+        scheduler.qualityOfService = .background
+        scheduler.schedule { completion in
+            Task {
+                _ = await runCleanup()
+                completion(.finished)
+            }
+        }
+        macScheduler = scheduler
+    }
+    #else
     private static func describe(_ error: Error) -> String {
         let nsError = error as NSError
         if nsError.domain == BGTaskScheduler.errorDomain,
@@ -40,6 +68,7 @@ nonisolated enum AutomaticCleanupScheduler {
         }
         return "\(nsError.domain):\(nsError.code) \(nsError.localizedDescription)"
     }
+    #endif
 
     static func runCleanup(isCancelled: () -> Bool = { false }) async -> Bool {
         let defaults = UserDefaults.standard

@@ -94,10 +94,14 @@ struct CleanupSettingsSection: View {
     private func runManualCleanup(cutoff: CleanupCutoff) {
         guard let cutoffDate = cutoff.cutoffDate() else { return }
         isCleaningUp = true
+        #if !os(macOS)
         UIApplication.shared.isIdleTimerDisabled = true
+        #endif
         Task {
             await feedManager.deleteArticlesAndVacuum(olderThan: cutoffDate)
+            #if !os(macOS)
             UIApplication.shared.isIdleTimerDisabled = false
+            #endif
             isCleaningUp = false
             showCleanupSuccess = true
         }
