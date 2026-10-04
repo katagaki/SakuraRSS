@@ -163,6 +163,24 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		4D41430A000000000000000F /* Exceptions for "App" folder in "Sakura for Mac" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Home/Today/TodayWeatherService.swift,
+				"Home/Today/TodayWeatherService+Cache.swift",
+				"Home/Today/TodayWeatherService+Geocoding.swift",
+				"Home/Today/TodayWeatherService+Simulation.swift",
+				"Home/Today/TodayWeatherService+Snapshot.swift",
+				Home/Today/Weather/TodayWeatherAlertBanner.swift,
+				Home/Today/Weather/TodayWeatherGraph.swift,
+				Home/Today/Weather/TodayWeatherHeader.swift,
+				Home/Today/Weather/TodayWeatherHourlyForecastView.swift,
+				Home/Today/Weather/WeatherGraphMode.swift,
+				Home/Today/Weather/WeatherTemperatureFormat.swift,
+				Home/Today/Weather/WeatherTint.swift,
+			);
+			target = 4D41430A000000000000000B /* Sakura for Mac */;
+		};
 		E45EAA462FA0406300EA7A54 /* Exceptions for "Shared" folder in "Open Article" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -385,6 +403,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				E47D13142F549D4D006081EF /* Exceptions for "App" folder in "Sakura" target */,
+				4D41430A000000000000000F /* Exceptions for "App" folder in "Sakura for Mac" target */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -1000,9 +1019,12 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSLocationUsageDescription = "Location is used to show local weather on the Today tab.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location is used to show local weather on the Today tab.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -1038,9 +1060,12 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSLocationUsageDescription = "Location is used to show local weather on the Today tab.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location is used to show local weather on the Today tab.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;

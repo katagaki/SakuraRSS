@@ -17,6 +17,8 @@
 	<array>
 		<string>iCloud.com.tsubuzaki.SakuraRSS</string>
 	</array>
+	<key>com.apple.developer.weatherkit</key>
+	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.com.tsubuzaki.SakuraRSS</string>
