@@ -3,6 +3,7 @@ import SwiftUI
 struct PodcastPlaybackControls: View {
 
     static let speedPresets: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
+    private static let speedMenuWidth: CGFloat = 44
 
     let player: AudioPlayer
     let isCurrentEpisode: Bool
@@ -10,6 +11,9 @@ struct PodcastPlaybackControls: View {
 
     var body: some View {
         HStack(spacing: 28) {
+            // Balances the speed menu on the right, so play and pause sit in the middle.
+            Color.clear
+                .frame(width: Self.speedMenuWidth, height: 1)
             Button { player.skipBackward() } label: {
                 Image(systemName: "gobackward.15").font(.system(size: 20))
             }
@@ -54,6 +58,7 @@ struct PodcastPlaybackControls: View {
         }
         .menuStyle(.button)
         .fixedSize()
+        .frame(width: Self.speedMenuWidth)
     }
 
     private static func label(for speed: Double) -> String {
