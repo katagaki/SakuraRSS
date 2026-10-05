@@ -30,7 +30,7 @@ struct ContentQuery {
         case .startPage, .allContent:
             feedManager.todayArticles() + feedManager.olderArticles(limit: 500)
         case .feedSection(let section):
-            feedManager.todayArticles(for: section) + feedManager.olderArticles(for: section, limit: 500)
+            feedManager.articles(for: section, limit: 500)
         case .feed, .list:
             sourceArticles(for: location)
         case .bookmarks, .bookmarkFolder, .bookmarkTag:
@@ -47,9 +47,7 @@ struct ContentQuery {
         case .feed(let feedID):
             feedManager.feedsByID[feedID].map { feedManager.articles(for: $0, limit: 500) } ?? []
         case .list(let listID):
-            feedManager.lists.first { $0.id == listID }.map {
-                feedManager.todayArticles(for: $0) + feedManager.olderArticles(for: $0, limit: 500)
-            } ?? []
+            feedManager.lists.first { $0.id == listID }.map { feedManager.articles(for: $0, limit: 500) } ?? []
         default:
             []
         }
