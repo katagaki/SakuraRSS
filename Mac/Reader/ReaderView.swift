@@ -77,8 +77,12 @@ struct ReaderView: View {
                 )
             }
             if let displayText = assistant.displayText(original: extraction.text) {
-                ForEach(ContentBlock.cachedIdentifiedBlocks(displayText)) { identified in
-                    ContentBlockView(block: identified.block)
+                // Lazy so selecting content lays out only the blocks on screen,
+                // not the whole text, as it's arrowed through.
+                LazyVStack(alignment: .leading, spacing: 18) {
+                    ForEach(ContentBlock.cachedIdentifiedBlocks(displayText)) { identified in
+                        ContentBlockView(block: identified.block)
+                    }
                 }
                 .id("\(assistant.showingSummary)-\(assistant.showingTranslation)")
             }
