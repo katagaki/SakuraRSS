@@ -41,6 +41,9 @@ public nonisolated extension DatabaseManager {
         _ = try? database.run(articles.addColumn(articleTranslatedSummary))
         _ = try? database.run(articles.addColumn(articleParserVersion, defaultValue: 0))
         _ = try? database.run(articles.addColumn(articleExternalSource, defaultValue: false))
+        _ = try? database.run(articles.addColumn(articleCustomTitle))
+        _ = try? database.run(articles.addColumn(articlePreviewFetchState, defaultValue: 0))
+        _ = try? database.run(articles.addColumn(articlePreviewFetchedAt))
 
         // image_cache table
         _ = try? database.run(imageCache.addColumn(imageCacheData, defaultValue: Data()))
@@ -154,6 +157,24 @@ public nonisolated extension DatabaseManager {
         _ = try? database.run(contentOverrides.addColumn(coTitleField, defaultValue: "default"))
         _ = try? database.run(contentOverrides.addColumn(coBodyField, defaultValue: "default"))
         _ = try? database.run(contentOverrides.addColumn(coAuthorField, defaultValue: "default"))
+
+        // bookmark_folders table
+        _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderOpenMode))
+        _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderMarksReadOnOpen))
+
+        // bookmark_tags tables
+        _ = try? database.run(bookmarkTags.create(ifNotExists: true) { table in
+            table.column(bookmarkTagID, primaryKey: .autoincrement)
+            table.column(bookmarkTagName)
+            table.column(bookmarkTagNormalizedName, unique: true)
+            table.column(bookmarkTagIsAutomatic, defaultValue: false)
+        })
+        _ = try? database.run(bookmarkTagItems.create(ifNotExists: true) { table in
+            table.column(bookmarkTagItemTagID)
+            table.column(bookmarkTagItemArticleID)
+            table.primaryKey(bookmarkTagItemTagID, bookmarkTagItemArticleID)
+        })
+        _ = try? database.run(bookmarkTagItems.createIndex(bookmarkTagItemArticleID, ifNotExists: true))
 
         // feed_refresh_metrics table
         _ = try? database.run(feedRefreshMetrics.create(ifNotExists: true) { table in

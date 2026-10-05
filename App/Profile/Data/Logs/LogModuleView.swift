@@ -18,11 +18,10 @@ struct LogModuleView: View {
                     .ignoresSafeArea(.container)
             }
         }
-        .sakuraBackground()
         .navigationTitle(module)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .primaryAction) {
                 if let fileURL = LogManager.shared.fileURL(for: module),
                    FileManager.default.fileExists(atPath: fileURL.path) {
                     ShareLink(item: fileURL) {

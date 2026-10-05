@@ -27,6 +27,5 @@ struct ReadabilitySettingsView: View {
         }
         .navigationTitle(String(localized: "Readability", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
-        .sakuraBackground()
     }
 }

@@ -2,6 +2,7 @@ import Foundation
 import WebKit
 
 /// Fetches Instagram profile posts via the web API using Keychain-stored session cookies.
+@MainActor
 public final class InstagramProvider: Authenticated {
 
     public nonisolated static var sessionService: ProviderSessionEvents.Service? { .instagram }
@@ -14,24 +15,34 @@ public final class InstagramProvider: Authenticated {
 
     public static let targetPostCount = 50
 
-    private static var activeFetch: Task<InstagramProfileFetchResult, Never>?
+    private static var activeFetch: Task<InstagramProfileFetchResult, Error>?
+    private static var activeFetchID: UUID?
 
     public nonisolated static let cookieStore = KeychainCookieStore(
         service: "com.tsubuzaki.SakuraRSS.InstagramCookies"
     )
     /// Fetches the most recent posts plus profile metadata. Concurrent calls are serialised.
-    public func fetchProfile(profileURL: URL) async -> InstagramProfileFetchResult {
-        if let existing = Self.activeFetch {
-            _ = await existing.value
-        }
-
+    public func fetchProfile(profileURL: URL) async throws -> InstagramProfileFetchResult {
+        let previousFetch = Self.activeFetch
+        let fetchID = UUID()
         let task = Task {
-            await self.performFetch(profileURL: profileURL)
+            if let previousFetch { _ = await previousFetch.result }
+            try Task.checkCancellation()
+            return try await self.performFetch(profileURL: profileURL)
         }
         Self.activeFetch = task
-        let result = await task.value
-        Self.activeFetch = nil
-        return result
+        Self.activeFetchID = fetchID
+        defer {
+            if Self.activeFetchID == fetchID {
+                Self.activeFetch = nil
+                Self.activeFetchID = nil
+            }
+        }
+        return try await withTaskCancellationHandler {
+            try await task.value
+        } onCancel: {
+            task.cancel()
+        }
     }
     public nonisolated static func isInstagramHost(_ host: String?) -> Bool {
         guard let host = host?.lowercased() else { return false }

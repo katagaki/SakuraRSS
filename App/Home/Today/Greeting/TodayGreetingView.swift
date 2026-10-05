@@ -9,9 +9,11 @@ struct TodayGreetingView: View {
     @State private var greeting: TodayGreeting = .from(date: Date())
 
     let isCompact: Bool
+    let isOnGlass: Bool
 
-    init(isCompact: Bool = false) {
+    init(isCompact: Bool = false, isOnGlass: Bool? = nil) {
         self.isCompact = isCompact
+        self.isOnGlass = isOnGlass ?? isCompact
     }
 
     var body: some View {
@@ -25,9 +27,9 @@ struct TodayGreetingView: View {
                 .font(greetingFont)
                 .fontWeight(.bold)
 
-            if HomeLayout.usesPhoneTopBar {
+            if HomeLayout.showsTodayWeather {
                 TodayWeatherCard(
-                    usesFlatBackground: isCompact,
+                    usesFlatBackground: isOnGlass,
                     showsHourlyTimeLabels: !isCompact
                 )
                 .padding(.top, 12)
@@ -54,6 +56,9 @@ struct TodayGreetingView: View {
     private var greetingFont: Font {
         if isCompact {
             return .title2
+        }
+        if HomeLayout.usesPadLayout {
+            return .largeTitle
         }
         return UIDevice.current.userInterfaceIdiom == .pad ? .title3 : .largeTitle
     }

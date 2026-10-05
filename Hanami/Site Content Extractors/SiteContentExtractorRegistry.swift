@@ -1,6 +1,6 @@
 import Foundation
 
-public enum SiteContentExtractorRegistry {
+public nonisolated enum SiteContentExtractorRegistry {
 
     public static let all: [SiteContentExtractor] = [
         WikipediaExtractor(),

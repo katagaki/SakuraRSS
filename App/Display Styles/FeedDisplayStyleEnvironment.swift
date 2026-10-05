@@ -94,12 +94,15 @@ extension View {
 
 private struct ZoomTransitionModifier<ID: Hashable, WrappedView: View>: View {
     @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
+    /// The browser does its own transitions; zooming on top of them reads as
+    /// two animations fighting.
+    @Environment(\.isBrowserModeActive) private var isBrowserModeActive
     let sourceID: ID
     let namespace: Namespace.ID
     let wrappedView: WrappedView
 
     var body: some View {
-        if zoomTransitionEnabled {
+        if zoomTransitionEnabled, !isBrowserModeActive {
             wrappedView.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
         } else {
             wrappedView
@@ -109,12 +112,13 @@ private struct ZoomTransitionModifier<ID: Hashable, WrappedView: View>: View {
 
 private struct ZoomSourceModifier<ID: Hashable, WrappedView: View>: View {
     @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
+    @Environment(\.isBrowserModeActive) private var isBrowserModeActive
     let id: ID
     let namespace: Namespace.ID
     let wrappedView: WrappedView
 
     var body: some View {
-        if zoomTransitionEnabled {
+        if zoomTransitionEnabled, !isBrowserModeActive {
             wrappedView.matchedTransitionSource(id: id, in: namespace)
         } else {
             wrappedView

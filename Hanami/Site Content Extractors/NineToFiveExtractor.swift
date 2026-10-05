@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public struct NineToFiveExtractor: SiteContentExtractor {
+public nonisolated struct NineToFiveExtractor: SiteContentExtractor {
 
     public func canHandle(url: URL) -> Bool {
         matchesHost(url, ["9to5mac.com", "9to5google.com"])

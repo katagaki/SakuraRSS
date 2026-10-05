@@ -34,14 +34,15 @@ public nonisolated struct KeychainCookieStore: Sendable {
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
         ]
 
-        let updateStatus = SecItemUpdate(
-            matchQuery as CFDictionary,
-            updateAttributes as CFDictionary
-        )
+        let updateStatus = KeychainAccess.perform(matchQuery) { query in
+            SecItemUpdate(query as CFDictionary, updateAttributes as CFDictionary)
+        }
         if updateStatus == errSecItemNotFound {
             var addQuery = matchQuery
             for (key, value) in updateAttributes { addQuery[key] = value }
-            let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+            let addStatus = KeychainAccess.perform(addQuery) { query in
+                SecItemAdd(query as CFDictionary, nil)
+            }
             if addStatus != errSecSuccess {
                 log("KeychainCookieStore:\(service)", "add failed: \(addStatus)")
             }
@@ -61,7 +62,9 @@ public nonisolated struct KeychainCookieStore: Sendable {
         ]
 
         var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        let status = KeychainAccess.perform(query) { query in
+            SecItemCopyMatching(query as CFDictionary, &result)
+        }
         guard status == errSecSuccess, let data = result as? Data else {
             return nil
         }
@@ -84,6 +87,8 @@ public nonisolated struct KeychainCookieStore: Sendable {
             kSecAttrService as String: service,
             kSecAttrAccount as String: account
         ]
-        SecItemDelete(query as CFDictionary)
+        _ = KeychainAccess.perform(query) { query in
+            SecItemDelete(query as CFDictionary)
+        }
     }
 }

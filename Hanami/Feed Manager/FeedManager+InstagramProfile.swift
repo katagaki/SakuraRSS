@@ -1,5 +1,9 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension FeedManager {
 
@@ -29,7 +33,7 @@ public extension FeedManager {
         log("InstagramProfile", "fetching @\(handle) id=\(feed.id)")
 
         let fetcher = InstagramProvider()
-        let result = await fetcher.fetchProfile(profileURL: profileURL)
+        let result = try await fetcher.fetchProfile(profileURL: profileURL)
         // swiftlint:disable:next line_length
         log("InstagramProfile", "fetched @\(handle) posts=\(result.posts.count) displayName=\(result.displayName ?? "nil")")
 
@@ -110,14 +114,14 @@ public extension FeedManager {
 
     private func loadInstagramProfileImage(
         result: InstagramProfileFetchResult, feed: Feed, contentOnly: Bool
-    ) async -> UIImage? {
+    ) async -> PlatformImage? {
         guard !contentOnly, feed.lastFetched == nil,
               let imageURLString = result.profileImageURL,
               let imageURL = URL(string: imageURLString),
               let (imageData, _) = try? await Iconography.urlSession.data(from: imageURL) else {
             return nil
         }
-        return UIImage(data: imageData)
+        return PlatformImage(data: imageData)
     }
 
     var hasInstagramFeeds: Bool {

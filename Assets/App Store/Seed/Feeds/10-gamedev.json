@@ -1,0 +1,52 @@
+{
+  "key": "gamedev",
+  "title": {"en": "Game Development Dept. Devlog", "ja": "ゲーム開発部 開発日誌"},
+  "url": "https://gamedev.millennium.kivotos/devlog/feed",
+  "site": "https://gamedev.millennium.kivotos",
+  "hue": 276,
+  "icon": {"style": "glyph", "glyph": "gamepad", "foreground": "#FFFFFF", "accent": "#5B2A86"},
+  "articles": [
+    {
+      "slug": "tales-of-sega-2",
+      "age": 48,
+      "author": "Momoi",
+      "title": {
+        "en": "Tales Saga Chronicle 2 is in beta, and it is (mostly) playable",
+        "ja": "テイルズ・サガ・クロニクル2、ベータ版公開。（だいたい）遊べます"
+      },
+      "summary": {
+        "en": "We fixed the bug where the final boss was a refrigerator. The refrigerator is now the second-to-last boss.",
+        "ja": "ラスボスが冷蔵庫だった不具合を修正しました。冷蔵庫は最後から二番目のボスになりました。"
+      },
+      "entities": [["Game Development Department", "organization"], ["Momoi", "person"], ["Midori", "person"]]
+    },
+    {
+      "slug": "pixel-art",
+      "age": 230,
+      "author": "Midori",
+      "title": {
+        "en": "Behind the pixels: drawing the forest stage",
+        "ja": "ドット絵の裏側：森ステージの描き方"
+      },
+      "summary": {
+        "en": "Three hundred trees, every one of them different. Momoi asked if we could copy and paste. We could not.",
+        "ja": "三百本の木、すべて違う形。モモイがコピペしようと言ったが、それはできなかった。"
+      },
+      "entities": [["Midori", "person"], ["Game Development Department", "organization"]]
+    },
+    {
+      "slug": "playtest",
+      "age": 560,
+      "author": "Yuzu",
+      "title": {
+        "en": "Playtest results are in",
+        "ja": "テストプレイの結果が出ました"
+      },
+      "summary": {
+        "en": "Aris finished the game in four hours. Everyone else is still on the first dungeon.",
+        "ja": "アリスは四時間でクリア。ほかの全員はまだ最初のダンジョンにいる。"
+      },
+      "entities": [["Aris", "person"], ["Yuzu", "person"]]
+    }
+  ]
+}

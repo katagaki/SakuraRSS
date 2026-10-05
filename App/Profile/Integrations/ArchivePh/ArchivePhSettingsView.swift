@@ -27,6 +27,5 @@ struct ArchivePhSettingsView: View {
         }
         .navigationTitle(String(localized: "ArchivePh", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
-        .sakuraBackground()
     }
 }

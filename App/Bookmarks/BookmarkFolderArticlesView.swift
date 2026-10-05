@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -5,6 +6,7 @@ struct BookmarkFolderArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) var dismiss
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     let folder: BookmarkFolder
 
     @State private var articles: [Article] = []
@@ -76,27 +78,31 @@ struct BookmarkFolderArticlesView: View {
                 )
             }
         }
-        .environment(\.allowsMovingBookmarksToFolders, true)
+        .environment(\.isBookmarksSurface, true)
+        .bookmarkDetailSheet()
+        .bookmarkReadingOptions()
         .sakuraBackground()
         // .automatic inherits .inlineLarge from the Bookmarks root and
         // reserves empty large title space above the header.
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                principalTitle
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Menu {
-                    DisplayStylePicker(
-                        displayStyle: $displayStyle,
-                        hasImages: hasImages,
-                        showCards: false,
-                        showScroll: false
-                    )
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease")
+            if !isBrowserChromeActive {
+                ToolbarItem(placement: .principal) {
+                    principalTitle
                 }
-                .menuActionDismissBehavior(.disabled)
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Menu {
+                        DisplayStylePicker(
+                            displayStyle: $displayStyle,
+                            hasImages: hasImages,
+                            showCards: false,
+                            showScroll: false
+                        )
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
+                    .menuActionDismissBehavior(.disabled)
+                }
             }
         }
         .onScrollGeometryChange(for: Bool.self) { geometry in
@@ -111,6 +117,9 @@ struct BookmarkFolderArticlesView: View {
         .animation(.smooth.speed(2.0), value: articleIDs)
         .onChange(of: displayStyle) { _, newValue in
             feedManager.updateBookmarkFolderDisplayStyle(currentFolder, displayStyle: newValue.rawValue)
+        }
+        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            BrowserPageDisplayMenu(options: browserDisplayStyleOptions)
         }
         .task(id: feedManager.dataRevision) {
             await reloadArticles()
@@ -153,5 +162,17 @@ struct BookmarkFolderArticlesView: View {
         if Task.isCancelled { return }
         articles = loaded
         articleIDs = loaded.map(\.id)
+    }
+
+    /// The browser hides the top bar, so the display style goes in the
+    /// omnibox's menu instead.
+    private var browserDisplayStyleOptions: BrowserDisplayStyleOptions {
+        BrowserDisplayStyleOptions(
+            displayStyle: $displayStyle,
+            hasImages: hasImages,
+            showsPodcast: false,
+            showsCards: false,
+            showsScroll: false
+        )
     }
 }

@@ -1,0 +1,65 @@
+{
+  "key": "trinity-gazette",
+  "title": {"en": "Trinity Gazette", "ja": "トリニティ・ガゼット"},
+  "url": "https://gazette.trinity.kivotos/feed",
+  "site": "https://gazette.trinity.kivotos",
+  "hue": 44,
+  "articles": [
+    {
+      "slug": "library-wing",
+      "age": 40,
+      "author": "Trinity Gazette",
+      "title": {
+        "en": "The library's new reading wing will stay open until midnight during exams",
+        "ja": "図書館の新しい閲覧棟、試験期間中は深夜まで開館"
+      },
+      "summary": {
+        "en": "The Library Committee asks students to keep their voices down, and their tea away from the shelves.",
+        "ja": "図書委員会は、静かにすること、そして紅茶を本棚に近づけないことを呼びかけている。"
+      },
+      "entities": [["Trinity General School", "organization"]]
+    },
+    {
+      "slug": "choir-concert",
+      "age": 130,
+      "author": "Trinity Gazette",
+      "title": {
+        "en": "Sisterhood choir to perform in the cathedral on Sunday",
+        "ja": "シスターフッドの聖歌隊、日曜に大聖堂で公演"
+      },
+      "summary": {
+        "en": "Seats are free, but the Gazette recommends arriving an hour early.",
+        "ja": "席は自由だが、一時間前の到着をおすすめしたい。"
+      },
+      "entities": [["Sisterhood", "organization"]]
+    },
+    {
+      "slug": "tea-party-menu",
+      "age": 260,
+      "author": "Trinity Gazette",
+      "title": {
+        "en": "Tea Party adds a seasonal chestnut tart to the afternoon menu",
+        "ja": "ティーパーティー、午後のメニューに季節限定の栗のタルトを追加"
+      },
+      "summary": {
+        "en": "Mika reportedly asked for a second slice before the first had been served.",
+        "ja": "ミカは一切れ目が出される前から二切れ目を頼んだという。"
+      },
+      "entities": [["Tea Party", "organization"], ["Mika", "person"]]
+    },
+    {
+      "slug": "justice-task-force",
+      "age": 420,
+      "author": "Trinity Gazette",
+      "title": {
+        "en": "Justice Task Force recruits for the new term",
+        "ja": "正義実現委員会、新学期の部員を募集"
+      },
+      "summary": {
+        "en": "Applicants should bring their own umbrella. Training happens rain or shine.",
+        "ja": "応募者は傘を持参のこと。訓練は雨天決行だ。"
+      },
+      "entities": [["Justice Task Force", "organization"]]
+    }
+  ]
+}

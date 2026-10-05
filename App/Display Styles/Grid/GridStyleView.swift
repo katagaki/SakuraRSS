@@ -38,14 +38,10 @@ struct GridStyleView: View {
                         })
                         .buttonStyle(.plain)
                         .contextMenu {
-                            #if targetEnvironment(macCatalyst)
-                            OpenInNewWindowButton(article: article)
-                            Divider()
-                            #endif
                             ArticleReadMenuButton(article: article)
                             Divider()
                             ArticleShareMenuButton(article: article)
-                            MoveToFolderMenuItems(article: article)
+                            BookmarkMenuItems(article: article)
                         }
                     }
                 }

@@ -32,10 +32,10 @@ struct MoveToFolderSheet: View {
                 }
             }
             .navigationTitle(String(localized: "Article.MoveToFolder", table: "Articles"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .sheetLeading) {
                     Button(role: .cancel) {
                         dismiss()
                     }

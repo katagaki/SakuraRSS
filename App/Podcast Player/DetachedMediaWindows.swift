@@ -1,4 +1,4 @@
-#if os(visionOS) || targetEnvironment(macCatalyst)
+#if os(visionOS)
 import SwiftUI
 import Hanami
 
@@ -22,15 +22,6 @@ struct DetachedYouTubePlayerWindow: View {
             .onDisappear {
                 session.clear()
             }
-            #if targetEnvironment(macCatalyst)
-            .background {
-                FreeResizabilityHelper()
-                    .frame(width: 0, height: 0)
-            }
-            .stopsMediaOnWindowClose {
-                session.clear()
-            }
-            #endif
         } else {
             ProgressView()
         }
@@ -57,15 +48,6 @@ struct DetachedPodcastPlayerWindow: View {
             .onDisappear {
                 audioPlayer.stop()
             }
-            #if targetEnvironment(macCatalyst)
-            .background {
-                FreeResizabilityHelper()
-                    .frame(width: 0, height: 0)
-            }
-            .stopsMediaOnWindowClose {
-                audioPlayer.stop()
-            }
-            #endif
         } else {
             ProgressView()
         }

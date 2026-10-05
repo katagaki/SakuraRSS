@@ -26,6 +26,23 @@ public extension FeedManager {
         }
     }
 
+    func updateBookmarkFolderReadingOptions(
+        _ folder: BookmarkFolder,
+        openMode: FeedOpenMode?,
+        marksReadOnOpen: Bool?
+    ) {
+        try? database.updateBookmarkFolderReadingOptions(
+            id: folder.id,
+            openMode: openMode,
+            marksReadOnOpen: marksReadOnOpen
+        )
+        loadFromDatabase()
+    }
+
+    func bookmarkFolderReadingOptionsByArticleID() -> [Int64: BookmarkFolderReadingOptions] {
+        (try? database.bookmarkFolderReadingOptionsByArticleID()) ?? [:]
+    }
+
     func deleteBookmarkFolder(_ folder: BookmarkFolder, removeBookmarks: Bool) {
         try? database.deleteBookmarkFolder(id: folder.id, removeBookmarks: removeBookmarks)
         loadFromDatabase()
@@ -71,6 +88,10 @@ public extension FeedManager {
 
     func bookmarkCount(in folder: BookmarkFolder) -> Int {
         (try? database.bookmarkCount(inFolderID: folder.id)) ?? 0
+    }
+
+    func bookmarkCountsByFolderID() -> [Int64: Int] {
+        (try? database.bookmarkCountsByFolderID()) ?? [:]
     }
 
     func latestBookmarkThumbnailURLs(in folder: BookmarkFolder) -> [String] {

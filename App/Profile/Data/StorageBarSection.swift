@@ -64,7 +64,7 @@ struct StorageBarSection: View {
         segments.append(StorageSegment(
             kind: .free,
             label: String(localized: "Storage.Usage.Free", table: "DataManagement"),
-            color: Color(uiColor: .systemGray5),
+            color: storageFreeSpaceColor,
             bytes: stats.availableCapacity
         ))
         return segments
@@ -136,4 +136,12 @@ private struct StorageLegend: View {
             }
         }
     }
+}
+
+private var storageFreeSpaceColor: Color {
+    #if os(macOS)
+    Color(nsColor: .quaternaryLabelColor)
+    #else
+    Color(uiColor: .systemGray5)
+    #endif
 }

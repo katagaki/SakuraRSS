@@ -6,7 +6,8 @@ public extension FeedProviderRegistry {
         XProvider.self,
         InstagramProvider.self,
         YouTubePlaylistProvider.self,
-        BlueskyProvider.self
+        BlueskyProvider.self,
+        RedditProvider.self
     ]
 
     static func refreshableProvider(forFeedURL url: String) -> (any WebFeedProvider.Type)? {

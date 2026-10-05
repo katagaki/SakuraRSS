@@ -109,6 +109,16 @@ public extension FeedManager {
         await refreshAllFeeds()
     }
 
+    /// Full Spotlight reindex when the on-device schema doesn't match the current build.
+    func reindexSpotlightIfSchemaChanged() {
+        let defaults = UserDefaults.standard
+        let storedVersion = defaults.object(forKey: SpotlightIndexer.schemaVersionDefaultsKey) as? Int
+        guard storedVersion != SpotlightIndexer.schemaVersion else { return }
+        SpotlightIndexer.removeAllArticles()
+        reindexAllArticlesInSpotlight()
+        defaults.set(SpotlightIndexer.schemaVersion, forKey: SpotlightIndexer.schemaVersionDefaultsKey)
+    }
+
     func reindexAllArticlesInSpotlight() {
         let database = database
         let allFeeds = feeds

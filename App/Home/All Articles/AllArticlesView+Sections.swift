@@ -21,7 +21,6 @@ extension AllArticlesView {
                 selectedSelection = .section(.all)
             }
         case .topic:
-            // Validated against the dynamic top-N list at the HomeView level.
             break
         }
     }

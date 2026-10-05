@@ -1,7 +1,7 @@
 import Foundation
 
 /// A user-defined recipe that turns a webpage into a feed.
-public nonisolated struct PetalRecipe: Codable, Sendable, Hashable {
+public nonisolated struct PetalRecipe: Codable, Sendable, Hashable, Identifiable {
 
     public static let currentVersion = 1
 
@@ -86,6 +86,11 @@ public nonisolated struct PetalRecipe: Codable, Sendable, Hashable {
 
     public static func isPetalFeedURL(_ url: String) -> Bool {
         url.hasPrefix("petal://")
+    }
+
+    public static func recoveryRecipe(name: String, feedURL: String) -> PetalRecipe? {
+        guard let siteURL = siteURL(from: feedURL) else { return nil }
+        return PetalRecipe(name: name, siteURL: siteURL, itemSelector: "")
     }
 
     public static func siteURL(from feedURL: String) -> String? {

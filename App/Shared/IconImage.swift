@@ -3,7 +3,7 @@ import Hanami
 
 struct IconImage: View {
 
-    let image: UIImage
+    let image: PlatformImage
     let size: CGFloat
     let cornerRadius: CGFloat
     let isCircle: Bool
@@ -31,7 +31,7 @@ struct IconImage: View {
         }
     }
 
-    init(_ image: UIImage, size: CGFloat = 20, cornerRadius: CGFloat = 3,
+    init(_ image: PlatformImage, size: CGFloat = 20, cornerRadius: CGFloat = 3,
          circle: Bool = false, skipInset: Bool = false) {
         self.image = image
         self.size = size
@@ -41,7 +41,7 @@ struct IconImage: View {
     }
 
     var body: some View {
-        let baseImage = Image(uiImage: image)
+        let baseImage = Image(platformImage: image)
             .resizable()
             .aspectRatio(contentMode: isNonSquare ? .fit : .fill)
             .frame(width: iconSize, height: iconSize)

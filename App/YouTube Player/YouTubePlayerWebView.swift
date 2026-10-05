@@ -3,7 +3,7 @@ import SwiftUI
 import WebKit
 import Hanami
 
-struct YouTubePlayerWebView: UIViewRepresentable {
+struct YouTubePlayerWebView {
 
     let urlString: String
     let session: YouTubePlayerSession
@@ -35,36 +35,44 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         )
     }
 
-    func makeUIView(context: Context) -> WKWebView {
+    func makeWebView(coordinator: Coordinator) -> WKWebView {
         YouTubeAudioSession.prepare()
 
-        if let existing = reuseExistingWebViewIfMatching(coordinator: context.coordinator) {
+        if let existing = reuseExistingWebViewIfMatching(coordinator: coordinator) {
             return existing
         }
 
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
-        config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
+        #if os(macOS)
+        config.preferences.isElementFullscreenEnabled = true
+        #else
+        config.allowsInlineMediaPlayback = true
         config.allowsPictureInPictureMediaPlayback = true
-        config.userContentController = makeUserContentController(coordinator: context.coordinator)
+        #endif
+        config.userContentController = makeUserContentController(coordinator: coordinator)
 
         let webView = WKWebView(frame: .zero, configuration: config)
         #if DEBUG
         webView.isInspectable = true
         #endif
-        webView.navigationDelegate = context.coordinator
+        webView.navigationDelegate = coordinator
+        #if os(macOS)
+        webView.underPageBackgroundColor = .black
+        #else
         webView.scrollView.isScrollEnabled = false
         webView.isOpaque = true
         webView.backgroundColor = .black
         webView.scrollView.backgroundColor = .black
-        webView.customUserAgent = Self.youTubeUserAgent
         webView.isUserInteractionEnabled = false
+        #endif
+        webView.customUserAgent = Self.youTubeUserAgent
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: Self.normalizedURL(url)))
         }
         if autoplay {
-            context.coordinator.beginAutoplayKick(in: webView)
+            coordinator.beginAutoplayKick(in: webView)
         }
         session.attach(webView: webView, for: urlString)
         DispatchQueue.main.async {
@@ -80,14 +88,14 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         }
         existing.removeFromSuperview()
         existing.navigationDelegate = coordinator
+        #if !os(macOS)
         existing.isUserInteractionEnabled = false
+        #endif
         let userContent = existing.configuration.userContentController
         userContent.removeAllScriptMessageHandlers()
         userContent.add(coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
         userContent.add(coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
-        #if DEBUG
         userContent.add(coordinator, name: "ytDebug")
-        #endif
         coordinator.claimMessageHandlers(on: userContent)
         DispatchQueue.main.async {
             self.webView = existing
@@ -105,18 +113,20 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     private func makeUserContentController(coordinator: Coordinator) -> WKUserContentController {
         let controller = WKUserContentController()
         let scripts: [InjectedUserScript] = [
-            .init(source: YouTubePlayerScripts.mediaIsolationBootstrap, time: .atDocumentStart, mainFrameOnly: false),
+            .init(source: YouTubePlayerScripts.mediaIsolationBootstrap, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.playbackDiagnostics, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.pipEventBridge, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.pageEnvironmentMask, time: .atDocumentStart, mainFrameOnly: true),
             .init(
                 source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
                 time: .atDocumentStart,
                 mainFrameOnly: true
             ),
-            .init(source: YouTubePlayerScripts.pauseGuard, time: .atDocumentEnd, mainFrameOnly: false),
             .init(source: YouTubePlayerScripts.autoplayArmer, time: .atDocumentEnd, mainFrameOnly: true),
-            .init(source: YouTubePlayerScripts.pipEventBridge, time: .atDocumentEnd, mainFrameOnly: true),
-            .init(source: YouTubePlayerScripts.pipDisableOverride, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.playbackPolicy, time: .atDocumentStart, mainFrameOnly: true),
             .init(
-                source: YouTubePlayerScripts.mediaSessionUserActionBridge,
+                source: YouTubePlayerScripts.playbackOwnership + YouTubePlayerScripts.mediaSessionPlaybackStateBridge
+                    + YouTubePlayerScripts.mediaSessionUserActionBridge,
                 time: .atDocumentStart,
                 mainFrameOnly: true
             ),
@@ -147,14 +157,10 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         }
         controller.add(coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
         controller.add(coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
-        #if DEBUG
         controller.add(coordinator, name: "ytDebug")
-        #endif
         coordinator.claimMessageHandlers(on: controller)
         return controller
     }
-
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
 
     /// Rewrites Shorts and live URLs to the regular watch URL so the WebView
     /// uses the standard player.
@@ -177,19 +183,70 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         return components.url ?? url
     }
 
+    /// The Mac's default desktop UA gets the desktop watch page, which the player scripts are
+    /// not written for, so it borrows the iPhone UA to get the same mobile page as iOS.
     static var youTubeUserAgent: String? {
-        #if targetEnvironment(macCatalyst)
-        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-            + "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+        #if os(macOS)
+        return sakuraUserAgent
         #else
         return nil
         #endif
     }
 
-    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+    static func release(_ webView: WKWebView, coordinator: Coordinator) {
         coordinator.cancelAutoplayKick()
-        coordinator.releaseMessageHandlers(on: uiView.configuration.userContentController)
+        coordinator.releaseMessageHandlers(on: webView.configuration.userContentController)
         // Leave the WKWebView alive if the session still owns it so audio
         // continues while collapsed into the tab bar bottom accessory.
     }
 }
+
+#if os(macOS)
+extension YouTubePlayerWebView: NSViewRepresentable {
+
+    func makeNSView(context: Context) -> YouTubePlayerContainerView {
+        YouTubePlayerContainerView(webView: makeWebView(coordinator: context.coordinator))
+    }
+
+    func updateNSView(_ nsView: YouTubePlayerContainerView, context: Context) {}
+
+    static func dismantleNSView(_ nsView: YouTubePlayerContainerView, coordinator: Coordinator) {
+        release(nsView.webView, coordinator: coordinator)
+    }
+}
+
+/// WebKit's video fullscreen moves the web view into its own window, and
+/// SwiftUI would keep resizing it to the inline frame if it were the
+/// representable's view, so SwiftUI only lays out this container.
+final class YouTubePlayerContainerView: NSView {
+
+    let webView: WKWebView
+
+    init(webView: WKWebView) {
+        self.webView = webView
+        super.init(frame: .zero)
+        webView.translatesAutoresizingMaskIntoConstraints = true
+        webView.frame = bounds
+        webView.autoresizingMask = [.width, .height]
+        addSubview(webView)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+#else
+extension YouTubePlayerWebView: UIViewRepresentable {
+
+    func makeUIView(context: Context) -> WKWebView {
+        makeWebView(coordinator: context.coordinator)
+    }
+
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
+
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        release(uiView, coordinator: coordinator)
+    }
+}
+#endif

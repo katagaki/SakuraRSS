@@ -3,7 +3,8 @@ import Hanami
 
 struct ProfileView: View {
 
-    var showsCloseButton: Bool = true
+    /// Sheets want the standard inline title; the tab keeps the large one.
+    var titleDisplayMode: ToolbarTitleDisplayMode?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(FeedManager.self) private var feedManager
@@ -25,17 +26,6 @@ struct ProfileView: View {
                             systemImage: "paintpalette.fill",
                             color: .orange
                         )
-                    }
-                    if UIDevice.current.userInterfaceIdiom != .pad {
-                        NavigationLink {
-                            HomeSettingsView()
-                        } label: {
-                            SettingsIconLabel(
-                                String(localized: "Section.Home", table: "Settings"),
-                                systemImage: "newspaper.fill",
-                                color: .red
-                            )
-                        }
                     }
                     NavigationLink {
                         BrowsingSettingsView()
@@ -122,19 +112,16 @@ struct ProfileView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .sakuraBackground()
             .navigationTitle("Tabs.Profile")
             .compatibleSoftScrollEdgeEffectStyle()
-            .toolbarTitleDisplayMode(UIDevice.current.userInterfaceIdiom == .pad ? .inline : .inlineLarge)
-            #if targetEnvironment(macCatalyst)
-            .toolbar(.hidden, for: .navigationBar)
-            #endif
+            .toolbarTitleDisplayMode(
+                titleDisplayMode
+                    ?? (UIDevice.current.userInterfaceIdiom == .pad ? .inline : .inlineLarge)
+            )
             .toolbar {
-                if showsCloseButton {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {
-                            dismiss()
-                        }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) {
+                        dismiss()
                     }
                 }
             }
@@ -152,5 +139,6 @@ struct ProfileView: View {
                     .environment(\.zoomNamespace, cardZoom)
             }
         }
+        .environment(\.isSakuraBackgroundDisabled, true)
     }
 }

@@ -53,6 +53,7 @@ public nonisolated extension DatabaseManager {
         try database.run(target.update(articleIsBookmarked <- false, articleStatusDirty <- true,
                                        articleStatusModifiedAt <- Date().timeIntervalSince1970))
         try pruneOrphanedBookmarkFolderItems()
+        try pruneOrphanedBookmarkTagItems()
         CloudSyncEngine.shared.noteItemStatusChanged()
     }
 

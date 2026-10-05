@@ -24,16 +24,12 @@ struct VideoStyleView: View {
                     .buttonStyle(.plain)
                     .contentShape(.rect)
                     .contextMenu {
-                        #if targetEnvironment(macCatalyst)
-                        OpenInNewWindowButton(article: article)
-                        Divider()
-                        #endif
                         ArticleReadMenuButton(article: article, labelStyle: .playedUnplayed)
                         Divider()
                         ArticleBookmarkMenuButton(article: article)
                         ArticleCopyLinkMenuButton(article: article)
                         ArticleShareMenuButton(article: article)
-                        MoveToFolderMenuItems(article: article)
+                        BookmarkMenuItems(article: article)
                     }
                     .padding(.bottom, 8)
                 }

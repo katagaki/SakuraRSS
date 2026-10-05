@@ -19,8 +19,7 @@ struct DataSettingsView: View {
             PortabilitySection()
             LogsSection()
         }
-        .listStyle(.insetGrouped)
-        .sakuraBackground()
+        .settingsListStyle()
         .navigationTitle(String(localized: "Section.Data", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
         .task {

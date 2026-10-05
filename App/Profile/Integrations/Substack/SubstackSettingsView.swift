@@ -30,7 +30,6 @@ struct SubstackSettingsView: View {
         }
         .navigationTitle(String(localized: "Substack", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
-        .sakuraBackground()
         .sheet(isPresented: $showLogin) {
             isCheckingLogin = true
             isSignedIn = SubstackAuth.hasSession()

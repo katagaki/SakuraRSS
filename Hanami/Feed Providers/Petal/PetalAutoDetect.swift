@@ -78,6 +78,11 @@ public nonisolated enum PetalAutoDetect {
                 return lhs.value > rhs.value
             }
 
+        if let selector = findHeadingItemSelector(
+            candidates: ranked.map(\.key), in: document
+        ) {
+            return selector
+        }
         for candidate in ranked {
             guard let matched = try? document.select(candidate.key),
                   matched.count >= 3 else {
@@ -89,6 +94,30 @@ public nonisolated enum PetalAutoDetect {
             return candidate.key
         }
         return nil
+    }
+
+    private static func findHeadingItemSelector(
+        candidates: [String],
+        in document: Document
+    ) -> String? {
+        let headingSelectors = "h1, h2, h3, h4, .title, [itemprop=headline], [class*=title]"
+        return candidates.compactMap { selector -> (selector: String, count: Int)? in
+            guard let items = try? document.select(selector), items.count >= 3 else { return nil }
+            let contentItems = items.filter { item in
+                guard let heading = try? item.select(headingSelectors).first(),
+                      let title = try? heading.text(), !title.isEmpty,
+                      let links = try? item.select("a[href]"),
+                      !links.isEmpty, links.count <= 4 else { return false }
+                return true
+            }
+            guard contentItems.count >= 3, contentItems.count * 2 >= items.count else { return nil }
+            return (selector, contentItems.count)
+        }
+        .sorted { first, second in
+            if first.count != second.count { return first.count > second.count }
+            return first.selector < second.selector
+        }
+        .first?.selector
     }
 
     private static func fingerprintFor(_ element: Element) -> String {
@@ -104,7 +133,7 @@ public nonisolated enum PetalAutoDetect {
     // MARK: - Child selectors
 
     private static func findTitleSelector(in item: Element) -> String? {
-        let candidates = ["h1", "h2", "h3", "h4", ".title", "[itemprop=headline]"]
+        let candidates = ["h1", "h2", "h3", "h4", ".title", "[itemprop=headline]", "[class*=title]"]
         for selector in candidates {
             if let element = try? item.select(selector).first(),
                let text = try? element.text(),

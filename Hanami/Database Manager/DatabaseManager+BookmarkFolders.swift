@@ -36,6 +36,38 @@ public nonisolated extension DatabaseManager {
         ))
     }
 
+    func updateBookmarkFolderReadingOptions(
+        id: Int64,
+        openMode: FeedOpenMode?,
+        marksReadOnOpen: Bool?
+    ) throws {
+        let target = bookmarkFolders.filter(bookmarkFolderID == id)
+        try database.run(target.update(
+            bookmarkFolderOpenMode <- openMode?.rawValue,
+            bookmarkFolderMarksReadOnOpen <- marksReadOnOpen
+        ))
+    }
+
+    /// Open modes for every folder, keyed by the articles inside them. Read once
+    /// per Bookmarks surface so routing a tap costs no lookup.
+    func bookmarkFolderReadingOptionsByArticleID() throws -> [Int64: BookmarkFolderReadingOptions] {
+        var optionsByFolderID: [Int64: BookmarkFolderReadingOptions] = [:]
+        for folder in try allBookmarkFolders() where folder.openMode != nil || folder.marksReadOnOpen != nil {
+            optionsByFolderID[folder.id] = BookmarkFolderReadingOptions(
+                openMode: folder.openMode,
+                marksReadOnOpen: folder.marksReadOnOpen
+            )
+        }
+        guard !optionsByFolderID.isEmpty else { return [:] }
+        var result: [Int64: BookmarkFolderReadingOptions] = [:]
+        for row in try database.prepare(bookmarkFolderItems) {
+            let folderID = row[bookmarkFolderItemFolderID]
+            guard let options = optionsByFolderID[folderID] else { continue }
+            result[row[bookmarkFolderItemArticleID]] = options
+        }
+        return result
+    }
+
     func updateBookmarkFolderDisplayStyle(id: Int64, displayStyle: String?) throws {
         let target = bookmarkFolders.filter(bookmarkFolderID == id)
         try database.run(target.update(bookmarkFolderDisplayStyle <- displayStyle))
@@ -119,6 +151,22 @@ public nonisolated extension DatabaseManager {
         )
     }
 
+    /// Every folder's bookmark count in one query, for lists that show them all.
+    func bookmarkCountsByFolderID() throws -> [Int64: Int] {
+        var counts: [Int64: Int] = [:]
+        let query = """
+            SELECT items.folder_id, COUNT(*) FROM bookmark_folder_items AS items
+            JOIN articles ON articles.id = items.article_id
+            WHERE articles.is_bookmarked = 1 GROUP BY items.folder_id
+            """
+        for row in try database.prepare(query) {
+            if let folderID = row[0] as? Int64, let count = row[1] as? Int64 {
+                counts[folderID] = Int(count)
+            }
+        }
+        return counts
+    }
+
     /// Image URLs of the latest bookmarks in a folder that have a thumbnail,
     /// used for the stacked-photos look of the folder grid cell.
     func latestBookmarkThumbnailURLs(inFolderID fid: Int64, limit: Int = 3) throws -> [String] {
@@ -149,7 +197,9 @@ public nonisolated extension DatabaseManager {
             icon: row[bookmarkFolderIcon],
             displayStyle: row[bookmarkFolderDisplayStyle],
             sortOrder: row[bookmarkFolderSortOrder],
-            parentFolderID: row[bookmarkFolderParentID]
+            parentFolderID: row[bookmarkFolderParentID],
+            openMode: ((try? row.get(bookmarkFolderOpenMode)) ?? nil).flatMap(FeedOpenMode.init(rawValue:)),
+            marksReadOnOpen: (try? row.get(bookmarkFolderMarksReadOnOpen)) ?? nil
         )
     }
 }

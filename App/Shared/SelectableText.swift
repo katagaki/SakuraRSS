@@ -45,14 +45,24 @@ struct SelectableText: UIViewRepresentable {
         context.coordinator.renderedFont = font
         context.coordinator.renderedTextColor = textColor
         textView.attributedText = buildAttributedString()
+        context.coordinator.measuredHeights.removeAll()
         textView.invalidateIntrinsicContentSize()
     }
 
-    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context _: Context) -> CGSize? {
+    /// SwiftUI proposes the same width several times per layout, and each
+    /// `UITextView.sizeThatFits` runs a full TextKit layout.
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
         if let proposedWidth = proposal.width, proposedWidth.isFinite, proposedWidth > 0 {
+            if let height = context.coordinator.measuredHeights[proposedWidth] {
+                return CGSize(width: proposedWidth, height: height)
+            }
             let size = uiView.sizeThatFits(
                 CGSize(width: proposedWidth, height: CGFloat.greatestFiniteMagnitude)
             )
+            if context.coordinator.measuredHeights.count >= 8 {
+                context.coordinator.measuredHeights.removeAll()
+            }
+            context.coordinator.measuredHeights[proposedWidth] = size.height
             return CGSize(width: proposedWidth, height: size.height)
         }
         return uiView.sizeThatFits(
@@ -65,6 +75,7 @@ struct SelectableText: UIViewRepresentable {
         var renderedText: String?
         var renderedFont: UIFont?
         var renderedTextColor: UIColor?
+        var measuredHeights: [CGFloat: CGFloat] = [:]
 
         init(onLinkTap: ((URL) -> Void)?) {
             self.onLinkTap = onLinkTap

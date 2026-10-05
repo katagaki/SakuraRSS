@@ -121,14 +121,10 @@ extension ArticleDetailView {
 
         isLoadingInsights = true
         Task {
-            async let similarTask = Self.computeSimilarArticles(
+            async let similarTask = Self.similarArticleItems(
                 currentArticle: currentArticle, feedsLookup: feedsLookup
             )
-            async let entitiesTask = Self.computeArticleEntities(
-                articleID: currentArticle.id,
-                articleTitle: currentArticle.title,
-                articleSummary: currentArticle.summary ?? ""
-            )
+            async let entitiesTask = ContentInsights.entities(for: currentArticle)
             let loadedSimilar = await similarTask
             let loadedEntities = await entitiesTask
 
@@ -139,69 +135,17 @@ extension ArticleDetailView {
         }
 
         Task.detached(priority: .utility) {
-            Self.ensureSentimentProcessed(
-                for: currentArticle, database: DatabaseManager.shared
-            )
+            ContentInsights.processSentimentIfNeeded(for: currentArticle)
         }
     }
 
-    /// Runs entity extraction off the main actor using Sendable inputs.
-    fileprivate nonisolated static func computeArticleEntities(
-        articleID: Int64,
-        articleTitle: String,
-        articleSummary: String
-    ) async -> (topics: [String], people: [String]) {
-        let database = DatabaseManager.shared
-        return await Task.detached(priority: .userInitiated) {
-            if (try? database.isEntitiesProcessed(articleId: articleID)) != true {
-                let text = [articleTitle, articleSummary]
-                    .filter { !$0.isEmpty }
-                    .joined(separator: " ")
-                let entities = NLPProcessor.extractEntities(from: text)
-                if !entities.isEmpty {
-                    try? database.insertEntities(
-                        entities.map { (name: $0.name, type: $0.type) },
-                        for: articleID
-                    )
-                }
-                try? database.markEntitiesProcessed(articleId: articleID)
-            }
-
-            guard let rows = try? database.entities(forArticleID: articleID) else {
-                return (topics: [String](), people: [String]())
-            }
-            var topics: [String] = []
-            var people: [String] = []
-            var seenTopics = Set<String>()
-            var seenPeople = Set<String>()
-            for row in rows {
-                let key = row.name.lowercased()
-                switch row.type {
-                case "person":
-                    if seenPeople.insert(key).inserted { people.append(row.name) }
-                case "organization", "place":
-                    if seenTopics.insert(key).inserted { topics.append(row.name) }
-                default:
-                    break
-                }
-            }
-            return (topics: topics, people: people)
-        }.value
-    }
-
-    /// Runs similar-article discovery off the main actor.
-    fileprivate nonisolated static func computeSimilarArticles(
+    fileprivate nonisolated static func similarArticleItems(
         currentArticle: Article,
         feedsLookup: [Int64: Feed]
     ) async -> [SimilarArticleItem] {
-        let rawMatches = await Task.detached(priority: .userInitiated) {
-            await computeRawMatches(
-                currentArticle: currentArticle, feedsLookup: feedsLookup
-            )
-        }.value
-
+        let matches = await ContentInsights.similarContent(to: currentArticle, feedsLookup: feedsLookup)
         return await withTaskGroup(of: (Int, SimilarArticleItem).self) { group in
-            for (index, match) in rawMatches.enumerated() {
+            for (index, match) in matches.enumerated() {
                 group.addTask {
                     let icon: UIImage?
                     if let feed = match.feed {
@@ -219,136 +163,11 @@ extension ArticleDetailView {
                     ))
                 }
             }
-            var results = [SimilarArticleItem?](repeating: nil, count: rawMatches.count)
+            var results = [SimilarArticleItem?](repeating: nil, count: matches.count)
             for await (index, item) in group {
                 results[index] = item
             }
             return results.compactMap { $0 }
         }
     }
-
-    /// Returns match metadata ordered by hybrid similarity score.
-    fileprivate nonisolated static func computeRawMatches(
-        currentArticle: Article,
-        feedsLookup: [Int64: Feed]
-    ) async -> [SimilarMatchData] {
-        let database = DatabaseManager.shared
-
-        if (try? database.isSimilarComputed(articleId: currentArticle.id)) == true {
-            return cachedSimilarMatches(
-                articleID: currentArticle.id, feedsLookup: feedsLookup, database: database
-            )
-        }
-
-        guard let candidates = try? database.articlesInWindow(
-            around: currentArticle, hours: 168, limit: 82
-        ), !candidates.isEmpty else {
-            try? database.cacheSimilarArticles([], forSourceID: currentArticle.id)
-            return []
-        }
-
-        ensureEntitiesProcessed(for: currentArticle, database: database)
-
-        let sourceEntities: Set<String> = (try? database.entities(forArticleID: currentArticle.id))
-            .map { Set($0.map { $0.name.lowercased() }) } ?? []
-        let candidateIDs = candidates.map { $0.id }
-        let entityMap = (try? database.entities(forArticleIDs: candidateIDs)) ?? [:]
-        let pairs: [(article: Article, entities: Set<String>)] = candidates.map { candidate in
-            (article: candidate, entities: entityMap[candidate.id] ?? [])
-        }
-
-        let similar = await NLPProcessor.findSimilarArticlesHybrid(
-            to: currentArticle,
-            sourceEntities: sourceEntities,
-            candidates: pairs,
-            maxResults: 8,
-            minimumScore: 0.35
-        )
-
-        // Persist `1 - score` as distance so lower-is-better matches the cache reader.
-        try? database.cacheSimilarArticles(
-            similar.map { (id: $0.articleID, distance: 1.0 - $0.score) },
-            forSourceID: currentArticle.id
-        )
-
-        var results: [SimilarMatchData] = []
-        results.reserveCapacity(similar.count)
-        for match in similar {
-            guard let matchArticle = try? database.article(byID: match.articleID) else { continue }
-            let feed = feedsLookup[matchArticle.feedID]
-            let sentiment = try? database.sentimentScore(for: match.articleID)
-            results.append(SimilarMatchData(
-                article: matchArticle,
-                feedName: feed?.title ?? "",
-                feed: feed,
-                sentiment: sentiment
-            ))
-        }
-        return results
-    }
-
-    fileprivate nonisolated static func cachedSimilarMatches(
-        articleID: Int64, feedsLookup: [Int64: Feed], database: DatabaseManager
-    ) -> [SimilarMatchData] {
-        guard let cached = try? database.cachedSimilarArticleIDs(forSourceID: articleID),
-              !cached.isEmpty else {
-            // Empty cache means computed earlier with no matches; skip recompute.
-            return []
-        }
-        var results: [SimilarMatchData] = []
-        results.reserveCapacity(cached.count)
-        for entry in cached {
-            guard let matchArticle = try? database.article(byID: entry.id) else { continue }
-            let feed = feedsLookup[matchArticle.feedID]
-            let sentiment = try? database.sentimentScore(for: entry.id)
-            results.append(SimilarMatchData(
-                article: matchArticle,
-                feedName: feed?.title ?? "",
-                feed: feed,
-                sentiment: sentiment
-            ))
-        }
-        return results
-    }
-
-    fileprivate nonisolated static func ensureEntitiesProcessed(
-        for currentArticle: Article, database: DatabaseManager
-    ) {
-        guard (try? database.isEntitiesProcessed(articleId: currentArticle.id)) != true else {
-            return
-        }
-        let sourceText = [currentArticle.title, currentArticle.summary ?? ""]
-            .filter { !$0.isEmpty }
-            .joined(separator: " ")
-        let extracted = NLPProcessor.extractEntities(from: sourceText)
-        if !extracted.isEmpty {
-            try? database.insertEntities(
-                extracted.map { (name: $0.name, type: $0.type) },
-                for: currentArticle.id
-            )
-        }
-        try? database.markEntitiesProcessed(articleId: currentArticle.id)
-    }
-
-    fileprivate nonisolated static func ensureSentimentProcessed(
-        for currentArticle: Article, database: DatabaseManager
-    ) {
-        guard (try? database.isSentimentProcessed(articleId: currentArticle.id)) != true else {
-            return
-        }
-        let sourceText = [currentArticle.title, currentArticle.summary ?? ""]
-            .filter { !$0.isEmpty }
-            .joined(separator: " ")
-        if let score = NLPProcessor.sentimentScore(for: sourceText) {
-            try? database.updateSentimentScore(score, for: currentArticle.id)
-        }
-        try? database.markSentimentProcessed(articleId: currentArticle.id)
-    }
-}
-
-private struct SimilarMatchData: Sendable {
-    let article: Article
-    let feedName: String
-    let feed: Feed?
-    let sentiment: Double?
 }

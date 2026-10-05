@@ -47,10 +47,7 @@ struct ListHeaderView: View {
             actionButtons
                 .padding(.top, 8)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 16)
-        .padding(.top, 4)
-        .padding(.bottom, 16)
+        .sourceHeaderPadding()
         .sheet(isPresented: $isEditingList) {
             ListEditSheet(list: list)
                 .environment(feedManager)

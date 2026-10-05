@@ -35,17 +35,15 @@ struct SakuraRSSApp: App {
                 pendingArticleID: $pendingArticleID,
                 pendingOpenRequest: $pendingOpenRequest
             )
-                #if !os(visionOS) && !targetEnvironment(macCatalyst)
+                #if !os(visionOS)
                 .statusBarHidden(!showStatusBar)
                 #endif
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
                 .environment(todayManager)
                 .keepScreenOnDuringPodcastWork()
-                #if targetEnvironment(macCatalyst)
-                .stopsSharedMediaOnLastMainWindowClose()
-                #endif
                 .task {
+                    OpenContent.feedManager = feedManager
                     feedManager.onBookmarkAdded = { [feedManager] article in
                         BookmarkToastManager.shared.show(article: article, feedManager: feedManager)
                     }
@@ -61,13 +59,21 @@ struct SakuraRSSApp: App {
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
-                    reindexSpotlightIfSchemaChanged()
+                    feedManager.reindexSpotlightIfSchemaChanged()
+                    // Off the launch path: the lookups are network round trips,
+                    // and only previews that were found are worth a refresh.
+                    Task(priority: .utility) { [feedManager] in
+                        if await BookmarkPreviewResolver.backfillPendingPreviews() > 0 {
+                            feedManager.bumpDataRevision()
+                        }
+                    }
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
                 ) { _ in
                     feedManager.flushDebouncedReads()
                     reloadWidgetsIfNeeded()
+                    LogManager.shared.flush()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
@@ -115,13 +121,6 @@ struct SakuraRSSApp: App {
         // Wide enough for the sidebar split view to stay expanded.
         .defaultSize(width: 1280, height: 820)
         #endif
-        #if targetEnvironment(macCatalyst)
-        .commands {
-            CommandGroup(replacing: .appSettings) {
-                OpenProfileSettingsButton()
-            }
-        }
-        #endif
 
         #if os(visionOS)
         WindowGroup(id: "YouTubePlayerWindow", for: Int64.self) { $articleID in
@@ -136,56 +135,6 @@ struct SakuraRSSApp: App {
         .defaultSize(width: 600, height: 900)
         #endif
 
-        #if targetEnvironment(macCatalyst)
-        WindowGroup(id: "ProfileWindow", for: String.self) { _ in
-            ProfileView(showsCloseButton: false)
-                .environment(feedManager)
-                .stopsMediaOnWindowClose()
-        }
-        .defaultSize(width: 600, height: 700)
-        .commandsRemoved()
-
-        WindowGroup(id: "ArticleWindow", for: Int64.self) { $articleID in
-            if let articleID {
-                ArticleDetailWindow(articleID: articleID)
-                    .environment(feedManager)
-            }
-        }
-        .defaultSize(width: 420, height: 520)
-        .commandsRemoved()
-
-        WindowGroup(id: "FeedWindow", for: Int64.self) { $feedID in
-            if let feedID {
-                FeedDetailWindow(feedID: feedID)
-                    .environment(feedManager)
-            }
-        }
-        .defaultSize(width: 480, height: 700)
-        .commandsRemoved()
-
-        WindowGroup(id: "ListWindow", for: Int64.self) { $listID in
-            if let listID {
-                ListDetailWindow(listID: listID)
-                    .environment(feedManager)
-            }
-        }
-        .defaultSize(width: 480, height: 700)
-        .commandsRemoved()
-
-        WindowGroup(id: "YouTubePlayerWindow", for: Int64.self) { $articleID in
-            DetachedYouTubePlayerWindow(articleID: articleID)
-                .environment(feedManager)
-        }
-        .defaultSize(width: 450, height: 700)
-        .commandsRemoved()
-
-        WindowGroup(id: "PodcastPlayerWindow", for: Int64.self) { $articleID in
-            DetachedPodcastPlayerWindow(articleID: articleID)
-                .environment(feedManager)
-        }
-        .defaultSize(width: 300, height: 550)
-        .commandsRemoved()
-        #endif
     }
 
     init() {
@@ -194,7 +143,7 @@ struct SakuraRSSApp: App {
         defaults.register(defaults: [
             "Intelligence.ContentInsights.Enabled": true
         ])
-        Self.enableHomeTopicsByDefaultIfNeeded(defaults: defaults)
+        UnreadBadgeMode.migrateRemovedHomeTabModes(defaults: defaults)
 
         if defaults.bool(forKey: "App.StartupInProgress") {
             Self.resetSavedNavigationState(defaults: defaults)
@@ -213,16 +162,5 @@ struct SakuraRSSApp: App {
         }
         lastWidgetReloadAt = now
         WidgetCenter.shared.reloadAllTimelines()
-    }
-
-    private static func enableHomeTopicsByDefaultIfNeeded(defaults: UserDefaults) {
-        let key = "Home.BarConfiguration.TopicsDefaultEnabled.Migrated"
-        guard !defaults.bool(forKey: key) else { return }
-        var config = HomeBarConfiguration.load()
-        if !config.enabledItems.contains(.topics) {
-            config.enabledItems.insert(.topics)
-            config.save()
-        }
-        defaults.set(true, forKey: key)
     }
 }

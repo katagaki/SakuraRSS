@@ -195,6 +195,7 @@ extension OnboardingView {
     private func tryDirectFeedURL(_ input: String) async -> DiscoveredFeed? {
         let urlString = normalizeURL(input)
         guard let url = URL(string: urlString) else { return nil }
+        if RedditWebFeedURL(url: url) != nil { return nil }
         let fetchURL = RedirectDomains.redirectedURL(url)
 
         do {

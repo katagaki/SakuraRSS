@@ -160,15 +160,15 @@ struct ListRulesSheet: View {
             }
             .formStyle(.grouped)
             .navigationTitle(String(localized: "ListRules.Title", table: "Lists"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .sheetLeading) {
                     Button(role: .cancel) {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .sheetTrailing) {
                     Button(role: .confirm) {
                         save()
                     }

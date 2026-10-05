@@ -14,44 +14,7 @@ struct PortabilitySection: View {
     @State private var showAlert = false
 
     var body: some View {
-        Section {
-            HStack(spacing: 0) {
-                Button {
-                    isExporting = true
-                } label: {
-                    VStack(spacing: 6) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.title2)
-                        Text(String(localized: "ExportOPML", table: "DataManagement"))
-                            .font(.body)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .contentShape(.rect)
-                }
-                .buttonStyle(.plain)
-                Divider()
-                Button {
-                    isImporting = true
-                } label: {
-                    VStack(spacing: 6) {
-                        Image(systemName: "square.and.arrow.down")
-                            .font(.title2)
-                        Text(String(localized: "ImportOPML", table: "DataManagement"))
-                            .font(.body)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .contentShape(.rect)
-                }
-                .buttonStyle(.plain)
-            }
-            .listRowInsets(EdgeInsets())
-        } header: {
-            Text(String(localized: "Section.Portability", table: "Settings"))
-        } footer: {
-            Text(String(localized: "OPML.Footer", table: "DataManagement"))
-        }
+        layout
         .fileExporter(
             isPresented: $isExporting,
             document: OPMLDocument(content: feedManager.exportOPML()),
@@ -97,6 +60,66 @@ struct PortabilitySection: View {
                 Text(alertMessage)
             }
         }
+    }
+
+    /// macOS lays settings out in Safari's label-and-control column instead
+    /// of iOS's grouped list.
+    @ViewBuilder
+    private var layout: some View {
+        #if os(macOS)
+        LabeledContent(String(localized: "Section.Portability", table: "Settings")) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Button(String(localized: "ExportOPML", table: "DataManagement") + "…") { isExporting = true }
+                    Button(String(localized: "ImportOPML", table: "DataManagement") + "…") { isImporting = true }
+                }
+                Text(String(localized: "OPML.Footer", table: "DataManagement"))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: 360, alignment: .leading)
+            }
+        }
+        #else
+        Section {
+            HStack(spacing: 0) {
+                Button {
+                    isExporting = true
+                } label: {
+                    VStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.title2)
+                        Text(String(localized: "ExportOPML", table: "DataManagement"))
+                            .font(.body)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                Divider()
+                Button {
+                    isImporting = true
+                } label: {
+                    VStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.down")
+                            .font(.title2)
+                        Text(String(localized: "ImportOPML", table: "DataManagement"))
+                            .font(.body)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+            }
+            .listRowInsets(EdgeInsets())
+        } header: {
+            Text(String(localized: "Section.Portability", table: "Settings"))
+        } footer: {
+            Text(String(localized: "OPML.Footer", table: "DataManagement"))
+        }
+        #endif
     }
 
     private func handleImport(result: Result<[URL], Error>) {

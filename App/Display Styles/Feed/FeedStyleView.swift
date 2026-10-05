@@ -4,9 +4,6 @@ import Hanami
 struct FeedStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    #if targetEnvironment(macCatalyst)
-    @Environment(\.openWindow) private var openWindow
-    #endif
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var variant: FeedStyleVariant = .full
@@ -109,12 +106,6 @@ struct FeedStyleView: View {
 
     @ViewBuilder
     private func rowContextMenu(for article: Article) -> some View {
-        #if targetEnvironment(macCatalyst)
-        OpenInNewWindowButton(article: article)
-        Divider()
-        ArticleReadMenuButton(article: article)
-        ArticleBookmarkMenuButton(article: article)
-        #endif
-        MoveToFolderMenuItems(article: article)
+        BookmarkMenuItems(article: article)
     }
 }

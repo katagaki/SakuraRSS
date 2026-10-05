@@ -2,7 +2,7 @@ import Foundation
 import SwiftSoup
 
 /// Site-specific override invoked before the generic extractor.
-public protocol SiteContentExtractor {
+public nonisolated protocol SiteContentExtractor: Sendable {
     func canHandle(url: URL) -> Bool
 
     /// Set to true when the site requires WebView-based fetching because
@@ -18,7 +18,7 @@ public protocol SiteContentExtractor {
     ) -> ExtractionResult?
 }
 
-public extension SiteContentExtractor {
+public nonisolated extension SiteContentExtractor {
     var requiresWebView: Bool { false }
 
     func matchesHost(_ url: URL, _ domains: [String]) -> Bool {

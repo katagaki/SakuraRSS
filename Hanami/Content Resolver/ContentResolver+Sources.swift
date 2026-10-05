@@ -36,8 +36,13 @@ public extension ContentResolver {
     private func extractFromFetchTextSource() async -> Bool {
         guard let initialURL = URL(string: article.url) else { return true }
         let url = await HTMLContentExtractor.resolveOneCushionedURL(initialURL)
-        let (html, _) = await fetchHTML(from: url)
-        if let html {
+        let (html, response) = await fetchHTML(from: url)
+        if let html, BotChallengeDetector.looksLikeChallenge(html, response: response) {
+            result.text = await extractViaWebView(from: url, excludeTitle: article.title)
+            if let text = result.text, !text.isEmpty {
+                persistCachedContent(text)
+            }
+        } else if let html {
             let extracted = HTMLContentExtractor.extractArticle(
                 fromHTML: html, baseURL: url, excludeTitle: article.title
             )

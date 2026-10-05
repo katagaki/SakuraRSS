@@ -25,6 +25,10 @@ final class BackgroundActivityAssertion: @unchecked Sendable {
         let semaphore = release
         lock.unlock()
         guard startsAssertion, let semaphore else { return token }
+        #if os(macOS)
+        // macOS never suspends the app, so there is no expiring activity to hold.
+        _ = semaphore
+        #else
         ProcessInfo.processInfo.performExpiringActivity(withReason: reason) { [weak self] expired in
             if expired {
                 self?.expire()
@@ -32,6 +36,7 @@ final class BackgroundActivityAssertion: @unchecked Sendable {
                 semaphore.wait()
             }
         }
+        #endif
         return token
     }
 

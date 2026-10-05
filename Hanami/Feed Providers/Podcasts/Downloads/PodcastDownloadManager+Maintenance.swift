@@ -7,7 +7,7 @@ public extension PodcastDownloadManager {
         log("PodcastDownload", "Starting orphaned download cleanup")
         let fileManager = FileManager.default
         guard let container = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         ) else {
             log("PodcastDownload", "Cleanup aborted: app group container unavailable")
             return
@@ -35,7 +35,7 @@ public extension PodcastDownloadManager {
     nonisolated static func totalDownloadedSize() -> Int64 {
         let fileManager = FileManager.default
         guard let container = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         ) else { return 0 }
         let dir = container.appendingPathComponent("PodcastDownloads", isDirectory: true)
         guard let enumerator = fileManager.enumerator(

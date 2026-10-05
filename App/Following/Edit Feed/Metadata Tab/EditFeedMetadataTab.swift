@@ -14,12 +14,13 @@ struct EditFeedMetadataTab: View {
     @State var iconURLInput: String = ""
     @State var useDefaultIcon: Bool = false
     @State var selectedPhoto: PhotosPickerItem?
-    @State var customIconImage: UIImage?
-    @State var currentIcon: UIImage?
+    @State var customIconImage: PlatformImage?
+    @State var currentIcon: PlatformImage?
     @State var hasRealIcon: Bool = false
     @State var isFetchingIcon = false
+    @State var hasFetchedServiceIcon = false
     @State var showIconFetchError = false
-    @State var showPetalBuilder = false
+    @State var selectedPetalRecipe: PetalRecipe?
     @State private var hasInitialized = false
 
     var body: some View {
@@ -44,7 +45,7 @@ struct EditFeedMetadataTab: View {
             Task {
                 if let selectedPhoto,
                    let data = try? await selectedPhoto.loadTransferable(type: Data.self),
-                   let image = UIImage(data: data) {
+                   let image = PlatformImage(data: data) {
                     customIconImage = image
                     iconURLInput = ""
                     useDefaultIcon = false
@@ -56,12 +57,17 @@ struct EditFeedMetadataTab: View {
                isPresented: $showIconFetchError) {
             Button("Shared.OK", role: .cancel) { }
         }
-        .sheet(isPresented: $showPetalBuilder) {
-            if let feed, let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
+        .sheet(item: $selectedPetalRecipe, onDismiss: {
+            if let updatedFeed = feedManager.feedsByID[feedID] {
+                name = updatedFeed.title
+                url = updatedFeed.fetchURL
+            }
+        }, content: { recipe in
+            if let feed {
                 PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
                     .environment(feedManager)
             }
-        }
+        })
     }
 
     @ViewBuilder
@@ -121,7 +127,8 @@ struct EditFeedMetadataTab: View {
         Task {
             if let customIconImage, !useDefaultIcon {
                 await Iconography.shared.setCustomIcon(customIconImage, feedID: feed.id)
-            } else if useDefaultIcon && feed.customIconURL != nil && feed.customIconURL != "none" {
+            } else if (useDefaultIcon || hasFetchedServiceIcon && finalIconURL == nil)
+                && feed.customIconURL != nil && feed.customIconURL != "none" {
                 await Iconography.shared.removeCustomIcon(feedID: feed.id)
             }
             await MainActor.run {
@@ -147,6 +154,7 @@ struct EditFeedMetadataTab: View {
         if useDefaultIcon { return "none" }
         if customIconImage != nil { return "photo" }
         if !iconURLInput.isEmpty { return iconURLInput }
+        if hasFetchedServiceIcon { return nil }
         if feed.customIconURL == "photo" { return "photo" }
         return nil
     }

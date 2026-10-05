@@ -1,0 +1,80 @@
+{
+  "key": "tech-board",
+  "title": {"en": "Millennium Tech Board", "ja": "ミレニアム技術掲示板"},
+  "url": "https://board.millennium.kivotos/rss",
+  "site": "https://board.millennium.kivotos",
+  "hue": 22,
+  "icon": {"style": "solid", "background": "#FF6A13", "foreground": "#FFFFFF", "text": "M", "font": "sans", "fill": 0.56},
+  "articles": [
+    {
+      "slug": "show-board-halo-tracker",
+      "age": 22,
+      "author": "Hare",
+      "title": {
+        "en": "Show Board: I built a halo brightness tracker that runs on a calculator",
+        "ja": "作ってみた：電卓で動くヘイロー輝度トラッカー"
+      },
+      "summary": {
+        "en": "212 points · 48 comments",
+        "ja": "212ポイント・コメント48件"
+      },
+      "entities": [["Veritas", "organization"], ["Hare", "person"]]
+    },
+    {
+      "slug": "why-toki-is-fast",
+      "age": 75,
+      "author": "Neru",
+      "title": {
+        "en": "Why the C&C maid robots are faster than anything else on campus",
+        "ja": "C&Cのメイドロボが学内のどれよりも速い理由"
+      },
+      "summary": {
+        "en": "184 points · 61 comments",
+        "ja": "184ポイント・コメント61件"
+      },
+      "entities": [["Cleaning & Clearing", "organization"], ["Toki", "person"]]
+    },
+    {
+      "slug": "rewriting-attendance",
+      "age": 165,
+      "author": "Chihiro",
+      "title": {
+        "en": "Rewriting the attendance system in a weekend",
+        "ja": "週末で出欠システムを書き直した話"
+      },
+      "summary": {
+        "en": "97 points · 22 comments",
+        "ja": "97ポイント・コメント22件"
+      },
+      "entities": [["Veritas", "organization"], ["Chihiro", "person"]]
+    },
+    {
+      "slug": "ask-board-keyboards",
+      "age": 290,
+      "author": "Momoi",
+      "title": {
+        "en": "Ask Board: What keyboard do you use for coding?",
+        "ja": "質問：プログラミングにどのキーボードを使っていますか？"
+      },
+      "summary": {
+        "en": "64 points · 139 comments",
+        "ja": "64ポイント・コメント139件"
+      },
+      "entities": [["Game Development Department", "organization"]]
+    },
+    {
+      "slug": "kivotos-mesh-network",
+      "age": 410,
+      "author": "Utaha",
+      "title": {
+        "en": "A mesh network for the whole of Kivotos, from rooftop to rooftop",
+        "ja": "屋上から屋上へ、キヴォトス全域を結ぶメッシュネットワーク"
+      },
+      "summary": {
+        "en": "151 points · 37 comments",
+        "ja": "151ポイント・コメント37件"
+      },
+      "entities": [["Engineering Department", "organization"], ["Kivotos", "place"]]
+    }
+  ]
+}

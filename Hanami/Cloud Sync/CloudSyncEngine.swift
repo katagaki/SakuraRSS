@@ -78,6 +78,7 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
     }
 
     private func start() {
+        guard CloudKitEntitlement.isAvailable else { return }
         engineLock.lock()
         guard underlyingEngine == nil, !isStarting else {
             engineLock.unlock()
@@ -229,6 +230,7 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
     }
 
     public func accountStatus() async -> CKAccountStatus {
+        guard CloudKitEntitlement.isAvailable else { return .couldNotDetermine }
         let container = CKContainer(identifier: Self.containerIdentifier)
         return (try? await container.accountStatus()) ?? .couldNotDetermine
     }

@@ -53,14 +53,19 @@ final class AudioPlayer {
 
     // MARK: - Audio Session
 
+    /// macOS has no audio session to configure; playback just starts.
     private func activateAudioSession() {
+        #if !os(macOS)
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playback, mode: .spokenAudio)
         try? session.setActive(true)
+        #endif
     }
 
     private func deactivateAudioSession() {
+        #if !os(macOS)
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        #endif
     }
 
     // MARK: - Playback

@@ -53,7 +53,7 @@ struct VideoArticleCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(article.title)
+                    Text(article.displayTitle)
                         .font(.body)
                         .fontWeight(.semibold)
                         .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
@@ -119,7 +119,7 @@ struct VideoArticleCard: View {
                             )
                         }
                     }
-                    MoveToFolderMenuItems(article: article)
+                    BookmarkMenuItems(article: article)
                 } label: {
                     Image(systemName: "ellipsis")
                         .frame(width: 28, height: 28)

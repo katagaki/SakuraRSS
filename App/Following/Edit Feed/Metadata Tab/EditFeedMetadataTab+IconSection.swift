@@ -23,7 +23,7 @@ extension EditFeedMetadataTab {
         if useDefaultIcon {
             HStack {
                 Spacer()
-                if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
+                if let data = feed.acronymIcon, let acronym = PlatformImage(data: data) {
                     IconImage(acronym, size: 64,
                                  cornerRadius: iconCornerRadius(size: 64),
                                  circle: feed.isCircleIcon,
@@ -58,9 +58,7 @@ extension EditFeedMetadataTab {
             TextField(String("https://example.com/icon.png"), text: $iconURLInput)
                 .multilineTextAlignment(.trailing)
                 .frame(maxWidth: .infinity)
-                .textContentType(.URL)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
+                .urlTextInput()
                 .labelsHidden()
                 .onSubmit {
                     Task {

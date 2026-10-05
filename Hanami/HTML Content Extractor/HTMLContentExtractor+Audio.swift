@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// Promotes `<audio>` elements to `{{AUDIO}}url{{/AUDIO}}` marker
     /// paragraphs so noise removal doesn't strip them and they survive

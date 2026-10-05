@@ -17,7 +17,7 @@ struct AppearanceSettingsView: View {
 
     var body: some View {
         List {
-            #if !os(visionOS) && !targetEnvironment(macCatalyst)
+            #if !os(visionOS)
             Section {
                 ThemePreviewSection()
                 Toggle(String(localized: "SakuraBackground", table: "Settings"),
@@ -57,16 +57,16 @@ struct AppearanceSettingsView: View {
 
             contentWidthSection
 
-            if UIDevice.current.userInterfaceIdiom != .pad {
-                Section {
-                    Toggle(String(localized: "ZoomTransition", table: "Settings"),
-                           isOn: $zoomTransitionEnabled)
-                } header: {
-                    Text(String(localized: "Section.Navigation", table: "Settings"))
-                }
+            #if os(visionOS)
+            Section {
+                Toggle(String(localized: "ZoomTransition", table: "Settings"),
+                       isOn: $zoomTransitionEnabled)
+            } header: {
+                Text(String(localized: "Section.Navigation", table: "Settings"))
             }
+            #endif
 
-            #if !os(visionOS) && !targetEnvironment(macCatalyst)
+            #if !os(visionOS)
             Section {
                 Toggle(String(localized: "ShowStatusBar", table: "Settings"),
                        isOn: $showStatusBar)
@@ -82,34 +82,24 @@ struct AppearanceSettingsView: View {
                             set: { markAllReadPosition = $0 ? .top : .none }
                        ))
                 Picker(String(localized: "UnreadBadgeMode", table: "Settings"), selection: $unreadBadgeMode) {
-                    if UIDevice.current.userInterfaceIdiom == .pad {
-                        Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
-                            .tag(UnreadBadgeMode.homeScreenOnly)
-                    } else {
-                        Text(String(localized: "UnreadBadgeMode.HomeScreenAndHomeTab", table: "Settings"))
-                            .tag(UnreadBadgeMode.homeScreenAndHomeTab)
-                        Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
-                            .tag(UnreadBadgeMode.homeScreenOnly)
-                        Text(String(localized: "UnreadBadgeMode.HomeTabOnly", table: "Settings"))
-                            .tag(UnreadBadgeMode.homeTabOnly)
-                    }
+                    Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
+                        .tag(UnreadBadgeMode.homeScreenOnly)
                     Text(String(localized: "UnreadBadgeMode.Off", table: "Settings"))
                         .tag(UnreadBadgeMode.none)
                 }
                 .onChange(of: unreadBadgeMode) { _, newValue in
                     switch newValue {
-                    case .homeScreenAndHomeTab, .homeScreenOnly:
+                    case .homeScreenOnly:
                         Task {
                             let granted = try? await UNUserNotificationCenter.current()
                                 .requestAuthorization(options: [.badge])
                             if granted == true {
                                 feedManager.updateBadgeCount()
                             } else {
-                                unreadBadgeMode = newValue == .homeScreenAndHomeTab
-                                    ? .homeTabOnly : .none
+                                unreadBadgeMode = .none
                             }
                         }
-                    case .homeTabOnly, .none:
+                    case .none:
                         Task {
                             try? await UNUserNotificationCenter.current().setBadgeCount(0)
                         }
@@ -120,20 +110,15 @@ struct AppearanceSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .sakuraBackground()
         .navigationTitle(String(localized: "Section.Appearance", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder
     private var contentWidthSection: some View {
-        #if targetEnvironment(macCatalyst)
-        contentWidthPickerSection
-        #else
         if UIDevice.current.userInterfaceIdiom == .pad {
             contentWidthPickerSection
         }
-        #endif
     }
 
     @ViewBuilder

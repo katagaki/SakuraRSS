@@ -27,7 +27,8 @@ public extension ContentResolver {
             await tryAMPExtraction(into: &extraction, rawHTML: rawHTML, url: url)
         }
 
-        if HTMLContentExtractor.isWeakExtraction(extraction.text) && jsRendered && !extraction.paywalled {
+        if HTMLContentExtractor.isWeakExtraction(extraction.text) && jsRendered
+            && !extraction.paywalled && !result.challenged {
             let webText = await extractViaWebView(from: url, excludeTitle: article.title)
             if let webText, !webText.isEmpty,
                !HTMLContentExtractor.isWeakExtraction(webText) || extraction.text == nil {
@@ -42,6 +43,10 @@ public extension ContentResolver {
             extraction.text = text + "\n\n" + extras
         }
 
+        if !extraction.paywalled, let text = extraction.text, !text.isEmpty {
+            extraction.text = await CloudBlockRefiner.refine(text, title: article.title, url: url)
+        }
+
         mergeMetadata(extraction.metadata)
         result.paywalled = extraction.paywalled
         result.text = extraction.text
@@ -53,7 +58,9 @@ public extension ContentResolver {
     private func initialExtractionResult(
         rawHTML: String?, url: URL, response: URLResponse?
     ) async -> ExtractionResult {
-        let isChallenge = rawHTML.map(BotChallengeDetector.looksLikeChallenge) ?? false
+        let isChallenge = rawHTML.map {
+            BotChallengeDetector.looksLikeChallenge($0, response: response)
+        } ?? false
         if isChallenge {
             let webText = await extractViaWebView(from: url, excludeTitle: article.title)
             return ExtractionResult(text: webText)

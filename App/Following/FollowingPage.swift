@@ -1,9 +1,11 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
 struct FollowingPage: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
     let followingNavigationNamespace: Namespace.ID
     @State var searchText = ""
     @State var isPresentingAddFeedSheet = false
@@ -18,7 +20,6 @@ struct FollowingPage: View {
     @State var isPresentingBulkEditSheet = false
     @State var isPresentingBulkDeleteAlert = false
     @State var isPresentingNewListSheet = false
-    @State var listToDelete: FeedList?
     @Namespace var addFeedNamespace
     @Namespace var feedEditNamespace
     @Namespace var newListNamespace
@@ -39,7 +40,6 @@ struct FollowingPage: View {
                 feedSectionsContent
                     .padding()
                     .animation(.smooth.speed(2.0), value: feedManager.feeds)
-                    .animation(.smooth.speed(2.0), value: feedManager.lists)
                     .animation(.smooth.speed(2.0), value: searchText)
                     .animation(.smooth.speed(2.0), value: isEditingFeeds)
                     .animation(.smooth.speed(2.0), value: isSelectingFeeds)
@@ -48,18 +48,30 @@ struct FollowingPage: View {
         }
         .navigationTitle("Shared.Feeds")
         .toolbarTitleDisplayMode(.inlineLarge)
-        .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt", table: "Feeds")))
+        .searchable(
+            text: $searchText,
+            placement: .browserChrome(isActive: isBrowserChromeActive),
+            prompt: Text(String(localized: "FeedList.SearchPrompt", table: "Feeds")))
         .toolbar { toolbarContent }
         .sakuraBackground()
         .overlay { emptyStateOverlay }
         .onChange(of: feedManager.activeFocus) { _, _ in
             isShowingAllDespiteFocus = false
         }
+        // The browser hides the top bar, so these controls go in the
+        // omnibox's menu instead.
+        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            BrowserFollowingMenu(actions: browserFollowingActions)
+        }
         .sheet(isPresented: $isPresentingAddFeedSheet) {
             AddFeedView(session: addFeedSession)
                 .environment(feedManager)
                 .presentationDetents([.large])
-                .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
+                .optionalZoomTransition(
+                    isEnabled: !isBrowserChromeActive,
+                    sourceID: "addFeed",
+                    in: addFeedNamespace
+                )
         }
         .sheet(item: $feedToEdit) { feed in
             EditFeedSheet(feedID: feed.id)
@@ -80,7 +92,11 @@ struct FollowingPage: View {
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
-                .navigationTransition(.zoom(sourceID: "newList", in: newListNamespace))
+                .optionalZoomTransition(
+                    isEnabled: !isBrowserChromeActive,
+                    sourceID: "newList",
+                    in: newListNamespace
+                )
         }
         .alert(
             String(localized: "FeedMenu.Unfollow.Title", table: "Feeds"),
@@ -103,29 +119,6 @@ struct FollowingPage: View {
         } message: {
             if let feed = feedToDelete {
                 Text(String(localized: "FeedMenu.Unfollow.Message.\(feed.title)", table: "Feeds"))
-            }
-        }
-        .alert(
-            String(localized: "ListMenu.Delete.Title", table: "Lists"),
-            isPresented: Binding(
-                get: { listToDelete != nil },
-                set: { if !$0 { listToDelete = nil } }
-            )
-        ) {
-            Button(String(localized: "ListMenu.Delete.Confirm", table: "Lists"), role: .destructive) {
-                if let list = listToDelete {
-                    withAnimation(.smooth.speed(2.0)) {
-                        feedManager.deleteList(list)
-                    }
-                    listToDelete = nil
-                }
-            }
-            Button("Shared.Cancel", role: .cancel) {
-                listToDelete = nil
-            }
-        } message: {
-            if let list = listToDelete {
-                Text(String(localized: "ListMenu.Delete.Message.\(list.name)", table: "Lists"))
             }
         }
         .alert(

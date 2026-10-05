@@ -13,10 +13,10 @@ struct SubstackLoginView: View {
             SubstackLoginWebView(isLoggedIn: $isLoggedIn)
                 .ignoresSafeArea(edges: .bottom)
                 .navigationTitle(String(localized: "SubstackLogin.Title", table: "Integrations"))
-                .navigationBarTitleDisplayMode(.inline)
+                .inlineNavigationTitle()
                 .compatibleSoftScrollEdgeEffectStyle()
                 .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItem(placement: .sheetTrailing) {
                         Button(role: .close) {
                             dismiss()
                         }
@@ -31,7 +31,7 @@ struct SubstackLoginView: View {
     }
 }
 
-private struct SubstackLoginWebView: UIViewRepresentable {
+private struct SubstackLoginWebView: WebViewRepresentable {
 
     @Binding var isLoggedIn: Bool
 
@@ -39,7 +39,7 @@ private struct SubstackLoginWebView: UIViewRepresentable {
         Coordinator(isLoggedIn: $isLoggedIn)
     }
 
-    func makeUIView(context: Context) -> WKWebView {
+    func makeWebView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         let webView = WKWebView(frame: .zero, configuration: config)
@@ -51,8 +51,6 @@ private struct SubstackLoginWebView: UIViewRepresentable {
         }
         return webView
     }
-
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
 
     final class Coordinator: NSObject, WKNavigationDelegate {
         @Binding var isLoggedIn: Bool

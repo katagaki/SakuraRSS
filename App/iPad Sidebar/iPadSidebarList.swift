@@ -30,19 +30,14 @@ struct iPadSidebarList: View {
             followingSection
         }
         .listStyle(.sidebar)
-        #if targetEnvironment(macCatalyst)
-        .environment(\.defaultMinListRowHeight, 32.0)
-        #endif
         .searchable(text: $searchText, placement: .sidebar, prompt: Text(String(localized: "Prompt", table: "Search")))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 addMenu
             }
-            #if !targetEnvironment(macCatalyst)
             ToolbarItem(placement: .topBarTrailing) {
                 profileButton
             }
-            #endif
         }
         .onChange(of: selectedDestination) { _, _ in
             onDestinationChanged()
@@ -50,7 +45,6 @@ struct iPadSidebarList: View {
         .sheet(isPresented: $showingMore) {
             ProfileView()
                 .environment(feedManager)
-                .environment(\.isSakuraBackgroundDisabled, true)
         }
         .sheet(isPresented: $showingNewList) {
             ListEditSheet(list: nil)
@@ -234,10 +228,6 @@ private struct iPadSidebarListContextMenu: View {
     @Binding var listToDelete: FeedList?
 
     var body: some View {
-        #if targetEnvironment(macCatalyst)
-        OpenListInNewWindowButton(list: list)
-        Divider()
-        #endif
         Button {
             listToEdit = list
         } label: {

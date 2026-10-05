@@ -15,6 +15,15 @@ public extension FeedManager {
         return article.isRead || pendingReadIDs.contains(article.id)
     }
 
+    /// Read with nothing left to write: a scroll-read still in the queue has
+    /// its decrement and database write outstanding, so it does not count.
+    internal func isSettledAsRead(_ article: Article) -> Bool {
+        if let staged = stagedReadChanges[article.id] {
+            return staged && !pendingReadIDs.contains(article.id)
+        }
+        return article.isRead && !pendingReadIDs.contains(article.id)
+    }
+
     /// Bookmark state with staged-toggle awareness, mirroring `isRead`.
     func isBookmarked(_ article: Article) -> Bool {
         _ = readMaskRevision

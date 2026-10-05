@@ -2,13 +2,12 @@ import SwiftUI
 import UIKit
 import Hanami
 
-#if !os(visionOS) && !targetEnvironment(macCatalyst)
+#if !os(visionOS)
 struct ThemePreviewSection: View {
 
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
     @AppStorage("Display.FeedBackground") private var feedBackgroundEnabled: Bool = true
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
 
     @State private var showingArticle: Bool = false
 
@@ -22,29 +21,21 @@ struct ThemePreviewSection: View {
                 feedBackgroundEnabled: feedBackgroundEnabled,
                 colors: Self.feedPreviewColors,
                 style: defaultDisplayStyle,
-                zoomTransitionEnabled: zoomTransitionEnabled,
                 showingArticle: showingArticle
             )
             Spacer(minLength: 0)
         }
         .padding(.vertical, 12)
-        .task(id: zoomTransitionEnabled) {
-            showingArticle = false
+        .task {
             await runLoop()
         }
-    }
-
-    private var animation: Animation {
-        zoomTransitionEnabled
-            ? .spring(duration: 0.55, bounce: 0.18)
-            : .timingCurve(0.32, 0.72, 0, 1, duration: 0.45)
     }
 
     private func runLoop() async {
         while !Task.isCancelled {
             try? await Task.sleep(for: .milliseconds(1700))
             guard !Task.isCancelled else { return }
-            withAnimation(animation) {
+            withAnimation(.timingCurve(0.32, 0.72, 0, 1, duration: 0.45)) {
                 showingArticle.toggle()
             }
         }
@@ -57,7 +48,6 @@ private struct DeviceMockupView: View {
     let feedBackgroundEnabled: Bool
     let colors: [Color]
     let style: FeedDisplayStyle
-    let zoomTransitionEnabled: Bool
     let showingArticle: Bool
 
     private var keyWindow: UIWindow? {
@@ -80,20 +70,6 @@ private struct DeviceMockupView: View {
 
     private var isPad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
-    }
-
-    private func sourceRowHeight(deviceWidth: CGFloat) -> CGFloat {
-        switch style {
-        case .compact: return deviceWidth * 0.055
-        case .feed: return deviceWidth * 0.385
-        default: return deviceWidth * 0.13
-        }
-    }
-
-    private func sourceRowTopY(deviceWidth: CGFloat) -> CGFloat {
-        let headerSection = deviceWidth * 0.515
-        let rowSpacing = deviceWidth * 0.03
-        return headerSection + sourceRowHeight(deviceWidth: deviceWidth) + rowSpacing
     }
 
     var body: some View {
@@ -136,8 +112,6 @@ private struct DeviceMockupView: View {
                 }
             }
             if !isPad {
-                let rowH = sourceRowHeight(deviceWidth: width)
-                let rowY = sourceRowTopY(deviceWidth: width)
                 ZStack {
                     if sakuraBackgroundEnabled {
                         LinearGradient(
@@ -157,13 +131,7 @@ private struct DeviceMockupView: View {
                     )
                 }
                 .frame(width: width, height: height)
-                .scaleEffect(
-                    x: phoneArticleScaleX,
-                    y: phoneArticleScaleY(rowHeight: rowH, height: height),
-                    anchor: phoneArticleAnchor(rowY: rowY, rowHeight: rowH, height: height)
-                )
-                .offset(x: phoneArticleOffsetX(width: width))
-                .opacity(phoneArticleOpacity)
+                .offset(x: showingArticle ? 0 : width)
             }
         }
         .frame(width: width, height: height)
@@ -172,36 +140,6 @@ private struct DeviceMockupView: View {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .strokeBorder(Color.primary.opacity(0.2), lineWidth: 1)
         }
-    }
-
-    private var phoneArticleScaleX: CGFloat {
-        guard zoomTransitionEnabled else { return 1 }
-        if showingArticle { return 1 }
-        return 0.9
-    }
-
-    private func phoneArticleScaleY(rowHeight: CGFloat, height: CGFloat) -> CGFloat {
-        guard zoomTransitionEnabled else { return 1 }
-        if showingArticle { return 1 }
-        return rowHeight / height
-    }
-
-    private func phoneArticleAnchor(rowY: CGFloat, rowHeight: CGFloat, height: CGFloat) -> UnitPoint {
-        guard zoomTransitionEnabled else { return .center }
-        let denominator = max(height - rowHeight, 0.001)
-        return UnitPoint(x: 0.5, y: rowY / denominator)
-    }
-
-    private func phoneArticleOffsetX(width: CGFloat) -> CGFloat {
-        if zoomTransitionEnabled { return 0 }
-        return showingArticle ? 0 : width
-    }
-
-    private var phoneArticleOpacity: Double {
-        if zoomTransitionEnabled {
-            return showingArticle ? 1 : 0
-        }
-        return 1
     }
 }
 

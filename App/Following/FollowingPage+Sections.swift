@@ -20,40 +20,11 @@ extension FollowingPage {
         }
     }
 
-    var sortedLists: [FeedList] {
-        let base = applyFocus
-            ? feedManager.lists.filter { feedManager.isListInFocus($0) }
-            : feedManager.lists
-        if searchText.isEmpty {
-            return base.sorted {
-                $0.name.localizedStandardCompare($1.name) == .orderedAscending
-            }
-        }
-        return base
-            .filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-    }
-
-    /// Groups the filtered feeds by section once, so each section doesn't
-    /// re-filter and re-sort the whole feed list on every body evaluation.
-    var feedsBySection: [FeedSection: [Feed]] {
-        var grouped = Dictionary(grouping: filteredFeeds, by: \.feedSection)
-        for (section, feeds) in grouped where section != .feeds {
-            grouped[section] = feeds.sorted {
-                let domainCompare = $0.domain.localizedStandardCompare($1.domain)
-                if domainCompare != .orderedSame { return domainCompare == .orderedAscending }
-                return $0.title.localizedStandardCompare($1.title) == .orderedAscending
-            }
-        }
-        return grouped
-    }
-
     @ViewBuilder
     var feedSectionsContent: some View {
         LazyVStack(alignment: .leading, spacing: 24) {
             focusBanner
-            listsSection
-            let groupedFeeds = feedsBySection
+            let groupedFeeds = filteredFeeds.groupedByFeedSection()
             ForEach(FeedSection.allCases, id: \.self) { section in
                 feedSection(section, feeds: groupedFeeds[section] ?? [])
             }
@@ -90,57 +61,6 @@ extension FollowingPage {
     }
 
     @ViewBuilder
-    var listsSection: some View {
-        let lists = sortedLists
-        if !lists.isEmpty {
-            Section {
-                LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 12) {
-                    ForEach(lists) { list in
-                        listCell(list)
-                    }
-                }
-            } header: {
-                Text(String(localized: "Section.Lists", table: "Settings"))
-                    .font(.title3)
-                    .fontWeight(.bold)
-            }
-        }
-    }
-
-    @ViewBuilder
-    func listCell(_ list: FeedList) -> some View {
-        if isEditingFeeds {
-            FollowingListGridCell(
-                list: list,
-                isWiggling: true,
-                onDelete: { listToDelete = list }
-            )
-            .dropDestination(for: FollowingFeedDragItem.self) { items, _ in
-                addFeeds(items, to: list)
-            }
-            .id(list.id)
-        } else {
-            NavigationLink(value: list) {
-                FollowingListGridCell(list: list)
-            }
-            .buttonStyle(.plain)
-            .matchedSource(id: FollowingZoomID.list(list.id), in: followingNavigationNamespace)
-            .id(list.id)
-        }
-    }
-
-    @discardableResult
-    func addFeeds(_ items: [FollowingFeedDragItem], to list: FeedList) -> Bool {
-        var didAdd = false
-        for item in items {
-            guard let feed = feedManager.feedsByID[item.feedID] else { continue }
-            feedManager.addFeedToList(list, feed: feed)
-            didAdd = true
-        }
-        return didAdd
-    }
-
-    @ViewBuilder
     func feedSection(_ section: FeedSection, feeds: [Feed]) -> some View {
         if !feeds.isEmpty {
             Section {
@@ -158,21 +78,10 @@ extension FollowingPage {
     @ViewBuilder
     func feedSectionHeader(_ section: FeedSection) -> some View {
         if isEditingFeeds || isSelectingFeeds {
-            Text(section.localizedTitle)
-                .font(.title3)
-                .fontWeight(.bold)
+            FollowingSectionHeaderLabel(section: section, showsChevron: false)
         } else {
             NavigationLink(value: section) {
-                HStack(spacing: 4) {
-                    Text(section.localizedTitle)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.primary)
-                    Image(systemName: "chevron.right")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
-                }
+                FollowingSectionHeaderLabel(section: section)
             }
             .buttonStyle(.plain)
             .matchedSource(id: FollowingZoomID.section(section), in: followingNavigationNamespace)
@@ -199,7 +108,6 @@ extension FollowingPage {
                 onTap: { feedToEdit = feed },
                 editTransitionNamespace: feedEditNamespace
             )
-            .draggable(FollowingFeedDragItem(feedID: feed.id))
             .id(feed.id)
         } else {
             NavigationLink(value: feed) {

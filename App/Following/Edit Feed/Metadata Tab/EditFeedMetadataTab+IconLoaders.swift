@@ -3,7 +3,7 @@ import Hanami
 
 extension EditFeedMetadataTab {
 
-    func loadCurrentIcon() async -> UIImage? {
+    func loadCurrentIcon() async -> PlatformImage? {
         guard let feed else { return nil }
         if let customURL = feed.customIconURL {
             if customURL == "none" {
@@ -17,12 +17,12 @@ extension EditFeedMetadataTab {
             }
             if let url = URL(string: customURL),
                let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: url)),
-               let image = UIImage(data: data) {
+               let image = PlatformImage(data: data) {
                 await Iconography.shared.setCustomIcon(image, feedID: feed.id)
                 return image
             }
         }
-        return await Iconography.shared.icon(for: feed.domain, siteURL: feed.siteURL)
+        return await Iconography.shared.defaultIcon(for: feed)
     }
 
     func iconCornerRadius(size: CGFloat) -> CGFloat {
@@ -34,40 +34,19 @@ extension EditFeedMetadataTab {
         isFetchingIcon = true
         defer { isFetchingIcon = false }
 
-        if feed.isXFeed,
-           let handle = XProvider.identifierFromFeedURL(feed.url),
-           let cookies = await XProvider.getXCookies() {
-            let fetcher = XProvider()
-            if let userInfo = await fetcher.fetchUserInfo(screenName: handle, cookies: cookies),
-               let imageURLString = userInfo.profileImageURL,
-               let imageURL = URL(string: imageURLString),
-               let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)),
-               let image = UIImage(data: data) {
-                customIconImage = image
-                currentIcon = image
-                selectedPhoto = nil
-                iconURLInput = ""
-                useDefaultIcon = false
+        if Iconography.hasServiceFallback(feed) {
+            guard let image = await Iconography.shared.refreshDefaultIcon(for: feed) else {
+                showIconFetchError = true
                 return
             }
-        }
-
-        if feed.isInstagramFeed,
-           let handle = InstagramProvider.identifierFromFeedURL(feed.url),
-           let profileURL = InstagramProvider.profileURL(for: handle) {
-            let fetcher = InstagramProvider()
-            let result = await fetcher.fetchProfile(profileURL: profileURL)
-            if let imageURLString = result.profileImageURL,
-               let imageURL = URL(string: imageURLString),
-               let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)),
-               let image = UIImage(data: data) {
-                customIconImage = image
-                currentIcon = image
-                selectedPhoto = nil
-                iconURLInput = ""
-                useDefaultIcon = false
-                return
-            }
+            currentIcon = image
+            hasRealIcon = true
+            hasFetchedServiceIcon = true
+            customIconImage = nil
+            selectedPhoto = nil
+            iconURLInput = ""
+            useDefaultIcon = false
+            return
         }
 
         await Iconography.shared.refreshIcons(for: [(domain: feed.domain, siteURL: feed.siteURL)])
@@ -91,7 +70,7 @@ extension EditFeedMetadataTab {
         defer { isFetchingIcon = false }
         do {
             let (data, _) = try await URLSession.shared.data(for: .sakuraImage(url: url))
-            if let image = UIImage(data: data) {
+            if let image = PlatformImage(data: data) {
                 customIconImage = image
                 selectedPhoto = nil
                 useDefaultIcon = false

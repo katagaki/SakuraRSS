@@ -88,7 +88,7 @@ public nonisolated extension DatabaseManager {
     private func podcastDownloadSizesByFeed() -> [Int64: Int64] {
         let fileManager = FileManager.default
         guard let container = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         ) else { return [:] }
         let root = container.appendingPathComponent("PodcastDownloads", isDirectory: true)
         guard fileManager.fileExists(atPath: root.path) else { return [:] }
@@ -180,7 +180,7 @@ public nonisolated struct SakuraStorageBreakdown: Sendable {
 /// widget thumbnails), and Logs (per-module log files).
 public nonisolated func sakuraStorageBreakdown(imageCacheTableBytes: Int64) -> SakuraStorageBreakdown {
     guard let container = FileManager.default.containerURL(
-        forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+        forSecurityApplicationGroupIdentifier: AppGroup.identifier
     ) else {
         return SakuraStorageBreakdown(feedsBytes: 0, podcastsBytes: 0, cacheBytes: 0, logsBytes: 0)
     }

@@ -1,0 +1,52 @@
+{
+  "key": "abydos-log",
+  "title": {"en": "Abydos Revival Log", "ja": "アビドス復興日誌"},
+  "url": "https://abydos.kivotos/revival/feed",
+  "site": "https://abydos.kivotos",
+  "hue": 32,
+  "icon": {"style": "glyph", "glyph": "dunes", "background": "#2A6FB8", "foreground": "#E8B86A", "accent": "#FFE7A3"},
+  "articles": [
+    {
+      "slug": "debt-update",
+      "age": 88,
+      "author": "Foreclosure Task Force",
+      "title": {
+        "en": "Monthly update: the debt is a little smaller again",
+        "ja": "月次報告：借金がまた少しだけ減りました"
+      },
+      "summary": {
+        "en": "Thanks to everyone who bought ramen at Shibaseki this month. Every bowl counts.",
+        "ja": "今月柴関ラーメンに来てくれた皆さん、ありがとう。一杯一杯が力になります。"
+      },
+      "entities": [["Abydos High School", "organization"], ["Shibaseki Ramen", "organization"]]
+    },
+    {
+      "slug": "sand-cleanup",
+      "age": 280,
+      "author": "Foreclosure Task Force",
+      "title": {
+        "en": "Volunteers clear the sand from the old shopping street",
+        "ja": "ボランティアが旧商店街の砂を撤去"
+      },
+      "summary": {
+        "en": "Forty volunteers, twelve shovels, and one very determined Shiroko on a bicycle.",
+        "ja": "ボランティア四十人、シャベル十二本、そして自転車に乗ったとても気合いの入ったシロコ。"
+      },
+      "entities": [["Shiroko", "person"], ["Abydos Desert", "place"]]
+    },
+    {
+      "slug": "new-students",
+      "age": 520,
+      "author": "Foreclosure Task Force",
+      "title": {
+        "en": "Abydos is accepting transfer students again",
+        "ja": "アビドス、転入生の受け入れを再開"
+      },
+      "summary": {
+        "en": "The application form is one page long. Hoshino says it used to be two, but she lost the second one.",
+        "ja": "申請書は一枚だけ。ホシノいわく、以前は二枚だったが一枚なくしてしまったらしい。"
+      },
+      "entities": [["Hoshino", "person"], ["Abydos High School", "organization"]]
+    }
+  ]
+}

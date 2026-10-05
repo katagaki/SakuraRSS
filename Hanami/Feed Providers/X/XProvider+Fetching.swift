@@ -71,7 +71,7 @@ public extension XProvider {
         return readXCookiesFromKeychain()
     }
 
-    static func readXCookiesFromKeychain() -> XCookies? {
+    nonisolated static func readXCookiesFromKeychain() -> XCookies? {
         guard let cookies = cookieStore.load() else { return nil }
 
         var csrfToken: String?

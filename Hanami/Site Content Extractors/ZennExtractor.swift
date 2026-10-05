@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public struct ZennExtractor: SiteContentExtractor {
+public nonisolated struct ZennExtractor: SiteContentExtractor {
 
     public func canHandle(url: URL) -> Bool {
         matchesHost(url, ["zenn.dev"])

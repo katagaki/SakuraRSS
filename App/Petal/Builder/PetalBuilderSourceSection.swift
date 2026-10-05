@@ -11,12 +11,14 @@ struct PetalBuilderSourceSection: View {
     var body: some View {
         Section {
             TextField(String(localized: "Builder.Name.Placeholder", table: "Petal"), text: $name)
+                #if !os(macOS)
                 .textInputAutocapitalization(.words)
+                #endif
             TextField(String(localized: "Builder.URL.Placeholder", table: "Petal"), text: $siteURL)
+                #if !os(macOS)
                 .keyboardType(.URL)
-                .textContentType(.URL)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
+                #endif
+                .urlTextInput()
             Picker(String(localized: "Builder.FetchMode", table: "Petal"), selection: $fetchMode) {
                 Text(String(localized: "Builder.FetchMode.Static", table: "Petal"))
                     .tag(PetalRecipe.FetchMode.staticHTML)

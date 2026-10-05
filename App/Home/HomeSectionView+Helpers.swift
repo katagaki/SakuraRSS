@@ -92,6 +92,19 @@ extension HomeSectionView {
     }
 
     var headerView: AnyView? {
+        guard let leadingHeader else { return sourceHeaderView }
+        let sourceHeader = sourceHeaderView
+        return AnyView(
+            VStack(spacing: 0) {
+                leadingHeader
+                if let sourceHeader {
+                    sourceHeader
+                }
+            }
+        )
+    }
+
+    private var sourceHeaderView: AnyView? {
         let listHeader: AnyView?
         if showsListHeader, case .list(let list) = source {
             listHeader = AnyView(ListHeaderView(list: list).environment(feedManager))

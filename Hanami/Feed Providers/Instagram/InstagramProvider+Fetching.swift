@@ -1,5 +1,4 @@
 import Foundation
-import os
 import WebKit
 
 // MARK: - API Fetching
@@ -12,41 +11,53 @@ public extension InstagramProvider {
         public let allCookies: [HTTPCookie]
     }
 
-    func performFetch(profileURL: URL) async -> InstagramProfileFetchResult {
+    func performFetch(profileURL: URL) async throws -> InstagramProfileFetchResult {
         guard let handle = Self.extractIdentifier(from: profileURL) else {
-            log("InstagramProvider", "Failed to extract handle from URL: \(profileURL)")
-            return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
+            throw URLError(.badURL)
         }
-
-        log("InstagramProvider", "Fetching profile for handle: \(handle)")
-
-        await Self.awaitHumanPacing()
-
         guard let cookies = Self.getInstagramCookies() else {
-            log("InstagramProvider", "No Instagram session cookies found")
-            return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
+            throw InstagramFetchError.missingSession
         }
-
-        // swiftlint:disable:next line_length
-        log("InstagramProvider", "Got cookies - csrf: \(cookies.csrfToken.prefix(5))..., total cookies: \(cookies.allCookies.count)")
-
         let session = makeSession(cookies: cookies)
-
-        let profileData = await fetchProfileInfo(
-            username: handle, cookies: cookies, session: session
-        )
-
-        Self.persistRotatedCookies(from: session)
-        Self.markRequestCompleted()
-
-        guard let profileData else {
-            log("InstagramProvider", "Failed to fetch profile info for \(handle)")
-            return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
+        defer {
+            Self.persistRotatedCookies(from: session)
+            session.finishTasksAndInvalidate()
         }
+        let profileRequest = buildHTMLRequest(url: profileURL)
+        let profileData = try await Self.performRequest(profileRequest, session: session)
+        guard let html = String(data: profileData, encoding: .utf8),
+              let bootstrap = Self.parseProfileHTML(html, username: handle) else {
+            throw InstagramFetchError.invalidResponse
+        }
+        let sessionCookies = session.configuration.httpCookieStorage?.cookies ?? []
+        let currentCookies = Self.instagramCookies(from: sessionCookies) ?? cookies
+        let postsRequest = try buildPostsRequest(username: handle, bootstrap: bootstrap, cookies: currentCookies)
+        let postsData = try await Self.performRequest(postsRequest, session: session)
+        guard let result = Self.parsePostsResponse(data: postsData, username: handle, bootstrap: bootstrap) else {
+            throw InstagramFetchError.invalidResponse
+        }
+        log("InstagramProvider", "Fetched @\(handle) posts=\(result.posts.count)")
+        return result
+    }
 
-        log("InstagramProvider", "Fetched \(profileData.posts.count) posts, name: \(profileData.displayName ?? "nil")")
-
-        return profileData
+    internal func fetchProfileMetadata(profileURL: URL) async throws -> InstagramProfileMetadata {
+        guard let handle = Self.extractIdentifier(from: profileURL) else {
+            throw URLError(.badURL)
+        }
+        guard let cookies = Self.getInstagramCookies() else {
+            throw InstagramFetchError.missingSession
+        }
+        let session = makeSession(cookies: cookies)
+        defer {
+            Self.persistRotatedCookies(from: session)
+            session.finishTasksAndInvalidate()
+        }
+        let profileData = try await Self.performRequest(buildHTMLRequest(url: profileURL), session: session)
+        guard let html = String(data: profileData, encoding: .utf8),
+              let metadata = Self.parseProfileMetadata(html, username: handle) else {
+            throw InstagramFetchError.invalidResponse
+        }
+        return metadata
     }
 
     /// Writes rotated Instagram cookies from the URLSession jar back to Keychain.
@@ -59,43 +70,6 @@ public extension InstagramProvider {
         InstagramProvider.cookieStore.save(updated)
     }
 
-    // MARK: - Human-Like Pacing
-
-    private static let lastRequestCompletedAt = OSAllocatedUnfairLock<Date?>(
-        initialState: nil
-    )
-
-    static func markRequestCompleted() {
-        lastRequestCompletedAt.withLock { $0 = Date() }
-    }
-
-    /// Sleeps for a randomised interval so consecutive Instagram requests look human-paced.
-    static func awaitHumanPacing() async {
-        let lastCompleted = lastRequestCompletedAt.withLock { $0 }
-
-        let minCooldown: TimeInterval = 2.5
-        let maxCooldown: TimeInterval = 5.0
-
-        var delay = TimeInterval.random(in: 0.4...1.8)
-        if let lastCompleted {
-            let elapsed = Date().timeIntervalSince(lastCompleted)
-            let targetCooldown = TimeInterval.random(in: minCooldown...maxCooldown)
-            if elapsed < targetCooldown {
-                delay = max(delay, targetCooldown - elapsed)
-            }
-        }
-
-        log("InstagramProvider", "Human-pacing delay: \(String(format: "%.2f", delay))s")
-        try? await Task.sleep(for: .seconds(delay))
-    }
-
-    /// Short randomised pause between back-to-back API calls inside a single fetch.
-    static func awaitIntraFetchPause() async {
-        let delay = TimeInterval.random(in: 0.9...2.6)
-        log("InstagramProvider", "Intra-fetch pause: \(String(format: "%.2f", delay))s")
-        try? await Task.sleep(for: .seconds(delay))
-    }
-
     // MARK: - Accept-Language
 
     static var acceptLanguageHeader: String { sakuraAcceptLanguage }
@@ -103,20 +77,25 @@ public extension InstagramProvider {
     // MARK: - Cookies
 
     /// Reads the current Instagram session from the Keychain-backed cookie jar.
-    static func getInstagramCookies() -> InstagramCookies? {
+    nonisolated static func getInstagramCookies() -> InstagramCookies? {
         guard let cookies = InstagramProvider.cookieStore.load() else {
             return nil
         }
 
+        return instagramCookies(from: cookies)
+    }
+
+    nonisolated static func instagramCookies(from cookies: [HTTPCookie]) -> InstagramCookies? {
         var csrfToken: String?
         var sessionID: String?
-        for cookie in cookies {
+        for cookie in cookies where cookieDomainMatches(cookie.domain.lowercased())
+            && (cookie.expiresDate ?? .distantFuture) > Date() {
             if cookie.name == "csrftoken" { csrfToken = cookie.value }
             if cookie.name == "sessionid" { sessionID = cookie.value }
         }
 
-        guard let csrf = csrfToken, let session = sessionID else { return nil }
-        return InstagramCookies(csrfToken: csrf, sessionID: session,
+        guard let csrfToken, !csrfToken.isEmpty, let sessionID, !sessionID.isEmpty else { return nil }
+        return InstagramCookies(csrfToken: csrfToken, sessionID: sessionID,
                                 allCookies: cookies)
     }
 
@@ -158,113 +137,7 @@ public extension InstagramProvider {
         request.setValue("no-cache", forHTTPHeaderField: "Pragma")
         request.setValue("keep-alive", forHTTPHeaderField: "Connection")
 
-        let cookieHeader = HTTPCookie.requestHeaderFields(with: cookies.allCookies)
-        for (key, value) in cookieHeader {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
-
         return request
     }
 
-    // MARK: - Profile Info + Posts
-
-    func fetchProfileInfo(
-        username: String, cookies: InstagramCookies, session: URLSession
-    ) async -> InstagramProfileFetchResult? {
-        guard let url = URL(
-            string: "https://www.instagram.com/api/v1/users/web_profile_info/?username=\(username)"
-        ) else {
-            return nil
-        }
-
-        let request = buildRequest(url: url, cookies: cookies)
-
-        log("InstagramProvider", "Profile info request: \(url)")
-
-        let data: Data
-        let response: URLResponse
-        do {
-            (data, response) = try await session.data(for: request)
-        } catch {
-            log("InstagramProvider", "Profile info network error: \(error)")
-            return nil
-        }
-
-        guard let httpResponse = response as? HTTPURLResponse else { return nil }
-
-        log("InstagramProvider", "Profile info status: \(httpResponse.statusCode)")
-        if let body = String(data: data, encoding: .utf8) {
-            log("InstagramProvider", "Profile info response: \(body.prefix(1000))")
-        }
-
-        guard httpResponse.statusCode == 200 else { return nil }
-
-        guard var result = Self.parseProfileResponse(
-            data: data, username: username
-        ) else {
-            return nil
-        }
-
-        // web_profile_info often returns empty edges even when posts exist; fall back to feed endpoint.
-        if result.posts.isEmpty, let userId = Self.extractUserID(from: data) {
-            log("InstagramProvider", "Profile had 0 posts, fetching feed for user ID: \(userId)")
-            await Self.awaitIntraFetchPause()
-            let feedPosts = await fetchUserFeed(
-                userId: userId, username: username,
-                displayName: result.displayName,
-                cookies: cookies, session: session
-            )
-            if !feedPosts.isEmpty {
-                result = InstagramProfileFetchResult(
-                    posts: feedPosts,
-                    profileImageURL: result.profileImageURL,
-                    displayName: result.displayName
-                )
-            }
-        }
-
-        return result
-    }
-
-    // MARK: - User Feed Endpoint
-
-    /// Fetches posts from the user feed endpoint when `web_profile_info` edges are empty.
-    private func fetchUserFeed(
-        userId: String, username: String, displayName: String?,
-        cookies: InstagramCookies, session: URLSession
-    ) async -> [ParsedInstagramPost] {
-        guard let url = URL(
-            string: "https://www.instagram.com/api/v1/feed/user/\(userId)/"
-        ) else {
-            return []
-        }
-
-        let profileReferer = "https://www.instagram.com/\(username)/"
-        let request = buildRequest(url: url, cookies: cookies, referer: profileReferer)
-
-        log("InstagramProvider", "Feed request: \(url)")
-
-        let data: Data
-        let response: URLResponse
-        do {
-            (data, response) = try await session.data(for: request)
-        } catch {
-            log("InstagramProvider", "Feed network error: \(error)")
-            return []
-        }
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            log("InstagramProvider", "Feed request failed: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
-            return []
-        }
-
-        if let body = String(data: data, encoding: .utf8) {
-            log("InstagramProvider", "Feed response: \(body.prefix(500))")
-        }
-
-        return Self.parseFeedResponse(
-            data: data, username: username, displayName: displayName
-        )
-    }
 }

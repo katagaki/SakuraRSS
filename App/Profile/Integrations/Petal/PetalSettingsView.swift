@@ -70,7 +70,6 @@ struct PetalSettingsView: View {
         .animation(.smooth.speed(2.0), value: petalEnabled)
         .navigationTitle(String(localized: "Petal", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
-        .sakuraBackground()
         .fileImporter(
             isPresented: $isImporting,
             allowedContentTypes: [PetalPackage.contentType],
@@ -82,9 +81,19 @@ struct PetalSettingsView: View {
             PetalBuilderView(mode: .edit(feed: selection.feed, recipe: selection.recipe))
                 .environment(feedManager)
         }
+        #if os(macOS)
+        // A save panel suits exporting a file on the Mac better than sharing.
+        .fileMover(
+            isPresented: Binding(get: { shareItem != nil }, set: { if !$0 { shareItem = nil } }),
+            file: shareItem?.url
+        ) { _ in
+            shareItem = nil
+        }
+        #else
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
         }
+        #endif
         .alert(String(localized: "Error.Title", table: "Petal"), isPresented: $showImportError) {
             Button("Shared.OK") {}
         } message: {
@@ -102,7 +111,8 @@ struct PetalSettingsView: View {
 
     private func row(for feed: Feed) -> some View {
         Button {
-            guard let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) else { return }
+            guard let recipe = PetalStore.shared.recipe(forFeedURL: feed.url)
+                    ?? PetalRecipe.recoveryRecipe(name: feed.title, feedURL: feed.url) else { return }
             selectedRecipe = RecipeSelection(id: recipe.id, feed: feed, recipe: recipe)
         } label: {
             VStack(alignment: .leading, spacing: 2) {
@@ -175,6 +185,7 @@ struct PetalSettingsView: View {
 
 // MARK: - UIActivityViewController wrapper
 
+#if !os(macOS)
 private struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
 
@@ -184,3 +195,4 @@ private struct ShareSheet: UIViewControllerRepresentable {
 
     func updateUIViewController(_: UIActivityViewController, context: Context) {}
 }
+#endif

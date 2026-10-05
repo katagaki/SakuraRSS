@@ -42,6 +42,7 @@ nonisolated enum NighttimeBackfillScheduler {
     }
 
     static func runImageBackfill() async {
+        await FeedManager.shrinkOversizedCachedImages()
         let modeRaw = UserDefaults.standard.string(forKey: "FeedRefresh.PreloadArticleImagesMode")
         let mode = modeRaw.flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
         switch mode {

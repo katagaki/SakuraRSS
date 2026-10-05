@@ -163,44 +163,34 @@ extension YouTubePlayerScripts {
     })();
     """
 
-    /// Forwards PiP enter/leave events to native code immediately. Uses the
-    /// saved `addEventListener` from the isolation bootstrap so listeners are
-    /// not filtered by the page-side block on PiP events.
-    ///
-    /// On iOS WKWebView the W3C `enterpictureinpicture`/`leavepictureinpicture`
-    /// events are unreliable, the canonical signal is `webkitpresentationmodechanged`,
-    /// read via `video.webkitPresentationMode`.
     static let pipEventBridge = """
     (function() {
-        function send(state) {
+        var wasInPiP = false;
+        var activeVideo = null;
+        function update(event) {
+            if (!(event.target instanceof HTMLVideoElement)) return;
+            var video = event.target;
+            var inPiP = window.__yt.getPiPVideo() === video;
+            if (!inPiP && activeVideo !== video) return;
+            if (inPiP === wasInPiP) return;
+            wasInPiP = inPiP;
+            if (inPiP) {
+                activeVideo = video;
+            } else {
+                activeVideo = null;
+                window.__yt.exitedPiPRecently = !window.__yt.expectingPiPExit;
+                window.__yt.expectingPiPExit = false;
+            }
+            window.__yt.logState(inPiP ? 'PiP enter' : 'PiP leave', video);
             try {
-                window.webkit.messageHandlers.\(pipMessageHandlerName).postMessage(state);
-            } catch (e) {}
+                window.webkit.messageHandlers.\(pipMessageHandlerName)
+                    .postMessage(inPiP ? 'enter' : 'leave');
+            } catch (error) {}
         }
-        function attach(video) {
-            if (!video || video.__ytPiPAttached) return;
-            video.__ytPiPAttached = true;
-            window.__yt.addListener(video, 'enterpictureinpicture',
-                function() { send('enter'); });
-            window.__yt.addListener(video, 'leavepictureinpicture',
-                function() { send('leave'); });
-            window.__yt.addListener(video, 'webkitpresentationmodechanged',
-                function() {
-                    var nowInPiP =
-                        video.webkitPresentationMode === 'picture-in-picture';
-                    if (!nowInPiP && !window.__yt.expectingPiPExit) {
-                        window.__yt.exitedPiPRecently = true;
-                    }
-                    window.__yt.expectingPiPExit = false;
-                    send(nowInPiP ? 'enter' : 'leave');
-                });
-        }
-        function tryAttach() {
-            var videos = document.querySelectorAll('video');
-            videos.forEach(attach);
-            return videos.length > 0;
-        }
-        window.__yt.onMutation(function() { tryAttach(); });
+        ['enterpictureinpicture', 'leavepictureinpicture',
+            'webkitpresentationmodechanged'].forEach(function(type) {
+            window.addEventListener(type, update, true);
+        });
     })();
     """
 
@@ -238,7 +228,7 @@ extension YouTubePlayerScripts {
         }
 
         try {
-            navigator.mediaSession.setActionHandler('enterpictureinpicture',
+            window.__yt.setPiPActionHandler(
                 function() {
                     var video = pickAutoPipTarget();
                     if (!video) return;

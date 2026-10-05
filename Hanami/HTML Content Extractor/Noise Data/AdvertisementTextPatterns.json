@@ -1,6 +1,33 @@
 {
   "patterns": [
     "advertisement",
-    "advertising"
+    "advertising",
+    "ad",
+    "ads",
+    "sponsored",
+    "sponsored content",
+    "promoted",
+    "paid content",
+    "partner content",
+    "skip ad",
+    "skip advertisement",
+    "story continues below advertisement",
+    "article continues below advertisement",
+    "article continues below",
+    "continue reading below",
+    "scroll to continue",
+    "scroll to continue with content",
+    "anzeige",
+    "werbung",
+    "publicité",
+    "publicidad",
+    "pubblicità",
+    "advertentie",
+    "quảng cáo",
+    "広告",
+    "pr",
+    "광고",
+    "广告",
+    "廣告"
   ]
 }

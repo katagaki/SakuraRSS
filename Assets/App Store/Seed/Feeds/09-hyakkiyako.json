@@ -1,0 +1,38 @@
+{
+  "key": "hyakkiyako",
+  "title": {"en": "Hyakkiyako Seasonal Journal", "ja": "百鬼夜行歳時記"},
+  "url": "https://hyakkiyako.kivotos/journal/feed",
+  "site": "https://hyakkiyako.kivotos",
+  "hue": 326,
+  "icon": {"style": "glyph", "glyph": "yakitori", "background": "#2B1838", "foreground": "#A0522D", "accent": "#E8A060"},
+  "articles": [
+    {
+      "slug": "maple-viewing",
+      "age": 150,
+      "author": "Hyakkiyako Seasonal Journal",
+      "title": {
+        "en": "The best spots for maple viewing, chosen by the Ninjutsu Research Club",
+        "ja": "忍術研究部が選ぶ、紅葉狩りのおすすめスポット"
+      },
+      "summary": {
+        "en": "Number one is on a rooftop that is not, strictly speaking, open to the public.",
+        "ja": "第一位は、厳密には一般公開されていない屋根の上だ。"
+      },
+      "entities": [["Ninjutsu Research Club", "organization"], ["Hyakkiyako Alliance Academy", "organization"]]
+    },
+    {
+      "slug": "lantern-making",
+      "age": 470,
+      "author": "Hyakkiyako Seasonal Journal",
+      "title": {
+        "en": "How to make a paper lantern in an afternoon",
+        "ja": "午後のひとときで作る、紙灯籠の作り方"
+      },
+      "summary": {
+        "en": "Washi, bamboo, a little glue, and patience. The candle comes last.",
+        "ja": "和紙と竹、少しの糊、そして根気。ろうそくは最後に。"
+      },
+      "entities": [["Hyakkiyako Alliance Academy", "organization"]]
+    }
+  ]
+}

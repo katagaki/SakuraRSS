@@ -7,7 +7,7 @@ enum ArticleLayout {
     /// The readable-column cap only applies on iPad, Mac and Vision Pro; iPhone
     /// always renders article content edge to edge.
     static var capsWidth: Bool {
-        #if targetEnvironment(macCatalyst) || os(visionOS)
+        #if os(visionOS)
         return true
         #else
         return UIDevice.current.userInterfaceIdiom == .pad

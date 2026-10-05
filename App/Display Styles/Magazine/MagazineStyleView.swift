@@ -29,13 +29,9 @@ struct MagazineStyleView: View {
                         })
                         .buttonStyle(.plain)
                         .contextMenu {
-                            #if targetEnvironment(macCatalyst)
-                            OpenInNewWindowButton(article: article)
-                            Divider()
-                            #endif
                             ArticleReadMenuButton(article: article)
                             ArticleBookmarkMenuButton(article: article)
-                            MoveToFolderMenuItems(article: article)
+                            BookmarkMenuItems(article: article)
                         }
                     }
                 }

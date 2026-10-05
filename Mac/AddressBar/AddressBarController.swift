@@ -1,0 +1,215 @@
+import AppKit
+import Hanami
+import SwiftUI
+
+final class AddressBarController: NSObject, NSTextFieldDelegate {
+
+    let field = AddressField()
+    let containerView = NSGlassEffectView()
+    private let contentView = AddressBarContentView()
+    let feedManager: FeedManager
+    let activity: BrowserPageActivity
+    private let progressView = NSHostingView(rootView: BrowserAddressProgressBackground(progress: nil))
+    private var location: BrowserLocation = .startPage
+    private var isEditingAddress = false
+    private var progressObserver: ChangeObserver?
+    var onCommit: ((AddressSuggestion.Kind) -> Void)?
+    let suggestionsPanel = SuggestionsPanelController()
+    private var displayedTitle = ""
+    private var contentMatches: [Article] = []
+    private var contentSearchTask: Task<Void, Never>?
+    var outsideClickMonitor: Any?
+    var resignKeyObserver: NSObjectProtocol?
+
+    init(feedManager: FeedManager, activity: BrowserPageActivity) {
+        self.feedManager = feedManager
+        self.activity = activity
+        super.init()
+        layOutContainer()
+        field.placeholderString = String(localized: "AddressField.Prompt", table: "Browser")
+        field.isBezeled = false
+        field.drawsBackground = false
+        field.focusRingType = .none
+        field.alignment = .center
+        field.lineBreakMode = .byTruncatingTail
+        field.usesSingleLineMode = true
+        field.delegate = self
+        field.onFocus = { [weak self] in
+            self?.beginEditing()
+        }
+        suggestionsPanel.onCommit = { [weak self] suggestion in
+            self?.commit(suggestion.kind)
+        }
+        progressObserver = ChangeObserver { [weak self] in
+            _ = self?.currentProgress
+        } onChange: { [weak self] in
+            self?.updateProgress()
+        }
+    }
+
+    /// Draws its own glass rather than taking the toolbar item's border, so the
+    /// progress fill can reach the capsule's edges, as iOS's does.
+    private func layOutContainer() {
+        let height: CGFloat = 36
+        containerView.cornerRadius = height / 2
+        containerView.contentView = contentView
+        contentView.field = field
+        for view in [progressView, field] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview(view)
+        }
+        NSLayoutConstraint.activate([
+            containerView.heightAnchor.constraint(equalToConstant: height),
+            progressView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            progressView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            progressView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            progressView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            field.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 14),
+            field.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14),
+            field.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+        ])
+    }
+
+    private var currentProgress: BrowserAddressProgress? {
+        AddressProgress.current(for: location, feedManager: feedManager, activity: activity)
+    }
+
+    private func updateProgress() {
+        progressView.rootView = BrowserAddressProgressBackground(progress: currentProgress)
+    }
+
+    func display(_ location: BrowserLocation) {
+        self.location = location
+        updateProgress()
+        displayedTitle = location.title(in: feedManager)
+        if field.currentEditor() == nil {
+            showDisplayedTitle()
+        }
+    }
+
+    /// `selectText` installs the field editor without the field's own
+    /// `becomeFirstResponder`, so editing is set up here as well as there.
+    func focus() {
+        field.stringValue = initialEditingText
+        field.selectText(nil)
+        beginEditing()
+    }
+
+    /// The search being shown, or nothing, as iOS's omnibox starts from,
+    /// rather than offering to search for the page's own name.
+    private var initialEditingText: String {
+        if case .search(let query) = location {
+            return query
+        }
+        return ""
+    }
+
+    /// Runs once the field editor is installed, so the text and alignment go
+    /// to the editor. The field's own alignment is left alone: changing it
+    /// mid-edit aborts the edit, dropping focus.
+    private func beginEditing() {
+        guard !isEditingAddress else { return }
+        isEditingAddress = true
+        startWatchingForDismissal()
+        if let editor = field.currentEditor() as? NSTextView {
+            editor.string = initialEditingText
+            editor.alignment = .natural
+            editor.selectAll(nil)
+        } else {
+            field.stringValue = initialEditingText
+        }
+        contentMatches = []
+        showSuggestions()
+    }
+
+    func controlTextDidChange(_ notification: Notification) {
+        contentMatches = []
+        showSuggestions()
+        searchContent(matching: field.stringValue)
+    }
+
+    func controlTextDidEndEditing(_ notification: Notification) {
+        endEditing()
+    }
+
+    func control(_ control: NSControl, textView: NSTextView, doCommandBy selector: Selector) -> Bool {
+        switch selector {
+        case #selector(NSResponder.moveDown(_:)):
+            suggestionsPanel.moveSelection(by: 1)
+        case #selector(NSResponder.moveUp(_:)):
+            suggestionsPanel.moveSelection(by: -1)
+        case #selector(NSResponder.insertNewline(_:)):
+            commitSelection()
+        case #selector(NSResponder.cancelOperation(_:)):
+            field.window?.makeFirstResponder(nil)
+        default:
+            return false
+        }
+        return true
+    }
+
+    private func showSuggestions() {
+        guard !field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            suggestionsPanel.showFollowingGrid(feedManager: feedManager, below: containerView) { [weak self] location in
+                self?.commit(.location(location))
+            }
+            return
+        }
+        let suggestions = AddressSuggestionResolver(feedManager: feedManager)
+            .suggestions(for: field.stringValue, contentMatches: contentMatches)
+        suggestionsPanel.show(suggestions, below: containerView)
+    }
+
+    private func searchContent(matching query: String) {
+        contentSearchTask?.cancel()
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count >= 2 else { return }
+        contentSearchTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(150))
+            guard !Task.isCancelled else { return }
+            let matches = await Task.detached {
+                Array(((try? DatabaseManager.shared.searchArticles(query: trimmed)) ?? []).prefix(5))
+            }.value
+            guard let self, !Task.isCancelled, self.field.currentEditor() != nil else { return }
+            self.contentMatches = matches
+            self.showSuggestions()
+        }
+    }
+
+    private func commitSelection() {
+        if let suggestion = suggestionsPanel.selectedSuggestion {
+            commit(suggestion.kind)
+        } else {
+            let trimmed = field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return }
+            commit(.searchContent(trimmed))
+        }
+    }
+
+    private func commit(_ kind: AddressSuggestion.Kind) {
+        field.window?.makeFirstResponder(nil)
+        endEditing()
+        onCommit?(kind)
+    }
+
+    private func endEditing() {
+        isEditingAddress = false
+        stopWatchingForDismissal()
+        contentSearchTask?.cancel()
+        suggestionsPanel.hide()
+        showDisplayedTitle()
+        // The field takes back the editor's left-aligned text after this
+        // runs, so the centred title has to go back once that's done.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.field.currentEditor() == nil else { return }
+            self.showDisplayedTitle()
+        }
+    }
+
+    /// Text first, then alignment: setting the alignment afterwards applies it
+    /// to the whole value, replacing the left alignment the editor leaves.
+    private func showDisplayedTitle() {
+        field.stringValue = displayedTitle
+        field.alignment = .center
+    }
+}

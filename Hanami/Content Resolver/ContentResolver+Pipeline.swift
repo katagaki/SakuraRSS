@@ -8,13 +8,21 @@ public extension ContentResolver {
     /// domains) → feed-content fallback (with quality gate) → full web
     /// extraction. Caching is handled internally; ephemeral articles
     /// (`sakura://open` opens) are never cached.
-    func extract() async -> ExtractionResult {
+    public func extract() async -> ExtractionResult {
+        await runExtractionCascade()
+        if let text = result.text, !text.isEmpty {
+            result.challenged = false
+        }
+        return result
+    }
+
+    private func runExtractionCascade() async {
         log("Extract", "Extracting article content: \(article.url)")
 
         if let cached = readCachedContent(), !cached.isEmpty {
             result.text = cached
             log("Extract", "Cache hit (\(cached.count) chars): \(article.url)")
-            return result
+            return
         }
 
         log("Extract", "Cache miss: \(article.url)")
@@ -25,7 +33,7 @@ public extension ContentResolver {
 
         switch await tryRedditExtraction() {
         case .handled:
-            return result
+            return
         case .linkedArticle(let linkedURL):
             contentURL = linkedURL
             isRedditLinkedArticle = true
@@ -33,12 +41,16 @@ public extension ContentResolver {
             break
         }
 
-        if await tryHackerNewsExtraction() { return result }
-        if await extractFromSpecificSource(source) { return result }
-        if await tryProviderExtraction() { return result }
-        if tryFeedContentFallback() { return result }
+        if await tryHackerNewsExtraction() { return }
+        if await extractFromSpecificSource(source) { return }
+        if await tryProviderExtraction() { return }
+        if tryFeedContentFallback() { return }
+
+        if article.isXPostURL {
+            log("Extract", "Skipping web extraction for X post, x.com requires JavaScript: \(article.url)")
+            return
+        }
 
         await performWebExtraction(initialURL: contentURL)
-        return result
     }
 }

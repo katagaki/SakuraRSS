@@ -1,0 +1,21 @@
+import SwiftUI
+
+struct OpenInBrowserButton: View {
+
+    let url: URL?
+    let titleKey: String
+
+    var body: some View {
+        if let url {
+            Button {
+                NSWorkspace.shared.open(url)
+            } label: {
+                Label(String(localized: String.LocalizationValue(titleKey), table: "Articles"), systemImage: "safari")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(.quinary, in: .rect(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+        }
+    }
+}

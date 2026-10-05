@@ -8,6 +8,7 @@ struct Dependency: Identifiable {
 
     static let all: [Dependency] = [
         Dependency.adblockResources,
+        Dependency.braveMediaBackgrounding,
         Dependency(
             id: "faviconfinder",
             name: "FaviconFinder",

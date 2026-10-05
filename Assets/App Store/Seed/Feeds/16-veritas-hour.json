@@ -1,0 +1,71 @@
+{
+  "key": "veritas-hour",
+  "kind": "podcast",
+  "title": {"en": "The Veritas Hour", "ja": "ヴェリタス・アワー"},
+  "url": "https://veritas.millennium.kivotos/podcast.rss",
+  "site": "https://veritas.millennium.kivotos",
+  "hue": 138,
+  "icon": {"style": "solid", "background": "#050807", "foreground": "#3DFF8A", "text": ">_", "font": "mono"},
+  "articles": [
+    {
+      "slug": "vh-58",
+      "age": 160,
+      "duration": 2435,
+      "author": "Veritas",
+      "title": {
+        "en": "58: Someone tried to hack the vending machines again",
+        "ja": "第58回：また自販機をハッキングしようとした人がいる"
+      },
+      "summary": {
+        "en": "Hare and Chihiro walk through the attempt, and why it only got as far as a free can of cola.",
+        "ja": "ハレとチヒロが手口を解説。なぜコーラ一本しか手に入らなかったのか。"
+      },
+      "entities": [["Veritas", "organization"], ["Hare", "person"], ["Chihiro", "person"]]
+    },
+    {
+      "slug": "vh-57",
+      "age": 10200,
+      "duration": 2890,
+      "author": "Veritas",
+      "title": {
+        "en": "57: Passwords, and why \"aris1234\" is not one",
+        "ja": "第57回：パスワードと、「aris1234」がパスワードではない理由"
+      },
+      "summary": {
+        "en": "A short guide to passwords that would survive a week at Millennium.",
+        "ja": "ミレニアムで一週間生き残れるパスワードの手引き。"
+      },
+      "entities": [["Millennium Science School", "organization"]]
+    },
+    {
+      "slug": "vh-56",
+      "age": 20300,
+      "duration": 2610,
+      "author": "Veritas",
+      "title": {
+        "en": "56: The attendance bug, from start to fix",
+        "ja": "第56回：出欠システムの不具合、発見から修正まで"
+      },
+      "summary": {
+        "en": "How a single missing check let half the school skip class from home.",
+        "ja": "たった一つのチェック漏れで、学校の半分が家から授業をさぼれた話。"
+      },
+      "entities": [["Veritas", "organization"]]
+    },
+    {
+      "slug": "vh-55",
+      "age": 30400,
+      "duration": 2300,
+      "author": "Veritas",
+      "title": {
+        "en": "55: Phishing in MomoTalk",
+        "ja": "第55回：モモトークのフィッシング"
+      },
+      "summary": {
+        "en": "If Sensei asks you for your bank details, it is not Sensei.",
+        "ja": "先生が口座情報を聞いてきたら、それは先生ではありません。"
+      },
+      "entities": [["MomoTalk", "organization"], ["Sensei", "person"]]
+    }
+  ]
+}

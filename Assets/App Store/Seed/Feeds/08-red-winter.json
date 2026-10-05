@@ -1,0 +1,38 @@
+{
+  "key": "red-winter",
+  "title": {"en": "Red Winter Federal Press", "ja": "レッドウィンター連邦通信"},
+  "url": "https://press.redwinter.kivotos/feed",
+  "site": "https://press.redwinter.kivotos",
+  "hue": 4,
+  "icon": {"style": "glyph", "glyph": "snowflake", "background": "#8E1B1B", "foreground": "#FFFFFF", "accent": "#FFD24A"},
+  "articles": [
+    {
+      "slug": "pudding-reform",
+      "age": 200,
+      "author": "Red Winter Federal Press",
+      "title": {
+        "en": "Pudding ration raised to two per student, effective immediately",
+        "ja": "プリンの配給、生徒一人につき二個に増量。即日実施"
+      },
+      "summary": {
+        "en": "The Secretary called it \"a historic day for the revolution\". The cafeteria called it \"a lot of pudding\".",
+        "ja": "書記長は「革命にとって歴史的な日」と述べ、食堂は「プリンが多すぎる」と述べた。"
+      },
+      "entities": [["Red Winter Federal Academy", "organization"], ["Cherino", "person"]]
+    },
+    {
+      "slug": "snow-forecast",
+      "age": 640,
+      "author": "Red Winter Federal Press",
+      "title": {
+        "en": "First snow of the season expected this weekend",
+        "ja": "今週末、今季初雪の予報"
+      },
+      "summary": {
+        "en": "Students are reminded that snowball fights in the corridors still count as unauthorised gatherings.",
+        "ja": "廊下での雪合戦は、引き続き無許可の集会とみなされますのでご注意を。"
+      },
+      "entities": [["Red Winter Federal Academy", "organization"]]
+    }
+  ]
+}

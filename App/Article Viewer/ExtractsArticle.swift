@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftSoup
 import Hanami
 
 @MainActor
@@ -11,6 +10,7 @@ protocol ExtractsArticle {
     var extractedText: String? { get nonmutating set }
     var isExtracting: Bool { get nonmutating set }
     var isPaywalled: Bool { get nonmutating set }
+    var isChallenged: Bool { get nonmutating set }
     var extractedAuthor: String? { get nonmutating set }
     var extractedPublishedDate: Date? { get nonmutating set }
     var extractedLeadImageURL: String? { get nonmutating set }
@@ -28,9 +28,9 @@ extension ExtractsArticle {
         let request = URLRequest.sakura(url: url)
         guard let (data, response) = try? await HTTPSPreferringSession.shared.data(for: request),
               let html = HTMLDataDecoder.decode(data, response: response),
-              !html.isEmpty,
-              let doc = try? SwiftSoup.parse(html),
-              let pageTitle = HTMLContentExtractor.pageTitleFromDocument(doc) else { return }
+              !BotChallengeDetector.looksLikeChallenge(html, response: response),
+              let pageTitle = await HTMLContentExtractor.pageTitle(offMainActorFromHTML: html)
+        else { return }
         if extractedPageTitle == nil {
             extractedPageTitle = pageTitle
         }
@@ -42,6 +42,7 @@ extension ExtractsArticle {
     func extractArticleContent() async {
         isExtracting = true
         isPaywalled = false
+        isChallenged = false
         defer { isExtracting = false }
         // Keep previously-extracted metadata in place; `applyExtractedMetadata`
         // only writes when the new run produces a value, so a transient fetch
@@ -60,8 +61,12 @@ extension ExtractsArticle {
         )
         let extracted = await extractor.extract()
 
+        if let text = extracted.text {
+            await ContentBlock.prepareIdentifiedBlocks(offMainActorFrom: text)
+        }
         applyExtractedMetadata(extracted.metadata)
         isPaywalled = extracted.paywalled
+        isChallenged = extracted.challenged
         extractedText = extracted.text
     }
 
@@ -80,18 +85,6 @@ extension ExtractsArticle {
         }
         if let pageTitle = metadata.pageTitle {
             extractedPageTitle = pageTitle
-        }
-    }
-}
-
-extension ArticleSource {
-    /// Translates the `sakura://open` text-mode override into the same
-    /// `ArticleSource` enum used by the per-feed UserDefaults setting.
-    init(textMode: OpenArticleRequest.TextMode) {
-        switch textMode {
-        case .auto: self = .automatic
-        case .fetch: self = .fetchText
-        case .extract: self = .extractText
         }
     }
 }

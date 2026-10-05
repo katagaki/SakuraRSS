@@ -25,17 +25,17 @@ struct ListFeedSelectionSheet: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
+            .settingsListStyle()
             .navigationTitle(String(localized: "ListEdit.Feeds", table: "Lists"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .sheetLeading) {
                     Button(role: .cancel) {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .sheetTrailing) {
                     Button(role: .confirm) {
                         save()
                     }

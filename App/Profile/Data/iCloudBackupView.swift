@@ -78,7 +78,6 @@ struct iCloudBackupView: View {
         }
         .navigationTitle(String(localized: "iCloudBackup.Title", table: "DataManagement"))
         .toolbarTitleDisplayMode(.inline)
-        .sakuraBackground()
         .task {
             iCloudAvailable = iCloudBackupManager.shared.isICloudAvailable()
             lastBackupDate = iCloudBackupManager.shared.lastBackupDate
@@ -99,7 +98,9 @@ struct iCloudBackupView: View {
 
     private func performBackup() {
         isBackingUp = true
+        #if !os(macOS)
         UIApplication.shared.isIdleTimerDisabled = true
+        #endif
         Task {
             do {
                 try await iCloudBackupManager.shared.backupNow()
@@ -108,7 +109,9 @@ struct iCloudBackupView: View {
             } catch {
                 showBackupError = true
             }
+            #if !os(macOS)
             UIApplication.shared.isIdleTimerDisabled = false
+            #endif
             isBackingUp = false
         }
     }

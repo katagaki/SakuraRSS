@@ -1,0 +1,95 @@
+{
+  "key": "kronos",
+  "title": {"en": "Kronos News", "ja": "クロノス報道部"},
+  "url": "https://news.kronos.kivotos/feed",
+  "site": "https://news.kronos.kivotos",
+  "hue": 212,
+  "icon": {"style": "solid", "background": "#F5F1E8", "foreground": "#1C2B4A", "text": "K", "font": "serif", "fill": 0.66},
+  "articles": [
+    {
+      "slug": "schale-open-house",
+      "age": 18,
+      "author": "Kronos School of Journalism",
+      "body": "kronos-schale-open-house",
+      "title": {
+        "en": "Schale opens its doors to every school in Kivotos for its first open house",
+        "ja": "シャーレ、初のオープンハウスでキヴォトス全校に門戸を開く"
+      },
+      "summary": {
+        "en": "Students from Millennium, Trinity, Gehenna and Abydos lined up outside the Federal Investigation Club's office as Sensei gave tours, handed out snacks, and took questions.",
+        "ja": "ミレニアム、トリニティ、ゲヘナ、アビドスの生徒たちが連邦捜査部の前に列を作り、先生自らが案内役となって質問にも答えた。"
+      },
+      "entities": [["Schale", "organization"], ["Kivotos", "place"], ["Sensei", "person"]]
+    },
+    {
+      "slug": "black-market-crackdown",
+      "age": 52,
+      "author": "Kronos School of Journalism",
+      "title": {
+        "en": "Valkyrie Police School steps up patrols around the Black Market after a week of disturbances",
+        "ja": "ブラックマーケット周辺で騒動続く、ヴァルキューレ警察学校がパトロールを強化"
+      },
+      "summary": {
+        "en": "Officers say the extra patrols will run through the end of the month, while vendors worry about fewer customers.",
+        "ja": "パトロール強化は月末まで続く見込み。一方で露店主たちは客足の減少を心配している。"
+      },
+      "entities": [["Valkyrie Police School", "organization"], ["Black Market", "place"]]
+    },
+    {
+      "slug": "abydos-water-line",
+      "age": 95,
+      "author": "Kronos School of Journalism",
+      "title": {
+        "en": "Abydos finishes its first new water line in a decade",
+        "ja": "アビドス、十年ぶりとなる新しい水道管の敷設を完了"
+      },
+      "summary": {
+        "en": "The Foreclosure Task Force says the line will bring running water back to three districts that the sand had cut off.",
+        "ja": "対策委員会によると、砂に埋もれていた三つの地区に再び水道が通るという。"
+      },
+      "entities": [["Abydos High School", "organization"], ["Abydos Desert", "place"], ["Hoshino", "person"]]
+    },
+    {
+      "slug": "tea-party-summit",
+      "age": 160,
+      "author": "Kronos School of Journalism",
+      "title": {
+        "en": "Tea Party and Prefect Team meet for the first time since the Eden Treaty",
+        "ja": "ティーパーティーと風紀委員会、エデン条約以来初の会談"
+      },
+      "summary": {
+        "en": "Both sides called the talks \"cordial\", though neither would say what was on the menu.",
+        "ja": "双方とも会談を「和やか」と表現したが、何が話し合われたのかは明かさなかった。"
+      },
+      "entities": [["Tea Party", "organization"], ["Prefect Team", "organization"], ["Nagisa", "person"], ["Hina", "person"]]
+    },
+    {
+      "slug": "festival-dates",
+      "age": 240,
+      "author": "Kronos School of Journalism",
+      "title": {
+        "en": "Hyakkiyako announces dates for this year's autumn festival",
+        "ja": "百鬼夜行、今年の秋祭りの日程を発表"
+      },
+      "summary": {
+        "en": "Lantern stalls, a fireworks show over the river, and, for the first time, a ninja-themed escape room.",
+        "ja": "灯籠の屋台に川の上の花火、そして初の忍者をテーマにした脱出ゲームも登場する。"
+      },
+      "entities": [["Hyakkiyako Alliance Academy", "organization"]]
+    },
+    {
+      "slug": "train-delays",
+      "age": 380,
+      "author": "Kronos School of Journalism",
+      "title": {
+        "en": "Morning trains into the D.U. Shiratori District run late after a signal fault",
+        "ja": "信号故障でD.U.シラトリ区行きの朝の列車に遅れ"
+      },
+      "summary": {
+        "en": "Service was back to normal by ten, according to the General Student Council.",
+        "ja": "連邦生徒会によると、十時までには平常運転に戻ったという。"
+      },
+      "entities": [["General Student Council", "organization"], ["D.U. Shiratori District", "place"]]
+    }
+  ]
+}

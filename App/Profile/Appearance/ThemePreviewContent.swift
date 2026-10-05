@@ -1,7 +1,7 @@
 import SwiftUI
 import Hanami
 
-#if !os(visionOS) && !targetEnvironment(macCatalyst)
+#if !os(visionOS)
 struct FeedPreviewContent: View {
 
     let style: FeedDisplayStyle

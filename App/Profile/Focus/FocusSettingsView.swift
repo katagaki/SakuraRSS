@@ -31,7 +31,7 @@ struct FocusSettingsView: View {
                 Text(String(localized: "Focus.Settings.Setup.Title", table: "Settings"))
             }
 
-            #if !targetEnvironment(macCatalyst)
+            #if !os(macOS)
             Section {
                 Button {
                     if let url = URL(string: "App-Prefs:") {
@@ -46,8 +46,7 @@ struct FocusSettingsView: View {
             }
             #endif
         }
-        .listStyle(.insetGrouped)
-        .sakuraBackground()
+        .settingsListStyle()
         .navigationTitle(String(localized: "Section.Focus", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
     }

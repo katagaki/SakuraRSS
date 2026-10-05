@@ -116,7 +116,8 @@ struct SeekBarView: View {
                             onScrubbingChanged?(true)
                         }
                         guard duration > 0, trackWidth > 0 else { return }
-                        #if targetEnvironment(macCatalyst) || os(visionOS)
+                        // A pointer seeks to where it is; a finger nudges from where it started.
+                        #if os(visionOS) || os(macOS)
                         let fraction = value.location.x / trackWidth
                         dragTime = max(0, min(TimeInterval(fraction) * duration, duration))
                         #else

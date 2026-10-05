@@ -14,6 +14,89 @@ struct CleanupSettingsSection: View {
     @State private var showCleanupSuccess = false
 
     var body: some View {
+        layout
+        .animation(.smooth.speed(2.0), value: automaticCleanupEnabled)
+        .alert(
+            String(localized: "Cleanup.Title", table: "DataManagement"),
+            isPresented: $showManualCleanupAlert
+        ) {
+            Button(String(localized: "Cleanup.Last24Hours", table: "DataManagement"), role: .destructive) {
+                runManualCleanup(cutoff: .last24Hours)
+            }
+            Button(String(localized: "Cleanup.Last7Days", table: "DataManagement"), role: .destructive) {
+                runManualCleanup(cutoff: .last7Days)
+            }
+            Button(String(localized: "Cleanup.Last30Days", table: "DataManagement"), role: .destructive) {
+                runManualCleanup(cutoff: .last30Days)
+            }
+            Button("Shared.Cancel", role: .cancel) {}
+        } message: {
+            Text(String(localized: "Cleanup.Manual.Message", table: "DataManagement"))
+        }
+        .alert(
+            String(localized: "Title", table: "DataManagement"),
+            isPresented: $showCleanupSuccess
+        ) {
+            Button("Shared.OK") {}
+        } message: {
+            Text(String(localized: "Cleanup.Success", table: "DataManagement"))
+        }
+        .onChange(of: automaticCleanupEnabled) {
+            AutomaticCleanupScheduler.scheduleNextCleanup()
+        }
+        .onChange(of: automaticCleanupCutoff) {
+            AutomaticCleanupScheduler.scheduleNextCleanup()
+        }
+    }
+
+    /// macOS lays settings out in Safari's label-and-control column instead
+    /// of iOS's grouped list.
+    @ViewBuilder
+    private var layout: some View {
+        #if os(macOS)
+        LabeledContent(String(localized: "Cleanup.Automatic.Enabled", table: "DataManagement")) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Toggle(
+                        String(localized: "Cleanup.Automatic.Picker", table: "DataManagement"),
+                        isOn: $automaticCleanupEnabled
+                    )
+                    Picker(String(localized: "Cleanup.Automatic.Picker", table: "DataManagement"),
+                           selection: $automaticCleanupCutoff) {
+                        Text(String(localized: "Cleanup.Last24Hours", table: "DataManagement"))
+                            .tag(CleanupCutoff.last24Hours)
+                        Text(String(localized: "Cleanup.Last7Days", table: "DataManagement"))
+                            .tag(CleanupCutoff.last7Days)
+                        Text(String(localized: "Cleanup.Last30Days", table: "DataManagement"))
+                            .tag(CleanupCutoff.last30Days)
+                    }
+                    .labelsHidden()
+                    .fixedSize()
+                    .disabled(!automaticCleanupEnabled)
+                }
+                Toggle(
+                    String(localized: "Cleanup.Automatic.IncludeBookmarks", table: "DataManagement"),
+                    isOn: $automaticCleanupIncludeBookmarks
+                )
+                .disabled(!automaticCleanupEnabled)
+                Text(String(localized: "Cleanup.Automatic.Footer", table: "DataManagement"))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: 360, alignment: .leading)
+                HStack {
+                    Button(String(localized: "Cleanup.Title", table: "DataManagement") + "…") {
+                        showManualCleanupAlert = true
+                    }
+                    .disabled(isCleaningUp)
+                    if isCleaningUp {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                }
+            }
+        }
+        #else
         Section {
             Toggle(
                 String(localized: "Cleanup.Automatic.Enabled", table: "DataManagement"),
@@ -57,47 +140,20 @@ struct CleanupSettingsSection: View {
         } footer: {
             Text(String(localized: "Cleanup.Automatic.Footer", table: "DataManagement"))
         }
-        .animation(.smooth.speed(2.0), value: automaticCleanupEnabled)
-        .alert(
-            String(localized: "Cleanup.Title", table: "DataManagement"),
-            isPresented: $showManualCleanupAlert
-        ) {
-            Button(String(localized: "Cleanup.Last24Hours", table: "DataManagement"), role: .destructive) {
-                runManualCleanup(cutoff: .last24Hours)
-            }
-            Button(String(localized: "Cleanup.Last7Days", table: "DataManagement"), role: .destructive) {
-                runManualCleanup(cutoff: .last7Days)
-            }
-            Button(String(localized: "Cleanup.Last30Days", table: "DataManagement"), role: .destructive) {
-                runManualCleanup(cutoff: .last30Days)
-            }
-            Button("Shared.Cancel", role: .cancel) {}
-        } message: {
-            Text(String(localized: "Cleanup.Manual.Message", table: "DataManagement"))
-        }
-        .alert(
-            String(localized: "Title", table: "DataManagement"),
-            isPresented: $showCleanupSuccess
-        ) {
-            Button("Shared.OK") {}
-        } message: {
-            Text(String(localized: "Cleanup.Success", table: "DataManagement"))
-        }
-        .onChange(of: automaticCleanupEnabled) {
-            AutomaticCleanupScheduler.scheduleNextCleanup()
-        }
-        .onChange(of: automaticCleanupCutoff) {
-            AutomaticCleanupScheduler.scheduleNextCleanup()
-        }
+        #endif
     }
 
     private func runManualCleanup(cutoff: CleanupCutoff) {
         guard let cutoffDate = cutoff.cutoffDate() else { return }
         isCleaningUp = true
+        #if !os(macOS)
         UIApplication.shared.isIdleTimerDisabled = true
+        #endif
         Task {
-            await feedManager.deleteArticlesAndVacuum(olderThan: cutoffDate)
+            await feedManager.deleteArticlesAndVacuum(olderThan: cutoffDate, keeping: OpenContent.articleIDs())
+            #if !os(macOS)
             UIApplication.shared.isIdleTimerDisabled = false
+            #endif
             isCleaningUp = false
             showCleanupSuccess = true
         }

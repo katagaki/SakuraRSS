@@ -15,12 +15,29 @@ extension YouTubePlayerView {
         YouTubeAudioSession.activate()
     }
 
-    func handleScenePhaseChange(_ newPhase: ScenePhase) {
+    func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+        log("YT Native", "scene \(oldPhase) -> \(newPhase) isPlaying=\(isPlaying) isPiP=\(isPiP)")
         switch newPhase {
         case .background, .inactive:
-            wantsPlaybackInBackground = isPlaying
+            // Coming back passes through `.inactive` too, after the video may
+            // have been paused in the background; only leaving `.active` says
+            // whether it was playing. PiP carries playback on its own, and
+            // closing it in the background is a deliberate stop.
+            if oldPhase == .active {
+                wantsPlaybackInBackground = isPlaying && !isPiP
+                if wantsPlaybackInBackground {
+                    webView?.evaluateJavaScript(
+                        "window.__yt && (window.__yt.backgroundResumeEligible = true)",
+                        completionHandler: nil
+                    )
+                }
+            }
             session.rememberPlaybackPosition()
         case .active:
+            webView?.evaluateJavaScript(
+                "window.__yt && (window.__yt.backgroundResumeEligible = false)",
+                completionHandler: nil
+            )
             if wantsPlaybackInBackground && !isPlaying {
                 resumePlaybackIfNeeded()
             }
@@ -38,28 +55,23 @@ extension YouTubePlayerView {
     func resyncPiPState() {
         let script = """
         (function() {
-            var v = document.querySelector('video');
-            if (!v) { return false; }
-            return v.webkitPresentationMode === 'picture-in-picture';
+            return !!(window.__yt && window.__yt.isInPiP());
         })();
         """
         webView?.evaluateJavaScript(script) { result, _ in
             let actuallyInPiP = (result as? Bool) ?? false
+            log("YT Native", "PiP resync result=\(actuallyInPiP) wasPiP=\(isPiP)")
             if isPiP != actuallyInPiP {
                 isPiP = actuallyInPiP
             }
         }
     }
 
-    /// Safety net for the rare case the audio session lost the route while we
-    /// were backgrounded. With detection isolation in place YouTube no longer
-    /// pauses on visibility changes, so this is normally a no-op. Bails when
-    /// the user explicitly paused (e.g. via the Lock Screen Now Playing
-    /// control) so returning to the app doesn't override their intent.
     func resumePlaybackIfNeeded() {
         let script = """
         (function() {
             if (window.__yt && window.__yt.userPaused === true) return;
+            if (window.__yt && window.__yt.exitedPiPRecently === true) return;
             var v = document.querySelector('video');
             if (v && v.paused && !v.ended) {
                 var p = v.play();

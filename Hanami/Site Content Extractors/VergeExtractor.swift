@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public struct VergeExtractor: SiteContentExtractor {
+public nonisolated struct VergeExtractor: SiteContentExtractor {
 
     public func canHandle(url: URL) -> Bool {
         matchesHost(url, ["theverge.com"])
