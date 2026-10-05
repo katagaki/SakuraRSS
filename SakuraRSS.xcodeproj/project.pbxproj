@@ -286,6 +286,7 @@
 				"Shared/UIImage+SwiftUIColors.swift",
 				Shared/WebViewRepresentable.swift,
 				"View Modifiers/CompatibleGlassEffect.swift",
+				"View Modifiers/MarkReadOnScrollModifier.swift",
 				"View Modifiers/SakuraBackground.swift",
 				"View Modifiers/SheetToolbarPlacement.swift",
 				"View Modifiers/URLTextInput.swift",

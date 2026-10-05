@@ -5,4 +5,9 @@ import Foundation
 public nonisolated struct ArticleIDEntry: Hashable, Sendable {
     public let id: Int64
     public let publishedDate: Date?
+
+    public init(id: Int64, publishedDate: Date?) {
+        self.id = id
+        self.publishedDate = publishedDate
+    }
 }

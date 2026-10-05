@@ -11,6 +11,9 @@ struct ContentGridPage: View {
     let actions: TodayActions
     let revisions: WindowDataRevisions
     @State private var articles: [Article] = []
+    @State private var allArticles: [Article] = []
+    @State private var presentation = ContentPresentation()
+    @State private var presentedLocation: BrowserLocation?
 
     var body: some View {
         Group {
@@ -28,9 +31,30 @@ struct ContentGridPage: View {
                 ContentEmptyStateView()
             }
         }
+        .environment(feedManager)
         .task(id: "\(location.persistenceToken)|\(revisions.dataRevision)") {
-            articles = ContentQuery(feedManager: feedManager).articles(for: location)
+            let loaded = ContentQuery(feedManager: feedManager).articles(for: location)
+            if presentedLocation == location {
+                presentation.absorb(loaded, isRead: feedManager.isRead)
+            } else {
+                presentedLocation = location
+                presentation.begin(with: loaded, isRead: feedManager.isRead)
+            }
+            allArticles = loaded
+            articles = presentation.present(loaded)
         }
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+            guard presentation.settings != .current else { return }
+            presentation.begin(with: allArticles, isRead: feedManager.isRead)
+            articles = presentation.present(allArticles)
+        }
+    }
+
+    /// Batching reveals the next batch once the last item shows.
+    private func loadMoreIfLast(_ article: Article) {
+        guard article.id == articles.last?.id, presentation.canLoadMore(allArticles) else { return }
+        presentation.loadMore(of: allArticles)
+        articles = presentation.present(allArticles)
     }
 
     @ViewBuilder
@@ -76,6 +100,8 @@ struct ContentGridPage: View {
         .contextMenu {
             ContentContextMenu(article: article, feedManager: feedManager, actions: actions)
         }
+        .markReadOnScroll(article: article)
+        .onAppear { loadMoreIfLast(article) }
     }
 
     private var minimumWidth: CGFloat {

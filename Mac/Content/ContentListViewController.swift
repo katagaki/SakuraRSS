@@ -7,7 +7,14 @@ final class ContentListViewController: NSViewController {
     let feedManager: FeedManager
     let revisions: WindowDataRevisions
     let tableView = ContentListTableView()
+    /// What the page lists, after the Browsing settings have been applied.
     var articles: [Article] = []
+    /// Everything the page's query returned.
+    var allArticles: [Article] = []
+    var presentation = ContentPresentation()
+    var firstVisibleRow = 0
+    nonisolated(unsafe) var scrollObserver: NSObjectProtocol?
+    nonisolated(unsafe) var settingsObserver: NSObjectProtocol?
     var onSelectArticle: ((Article?) -> Void)?
     var reportedArticleID: Int64?
     private(set) var displayStyle: FeedDisplayStyle = .inbox
@@ -29,6 +36,12 @@ final class ContentListViewController: NSViewController {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) is not supported")
+    }
+
+    deinit {
+        for observer in [scrollObserver, settingsObserver].compactMap(\.self) {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
     override func loadView() {
@@ -67,6 +80,8 @@ final class ContentListViewController: NSViewController {
         emptyStateView.isHidden = location == nil || !articles.isEmpty
         emptyStateView.sizingOptions = []
         view = container
+        observeScrolling(of: scrollView)
+        observePresentationSettings()
     }
 
     override func viewDidLoad() {
@@ -142,12 +157,16 @@ final class ContentListViewController: NSViewController {
             reloadArticles(keepingSelection: true)
             return
         }
-        applyRowChanges(to: reloaded)
+        allArticles = reloaded
+        presentation.absorb(reloaded, isRead: feedManager.isRead)
+        applyRowChanges(to: presentation.present(reloaded))
         emptyStateView.isHidden = !articles.isEmpty
         reloadVisibleRows()
     }
 
-    private func reloadArticles(keepingSelection: Bool) {
+    /// `keepingSelection` is false for a page that has just been opened, which
+    /// also starts its Browsing settings over.
+    func reloadArticles(keepingSelection: Bool) {
         guard let location else { return }
         pendingDataReload?.cancel()
         needsDataUpdate = false
@@ -155,7 +174,14 @@ final class ContentListViewController: NSViewController {
         let reloaded = ContentQuery(feedManager: feedManager).articles(for: location)
         let style = ContentStyleContext(location: location, articles: reloaded, feedManager: feedManager)?
             .effectiveStyle ?? .inbox
-        articles = reloaded
+        if keepingSelection {
+            presentation.absorb(reloaded, isRead: feedManager.isRead)
+        } else {
+            presentation.begin(with: reloaded, isRead: feedManager.isRead)
+            firstVisibleRow = 0
+        }
+        allArticles = reloaded
+        articles = presentation.present(reloaded)
         displayStyle = style
         tableView.reloadData()
         emptyStateView.isHidden = !articles.isEmpty
