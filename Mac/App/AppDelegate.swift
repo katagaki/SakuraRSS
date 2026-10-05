@@ -1,6 +1,5 @@
 import AppKit
 import Hanami
-import SwiftUI
 
 final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
 
@@ -8,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
     private(set) var refreshCoordinator: RefreshCoordinator!
     private var settingsWindowController: SettingsWindowController?
     private var dockBadgeCoordinator: DockBadgeCoordinator?
+    private var welcomeWindowController: WelcomeWindowController?
     private let backupScheduler = BackupScheduler()
     private var defaultsObserver: NSObjectProtocol?
     private var openContentObserver: NSObjectProtocol?
@@ -119,13 +119,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
     }
 
     private func presentWelcomeIfNeeded() {
-        guard !UserDefaults.standard.bool(forKey: WelcomeView.completedKey),
-              let contentViewController = frontWindowController().contentViewController else { return }
-        let sheet = NSHostingController(rootView: AnyView(EmptyView()))
-        sheet.rootView = AnyView(WelcomeView(feedManager: registry.feedManager) { [weak sheet] in
-            sheet?.dismiss(nil)
-        })
-        contentViewController.presentAsSheet(sheet)
+        guard !WelcomeWindowController.hasBeenSeen, welcomeWindowController == nil else { return }
+        let controller = WelcomeWindowController(feedManager: registry.feedManager)
+        controller.onClose = { [weak self] in
+            self?.welcomeWindowController = nil
+        }
+        welcomeWindowController = controller
+        controller.window?.center()
+        controller.showWindow(nil)
+        controller.window?.makeKeyAndOrderFront(nil)
     }
 
     func openContent(_ articleID: Int64) {
