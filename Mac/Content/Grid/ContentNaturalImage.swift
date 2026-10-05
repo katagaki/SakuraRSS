@@ -7,14 +7,16 @@ struct ContentNaturalImage: View {
 
     var body: some View {
         if let urlString, let url = URL(string: urlString) {
-            AsyncImage(url: url) { image in
-                image
-                    .resizable()
-                    .scaledToFit()
-            } placeholder: {
-                Rectangle()
-                    .fill(.quinary)
-                    .frame(height: 160)
+            CachedImage(url: url) { phase in
+                if let image = phase.image {
+                    image
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    Rectangle()
+                        .fill(.quinary)
+                        .frame(height: 160)
+                }
             }
             .clipShape(.rect(cornerRadius: 10))
         }

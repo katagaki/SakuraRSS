@@ -9,12 +9,14 @@ struct TodayThumbnail: View {
             .fill(.quinary)
             .overlay {
                 if let urlString, let url = URL(string: urlString) {
-                    AsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    } placeholder: {
-                        Color.clear
+                    CachedImage(url: url) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        } else {
+                            Color.clear
+                        }
                     }
                 } else {
                     Image(systemName: "doc.text")

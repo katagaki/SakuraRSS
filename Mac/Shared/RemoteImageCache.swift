@@ -28,7 +28,7 @@ final class RemoteImageCache {
         }
         inFlight[urlString] = [completion]
         Task {
-            let data = try? await URLSession.shared.data(for: .sakuraImage(url: url)).0
+            let data = await CachedImageData.load(url)
             let image = data.flatMap(NSImage.init(data:))
             if let image {
                 cache.setObject(image, forKey: urlString as NSString)

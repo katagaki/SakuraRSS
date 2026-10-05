@@ -15,12 +15,14 @@ struct CachedAsyncImage<Placeholder: View>: View {
     }
 
     var body: some View {
-        AsyncImage(url: url) { image in
-            image
-                .resizable()
-                .scaledToFill()
-        } placeholder: {
-            placeholder()
+        CachedImage(url: url) { phase in
+            if let image = phase.image {
+                image
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                placeholder()
+            }
         }
     }
 }
