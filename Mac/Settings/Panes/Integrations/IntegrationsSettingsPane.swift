@@ -17,14 +17,14 @@ struct IntegrationsSettingsPane: View {
                 Label {
                     Text(integration.title)
                 } icon: {
-                    IntegrationIcon(integration: integration, size: 20)
+                    IntegrationIcon(integration: integration, size: 26)
                 }
                 .tag(integration)
             }
             .listStyle(.sidebar)
             .scrollContentBackground(.hidden)
             .background(.fill.quinary, in: .rect(cornerRadius: 10))
-            .frame(width: 210)
+            .frame(width: 190)
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     HStack(spacing: 10) {
@@ -41,7 +41,7 @@ struct IntegrationsSettingsPane: View {
         }
         .toggleStyle(.checkbox)
         .padding(20)
-        .frame(width: 780, height: 460)
+        .frame(width: 660, height: 400)
     }
 }
 
