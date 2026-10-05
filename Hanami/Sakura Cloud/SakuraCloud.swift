@@ -32,7 +32,9 @@ public actor SakuraCloud {
         return address.isEmpty ? nil : URL(string: address)
     }
 
-    public nonisolated static var isConfigured: Bool { baseURL != nil }
+    public nonisolated static var isAvailable: Bool {
+        baseURL != nil && (skipsAppAttest || DCAppAttestService.shared.isSupported)
+    }
 
     /// For each candidate, in order, the probability that the block belongs to the content.
     public func classify(

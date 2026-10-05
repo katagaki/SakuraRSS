@@ -24,7 +24,7 @@ public nonisolated enum CloudBlockRefiner {
     }
 
     public static func refine(_ text: String, title: String, url: URL?) async -> String {
-        guard SakuraCloud.isConfigured else { return text }
+        guard SakuraCloud.isAvailable else { return text }
         let pieces = pieces(of: text)
         let candidates = candidateIndexes(in: pieces)
         guard !candidates.isEmpty else { return text }
