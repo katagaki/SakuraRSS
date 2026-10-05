@@ -37,6 +37,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         dockBadgeCoordinator = DockBadgeCoordinator(feedManager: registry.feedManager)
         #if DEBUG
         DebugLaunchActions.perform(with: registry)
+        DebugCaptureScene.perform(with: registry)
         DebugSnapshotRenderer.scheduleIfRequested()
         #endif
     }
