@@ -78,12 +78,28 @@ final class SidebarViewController: NSViewController {
     }
 
     private func reloadTree() {
-        nodes = SidebarTreeBuilder(feedManager: feedManager).build()
+        let rebuilt = SidebarTreeBuilder(feedManager: feedManager).build()
+        if SidebarNode.adoptKinds(from: rebuilt, into: nodes) {
+            reloadVisibleRows()
+            return
+        }
+        nodes = rebuilt
         outlineView.reloadData()
         for node in nodes where node.isGroup {
             outlineView.expandItem(node)
         }
         applySelection()
+    }
+
+    /// Unread counts change with every read, so only rows on screen are redrawn,
+    /// and the sidebar isn't scrolled back to the selection.
+    private func reloadVisibleRows() {
+        let visibleRows = outlineView.rows(in: outlineView.visibleRect)
+        guard visibleRows.length > 0 else { return }
+        outlineView.reloadData(
+            forRowIndexes: IndexSet(integersIn: visibleRows.location..<NSMaxRange(visibleRows)),
+            columnIndexes: IndexSet(integer: 0)
+        )
     }
 
     private func applySelection() {
