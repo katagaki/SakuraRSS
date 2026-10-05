@@ -5,6 +5,7 @@ import SwiftUI
 final class ContentListViewController: NSViewController {
 
     let feedManager: FeedManager
+    let revisions: WindowDataRevisions
     let tableView = ContentListTableView()
     var articles: [Article] = []
     var onSelectArticle: ((Article?) -> Void)?
@@ -16,10 +17,13 @@ final class ContentListViewController: NSViewController {
     private var dataObserver: ChangeObserver?
     private var readStateObserver: ChangeObserver?
     private var pendingDataReload: DispatchWorkItem?
+    private var needsDataUpdate = false
+    private var needsReadStateUpdate = false
     private let emptyStateView = NSHostingView(rootView: ContentEmptyStateView())
 
-    init(feedManager: FeedManager) {
+    init(feedManager: FeedManager, revisions: WindowDataRevisions) {
         self.feedManager = feedManager
+        self.revisions = revisions
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -68,15 +72,44 @@ final class ContentListViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         dataObserver = ChangeObserver { [weak self] in
-            _ = self?.feedManager.dataRevision
+            _ = self?.revisions.dataRevision
         } onChange: { [weak self] in
-            self?.scheduleDataReload()
+            self?.dataDidChange()
         }
         readStateObserver = ChangeObserver { [weak self] in
-            _ = self?.feedManager.readMaskRevision
+            _ = self?.revisions.readStateRevision
         } onChange: { [weak self] in
-            self?.reloadVisibleRows()
+            self?.readStateDidChange()
         }
+    }
+
+    /// While another page is showing in its place, changes wait for it to come back.
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        if needsDataUpdate {
+            needsDataUpdate = false
+            needsReadStateUpdate = false
+            updateArticles()
+        } else if needsReadStateUpdate {
+            needsReadStateUpdate = false
+            reloadVisibleRows()
+        }
+    }
+
+    private func dataDidChange() {
+        guard view.window != nil else {
+            needsDataUpdate = true
+            return
+        }
+        scheduleDataReload()
+    }
+
+    private func readStateDidChange() {
+        guard view.window != nil else {
+            needsReadStateUpdate = true
+            return
+        }
+        reloadVisibleRows()
     }
 
     func show(_ location: BrowserLocation) {
@@ -91,26 +124,39 @@ final class ContentListViewController: NSViewController {
     private func scheduleDataReload() {
         pendingDataReload?.cancel()
         let work = DispatchWorkItem { [weak self] in
-            self?.reloadArticles(keepingSelection: true)
+            self?.updateArticles()
         }
         pendingDataReload = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: work)
     }
 
+    /// Applies changed content as row insertions and removals, keeping the
+    /// selection and the rows the reader is looking at where they are.
+    func updateArticles() {
+        guard let location else { return }
+        pendingDataReload?.cancel()
+        let reloaded = ContentQuery(feedManager: feedManager).articles(for: location)
+        let style = ContentStyleContext(location: location, articles: reloaded, feedManager: feedManager)?
+            .effectiveStyle ?? .inbox
+        guard style == displayStyle, !articles.isEmpty else {
+            reloadArticles(keepingSelection: true)
+            return
+        }
+        applyRowChanges(to: reloaded)
+        emptyStateView.isHidden = !articles.isEmpty
+        reloadVisibleRows()
+    }
+
     private func reloadArticles(keepingSelection: Bool) {
         guard let location else { return }
         pendingDataReload?.cancel()
+        needsDataUpdate = false
         let selectedID = keepingSelection ? selectedArticle?.id : nil
         let reloaded = ContentQuery(feedManager: feedManager).articles(for: location)
         let style = ContentStyleContext(location: location, articles: reloaded, feedManager: feedManager)?
             .effectiveStyle ?? .inbox
-        let keepsRows = keepingSelection && style == displayStyle && reloaded.map(\.id) == articles.map(\.id)
         articles = reloaded
         displayStyle = style
-        if keepsRows {
-            reloadVisibleRows()
-            return
-        }
         tableView.reloadData()
         emptyStateView.isHidden = !articles.isEmpty
         if let selectedID, let row = articles.firstIndex(where: { $0.id == selectedID }) {
@@ -127,7 +173,7 @@ final class ContentListViewController: NSViewController {
     }
 
     /// Rows scrolled out of view are configured afresh when they come back.
-    private func reloadVisibleRows() {
+    func reloadVisibleRows() {
         let visibleRows = tableView.rows(in: tableView.visibleRect)
         guard visibleRows.length > 0 else { return }
         tableView.reloadData(

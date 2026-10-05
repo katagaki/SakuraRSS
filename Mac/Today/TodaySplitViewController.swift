@@ -9,12 +9,14 @@ final class TodaySplitViewController: NSSplitViewController {
     private let leadingViewController: NSHostingController<TodayLeadingColumn>
     private let cardsViewController: NSHostingController<TodayCardsColumn>
 
-    init(feedManager: FeedManager, actions: TodayActions) {
+    init(feedManager: FeedManager, actions: TodayActions, revisions: WindowDataRevisions) {
         leadingViewController = NSHostingController(
-            rootView: TodayLeadingColumn(feedManager: feedManager, actions: actions)
+            rootView: TodayLeadingColumn(feedManager: feedManager, actions: actions, revisions: revisions)
         )
         cardsViewController = NSHostingController(
-            rootView: TodayCardsColumn(model: TodayModel(), feedManager: feedManager, actions: actions)
+            rootView: TodayCardsColumn(
+                model: TodayModel(), feedManager: feedManager, actions: actions, revisions: revisions
+            )
         )
         leadingViewController.sizingOptions = []
         cardsViewController.sizingOptions = []

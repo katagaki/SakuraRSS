@@ -8,6 +8,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
     let feedManager: FeedManager
     let splitViewController: BrowserSplitViewController
     let activity = BrowserPageActivity()
+    let revisions: WindowDataRevisions
     let addressBarController: AddressBarController
     let toolbarController: BrowserToolbarController
     private(set) var history: BrowserHistory
@@ -18,7 +19,10 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
     init(feedManager: FeedManager, history: BrowserHistory) {
         self.feedManager = feedManager
         self.history = history
-        splitViewController = BrowserSplitViewController(feedManager: feedManager, activity: activity)
+        revisions = WindowDataRevisions(feedManager: feedManager)
+        splitViewController = BrowserSplitViewController(
+            feedManager: feedManager, activity: activity, revisions: revisions
+        )
         addressBarController = AddressBarController(feedManager: feedManager, activity: activity)
         let refreshButton = RefreshToolbarButton()
         toolbarController = BrowserToolbarController(
@@ -43,6 +47,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         window.restorationClass = BrowserWindowRestoration.self
         super.init(window: window)
         window.delegate = self
+        revisions.attach(to: window)
         // Without one, AppKit focuses the first key view it finds when the
         // window becomes key, ringing the first button on Today.
         window.initialFirstResponder = splitViewController.sidebarViewController.outlineView
@@ -118,6 +123,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
 
     func windowWillClose(_ notification: Notification) {
         titleObserver?.cancel()
+        revisions.cancel()
         onClose?(self)
     }
 }

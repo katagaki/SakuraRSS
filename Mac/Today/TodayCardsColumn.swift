@@ -6,13 +6,14 @@ struct TodayCardsColumn: View {
     let model: TodayModel
     let feedManager: FeedManager
     let actions: TodayActions
+    let revisions: WindowDataRevisions
 
     var body: some View {
         ScrollView {
             TodayCardSections(model: model, feedManager: feedManager, actions: actions)
                 .padding(.vertical, 24)
         }
-        .task(id: feedManager.dataRevision) {
+        .task(id: revisions.dataRevision) {
             await model.load(feeds: feedManager.feeds)
         }
     }

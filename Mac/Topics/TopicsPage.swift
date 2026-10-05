@@ -7,6 +7,7 @@ struct TopicsPage: View {
 
     let feedManager: FeedManager
     let actions: TodayActions
+    let revisions: WindowDataRevisions
     @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled = false
     @State private var model = TopicsModel()
 
@@ -31,7 +32,7 @@ struct TopicsPage: View {
                 content
             }
         }
-        .task(id: "\(contentInsightsEnabled)|\(feedManager.dataRevision)") {
+        .task(id: "\(contentInsightsEnabled)|\(revisions.dataRevision)") {
             guard contentInsightsEnabled else { return }
             await model.load()
         }

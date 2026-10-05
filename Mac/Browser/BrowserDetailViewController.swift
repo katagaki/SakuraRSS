@@ -9,22 +9,33 @@ final class BrowserDetailViewController: NSViewController {
     let feedManager: FeedManager
     let activity: BrowserPageActivity
     private let actions: TodayActions
+    private let revisions: WindowDataRevisions
     let contentSplitViewController: ContentSplitViewController
     private let todayViewController: TodaySplitViewController
     private let articleViewController: NSHostingController<ReaderPane>
     private let gridViewController: NSHostingController<ContentGridPage>
     private let topicsViewController: NSHostingController<TopicsPage>
 
-    init(feedManager: FeedManager, activity: BrowserPageActivity, actions: TodayActions) {
+    init(
+        feedManager: FeedManager,
+        activity: BrowserPageActivity,
+        actions: TodayActions,
+        revisions: WindowDataRevisions
+    ) {
         self.feedManager = feedManager
         self.activity = activity
-        contentSplitViewController = ContentSplitViewController(feedManager: feedManager, activity: activity)
-        todayViewController = TodaySplitViewController(feedManager: feedManager, actions: actions)
+        self.revisions = revisions
+        contentSplitViewController = ContentSplitViewController(
+            feedManager: feedManager, activity: activity, revisions: revisions
+        )
+        todayViewController = TodaySplitViewController(feedManager: feedManager, actions: actions, revisions: revisions)
         gridViewController = NSHostingController(rootView: ContentGridPage(
-            location: .allContent, style: .magazine, feedManager: feedManager, actions: actions
+            location: .allContent, style: .magazine, feedManager: feedManager, actions: actions, revisions: revisions
         ))
         gridViewController.sizingOptions = []
-        topicsViewController = NSHostingController(rootView: TopicsPage(feedManager: feedManager, actions: actions))
+        topicsViewController = NSHostingController(rootView: TopicsPage(
+            feedManager: feedManager, actions: actions, revisions: revisions
+        ))
         topicsViewController.sizingOptions = []
         self.actions = actions
         contentSplitViewController.actions = actions
@@ -83,7 +94,7 @@ final class BrowserDetailViewController: NSViewController {
             display(contentSplitViewController)
         } else {
             gridViewController.rootView = ContentGridPage(
-                location: location, style: style, feedManager: feedManager, actions: actions
+                location: location, style: style, feedManager: feedManager, actions: actions, revisions: revisions
             )
             display(gridViewController)
         }

@@ -4,6 +4,7 @@ import Hanami
 final class SidebarViewController: NSViewController {
 
     let feedManager: FeedManager
+    let revisions: WindowDataRevisions
     let outlineView = NSOutlineView()
     var nodes: [SidebarNode] = []
     var onSelectLocation: ((BrowserLocation) -> Void)?
@@ -15,8 +16,9 @@ final class SidebarViewController: NSViewController {
     private var showsTopics = UserDefaults.standard.bool(forKey: "Intelligence.ContentInsights.Enabled")
     var isApplyingSelection = false
 
-    init(feedManager: FeedManager) {
+    init(feedManager: FeedManager, revisions: WindowDataRevisions) {
         self.feedManager = feedManager
+        self.revisions = revisions
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -48,13 +50,12 @@ final class SidebarViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Tracks the cheap properties the tree is built from, plus `dataRevision`
-        // for bookmark and tag changes, which only live in the database.
+        // The window's revisions cover feeds, lists, folders, counts and the
+        // bookmark and tag changes that only live in the database, and hold
+        // them back while the window is hidden.
         treeObserver = ChangeObserver { [weak self] in
-            guard let feedManager = self?.feedManager else { return }
-            _ = (feedManager.feeds, feedManager.lists, feedManager.bookmarkFolders)
-            _ = (feedManager.unreadCounts, feedManager.unreadReelsCounts)
-            _ = (feedManager.dataRevision, feedManager.iconRevision)
+            guard let revisions = self?.revisions else { return }
+            _ = (revisions.dataRevision, revisions.readStateRevision)
         } onChange: { [weak self] in
             self?.scheduleTreeReload()
         }

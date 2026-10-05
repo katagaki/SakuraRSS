@@ -9,6 +9,7 @@ struct ContentGridPage: View {
     let style: FeedDisplayStyle
     let feedManager: FeedManager
     let actions: TodayActions
+    let revisions: WindowDataRevisions
     @State private var articles: [Article] = []
 
     var body: some View {
@@ -27,7 +28,7 @@ struct ContentGridPage: View {
                 ContentEmptyStateView()
             }
         }
-        .task(id: "\(location.persistenceToken)|\(feedManager.dataRevision)") {
+        .task(id: "\(location.persistenceToken)|\(revisions.dataRevision)") {
             articles = ContentQuery(feedManager: feedManager).articles(for: location)
         }
     }

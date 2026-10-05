@@ -12,10 +12,10 @@ final class ContentSplitViewController: NSSplitViewController {
     var onReaderArticleChange: ((Article?) -> Void)?
     var actions: TodayActions?
 
-    init(feedManager: FeedManager, activity: BrowserPageActivity) {
+    init(feedManager: FeedManager, activity: BrowserPageActivity, revisions: WindowDataRevisions) {
         self.feedManager = feedManager
         self.activity = activity
-        contentListViewController = ContentListViewController(feedManager: feedManager)
+        contentListViewController = ContentListViewController(feedManager: feedManager, revisions: revisions)
         readerViewController = NSHostingController(
             rootView: ReaderPane(article: nil, feed: nil, activity: activity, feedManager: feedManager)
         )
