@@ -20,9 +20,16 @@ extension ContentListViewController: NSTableViewDataSource, NSTableViewDelegate 
             let cell = reusableCell(ContentTimelineCellView.identifier) { ContentTimelineCellView() }
             cell.configure(article: article, feedTitle: feed?.title, isRead: isRead)
             return cell
-        case .feed, .feedCompact:
+        case .feed:
             let cell = reusableCell(ContentPostCellView.identifier) { ContentPostCellView() }
-            cell.configure(article: article, feed: feed, isRead: isRead, showsMedia: displayStyle == .feed)
+            cell.configure(
+                article: article, feed: feed, isRead: isRead,
+                isBookmarked: feedManager.isBookmarked(article), actions: postActions(for: article)
+            )
+            return cell
+        case .feedCompact:
+            let cell = reusableCell(ContentCompactPostCellView.identifier) { ContentCompactPostCellView() }
+            cell.configure(article: article, feed: feed, isRead: isRead, actions: postActions(for: article))
             return cell
         default:
             let cell = reusableCell(ContentCellView.identifier) { ContentCellView() }
