@@ -4,13 +4,12 @@ import SwiftUI
 /// silently dropping it from the content.
 struct ExternalContentLink: View {
 
-    @Environment(\.openURL) private var openURL
     let url: URL?
 
     var body: some View {
         if let url {
             Button {
-                openURL(url)
+                NSWorkspace.shared.open(url)
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "play.rectangle")

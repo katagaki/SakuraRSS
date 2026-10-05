@@ -64,6 +64,20 @@ struct ReaderView: View {
         .onDisappear {
             activity.isExtractingContent = false
         }
+        .environment(\.openURL, OpenURLAction(handler: openLink))
+    }
+
+    /// Links in the text follow the Open Links In setting: in the app's
+    /// reader, as a page of this tab, or in the default browser.
+    private func openLink(_ url: URL) -> OpenURLAction.Result {
+        let mode = UserDefaults.standard.string(forKey: LinkOpenMode.storageKey)
+            .flatMap(LinkOpenMode.init(rawValue:)) ?? .inAppViewer
+        let opensInApp = mode == .inAppViewer
+        guard opensInApp, let actions, ["http", "https"].contains(url.scheme?.lowercased() ?? "") else {
+            return .systemAction
+        }
+        actions.open(.webPage(url: url.absoluteString, mode: .viewer))
+        return .handled
     }
 
     @ViewBuilder
