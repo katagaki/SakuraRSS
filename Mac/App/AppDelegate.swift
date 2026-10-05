@@ -1,5 +1,6 @@
 import AppKit
 import Hanami
+import SwiftUI
 
 final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
 
@@ -39,6 +40,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         observeSchedulingSettings()
         observeOpenContentRequests()
         dockBadgeCoordinator = DockBadgeCoordinator(feedManager: registry.feedManager)
+        presentWelcomeIfNeeded()
         #if DEBUG
         DebugLaunchActions.perform(with: registry)
         DebugCaptureScene.perform(with: registry)
@@ -114,6 +116,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
                 self?.openContent(articleID)
             }
         }
+    }
+
+    private func presentWelcomeIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: WelcomeView.completedKey),
+              let contentViewController = frontWindowController().contentViewController else { return }
+        let sheet = NSHostingController(rootView: AnyView(EmptyView()))
+        sheet.rootView = AnyView(WelcomeView(feedManager: registry.feedManager) { [weak sheet] in
+            sheet?.dismiss(nil)
+        })
+        contentViewController.presentAsSheet(sheet)
     }
 
     func openContent(_ articleID: Int64) {
