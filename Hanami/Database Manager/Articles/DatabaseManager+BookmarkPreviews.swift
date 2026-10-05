@@ -5,17 +5,16 @@ public nonisolated extension DatabaseManager {
 
     /// Bookmarks with no image yet whose preview lookup has not been tried.
     func bookmarkIDsNeedingPreview(limit: Int = 25) throws -> [(id: Int64, url: String)] {
+        // Filtered before the limit, or bookmarks already tried at the top of
+        // the list would hide older ones that never were.
         let query = articles
-            .filter(articleIsBookmarked == true && articleImageURL == nil)
+            .filter(articleIsBookmarked == true && articleImageURL == nil && articleURL != ""
+                && articlePreviewFetchState == BookmarkPreviewFetchState.notAttempted.rawValue)
             .order(articlePublishedDate.desc)
             .limit(limit)
-            .select(articleID, articleURL, articlePreviewFetchState)
-        return try database.prepare(query).compactMap { row in
-            let state = (try? row.get(articlePreviewFetchState)) ?? 0
-            guard state == BookmarkPreviewFetchState.notAttempted.rawValue else { return nil }
-            let url = row[articleURL]
-            guard !url.isEmpty else { return nil }
-            return (id: row[articleID], url: url)
+            .select(articleID, articleURL)
+        return try database.prepare(query).map { row in
+            (id: row[articleID], url: row[articleURL])
         }
     }
 
