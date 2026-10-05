@@ -33,17 +33,19 @@ prepare_app() {
     codesign --force --sign - --entitlements "$assets_dir/Capture/capture.entitlements" "$app_path" 2> /dev/null
 }
 
-app_pid() {
-    pgrep -f "$app_path/Contents/MacOS/Sakura" | head -1 || true
+# By the end of the path only: $TMPDIR ends in a slash and resolves under /private,
+# so the full path never matches the running process.
+app_pids() {
+    pgrep -f "${app_path:h:t}/Sakura.app/Contents/MacOS/Sakura" || true
 }
 
 quit_app() {
     local pid
-    pid=$(app_pid)
-    [[ -n $pid ]] || return 0
-    kill "$pid" 2> /dev/null || true
-    while kill -0 "$pid" 2> /dev/null; do
-        sleep 0.5
+    for pid in $(app_pids); do
+        kill "$pid" 2> /dev/null || true
+        while kill -0 "$pid" 2> /dev/null; do
+            sleep 0.5
+        done
     done
 }
 
