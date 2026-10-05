@@ -62,7 +62,19 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
         await WebViewExtractor().loadAndExtractHTML(from: url)
     }
 
+    /// Cancelling stops the page: without it, every piece of content left
+    /// mid-load kept a web view loading and polling until its deadline.
     private func loadAndExtractHTML(from url: URL) async -> RenderedPage {
+        await withTaskCancellationHandler {
+            await startLoading(url)
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                self?.finish(returning: .failed)
+            }
+        }
+    }
+
+    private func startLoading(_ url: URL) async -> RenderedPage {
         await withCheckedContinuation { continuation in
             self.continuation = continuation
 
