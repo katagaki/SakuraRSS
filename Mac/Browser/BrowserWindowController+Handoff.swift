@@ -18,6 +18,19 @@ extension BrowserWindowController {
         activity.becomeCurrent()
     }
 
+    /// Content opened full width and content open in the reader beside the list.
+    var openArticleIDs: [Int64] {
+        var articleIDs: [Int64] = []
+        if case .article(let articleID) = history.current {
+            articleIDs.append(articleID)
+        }
+        if let readerArticleID = splitViewController.detailViewController.contentSplitViewController
+            .contentListViewController.reportedArticleID {
+            articleIDs.append(readerArticleID)
+        }
+        return articleIDs
+    }
+
     func updateHandoffForCurrentLocation() {
         if case .article(let articleID) = history.current {
             updateHandoff(for: feedManager.article(byID: articleID))

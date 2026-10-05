@@ -84,10 +84,13 @@ nonisolated enum AutomaticCleanupScheduler {
             return true
         }
         guard !isCancelled() else { return false }
-        let manager = await MainActor.run { FeedManager() }
+        let (manager, openArticleIDs) = await MainActor.run {
+            (OpenContent.feedManager ?? FeedManager(), OpenContent.articleIDs())
+        }
         await manager.deleteArticlesAndVacuum(
             olderThan: cutoffDate,
-            includeBookmarks: includeBookmarks
+            includeBookmarks: includeBookmarks,
+            keeping: openArticleIDs
         )
         return !isCancelled()
     }

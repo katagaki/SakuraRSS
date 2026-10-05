@@ -43,6 +43,7 @@ struct SakuraRSSApp: App {
                 .environment(todayManager)
                 .keepScreenOnDuringPodcastWork()
                 .task {
+                    OpenContent.feedManager = feedManager
                     feedManager.onBookmarkAdded = { [feedManager] article in
                         BookmarkToastManager.shared.show(article: article, feedManager: feedManager)
                     }

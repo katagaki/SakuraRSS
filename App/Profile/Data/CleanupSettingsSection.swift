@@ -150,7 +150,7 @@ struct CleanupSettingsSection: View {
         UIApplication.shared.isIdleTimerDisabled = true
         #endif
         Task {
-            await feedManager.deleteArticlesAndVacuum(olderThan: cutoffDate)
+            await feedManager.deleteArticlesAndVacuum(olderThan: cutoffDate, keeping: OpenContent.articleIDs())
             #if !os(macOS)
             UIApplication.shared.isIdleTimerDisabled = false
             #endif

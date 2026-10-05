@@ -20,6 +20,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         let feedManager = FeedManager()
         registry = BrowserWindowRegistry(feedManager: feedManager)
         refreshCoordinator = RefreshCoordinator(feedManager: feedManager)
+        OpenContent.feedManager = feedManager
+        OpenContent.onScreenArticleIDs = { [weak self] in
+            Set(self?.registry.controllers.flatMap(\.openArticleIDs) ?? [])
+        }
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {

@@ -203,6 +203,7 @@
 				"Core/Audio Player/AudioPlayer+NowPlaying.swift",
 				"Core/Audio Player/AudioPlayer+RemoteCommands.swift",
 				Core/AutomaticCleanupScheduler.swift,
+				Core/OpenContent.swift,
 				"Core/YouTube Player Session/YouTubePlaybackPositionStore.swift",
 				"Core/YouTube Player Session/YouTubePlayerSession.swift",
 				"Following/Edit Feed/Content Tab/EditFeedContentTab.swift",

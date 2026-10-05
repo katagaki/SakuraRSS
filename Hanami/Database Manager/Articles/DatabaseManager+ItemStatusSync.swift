@@ -101,19 +101,27 @@ public nonisolated extension DatabaseManager {
 
     /// Sync IDs of soon-to-be-deleted items that were uploaded, so the engine
     /// can delete their CloudKit records instead of leaving them orphaned.
-    func uploadedStatusSyncIDs(olderThan date: Date, includeBookmarks: Bool) throws -> [String] {
+    func uploadedStatusSyncIDs(
+        olderThan date: Date, includeBookmarks: Bool, keeping: Set<Int64> = []
+    ) throws -> [String] {
         let dateClause = articlePublishedDate < date.timeIntervalSince1970 || articlePublishedDate == nil
         var query = articles.filter(dateClause && articleStatusSyncID != nil)
         if !includeBookmarks {
             query = query.filter(articleIsBookmarked == false)
         }
+        if !keeping.isEmpty {
+            query = query.filter(!Array(keeping).contains(articleID))
+        }
         return try database.prepare(query.select(articleStatusSyncID)).compactMap { try? $0.get(articleStatusSyncID) }
     }
 
-    func allUploadedStatusSyncIDs(includeBookmarks: Bool) throws -> [String] {
+    func allUploadedStatusSyncIDs(includeBookmarks: Bool, keeping: Set<Int64> = []) throws -> [String] {
         var query = articles.filter(articleStatusSyncID != nil)
         if !includeBookmarks {
             query = query.filter(articleIsBookmarked == false)
+        }
+        if !keeping.isEmpty {
+            query = query.filter(!Array(keeping).contains(articleID))
         }
         return try database.prepare(query.select(articleStatusSyncID)).compactMap { try? $0.get(articleStatusSyncID) }
     }
