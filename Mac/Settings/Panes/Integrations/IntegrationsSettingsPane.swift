@@ -14,10 +14,11 @@ struct IntegrationsSettingsPane: View {
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
             List(Integration.allCases, selection: listSelection) { integration in
-                Label {
-                    Text(integration.title)
-                } icon: {
+                // A stack rather than a Label: the list's icon column is
+                // narrower than the icon, which pushed it into the title.
+                HStack(spacing: 8) {
                     IntegrationIcon(integration: integration, size: 26)
+                    Text(integration.title)
                 }
                 .tag(integration)
             }

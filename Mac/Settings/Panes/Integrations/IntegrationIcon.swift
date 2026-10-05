@@ -14,9 +14,14 @@ struct IntegrationIcon: View {
                     .resizable()
                     .scaledToFill()
             } else {
+                // Scaled to fit rather than set as a font, which places the
+                // glyph by its baseline and leaves it off centre.
                 Image(systemName: integration.fallbackSymbolName)
-                    .font(.system(size: size * 0.55, weight: .semibold))
+                    .resizable()
+                    .scaledToFit()
+                    .fontWeight(.semibold)
                     .foregroundStyle(.white)
+                    .padding(size * 0.22)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.accentColor.gradient)
             }
