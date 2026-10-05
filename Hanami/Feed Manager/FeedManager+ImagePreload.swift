@@ -2,7 +2,7 @@ import Foundation
 
 public extension FeedManager {
 
-    nonisolated static func preloadImages(urls: [String]) async {
+    @concurrent nonisolated static func preloadImages(urls: [String]) async {
         guard !urls.isEmpty else { return }
 
         let deduped: [String] = {
@@ -49,7 +49,7 @@ public extension FeedManager {
         }
     }
 
-    nonisolated static func backfillRecentImages(
+    @concurrent nonisolated static func backfillRecentImages(
         since cutoff: Date = Date().addingTimeInterval(-14 * 24 * 60 * 60),
         limit: Int = 500
     ) async {
@@ -66,7 +66,7 @@ public extension FeedManager {
     }
 
     /// Re-encodes blobs cached before downsampling-on-write existed.
-    nonisolated static func shrinkOversizedCachedImages(limit: Int = 300) async {
+    @concurrent nonisolated static func shrinkOversizedCachedImages(limit: Int = 300) async {
         let database = DatabaseManager.shared
         let urls = (try? database.cachedImageURLs(largerThan: 512 * 1024, limit: limit)) ?? []
         guard !urls.isEmpty else { return }
