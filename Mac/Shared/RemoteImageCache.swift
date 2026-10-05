@@ -6,11 +6,12 @@ final class RemoteImageCache {
 
     static let shared = RemoteImageCache()
 
-    private let cache = NSCache<NSString, NSImage>()
+    private static let maxPixelSize: CGFloat = 1200
+
     private var inFlight: [String: [(NSImage?) -> Void]] = [:]
 
     func cachedImage(for urlString: String) -> NSImage? {
-        cache.object(forKey: urlString as NSString)
+        URL(string: urlString).flatMap { CachedImageData.cachedImage($0, maxPixelSize: Self.maxPixelSize) }
     }
 
     func image(for urlString: String, completion: @escaping (NSImage?) -> Void) {
@@ -28,11 +29,7 @@ final class RemoteImageCache {
         }
         inFlight[urlString] = [completion]
         Task {
-            let data = await CachedImageData.load(url)
-            let image = data.flatMap(NSImage.init(data:))
-            if let image {
-                cache.setObject(image, forKey: urlString as NSString)
-            }
+            let image = await CachedImageData.image(url, maxPixelSize: Self.maxPixelSize)
             let waiting = inFlight.removeValue(forKey: urlString) ?? []
             waiting.forEach { $0(image) }
         }
