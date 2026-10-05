@@ -41,12 +41,17 @@ struct SidebarTreeBuilder {
             .filter { $0.feedSection == section }
             .sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
         guard !feeds.isEmpty else { return nil }
-        let unreadCount = feeds.reduce(0) { $0 + (feedManager.unreadCounts[$1.id] ?? 0) }
+        let unreadCount = feeds.reduce(0) { $0 + countedUnread(for: $1) }
         return locationNode(
             .feedSection(section),
             unreadCount: unreadCount,
-            children: feeds.map { locationNode(.feed($0.id), unreadCount: feedManager.unreadCounts[$0.id] ?? 0) }
+            children: feeds.map { locationNode(.feed($0.id), unreadCount: countedUnread(for: $0)) }
         )
+    }
+
+    /// What the Dock badge counts: muted feeds count nothing, and hidden reels are left out.
+    private func countedUnread(for feed: Feed) -> Int {
+        feed.isMuted ? 0 : feedManager.effectiveUnreadCount(forFeedID: feed.id)
     }
 
     private func locationNode(
