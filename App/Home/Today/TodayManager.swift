@@ -39,7 +39,9 @@ final class TodayManager {
         }
     }
 
-    private nonisolated func performLoad(
+    /// `@concurrent` so the queries leave the main actor; under
+    /// NonisolatedNonsendingByDefault a plain `nonisolated async` runs on the caller's.
+    @concurrent private nonisolated func performLoad(
         feeds: [Feed],
         dataRevision: Int,
         loadEntities: Bool
