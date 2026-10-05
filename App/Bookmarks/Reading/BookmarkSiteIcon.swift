@@ -9,7 +9,7 @@ struct BookmarkSiteIcon: View {
     var size: CGFloat = 48
     var cornerRadius: CGFloat = 8
 
-    @State private var icon: UIImage?
+    @State private var icon: PlatformImage?
 
     private var host: String? {
         URL(string: article.url)?.host()
@@ -18,7 +18,7 @@ struct BookmarkSiteIcon: View {
     var body: some View {
         Group {
             if let icon {
-                Image(uiImage: icon)
+                Image(platformImage: icon)
                     .resizable()
                     .scaledToFit()
                     .padding(size * 0.2)

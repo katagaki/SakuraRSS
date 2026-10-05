@@ -29,6 +29,10 @@ extension ContentListViewController {
             guard let self else { return }
             self.presentSwiftUISheet(MoveToFolderSheet(article: article), feedManager: self.feedManager)
         }
+        builder.showBookmarkDetails = { [weak self] article in
+            guard let self else { return }
+            self.presentSwiftUISheet(BookmarkDetailSheet(article: article), feedManager: self.feedManager)
+        }
         return builder
     }
 }

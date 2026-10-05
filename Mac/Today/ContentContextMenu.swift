@@ -28,6 +28,14 @@ struct ContentContextMenu: View {
         ) {
             feedManager.toggleBookmark(article)
         }
+        if isBookmarked {
+            Button(String(localized: "Article.BookmarkDetails", table: "Articles"), systemImage: "pencil") {
+                actions.showBookmarkDetails(article)
+            }
+            Button(String(localized: "Article.MoveToFolder", table: "Articles"), systemImage: "folder") {
+                actions.moveToFolder(article)
+            }
+        }
         if let url = URL(string: article.url) {
             Divider()
             Button(String(localized: "Article.OpenInBrowser", table: "Articles"), systemImage: "safari") {

@@ -26,14 +26,14 @@ struct BookmarkDetailSheet: View {
                 BookmarkTagEditorSection(article: article)
                 BookmarkPreviewSection(article: article)
             }
-            .listStyle(.insetGrouped)
+            .settingsListStyle()
             .navigationTitle(String(localized: "BookmarkDetail.Title", table: "Articles"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .sheetLeading) {
                     Button(role: .cancel) { dismiss() }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .sheetTrailing) {
                     Button(role: .confirm) { save() }
                         .disabled(trimmedTitle.isEmpty)
                 }

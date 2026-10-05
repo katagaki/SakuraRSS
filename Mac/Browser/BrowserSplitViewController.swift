@@ -16,7 +16,15 @@ final class BrowserSplitViewController: NSSplitViewController {
         super.init(nibName: nil, bundle: nil)
         let actions = TodayActions(
             open: { [weak self] location in self?.onOpenLocation?(location) },
-            openInNewTab: { [weak self] location in self?.onOpenLocationInNewTab?(location) }
+            openInNewTab: { [weak self] location in self?.onOpenLocationInNewTab?(location) },
+            showBookmarkDetails: { [weak self] article in
+                guard let self else { return }
+                self.presentSwiftUISheet(BookmarkDetailSheet(article: article), feedManager: self.feedManager)
+            },
+            moveToFolder: { [weak self] article in
+                guard let self else { return }
+                self.presentSwiftUISheet(MoveToFolderSheet(article: article), feedManager: self.feedManager)
+            }
         )
         detailViewController = BrowserDetailViewController(
             feedManager: feedManager,
