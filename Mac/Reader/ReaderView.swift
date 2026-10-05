@@ -29,14 +29,17 @@ struct ReaderView: View {
         self.actions = actions
         self.isPreview = isPreview
         self.articleSource = articleSource
-        _assistant = State(initialValue: ContentAssistant(article: article, translatesTitle: true))
+        _assistant = State(initialValue: ContentAssistant(
+            article: article, translatesTitle: article.socialPostReaderTitle == nil
+        ))
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 ReaderHeader(
-                    title: assistant.displayTitle(original: article.displayTitle),
+                    title: article.socialPostReaderTitle
+                        ?? assistant.displayTitle(original: article.displayTitle),
                     feed: feed,
                     author: extraction.author,
                     publishedDate: extraction.publishedDate ?? article.publishedDate
