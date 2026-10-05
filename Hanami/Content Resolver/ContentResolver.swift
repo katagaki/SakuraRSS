@@ -5,7 +5,7 @@ import Foundation
 public actor ContentResolver {
 
     /// Bumped whenever extraction logic changes.
-    public nonisolated static let parserVersion = 20261003_000000
+    public nonisolated static let parserVersion = 20261006_000000
 
     public let article: Article
     public let articleSourceOverride: ArticleSource?

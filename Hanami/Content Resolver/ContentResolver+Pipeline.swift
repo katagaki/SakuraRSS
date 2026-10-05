@@ -46,6 +46,11 @@ public extension ContentResolver {
         if await tryProviderExtraction() { return }
         if tryFeedContentFallback() { return }
 
+        if article.isXPostURL {
+            log("Extract", "Skipping web extraction for X post, x.com requires JavaScript: \(article.url)")
+            return
+        }
+
         await performWebExtraction(initialURL: contentURL)
     }
 }
