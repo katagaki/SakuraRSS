@@ -34,39 +34,44 @@ struct YouTubePictureInPictureControls: View {
             .onChange(of: session.currentArticle == nil) { _, hasStopped in
                 if hasStopped { onClose() }
             }
+            // The panel's hidden title bar would otherwise inset the controls.
+            .ignoresSafeArea()
     }
 
     private var controls: some View {
         GlassEffectContainer {
             VStack {
                 HStack {
-                    Button(action: onClose) { Image(systemName: "xmark") }
+                    Button(action: onClose) { symbol("xmark", size: 15) }
                     Spacer()
-                    Button(action: onReturn) { Image(systemName: "pip.exit") }
+                    Button(action: onReturn) { symbol("pip.exit", size: 15) }
                         .help(String(localized: "Player.ShowVideo", table: "Mac"))
                 }
                 Spacer()
-                HStack(spacing: 14) {
+                HStack(spacing: 18) {
                     Button { YouTubePlaybackCommands.seek(session.webView, by: -10) } label: {
-                        Image(systemName: "gobackward.10")
+                        symbol("gobackward.10", size: 20)
                     }
                     Button { session.togglePlayPause() } label: {
-                        Image(systemName: session.isPlaying ? "pause.fill" : "play.fill")
-                            .font(.system(size: 22))
-                            .frame(width: 32, height: 32)
+                        symbol(session.isPlaying ? "pause.fill" : "play.fill", size: 30)
                     }
                     Button { YouTubePlaybackCommands.seek(session.webView, by: 10) } label: {
-                        Image(systemName: "goforward.10")
+                        symbol("goforward.10", size: 20)
                     }
                 }
                 Spacer()
             }
-            .padding(10)
+            .padding(12)
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
-        .controlSize(.large)
-        .font(.system(size: 13, weight: .semibold))
+        .controlSize(.extraLarge)
         .background(Color.black.opacity(0.2).allowsHitTesting(false))
+    }
+
+    private func symbol(_ name: String, size: CGFloat) -> some View {
+        Image(systemName: name)
+            .font(.system(size: size, weight: .semibold))
+            .frame(width: size * 1.4, height: size * 1.4)
     }
 }
