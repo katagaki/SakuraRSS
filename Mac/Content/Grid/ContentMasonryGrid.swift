@@ -12,8 +12,8 @@ struct ContentMasonryGrid<Item: View>: View {
         HStack(alignment: .top, spacing: 18) {
             ForEach(0..<columnCount, id: \.self) { column in
                 LazyVStack(spacing: 18) {
-                    ForEach(articles.indices.filter { $0 % columnCount == column }, id: \.self) { index in
-                        item(articles[index])
+                    ForEach(articles(inColumn: column)) { article in
+                        item(article)
                     }
                 }
             }
@@ -23,5 +23,11 @@ struct ContentMasonryGrid<Item: View>: View {
         } action: { count in
             columnCount = count
         }
+    }
+
+    private func articles(inColumn column: Int) -> [Article] {
+        articles.enumerated()
+            .filter { $0.offset % columnCount == column }
+            .map(\.element)
     }
 }
