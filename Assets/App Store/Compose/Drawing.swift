@@ -52,19 +52,23 @@ func drawScreen(_ placement: Placement, in rect: CGRect, target: DrawingTarget) 
         context.restoreGState()
     case .desktop(let wallpaper, let windows):
         drawFilled(try target.capture(wallpaper), in: rect, context: context)
-        let scale = rect.width / DeviceFrames.frame(for: target.device).displaySize.width
+        let displayScale = rect.width / DeviceFrames.frame(for: target.device).displaySize.width
+        context.saveGState()
+        context.interpolationQuality = .high
         for window in windows {
             let image = try target.capture(window.rawName)
-            let width = window.width * scale
-            let height = width * CGFloat(image.height) / CGFloat(image.width)
-            // Window centers are measured downward, as on screen.
+            let width = CGFloat(image.width) * window.scale * displayScale
+            let height = CGFloat(image.height) * window.scale * displayScale
+            // Window centers are measured downward, as on screen. Rounded, since a window
+            // on a half pixel would be resampled and lose its sharpness.
             context.draw(image, in: CGRect(
-                x: rect.midX + window.center.x * scale - width / 2,
-                y: rect.midY - window.center.y * scale - height / 2,
+                x: (rect.midX + window.center.x * displayScale - width / 2).rounded(),
+                y: (rect.midY - window.center.y * displayScale - height / 2).rounded(),
                 width: width,
                 height: height
             ))
         }
+        context.restoreGState()
     }
 }
 

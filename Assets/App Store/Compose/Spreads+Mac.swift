@@ -20,7 +20,7 @@ enum MacSpreads {
             placements: [
                 Placement(
                     screen: .desktop(wallpaper: "wallpaper.jpg", windows: [
-                        Window(rawName: "01-window.png", center: .zero, width: 2383)
+                        Window(rawName: "01-window.png", center: .zero)
                     ]),
                     center: center, width: width
                 )
@@ -39,10 +39,10 @@ enum MacSpreads {
             placements: [
                 Placement(
                     screen: .desktop(wallpaper: "wallpaper.jpg", windows: [
-                        Window(rawName: "02-top-left.png", center: NSPoint(x: -617, y: -349), width: 1235),
-                        Window(rawName: "02-top-right.png", center: NSPoint(x: 618, y: -349), width: 1235),
-                        Window(rawName: "02-bottom-left.png", center: NSPoint(x: -618, y: 392), width: 1235),
-                        Window(rawName: "02-bottom-right.png", center: NSPoint(x: 618, y: 392), width: 1235)
+                        Window(rawName: "02-top-left.png", center: NSPoint(x: -617, y: -349), scale: 0.5),
+                        Window(rawName: "02-top-right.png", center: NSPoint(x: 618, y: -349), scale: 0.5),
+                        Window(rawName: "02-bottom-left.png", center: NSPoint(x: -618, y: 392), scale: 0.5),
+                        Window(rawName: "02-bottom-right.png", center: NSPoint(x: 618, y: 392), scale: 0.5)
                     ]),
                     center: center, width: width
                 )

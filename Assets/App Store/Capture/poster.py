@@ -36,7 +36,15 @@ def black_box(capture):
         bottom = row
     middle = (top + bottom) // 2
     columns = [x for x in range(left_limit, width) if is_black(x, middle)]
-    box = (columns[0], top, columns[-1] + 1, bottom + 2)
+    left, right = columns[0], columns[-1]
+    # The player can start left of the scanned area or run below it, as on the Mac,
+    # so it's grown out to the edges of the black.
+    while left > 0 and is_black(left - 1, middle):
+        left -= 1
+    centre = (left + right) // 2
+    while bottom + 1 < height and is_black(centre, bottom + 1):
+        bottom += 1
+    box = (left, top, right + 1, bottom + 1)
     # Only a video-shaped box is the player; anything else means nothing was opened.
     aspect = (box[2] - box[0]) / max(box[3] - box[1], 1)
     return box if 1.4 < aspect < 2.1 else None

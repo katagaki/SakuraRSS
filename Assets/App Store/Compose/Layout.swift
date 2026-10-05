@@ -19,10 +19,12 @@ struct Panel {
 }
 
 /// A window capture on the Mac's desktop, placed in the display's own pixels from its center.
+/// It's drawn at its own pixel size times `scale`, so a capture at 1 lands pixel for pixel
+/// and one at 0.5 is an even 2:1 reduction.
 struct Window {
     let rawName: String
     let center: NSPoint
-    let width: CGFloat
+    var scale: CGFloat = 1
 }
 
 enum Screen {
