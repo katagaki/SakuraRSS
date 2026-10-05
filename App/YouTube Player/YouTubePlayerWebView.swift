@@ -47,6 +47,9 @@ struct YouTubePlayerWebView {
         config.mediaTypesRequiringUserActionForPlayback = []
         #if os(macOS)
         config.preferences.isElementFullscreenEnabled = true
+        // Off by default on the Mac, where it's only exposed to Safari, so
+        // the video would report Picture in Picture as unsupported.
+        config.preferences.setValue(true, forKey: "allowsPictureInPictureMediaPlayback")
         #else
         config.allowsInlineMediaPlayback = true
         config.allowsPictureInPictureMediaPlayback = true
