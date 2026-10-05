@@ -24,12 +24,26 @@ public nonisolated enum BookmarkPreviewResolver {
     }
 
     /// Fills in previews for bookmarks saved before the lookup existed, and for
-    /// any that arrived while the app wasn't running.
-    public static func backfillPendingPreviews(limit: Int = 25) async {
+    /// any that arrived while the app wasn't running, a few pages at a time.
+    /// Returns how many previews were found, so callers only refresh for those.
+    @concurrent
+    @discardableResult
+    public static func backfillPendingPreviews(limit: Int = 25, concurrentLookups: Int = 4) async -> Int {
         let pending = (try? DatabaseManager.shared.bookmarkIDsNeedingPreview(limit: limit)) ?? []
-        for bookmark in pending {
-            if Task.isCancelled { return }
-            await resolvePreview(forArticleID: bookmark.id, url: bookmark.url)
+        guard !pending.isEmpty else { return 0 }
+        return await withTaskGroup(of: Bool.self) { group in
+            var remaining = pending[...]
+            var found = 0
+            for _ in 0..<min(concurrentLookups, remaining.count) {
+                let bookmark = remaining.removeFirst()
+                group.addTask { await resolvePreview(forArticleID: bookmark.id, url: bookmark.url) != nil }
+            }
+            for await didFind in group {
+                if didFind { found += 1 }
+                guard !Task.isCancelled, let bookmark = remaining.popFirst() else { continue }
+                group.addTask { await resolvePreview(forArticleID: bookmark.id, url: bookmark.url) != nil }
+            }
+            return found
         }
     }
 

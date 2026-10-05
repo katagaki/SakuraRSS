@@ -60,8 +60,13 @@ struct SakuraRSSApp: App {
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
                     feedManager.reindexSpotlightIfSchemaChanged()
-                    await BookmarkPreviewResolver.backfillPendingPreviews()
-                    feedManager.bumpDataRevision()
+                    // Off the launch path: the lookups are network round trips,
+                    // and only previews that were found are worth a refresh.
+                    Task(priority: .utility) { [feedManager] in
+                        if await BookmarkPreviewResolver.backfillPendingPreviews() > 0 {
+                            feedManager.bumpDataRevision()
+                        }
+                    }
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
