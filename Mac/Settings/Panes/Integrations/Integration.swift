@@ -2,13 +2,14 @@ import Hanami
 import SwiftUI
 
 enum Integration: String, CaseIterable, Identifiable {
-    case webFeeds, instagram, substack, x, youtube // swiftlint:disable:this identifier_name
+    case webFeeds, podcasts, instagram, substack, x, youtube // swiftlint:disable:this identifier_name
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .webFeeds: IntegrationText.string("Petal")
+        case .podcasts: IntegrationText.string("Podcast")
         case .instagram: IntegrationText.string("Instagram")
         case .substack: IntegrationText.string("Substack")
         case .x: IntegrationText.string("X")
@@ -16,10 +17,18 @@ enum Integration: String, CaseIterable, Identifiable {
         }
     }
 
-    /// The service whose app icon stands for it; Web Feeds has none.
+    var fallbackSymbolName: String {
+        switch self {
+        case .webFeeds: "wand.and.stars"
+        case .podcasts: "headphones"
+        default: "app.dashed"
+        }
+    }
+
+    /// The service whose app icon stands for it; Web Feeds and Podcasts have none.
     var feedSection: FeedSection? {
         switch self {
-        case .webFeeds: nil
+        case .webFeeds, .podcasts: nil
         case .instagram: .instagram
         case .substack: .substack
         case .x: .x

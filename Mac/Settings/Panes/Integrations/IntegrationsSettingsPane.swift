@@ -52,6 +52,7 @@ private struct IntegrationDetail: View {
     var body: some View {
         switch integration {
         case .webFeeds: WebFeedsIntegrationSettings()
+        case .podcasts: PodcastIntegrationSettings()
         case .instagram: InstagramIntegrationSettings()
         case .substack: SubstackIntegrationSettings()
         case .x: XIntegrationSettings()

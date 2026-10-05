@@ -14,7 +14,7 @@ struct IntegrationIcon: View {
                     .resizable()
                     .scaledToFill()
             } else {
-                Image(systemName: integration == .webFeeds ? "wand.and.stars" : "app.dashed")
+                Image(systemName: integration.fallbackSymbolName)
                     .font(.system(size: size * 0.55, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
