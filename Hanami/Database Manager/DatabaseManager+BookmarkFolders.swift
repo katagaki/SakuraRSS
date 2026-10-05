@@ -151,6 +151,22 @@ public nonisolated extension DatabaseManager {
         )
     }
 
+    /// Every folder's bookmark count in one query, for lists that show them all.
+    func bookmarkCountsByFolderID() throws -> [Int64: Int] {
+        var counts: [Int64: Int] = [:]
+        let query = """
+            SELECT items.folder_id, COUNT(*) FROM bookmark_folder_items AS items
+            JOIN articles ON articles.id = items.article_id
+            WHERE articles.is_bookmarked = 1 GROUP BY items.folder_id
+            """
+        for row in try database.prepare(query) {
+            if let folderID = row[0] as? Int64, let count = row[1] as? Int64 {
+                counts[folderID] = Int(count)
+            }
+        }
+        return counts
+    }
+
     /// Image URLs of the latest bookmarks in a folder that have a thumbnail,
     /// used for the stacked-photos look of the folder grid cell.
     func latestBookmarkThumbnailURLs(inFolderID fid: Int64, limit: Int = 3) throws -> [String] {

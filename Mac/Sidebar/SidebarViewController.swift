@@ -10,6 +10,7 @@ final class SidebarViewController: NSViewController {
     var onOpenInNewTab: ((BrowserLocation) -> Void)?
     private var selectedLocation: BrowserLocation?
     private var treeObserver: ChangeObserver?
+    private var pendingTreeReload: DispatchWorkItem?
     private var insightsObserver: NSObjectProtocol?
     private var showsTopics = UserDefaults.standard.bool(forKey: "Intelligence.ContentInsights.Enabled")
     var isApplyingSelection = false
@@ -47,12 +48,15 @@ final class SidebarViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Tracks the cheap properties the tree is built from, plus `dataRevision`
+        // for bookmark and tag changes, which only live in the database.
         treeObserver = ChangeObserver { [weak self] in
-            guard let self else { return }
-            _ = SidebarTreeBuilder(feedManager: self.feedManager).build()
-            _ = self.feedManager.iconRevision
+            guard let feedManager = self?.feedManager else { return }
+            _ = (feedManager.feeds, feedManager.lists, feedManager.bookmarkFolders)
+            _ = (feedManager.unreadCounts, feedManager.unreadReelsCounts)
+            _ = (feedManager.dataRevision, feedManager.iconRevision)
         } onChange: { [weak self] in
-            self?.reloadTree()
+            self?.scheduleTreeReload()
         }
         // Topics shows only while Content Insights is on, a setting rather
         // than data, so the tree is rebuilt when it changes.
@@ -77,7 +81,19 @@ final class SidebarViewController: NSViewController {
         applySelection()
     }
 
+    /// Reading marks content read, which changes counts and data in quick
+    /// succession; coalescing builds the tree once for the burst.
+    private func scheduleTreeReload() {
+        pendingTreeReload?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.reloadTree()
+        }
+        pendingTreeReload = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: work)
+    }
+
     private func reloadTree() {
+        pendingTreeReload?.cancel()
         let rebuilt = SidebarTreeBuilder(feedManager: feedManager).build()
         if SidebarNode.adoptKinds(from: rebuilt, into: nodes) {
             reloadVisibleRows()

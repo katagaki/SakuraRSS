@@ -24,15 +24,17 @@ struct SidebarTreeBuilder {
         return nodes
     }
 
-    /// Bookmarks, with its folders and then the tags in use beneath it.
+    /// Bookmarks, with its folders and then the tags in use beneath it. Counts
+    /// and tags come from one query each rather than one per row.
     private func bookmarksNode() -> SidebarNode {
+        let folderCounts = feedManager.bookmarkCountsByFolderID()
         let folders = feedManager.bookmarkFolders
             .filter { $0.parentFolderID == nil }
             .sorted { $0.sortOrder < $1.sortOrder }
-            .map { locationNode(.bookmarkFolder($0.id), unreadCount: feedManager.bookmarkCount(in: $0)) }
+            .map { locationNode(.bookmarkFolder($0.id), unreadCount: folderCounts[$0.id] ?? 0) }
         let tags = feedManager.bookmarkTagsInUse()
             .sorted { $0.tag.name.localizedStandardCompare($1.tag.name) == .orderedAscending }
-            .map { locationNode(.bookmarkTag($0.tag.id), unreadCount: $0.count) }
+            .map { locationNode(.bookmarkTag($0.tag.id), title: $0.tag.name, unreadCount: $0.count) }
         return locationNode(.bookmarks, children: folders + tags)
     }
 
@@ -56,13 +58,14 @@ struct SidebarTreeBuilder {
 
     private func locationNode(
         _ location: BrowserLocation,
+        title: String? = nil,
         unreadCount: Int = 0,
         children: [SidebarNode] = []
     ) -> SidebarNode {
         SidebarNode(
             .location(
                 location,
-                title: location.title(in: feedManager),
+                title: title ?? location.title(in: feedManager),
                 symbolName: location.symbolName(in: feedManager),
                 unreadCount: unreadCount
             ),

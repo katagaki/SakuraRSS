@@ -90,6 +90,10 @@ public extension FeedManager {
         (try? database.bookmarkCount(inFolderID: folder.id)) ?? 0
     }
 
+    func bookmarkCountsByFolderID() -> [Int64: Int] {
+        (try? database.bookmarkCountsByFolderID()) ?? [:]
+    }
+
     func latestBookmarkThumbnailURLs(in folder: BookmarkFolder) -> [String] {
         (try? database.latestBookmarkThumbnailURLs(inFolderID: folder.id)) ?? []
     }
