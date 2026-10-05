@@ -67,6 +67,18 @@
         }
       }
     },
+    "NSHumanReadableCopyright" : {
+      "comment" : "Copyright (human-readable)",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : ""
+          }
+        }
+      }
+    },
     "NSLocationUsageDescription" : {
       "comment" : "Privacy - Location When In Use Usage Description",
       "localizations" : {
@@ -196,6 +208,12 @@
           }
         }
       }
+    },
+    "OPML Document" : {
+
+    },
+    "Sakura Web Feed" : {
+
     }
   },
   "version" : "1.1"
