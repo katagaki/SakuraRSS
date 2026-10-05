@@ -17,7 +17,7 @@ extension BrowserLocation {
             return feedManager.lists.first { $0.id == listID }?.name
                 ?? String(localized: "Location.MissingList", table: "Browser")
         case .article(let articleID):
-            return feedManager.article(byID: articleID)?.displayTitle ?? ""
+            return feedManager.article(byID: articleID)?.locationTitle ?? ""
         case .bookmarkFolder(let folderID):
             return feedManager.bookmarkFolders.first { $0.id == folderID }?.name ?? ""
         case .bookmarkTag(let tagID):

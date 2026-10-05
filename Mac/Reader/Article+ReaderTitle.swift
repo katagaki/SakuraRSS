@@ -17,4 +17,10 @@ extension Article {
         }
         return nil
     }
+
+    /// Post captions span lines, which the one-line address field shows as blank.
+    var locationTitle: String {
+        socialPostReaderTitle
+            ?? displayTitle.components(separatedBy: .newlines).joined(separator: " ")
+    }
 }
