@@ -24,8 +24,10 @@ extension AppDelegate {
                 openContent(articleID)
             }
         case "open":
-            if let request = OpenArticleRequest(url: url), let pageURL = URL(string: request.url) {
-                NSWorkspace.shared.open(pageURL)
+            if let request = OpenArticleRequest(url: url) {
+                frontWindowController().navigate(
+                    to: .webPage(url: request.url, mode: request.mode, textMode: request.textMode)
+                )
             }
         case "addfeed":
             if let feedURL = URLComponents(url: url, resolvingAgainstBaseURL: false)?
