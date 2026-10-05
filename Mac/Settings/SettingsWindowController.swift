@@ -18,7 +18,7 @@ final class SettingsWindowController: NSWindowController {
             SettingsTab("Section.InsightsAndIntelligence", "sparkles") {
                 IntelligenceSettingsPane(feedManager: feedManager)
             },
-            SettingsTab("Section.Integrations", "person.crop.circle") {
+            SettingsTab("Section.Integrations", "puzzlepiece.extension") {
                 IntegrationsSettingsPane().environment(feedManager)
             },
             SettingsTab("iCloud", "icloud") { iCloudSettingsPane() },
