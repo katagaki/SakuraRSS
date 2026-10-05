@@ -47,7 +47,6 @@ capture_mac_scenes() {
     display_styles=(
         "-Display.Style.$(sample_id trinity-sweets)" inbox
         "-Display.Style.$(sample_id after-hours)" inbox
-        "-Display.Style.$(sample_id r-kivotos)" photos
     )
 
     window --select schale-open-house 01-window "$main_window_size" "feed:$(sample_id kronos)"
@@ -57,5 +56,5 @@ capture_mac_scenes() {
         02-top-right "$media_window_size" "feed:$(sample_id trinity-sweets)"
     window --collapse-sidebar --select ep-112 \
         02-bottom-left "$media_window_size" "feed:$(sample_id after-hours)"
-    window --collapse-sidebar 02-bottom-right "$media_window_size" "feed:$(sample_id r-kivotos)"
+    window --collapse-sidebar 02-bottom-right "$media_window_size" startPage
 }
