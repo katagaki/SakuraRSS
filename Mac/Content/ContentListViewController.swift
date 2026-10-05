@@ -15,6 +15,7 @@ final class ContentListViewController: NSViewController {
     private(set) var location: BrowserLocation?
     private var dataObserver: ChangeObserver?
     private var readStateObserver: ChangeObserver?
+    private var pendingDataReload: DispatchWorkItem?
     private let emptyStateView = NSHostingView(rootView: ContentEmptyStateView())
 
     init(feedManager: FeedManager) {
@@ -69,16 +70,12 @@ final class ContentListViewController: NSViewController {
         dataObserver = ChangeObserver { [weak self] in
             _ = self?.feedManager.dataRevision
         } onChange: { [weak self] in
-            self?.reloadArticles(keepingSelection: true)
+            self?.scheduleDataReload()
         }
         readStateObserver = ChangeObserver { [weak self] in
             _ = self?.feedManager.readMaskRevision
         } onChange: { [weak self] in
-            guard let self else { return }
-            self.tableView.reloadData(
-                forRowIndexes: IndexSet(integersIn: 0..<self.articles.count),
-                columnIndexes: IndexSet(integer: 0)
-            )
+            self?.reloadVisibleRows()
         }
     }
 
@@ -89,12 +86,31 @@ final class ContentListViewController: NSViewController {
         tableView.scrollRowToVisible(0)
     }
 
+    /// Selecting content marks it read, which bumps `dataRevision`; coalescing keeps
+    /// arrowing through the list from re-running the query on every row.
+    private func scheduleDataReload() {
+        pendingDataReload?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.reloadArticles(keepingSelection: true)
+        }
+        pendingDataReload = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: work)
+    }
+
     private func reloadArticles(keepingSelection: Bool) {
         guard let location else { return }
+        pendingDataReload?.cancel()
         let selectedID = keepingSelection ? selectedArticle?.id : nil
-        articles = ContentQuery(feedManager: feedManager).articles(for: location)
-        displayStyle = ContentStyleContext(location: location, articles: articles, feedManager: feedManager)?
+        let reloaded = ContentQuery(feedManager: feedManager).articles(for: location)
+        let style = ContentStyleContext(location: location, articles: reloaded, feedManager: feedManager)?
             .effectiveStyle ?? .inbox
+        let keepsRows = keepingSelection && style == displayStyle && reloaded.map(\.id) == articles.map(\.id)
+        articles = reloaded
+        displayStyle = style
+        if keepsRows {
+            reloadVisibleRows()
+            return
+        }
         tableView.reloadData()
         emptyStateView.isHidden = !articles.isEmpty
         if let selectedID, let row = articles.firstIndex(where: { $0.id == selectedID }) {
@@ -108,6 +124,16 @@ final class ContentListViewController: NSViewController {
     /// Re-reads the page's style after it's been changed from a menu.
     func reloadStyle() {
         reloadArticles(keepingSelection: true)
+    }
+
+    /// Rows scrolled out of view are configured afresh when they come back.
+    private func reloadVisibleRows() {
+        let visibleRows = tableView.rows(in: tableView.visibleRect)
+        guard visibleRows.length > 0 else { return }
+        tableView.reloadData(
+            forRowIndexes: IndexSet(integersIn: visibleRows.location..<NSMaxRange(visibleRows)),
+            columnIndexes: IndexSet(integer: 0)
+        )
     }
 
     var selectedArticle: Article? {
