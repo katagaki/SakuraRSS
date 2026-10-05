@@ -47,6 +47,9 @@ struct YouTubeVideoPlayerView: View {
             session.videoAspectRatio = ratio
         }
         .onDisappear {
+            // The next video's view can appear before this one disappears, and
+            // by then the session belongs to it.
+            guard session.holds(article) else { return }
             pictureInPicture.exit(session: session, returningToContent: false)
             session.stop()
         }
