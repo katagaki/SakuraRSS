@@ -23,10 +23,10 @@ struct YouTubeVideoControls: View {
             if !chapters.isEmpty {
                 chapterMenu
             }
-            Button { YouTubeVideoPresenter.shared.togglePictureInPicture(session: session) } label: {
+            Button { YouTubePlaybackCommands.togglePictureInPicture(webView) } label: {
                 Image(systemName: "pip.enter")
             }
-            Button { YouTubeVideoPresenter.shared.toggleFullscreen(session: session) } label: {
+            Button { YouTubePlaybackCommands.enterFullscreen(webView) } label: {
                 Image(systemName: "arrow.up.left.and.arrow.down.right")
             }
             if let videoURL {

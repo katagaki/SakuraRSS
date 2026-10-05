@@ -22,15 +22,15 @@
 		E44484502FB0A00E003FDAD4 /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E444844C2FB0A00E003FDAD4 /* FaviconFinder */; };
 		E44484512FB0A00E003FDAD4 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E444844D2FB0A00E003FDAD4 /* SQLite */; };
 		E45623E4300B95BD0083C0BD /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
-		E45623F0300B95BD0083C0BD /* Bookmark Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45623E3300B95BD0083C0BD /* Bookmark Article.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E45623F0300B95BD0083C0BD /* Bookmark Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45623E3300B95BD0083C0BD /* Bookmark Article.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E45EAA172F9FA36900EA7A54 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
-		E45EAA222F9FA36900EA7A54 /* Open Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45EAA162F9FA36900EA7A54 /* Open Article.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E45EAA222F9FA36900EA7A54 /* Open Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45EAA162F9FA36900EA7A54 /* Open Article.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E47D102E2F5497AC006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E47D102D2F5497AC006081EF /* SQLite */; };
 		E47D10372F54980E006081EF /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
-		E47D10432F54980E006081EF /* Add Feed.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47D10342F54980E006081EF /* Add Feed.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E47D10432F54980E006081EF /* Add Feed.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47D10342F54980E006081EF /* Add Feed.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E47D104F2F549821006081EF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D104E2F549821006081EF /* WidgetKit.framework */; };
 		E47D10512F549821006081EF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10502F549821006081EF /* SwiftUI.framework */; };
-		E47D105C2F549822006081EF /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47D104D2F549821006081EF /* WidgetsExtension.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E47D105C2F549822006081EF /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47D104D2F549821006081EF /* WidgetsExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E47D10632F54986D006081EF /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E47D10622F54986D006081EF /* FaviconFinder */; };
 		E47D13182F549F92006081EF /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E47D13172F549F92006081EF /* SwiftSoup */; };
 		E4BC0A01300B95BD0083C0BD /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
@@ -1105,33 +1105,25 @@
 		};
 		E45623EF300B95BD0083C0BD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (
-				ios,
-			);
+			platformFilter = ios;
 			target = E45623E2300B95BD0083C0BD /* Bookmark Article */;
 			targetProxy = E45623EE300B95BD0083C0BD /* PBXContainerItemProxy */;
 		};
 		E45EAA212F9FA36900EA7A54 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (
-				ios,
-			);
+			platformFilter = ios;
 			target = E45EAA152F9FA36900EA7A54 /* Open Article */;
 			targetProxy = E45EAA202F9FA36900EA7A54 /* PBXContainerItemProxy */;
 		};
 		E47D10422F54980E006081EF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (
-				ios,
-			);
+			platformFilter = ios;
 			target = E47D10332F54980E006081EF /* Add Feed */;
 			targetProxy = E47D10412F54980E006081EF /* PBXContainerItemProxy */;
 		};
 		E47D105B2F549822006081EF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (
-				ios,
-			);
+			platformFilter = ios;
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 			targetProxy = E47D105A2F549822006081EF /* PBXContainerItemProxy */;
 		};

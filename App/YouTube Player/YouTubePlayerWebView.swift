@@ -204,14 +204,36 @@ struct YouTubePlayerWebView {
 #if os(macOS)
 extension YouTubePlayerWebView: NSViewRepresentable {
 
-    func makeNSView(context: Context) -> WKWebView {
-        makeWebView(coordinator: context.coordinator)
+    func makeNSView(context: Context) -> YouTubePlayerContainerView {
+        YouTubePlayerContainerView(webView: makeWebView(coordinator: context.coordinator))
     }
 
-    func updateNSView(_ nsView: WKWebView, context: Context) {}
+    func updateNSView(_ nsView: YouTubePlayerContainerView, context: Context) {}
 
-    static func dismantleNSView(_ nsView: WKWebView, coordinator: Coordinator) {
-        release(nsView, coordinator: coordinator)
+    static func dismantleNSView(_ nsView: YouTubePlayerContainerView, coordinator: Coordinator) {
+        release(nsView.webView, coordinator: coordinator)
+    }
+}
+
+/// WebKit's video fullscreen moves the web view into its own window, and
+/// SwiftUI would keep resizing it to the inline frame if it were the
+/// representable's view, so SwiftUI only lays out this container.
+final class YouTubePlayerContainerView: NSView {
+
+    let webView: WKWebView
+
+    init(webView: WKWebView) {
+        self.webView = webView
+        super.init(frame: .zero)
+        webView.translatesAutoresizingMaskIntoConstraints = true
+        webView.frame = bounds
+        webView.autoresizingMask = [.width, .height]
+        addSubview(webView)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 #else
