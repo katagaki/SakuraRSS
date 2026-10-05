@@ -6,6 +6,7 @@ struct YouTubeVideoOverlays: View {
     let isAdSkippable: Bool
     let isPiP: Bool
     let onSkipAd: () -> Void
+    let onReturnFromPiP: () -> Void
 
     var body: some View {
         ZStack {
@@ -19,6 +20,7 @@ struct YouTubeVideoOverlays: View {
                         }
                         .foregroundStyle(.secondary)
                     }
+                    .onTapGesture(perform: onReturnFromPiP)
             } else if isAd {
                 VStack {
                     Spacer()

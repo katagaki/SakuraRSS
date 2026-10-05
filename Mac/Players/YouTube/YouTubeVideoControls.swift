@@ -23,10 +23,10 @@ struct YouTubeVideoControls: View {
             if !chapters.isEmpty {
                 chapterMenu
             }
-            Button { YouTubePlaybackCommands.togglePictureInPicture(webView) } label: {
-                Image(systemName: "pip.enter")
+            Button { YouTubePictureInPicture.shared.toggle(session: session) } label: {
+                Image(systemName: YouTubePictureInPicture.shared.isActive ? "pip.exit" : "pip.enter")
             }
-            Button { YouTubePlaybackCommands.enterFullscreen(webView) } label: {
+            Button(action: enterFullscreen) {
                 Image(systemName: "arrow.up.left.and.arrow.down.right")
             }
             if let videoURL {
@@ -53,6 +53,11 @@ struct YouTubeVideoControls: View {
         .menuIndicator(.hidden)
         .fixedSize()
         .help(String(localized: "YouTube.Chapters", table: "Integrations"))
+    }
+
+    private func enterFullscreen() {
+        YouTubePictureInPicture.shared.exit(session: session, returningToContent: true)
+        YouTubePlaybackCommands.enterFullscreen(webView)
     }
 
     private func seek(by offset: TimeInterval) {

@@ -9,13 +9,14 @@ struct YouTubeVideoPlayerView: View {
     let article: Article
     let feed: Feed?
     private let session = YouTubePlayerSession.shared
+    private let pictureInPicture = YouTubePictureInPicture.shared
 
     @State private var isPlaying = false
     @State private var webView: WKWebView?
     @State private var isAd = false
     @State private var isAdSkippable = false
     @State private var advertiserURL: URL?
-    @State private var videoAspectRatio: CGFloat = 16 / 9
+    @State private var videoAspectRatio = YouTubePlayerSession.shared.videoAspectRatio
     @State private var isPiP = false
     @State private var isPlayerReady = false
     @State private var chapters: [YouTubeChapter] = []
@@ -42,11 +43,14 @@ struct YouTubeVideoPlayerView: View {
         .onChange(of: isPlaying) { _, playing in
             session.isPlaying = playing
         }
+        .onChange(of: videoAspectRatio) { _, ratio in
+            session.videoAspectRatio = ratio
+        }
         .onDisappear {
             session.rememberPlaybackPosition()
             // Playing on keeps the session's web view, so the toolbar's mini
             // player can control it and returning to the video picks it up.
-            if !isPlaying && !isPiP {
+            if !isPlaying && !pictureInPicture.isActive {
                 session.stop()
             }
         }
@@ -82,17 +86,20 @@ struct YouTubeVideoPlayerView: View {
         .overlay {
             Color.clear
                 .contentShape(.rect)
-                .onTapGesture(count: 2) { YouTubePlaybackCommands.enterFullscreen(webView) }
+                .onTapGesture(count: 2) {
+                    pictureInPicture.exit(session: session, returningToContent: true)
+                    YouTubePlaybackCommands.enterFullscreen(webView)
+                }
                 .onTapGesture { session.togglePlayPause() }
         }
         .overlay {
             YouTubeVideoOverlays(
                 isAd: isAd,
                 isAdSkippable: isAdSkippable,
-                isPiP: isPiP
-            ) {
-                YouTubePlaybackCommands.skipAd(webView)
-            }
+                isPiP: isPiP || pictureInPicture.isActive,
+                onSkipAd: { YouTubePlaybackCommands.skipAd(webView) },
+                onReturnFromPiP: { pictureInPicture.exit(session: session, returningToContent: true) }
+            )
         }
     }
 
