@@ -17,7 +17,8 @@ struct ReaderHeader: View {
                 if let feed {
                     Text(feed.title)
                 }
-                if let author, !author.isEmpty {
+                if let author, !author.isEmpty,
+                   author.caseInsensitiveCompare(feed?.title ?? "") != .orderedSame {
                     Text(verbatim: "·")
                     Text(author)
                 }
