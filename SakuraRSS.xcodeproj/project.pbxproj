@@ -280,7 +280,6 @@
 				Profile/Integrations/ArchivePh/ArchivePhAddress.swift,
 				Profile/Integrations/ClearThisPage/ClearThisPageAddress.swift,
 				Profile/Integrations/Instagram/InstagramLoginView.swift,
-				Profile/Integrations/Petal/PetalSettingsView.swift,
 				Profile/Integrations/Podcast/PodcastTranscriptionSettingsSection.swift,
 				Profile/Integrations/Podcast/TranscriptionModelSetup.swift,
 				Profile/Integrations/Readability/Readability.js,
