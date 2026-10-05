@@ -64,7 +64,7 @@ struct ContentStyleContext {
 
     /// The groups iOS's style picker shows, without the styles this page can't use.
     var menuSections: [(title: String, styles: [FeedDisplayStyle])] {
-        let groups: [(String.LocalizationValue, [FeedDisplayStyle])] = [
+        let groups: [(String, [FeedDisplayStyle])] = [
             ("StyleSection.Classic", [.inbox, .compact, .timeline]),
             ("StyleSection.MediaFocused", [.feed, .feedCompact, .photos, .video, .podcast]),
             ("StyleSection.Grids", [.magazine, .masonry, .grid]),
@@ -72,7 +72,8 @@ struct ContentStyleContext {
         ]
         return groups.compactMap { title, styles in
             let available = styles.filter(isAvailable)
-            return available.isEmpty ? nil : (String(localized: title, table: "Articles"), available)
+            guard !available.isEmpty else { return nil }
+            return (String(localized: String.LocalizationValue(title), table: "Articles"), available)
         }
     }
 }

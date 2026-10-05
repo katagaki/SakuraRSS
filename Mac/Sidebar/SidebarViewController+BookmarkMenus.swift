@@ -59,7 +59,7 @@ extension SidebarViewController {
         }
     }
 
-    private func articlesText(_ key: String.LocalizationValue) -> String {
-        String(localized: key, table: "Articles")
+    private func articlesText(_ key: String) -> String {
+        String(localized: String.LocalizationValue(key), table: "Articles")
     }
 }

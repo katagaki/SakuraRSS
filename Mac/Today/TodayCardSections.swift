@@ -35,14 +35,14 @@ struct TodayCardSections: View {
 
     @ViewBuilder
     private func row(
-        _ key: String.LocalizationValue,
+        _ key: String,
         table: String,
         articles: [Article],
         usesSquareCards: Bool = false
     ) -> some View {
         if !articles.isEmpty {
             TodayCardRow(
-                title: String(localized: key, table: table),
+                title: String(localized: String.LocalizationValue(key), table: table),
                 articles: articles,
                 feedManager: feedManager,
                 actions: actions,

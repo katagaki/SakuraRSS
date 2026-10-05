@@ -71,7 +71,7 @@ struct ContentAssistBar: View {
         return text("Article.Summarize")
     }
 
-    private func text(_ key: String.LocalizationValue) -> String {
-        String(localized: key, table: "Articles")
+    private func text(_ key: String) -> String {
+        String(localized: String.LocalizationValue(key), table: "Articles")
     }
 }

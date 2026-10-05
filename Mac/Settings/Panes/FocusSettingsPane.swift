@@ -5,7 +5,7 @@ struct FocusSettingsPane: View {
 
     let feedManager: FeedManager
 
-    private let steps: [String.LocalizationValue] = [
+    private let steps: [String] = [
         "Focus.Settings.Setup.Step1", "Focus.Settings.Setup.Step2",
         "Focus.Settings.Setup.Step3", "Focus.Settings.Setup.Step4"
     ]
@@ -29,7 +29,7 @@ struct FocusSettingsPane: View {
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
                             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                Text("\(index + 1).")
+                                Text(verbatim: "\(index + 1).")
                                     .monospacedDigit()
                                     .foregroundStyle(.secondary)
                                 Text(SettingsText.settings(step))

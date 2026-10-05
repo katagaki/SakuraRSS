@@ -38,7 +38,7 @@ enum Integration: String, CaseIterable, Identifiable {
 }
 
 enum IntegrationText {
-    static func string(_ key: String.LocalizationValue) -> String {
-        String(localized: key, table: "Integrations")
+    static func string(_ key: String) -> String {
+        String(localized: String.LocalizationValue(key), table: "Integrations")
     }
 }

@@ -27,7 +27,7 @@ final class SettingsWindowController: NSWindowController {
         for pane in panes {
             let hostingController = NSHostingController(rootView: pane.content)
             hostingController.sizingOptions = .intrinsicContentSize
-            hostingController.title = String(localized: pane.titleKey, table: "Settings")
+            hostingController.title = String(localized: String.LocalizationValue(pane.titleKey), table: "Settings")
             let item = NSTabViewItem(viewController: hostingController)
             item.label = hostingController.title ?? ""
             item.image = NSImage(systemSymbolName: pane.symbolName, accessibilityDescription: item.label)
@@ -48,12 +48,12 @@ final class SettingsWindowController: NSWindowController {
 }
 
 private struct SettingsTab {
-    let titleKey: String.LocalizationValue
+    let titleKey: String
     let symbolName: String
     let content: AnyView
 
     init<Content: View>(
-        _ titleKey: String.LocalizationValue,
+        _ titleKey: String,
         _ symbolName: String,
         @ViewBuilder content: () -> Content
     ) {

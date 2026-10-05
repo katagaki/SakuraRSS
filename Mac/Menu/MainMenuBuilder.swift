@@ -23,13 +23,13 @@ enum MainMenuBuilder {
     }
 
     static func item(
-        _ key: String.LocalizationValue,
+        _ key: String,
         action: Selector?,
         keyEquivalent: String = "",
         modifiers: NSEvent.ModifierFlags = .command
     ) -> NSMenuItem {
         let item = NSMenuItem(
-            title: String(localized: key, table: "Mac"),
+            title: String(localized: String.LocalizationValue(key), table: "Mac"),
             action: action,
             keyEquivalent: keyEquivalent
         )
@@ -38,11 +38,11 @@ enum MainMenuBuilder {
     }
 
     static func formattedItem(
-        _ key: String.LocalizationValue,
+        _ key: String,
         action: Selector?,
         keyEquivalent: String = ""
     ) -> NSMenuItem {
-        let title = String(format: String(localized: key, table: "Mac"), applicationName)
+        let title = String(format: String(localized: String.LocalizationValue(key), table: "Mac"), applicationName)
         return NSMenuItem(title: title, action: action, keyEquivalent: keyEquivalent)
     }
 }

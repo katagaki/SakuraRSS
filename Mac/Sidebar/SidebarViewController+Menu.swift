@@ -78,12 +78,13 @@ extension SidebarViewController: NSMenuDelegate {
     }
 
     private func editFeedItem(
-        _ titleKey: String.LocalizationValue,
+        _ titleKey: String,
         symbolName: String,
         feed: Feed,
         tab: FeedEditTab
     ) -> NSMenuItem {
-        ActionMenuItem(String(localized: titleKey, table: "Feeds"), symbolName: symbolName) { [weak self] in
+        let title = String(localized: String.LocalizationValue(titleKey), table: "Feeds")
+        return ActionMenuItem(title, symbolName: symbolName) { [weak self] in
             guard let self else { return }
             self.presentSwiftUISheet(EditFeedSheet(feedID: feed.id, initialTab: tab), feedManager: self.feedManager)
         }
