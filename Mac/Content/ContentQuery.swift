@@ -5,7 +5,27 @@ struct ContentQuery {
 
     let feedManager: FeedManager
 
+    /// Showing a page asks for its content from the detail pane, the list and
+    /// the toolbar's style item in turn, so the last result is kept until the data changes.
+    private static var lastResult: QueryResult?
+
+    private struct QueryResult {
+        let location: BrowserLocation
+        let revision: Int
+        let articles: [Article]
+    }
+
     func articles(for location: BrowserLocation) -> [Article] {
+        let revision = feedManager.dataRevision
+        if let lastResult = Self.lastResult, lastResult.location == location, lastResult.revision == revision {
+            return lastResult.articles
+        }
+        let articles = queryArticles(for: location)
+        Self.lastResult = QueryResult(location: location, revision: revision, articles: articles)
+        return articles
+    }
+
+    private func queryArticles(for location: BrowserLocation) -> [Article] {
         switch location {
         case .startPage, .allContent:
             feedManager.todayArticles() + feedManager.olderArticles(limit: 500)
