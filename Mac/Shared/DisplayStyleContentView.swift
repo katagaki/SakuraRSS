@@ -23,7 +23,12 @@ struct DisplayStyleContentView: View {
             } else {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 12)], spacing: 12) {
                     ForEach(articles) { article in
-                        ContentGridItem(article: article, feedTitle: nil, isRead: false, style: style)
+                        if style == .cards || style == .scroll {
+                            ContentImmersiveTile(article: article, feed: nil, isRead: true, style: style)
+                                .aspectRatio(ContentImmersiveTile.cardAspectRatio, contentMode: .fit)
+                        } else {
+                            ContentGridItem(article: article, feedTitle: nil, isRead: false, style: style)
+                        }
                     }
                 }
                 .padding()

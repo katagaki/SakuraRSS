@@ -12,9 +12,15 @@ struct ContentGridPage: View {
     @State private var articles: [Article] = []
 
     var body: some View {
-        ScrollView {
-            content
-                .padding(20)
+        Group {
+            if style == .scroll {
+                ContentScrollPager(articles: articles) { article in item(article) }
+            } else {
+                ScrollView {
+                    content
+                        .padding(20)
+                }
+            }
         }
         .overlay {
             if articles.isEmpty {
@@ -31,12 +37,13 @@ struct ContentGridPage: View {
         switch style {
         case .masonry:
             ContentMasonryGrid(articles: articles) { article in item(article) }
-        case .scroll:
-            LazyVStack(spacing: 28) {
-                ForEach(articles) { article in item(article) }
+        case .cards:
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: minimumWidth), spacing: spacing)], spacing: spacing) {
+                ForEach(articles) { article in
+                    item(article)
+                        .aspectRatio(ContentImmersiveTile.cardAspectRatio, contentMode: .fit)
+                }
             }
-            .frame(maxWidth: 680)
-            .frame(maxWidth: .infinity)
         default:
             LazyVGrid(columns: [GridItem(.adaptive(minimum: minimumWidth), spacing: spacing)], spacing: spacing) {
                 ForEach(articles) { article in item(article) }
@@ -48,12 +55,21 @@ struct ContentGridPage: View {
         Button {
             actions.open(.article(article.id))
         } label: {
-            ContentGridItem(
-                article: article,
-                feedTitle: feedManager.feedsByID[article.feedID]?.title,
-                isRead: feedManager.isRead(article),
-                style: style
-            )
+            if style == .cards || style == .scroll {
+                ContentImmersiveTile(
+                    article: article,
+                    feed: feedManager.feedsByID[article.feedID],
+                    isRead: feedManager.isRead(article),
+                    style: style
+                )
+            } else {
+                ContentGridItem(
+                    article: article,
+                    feedTitle: feedManager.feedsByID[article.feedID]?.title,
+                    isRead: feedManager.isRead(article),
+                    style: style
+                )
+            }
         }
         .buttonStyle(.plain)
         .contextMenu {
@@ -67,11 +83,16 @@ struct ContentGridPage: View {
         case .grid, .podcast: 170
         case .video: 260
         case .magazine: 280
+        case .cards: 260
         default: 340
         }
     }
 
     private var spacing: CGFloat {
-        style == .photos ? 3 : 18
+        switch style {
+        case .photos: 3
+        case .cards: 24
+        default: 18
+        }
     }
 }

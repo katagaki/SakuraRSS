@@ -47,12 +47,6 @@ struct ContentGridItem: View {
                     .aspectRatio(16 / 9, contentMode: .fill)
                     .clipShape(.rect(cornerRadius: 12))
                 ContentGridCaption(article: article, feedTitle: feedTitle, isRead: isRead, titleLines: 3)
-                if style == .cards || style == .scroll, article.hasMeaningfulSummary, let summary = article.summary {
-                    Text(SummaryPreview.text(for: summary))
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(3)
-                }
             }
         }
     }
