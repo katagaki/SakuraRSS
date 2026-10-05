@@ -16,19 +16,35 @@ struct NowPlayingButton: View {
 
     var body: some View {
         if let articleID = player.currentArticleID {
-            button(artworkURL: player.currentArtworkURL, isPlaying: player.isPlaying, aspectRatio: 1) {
-                NowPlayingPopover(player: player) {
-                    isShowingControls = false
-                    onShowContent(articleID)
+            button(
+                artworkURL: player.currentArtworkURL,
+                isPlaying: player.isPlaying,
+                aspectRatio: 1,
+                elapsedFraction: { [player] in
+                    player.duration > 0 ? player.currentTime() / player.duration : 0
+                },
+                popover: {
+                    NowPlayingPopover(player: player) {
+                        isShowingControls = false
+                        onShowContent(articleID)
+                    }
                 }
-            }
+            )
         } else if session.isActive, let article = session.currentArticle {
-            button(artworkURL: session.artworkURL?.absoluteString, isPlaying: session.isPlaying, aspectRatio: 16 / 9) {
-                YouTubeNowPlayingPopover(session: session) {
-                    isShowingControls = false
-                    onShowContent(article.id)
+            button(
+                artworkURL: session.artworkURL?.absoluteString,
+                isPlaying: session.isPlaying,
+                aspectRatio: 16 / 9,
+                elapsedFraction: { [session] in
+                    session.duration > 0 ? session.currentTime / session.duration : 0
+                },
+                popover: {
+                    YouTubeNowPlayingPopover(session: session) {
+                        isShowingControls = false
+                        onShowContent(article.id)
+                    }
                 }
-            }
+            )
         }
     }
 
@@ -36,6 +52,7 @@ struct NowPlayingButton: View {
         artworkURL: String?,
         isPlaying: Bool,
         aspectRatio: CGFloat,
+        elapsedFraction: @escaping () -> Double,
         @ViewBuilder popover: @escaping () -> Popover
     ) -> some View {
         Button {
@@ -45,10 +62,8 @@ struct NowPlayingButton: View {
                 TodayThumbnail(urlString: artworkURL)
                     .frame(width: 22 * aspectRatio, height: 22)
                     .clipShape(.rect(cornerRadius: 5))
-                Image(systemName: isPlaying ? "waveform" : "pause.fill")
-                    .symbolEffect(.variableColor.iterative, isActive: isPlaying)
-                    .font(.system(size: 12, weight: .semibold))
-                    .frame(width: 16)
+                PlaybackProgressDonut(isPlaying: isPlaying, elapsedFraction: elapsedFraction)
+                    .frame(width: 16, height: 16)
             }
             .padding(.horizontal, 4)
         }
