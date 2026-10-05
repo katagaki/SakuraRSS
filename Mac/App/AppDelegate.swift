@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
     private var settingsWindowController: SettingsWindowController?
     private var dockBadgeCoordinator: DockBadgeCoordinator?
     private var welcomeWindowController: WelcomeWindowController?
+    private var aboutWindowController: AboutWindowController?
     private let backupScheduler = BackupScheduler()
     private var defaultsObserver: NSObjectProtocol?
     private var openContentObserver: NSObjectProtocol?
@@ -78,6 +79,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, RefreshActions {
         Task {
             await FeedProviderRegistry.migrateAuthenticatedCookies()
         }
+    }
+
+    @objc func showAbout(_ sender: Any?) {
+        if aboutWindowController == nil {
+            aboutWindowController = AboutWindowController()
+            aboutWindowController?.window?.center()
+        }
+        aboutWindowController?.showWindow(nil)
     }
 
     @objc func showSettings(_ sender: Any?) {

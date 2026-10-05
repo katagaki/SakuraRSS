@@ -4,10 +4,7 @@ extension MainMenuBuilder {
 
     static func applicationMenu() -> NSMenu {
         let menu = NSMenu(title: applicationName)
-        menu.addItem(formattedItem(
-            "Menu.About",
-            action: #selector(NSApplication.orderFrontStandardAboutPanel(_:))
-        ))
+        menu.addItem(formattedItem("Menu.About", action: #selector(AppDelegate.showAbout(_:))))
         menu.addItem(.separator())
         let settingsItem = NSMenuItem(
             title: String(localized: "Menu.Settings", table: "Settings"),
