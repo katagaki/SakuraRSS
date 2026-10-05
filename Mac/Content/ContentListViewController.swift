@@ -12,6 +12,14 @@ final class ContentListViewController: NSViewController {
     /// Everything the page's query returned.
     var allArticles: [Article] = []
     var presentation = ContentPresentation()
+    let bookmarkBrowsing = BookmarkBrowsing()
+    lazy var bookmarkBar = NSHostingView(rootView: BookmarkBrowsingBar(
+        browsing: bookmarkBrowsing,
+        showsScope: false,
+        onExport: { [weak self] in self?.exportBookmarks() },
+        onRemoveReadBookmarks: { [weak self] in self?.confirmRemovingReadBookmarks() }
+    ))
+    var bookmarkBrowsingObserver: ChangeObserver?
     var firstVisibleRow = 0
     nonisolated(unsafe) var scrollObserver: NSObjectProtocol?
     nonisolated(unsafe) var settingsObserver: NSObjectProtocol?
@@ -66,22 +74,34 @@ final class ContentListViewController: NSViewController {
         // Beside the scroll view rather than inside it: a scroll view lays
         // out its own subviews and ignores constraints on extra ones.
         let container = NSView()
-        for subview in [scrollView, emptyStateView] {
+        let stack = NSStackView(views: [bookmarkBar, scrollView])
+        stack.orientation = .vertical
+        stack.spacing = 0
+        stack.detachesHiddenViews = true
+        bookmarkBar.isHidden = true
+        for subview in [stack, emptyStateView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             container.addSubview(subview)
-            NSLayoutConstraint.activate([
-                subview.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-                subview.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-                subview.topAnchor.constraint(equalTo: container.topAnchor),
-                subview.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-            ])
         }
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            stack.topAnchor.constraint(equalTo: container.topAnchor),
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            bookmarkBar.widthAnchor.constraint(equalTo: stack.widthAnchor),
+            scrollView.widthAnchor.constraint(equalTo: stack.widthAnchor),
+            emptyStateView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            emptyStateView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            emptyStateView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            emptyStateView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        ])
         // Content may already be loaded: the list is filled before its view is.
         emptyStateView.isHidden = location == nil || !articles.isEmpty
         emptyStateView.sizingOptions = []
         view = container
         observeScrolling(of: scrollView)
         observePresentationSettings()
+        observeBookmarkBrowsing()
     }
 
     override func viewDidLoad() {
@@ -130,6 +150,8 @@ final class ContentListViewController: NSViewController {
     func show(_ location: BrowserLocation) {
         guard location != self.location else { return }
         self.location = location
+        bookmarkBrowsing.searchText = ""
+        showsBookmarkBar(for: location)
         reloadArticles(keepingSelection: false)
         tableView.scrollRowToVisible(0)
     }
@@ -150,7 +172,7 @@ final class ContentListViewController: NSViewController {
     func updateArticles() {
         guard let location else { return }
         pendingDataReload?.cancel()
-        let reloaded = ContentQuery(feedManager: feedManager).articles(for: location)
+        let reloaded = queriedArticles(for: location)
         let style = ContentStyleContext(location: location, articles: reloaded, feedManager: feedManager)?
             .effectiveStyle ?? .inbox
         guard style == displayStyle, !articles.isEmpty else {
@@ -171,7 +193,7 @@ final class ContentListViewController: NSViewController {
         pendingDataReload?.cancel()
         needsDataUpdate = false
         let selectedID = keepingSelection ? selectedArticle?.id : nil
-        let reloaded = ContentQuery(feedManager: feedManager).articles(for: location)
+        let reloaded = queriedArticles(for: location)
         let style = ContentStyleContext(location: location, articles: reloaded, feedManager: feedManager)?
             .effectiveStyle ?? .inbox
         if keepingSelection {

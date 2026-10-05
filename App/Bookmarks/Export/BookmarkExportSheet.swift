@@ -8,6 +8,7 @@ struct BookmarkExportSheet: View {
     @State private var format: BookmarkExportFormat = .json
     @State private var items: [ExportedBookmark] = []
     @State private var isLoading = true
+    @State private var isSaving = false
 
     private var output: String {
         BookmarkExporter.export(
@@ -50,21 +51,22 @@ struct BookmarkExportSheet: View {
                 }
             }
             .navigationTitle(String(localized: "BookmarksExport.Title", table: "Articles"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .sheetLeading) {
                     Button(role: .cancel) { dismiss() }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    ShareLink(
-                        item: output,
-                        preview: SharePreview("bookmarks.\(format.fileExtension)")
-                    ) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                    .disabled(isLoading || items.isEmpty)
+                ToolbarItem(placement: .sheetTrailing) {
+                    exportButton
+                        .disabled(isLoading || items.isEmpty)
                 }
             }
+            .fileExporter(
+                isPresented: $isSaving,
+                document: BookmarkExportDocument(text: output),
+                contentType: format.contentType,
+                defaultFilename: "bookmarks.\(format.fileExtension)"
+            ) { _ in }
             .task {
                 items = await Task.detached {
                     (try? DatabaseManager.shared.exportableBookmarks()) ?? []
@@ -72,6 +74,23 @@ struct BookmarkExportSheet: View {
                 isLoading = false
             }
         }
+    }
+
+    /// Saved to a file on the Mac, shared from iOS.
+    @ViewBuilder
+    private var exportButton: some View {
+        #if os(macOS)
+        Button(String(localized: "BookmarksExport.Title", table: "Articles")) {
+            isSaving = true
+        }
+        #else
+        ShareLink(
+            item: output,
+            preview: SharePreview("bookmarks.\(format.fileExtension)")
+        ) {
+            Image(systemName: "square.and.arrow.up")
+        }
+        #endif
     }
 
     private var formatExplanation: String {

@@ -4,6 +4,8 @@ import Hanami
 struct ContentQuery {
 
     let feedManager: FeedManager
+    /// Which bookmarks the Bookmarks page lists.
+    var bookmarkScope: BookmarkSmartGroup = .all
 
     /// Showing a page asks for its content from the detail pane, the list and
     /// the toolbar's style item in turn, so the last result is kept until the data changes.
@@ -11,17 +13,21 @@ struct ContentQuery {
 
     private struct QueryResult {
         let location: BrowserLocation
+        let bookmarkScope: BookmarkSmartGroup
         let revision: Int
         let articles: [Article]
     }
 
     func articles(for location: BrowserLocation) -> [Article] {
         let revision = feedManager.dataRevision
-        if let lastResult = Self.lastResult, lastResult.location == location, lastResult.revision == revision {
+        if let lastResult = Self.lastResult, lastResult.location == location,
+           lastResult.bookmarkScope == bookmarkScope, lastResult.revision == revision {
             return lastResult.articles
         }
         let articles = queryArticles(for: location)
-        Self.lastResult = QueryResult(location: location, revision: revision, articles: articles)
+        Self.lastResult = QueryResult(
+            location: location, bookmarkScope: bookmarkScope, revision: revision, articles: articles
+        )
         return articles
     }
 
@@ -62,7 +68,11 @@ struct ContentQuery {
                 .first { $0.id == tagID }
                 .map(feedManager.bookmarkedArticles(taggedWith:)) ?? []
         default:
-            (try? feedManager.database.bookmarkedArticles()) ?? []
+            switch bookmarkScope {
+            case .all: (try? feedManager.database.bookmarkedArticles()) ?? []
+            case .unread: (try? feedManager.database.unreadBookmarkedArticles()) ?? []
+            case .unsorted: (try? feedManager.database.unorganizedBookmarkedArticles()) ?? []
+            }
         }
     }
 

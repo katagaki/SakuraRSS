@@ -30,11 +30,6 @@ enum BookmarkExportFormatAppEnum: String, AppEnum {
     }
 
     var contentType: UTType {
-        switch self {
-        case .json: .json
-        case .csv: .commaSeparatedText
-        case .html: .html
-        case .markdown: UTType("net.daringfireball.markdown") ?? .plainText
-        }
+        exportFormat.contentType
     }
 }
