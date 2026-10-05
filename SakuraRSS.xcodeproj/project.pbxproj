@@ -296,7 +296,6 @@
 				Shared/IconImage.swift,
 				"Shared/Image+PlatformImage.swift",
 				Shared/InitialsAvatarView.swift,
-				Shared/PodcastDownloadButton.swift,
 				"Shared/UIImage+SwiftUIColors.swift",
 				Shared/WebViewRepresentable.swift,
 				"View Modifiers/CompatibleGlassEffect.swift",

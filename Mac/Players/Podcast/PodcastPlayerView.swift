@@ -21,18 +21,8 @@ struct PodcastPlayerView: View {
     var body: some View {
         ScrollViewReader { scrollProxy in
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 24) {
                     header
-                    if isCurrentEpisode {
-                        PodcastScrubber(player: player)
-                    }
-                    HStack(spacing: 20) {
-                        PodcastPlaybackControls(player: player, isCurrentEpisode: isCurrentEpisode) {
-                            PodcastPlayback.start(article, feedManager: feedManager)
-                        }
-                        PodcastDownloadButton(article: article, size: 26, lineWidth: 3)
-                        transcriptToggle
-                    }
                     if showingTranscript, let transcript, !transcript.isEmpty {
                         TranscriptView(
                             segments: transcript,
@@ -47,7 +37,7 @@ struct PodcastPlayerView: View {
                     }
                 }
                 .padding(32)
-                .frame(maxWidth: 640)
+                .frame(maxWidth: 820)
                 .frame(maxWidth: .infinity)
             }
         }
@@ -59,39 +49,48 @@ struct PodcastPlayerView: View {
         }
     }
 
+    /// The artwork beside the episode's details and controls, as a Mac
+    /// player lays out, rather than stacked as on a phone.
     private var header: some View {
-        VStack(spacing: 20) {
+        HStack(alignment: .center, spacing: 28) {
             TodayThumbnail(urlString: article.imageURL ?? feed?.iconURL)
-                .frame(width: 220, height: 220)
+                .frame(width: 200, height: 200)
                 .clipShape(.rect(cornerRadius: 16))
                 .shadow(radius: 12, y: 6)
-            VStack(spacing: 4) {
-                Text(article.displayTitle)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .textSelection(.enabled)
-                if let feed {
-                    Text(feed.title)
-                        .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(article.displayTitle)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .lineLimit(3)
+                        .textSelection(.enabled)
+                    if let feed {
+                        Text(feed.title)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+                if isCurrentEpisode {
+                    PodcastScrubber(player: player)
+                }
+                PodcastPlaybackControls(player: player, isCurrentEpisode: isCurrentEpisode) {
+                    PodcastPlayback.start(article, feedManager: feedManager)
+                }
+                HStack(spacing: 8) {
+                    PodcastDownloadControl(article: article)
+                    transcriptToggle
+                }
+                .buttonStyle(.bordered)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
     private var transcriptToggle: some View {
-        Button {
-            withAnimation(.smooth.speed(2.0)) {
-                showingTranscript.toggle()
-            }
-        } label: {
-            Image(systemName: "quote.bubble")
-                .font(.system(size: 20))
-                .foregroundStyle(showingTranscript ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
+        Toggle(isOn: $showingTranscript.animation(.smooth.speed(2.0))) {
+            Label(String(localized: "Transcripts.Title", table: "Podcast"), systemImage: "quote.bubble")
         }
-        .buttonStyle(.plain)
+        .toggleStyle(.button)
         .disabled(transcript?.isEmpty ?? true)
-        .help(String(localized: "Transcripts.Title", table: "Podcast"))
     }
 
     private func loadTranscript() {
