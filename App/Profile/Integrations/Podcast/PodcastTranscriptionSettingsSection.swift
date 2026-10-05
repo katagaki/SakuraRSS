@@ -5,52 +5,31 @@ import Hanami
 
 struct PodcastTranscriptionSettingsSection: View {
 
-    @AppStorage(PodcastTranscriber.enabledKey) private var transcriptionEnabled: Bool = false
-
+    @State private var setup = TranscriptionModelSetup()
     @State private var showDeleteTranscriptsConfirmation = false
-    @State private var toggleState: Bool = false
-    @State private var hasBootstrapped = false
-    @State private var isDownloadingModel = false
-    @State private var downloadProgress: Double = 0
-    @State private var modelReady = false
-    @State private var downloadError: DownloadError?
-    @State private var downloadTask: Task<Void, Never>?
-    @State private var userCancelledDownload = false
 
-    private let engine: any TranscriptionEngine = FluidTranscriberEngine()
-
-    private enum DownloadError: Equatable {
-        case offline
-        case generic
+    private var isEnabled: Binding<Bool> {
+        Binding(get: { setup.isEnabled }, set: { setup.setEnabled($0) })
     }
 
     var body: some View {
         Section {
-            Toggle(isOn: $toggleState) {
+            Toggle(isOn: isEnabled) {
                 Text(String(localized: "Transcripts.Engine.OnDevice", table: "Podcast"))
             }
-            .disabled(isDownloadingModel)
-            .onChange(of: toggleState) { _, newValue in
-                // Ignore synthetic change fired when `.task` syncs on appear.
-                guard hasBootstrapped else { return }
-                handleToggleChange(newValue)
-            }
+            .disabled(setup.isDownloadingModel)
 
-            if isDownloadingModel {
+            if setup.isDownloadingModel {
                 HStack {
                     Text(String(localized: "Transcripts.Model.Downloading", table: "Podcast"))
                     Spacer()
-                    ProgressDonut(progress: downloadProgress)
+                    TranscriptionProgressDonut(progress: setup.downloadProgress)
                         .frame(width: 22, height: 22)
                 }
             }
 
-            if let downloadError {
-                Text(downloadError == .offline
-                     ? String(localized: "Transcripts.Download.OfflineError", table: "Podcast")
-                     : String(localized: "Transcripts.Download.GenericError", table: "Podcast"))
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+            if let downloadError = setup.downloadError {
+                TranscriptionDownloadErrorText(error: downloadError)
             }
 
             Button(role: .destructive) {
@@ -63,10 +42,7 @@ struct PodcastTranscriptionSettingsSection: View {
                 isPresented: $showDeleteTranscriptsConfirmation
             ) {
                 Button(String(localized: "Transcripts.DeleteAll.Confirm", table: "Podcast"), role: .destructive) {
-                    let articleIDs = (try? DatabaseManager.shared.downloadedArticleIDs()) ?? []
-                    for articleID in articleIDs {
-                        try? DatabaseManager.shared.clearCachedTranscript(for: articleID)
-                    }
+                    setup.deleteAllTranscripts()
                 }
                 Button("Shared.Cancel", role: .cancel) { }
             } message: {
@@ -78,97 +54,25 @@ struct PodcastTranscriptionSettingsSection: View {
             Text(String(localized: "Transcripts.Engine.Footer", table: "Podcast"))
         }
         .task {
-            refreshModelStatus()
-            // Reconcile toggle with on-disk state when the model is missing.
-            if transcriptionEnabled && !modelReady {
-                transcriptionEnabled = false
-            }
-            toggleState = transcriptionEnabled
-            hasBootstrapped = true
+            setup.bootstrap()
         }
-    }
-
-    // MARK: - Toggle handling
-
-    private func handleToggleChange(_ newValue: Bool) {
-        if newValue {
-            downloadError = nil
-            guard NetworkMonitor.shared.isOnline else {
-                downloadError = .offline
-                transcriptionEnabled = false
-                toggleState = false
-                return
-            }
-            transcriptionEnabled = true
-            startDownload()
-        } else {
-            // Don't clear downloadError: preserve it when toggle reverted after a failure.
-            if downloadTask != nil {
-                userCancelledDownload = true
-                downloadTask?.cancel()
-            }
-            isDownloadingModel = false
-            downloadProgress = 0
-            transcriptionEnabled = false
-            try? engine.deleteModel()
-            refreshModelStatus()
-        }
-    }
-
-    private func startDownload() {
-        isDownloadingModel = true
-        downloadProgress = 0
-        downloadError = nil
-        userCancelledDownload = false
-
-        downloadTask = Task {
-            do {
-                try await engine.downloadModel(progress: { fraction in
-                    Task { @MainActor in
-                        downloadProgress = fraction
-                    }
-                })
-                await MainActor.run {
-                    downloadTask = nil
-                    if userCancelledDownload {
-                        userCancelledDownload = false
-                        try? engine.deleteModel()
-                        isDownloadingModel = false
-                        downloadProgress = 0
-                        refreshModelStatus()
-                        return
-                    }
-                    isDownloadingModel = false
-                    downloadProgress = 0
-                    refreshModelStatus()
-                }
-            } catch {
-                await MainActor.run {
-                    downloadTask = nil
-                    isDownloadingModel = false
-                    downloadProgress = 0
-                    if userCancelledDownload {
-                        userCancelledDownload = false
-                        try? engine.deleteModel()
-                        refreshModelStatus()
-                        return
-                    }
-                    downloadError = NetworkMonitor.shared.isOnline ? .generic : .offline
-                    transcriptionEnabled = false
-                    try? engine.deleteModel()
-                    toggleState = false
-                    refreshModelStatus()
-                }
-            }
-        }
-    }
-
-    private func refreshModelStatus() {
-        modelReady = engine.isModelDownloaded
     }
 }
 
-private struct ProgressDonut: View {
+struct TranscriptionDownloadErrorText: View {
+
+    let error: TranscriptionModelSetup.DownloadError
+
+    var body: some View {
+        Text(error == .offline
+             ? String(localized: "Transcripts.Download.OfflineError", table: "Podcast")
+             : String(localized: "Transcripts.Download.GenericError", table: "Podcast"))
+            .font(.footnote)
+            .foregroundStyle(.red)
+    }
+}
+
+struct TranscriptionProgressDonut: View {
     let progress: Double
 
     var body: some View {
