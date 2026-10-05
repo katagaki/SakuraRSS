@@ -21,10 +21,40 @@ public nonisolated enum BotChallengeDetector {
         if let response, responseIsChallenge(response) {
             return true
         }
-        let lowered = html.lowercased()
-        return markers.contains { marker in
-            lowered.contains(marker.lowercased())
+        return containsMarker(html)
+    }
+
+    /// Off the caller's actor, for polling whole rendered pages.
+    @concurrent public static func looksLikeChallengeOffMainActor(_ html: String) async -> Bool {
+        looksLikeChallenge(html)
+    }
+
+    private static let lowercasedMarkers: [[UInt8]] = markers.map { Array($0.lowercased().utf8) }
+
+    /// Matches the ASCII markers case-insensitively over the UTF-8 bytes; lowercasing
+    /// a multi-megabyte page first took tens of milliseconds per check.
+    private static func containsMarker(_ html: String) -> Bool {
+        var html = html
+        return html.withUTF8 { bytes in
+            guard !bytes.isEmpty else { return false }
+            for start in bytes.indices {
+                let first = asciiLowercased(bytes[start])
+                for marker in lowercasedMarkers where marker[0] == first && start + marker.count <= bytes.count {
+                    var offset = 1
+                    while offset < marker.count, asciiLowercased(bytes[start + offset]) == marker[offset] {
+                        offset += 1
+                    }
+                    if offset == marker.count {
+                        return true
+                    }
+                }
+            }
+            return false
         }
+    }
+
+    private static func asciiLowercased(_ byte: UInt8) -> UInt8 {
+        (byte >= 65 && byte <= 90) ? byte + 32 : byte
     }
 
     private static func responseIsChallenge(_ response: URLResponse) -> Bool {

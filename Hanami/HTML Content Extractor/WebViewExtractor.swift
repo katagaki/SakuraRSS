@@ -138,7 +138,7 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
                 finish(returning: .failed)
                 return
             }
-            if !BotChallengeDetector.looksLikeChallenge(html) {
+            if await !BotChallengeDetector.looksLikeChallengeOffMainActor(html) {
                 let cleanedHTML = await evaluate(Self.cleanupScript)
                 finish(returning: cleanedHTML.map(RenderedPage.html) ?? .failed)
                 return
