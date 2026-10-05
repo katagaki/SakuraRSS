@@ -17,6 +17,9 @@ enum BrowserLocation: Hashable {
     case topics
     case topic(String)
     case person(String)
+    /// A page that isn't content Sakura has saved, as `sakura://open` and
+    /// links inside content open, shown the way `mode` asks.
+    case webPage(url: String, mode: OpenArticleRequest.Mode, textMode: OpenArticleRequest.TextMode = .auto)
 }
 
 extension BrowserLocation {
@@ -36,6 +39,7 @@ extension BrowserLocation {
         case .topics: "topics"
         case .topic(let name): "topic:\(name)"
         case .person(let name): "person:\(name)"
+        case .webPage(let url, let mode, let textMode): "webPage:\(mode.rawValue),\(textMode.rawValue)|\(url)"
         }
     }
 
@@ -57,6 +61,13 @@ extension BrowserLocation {
         case "feedSection":
             guard let section = FeedSection(rawValue: value) else { return nil }
             self = .feedSection(section)
+        case "webPage":
+            let parts = value.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
+            let modes = parts.first?.split(separator: ",").map(String.init) ?? []
+            guard parts.count == 2, !parts[1].isEmpty,
+                  let mode = modes.first.flatMap(OpenArticleRequest.Mode.init(rawValue:)) else { return nil }
+            let textMode = modes.dropFirst().first.flatMap(OpenArticleRequest.TextMode.init(rawValue:)) ?? .auto
+            self = .webPage(url: String(parts[1]), mode: mode, textMode: textMode)
         case "search", "topic", "person":
             guard !value.isEmpty else { return nil }
             self = kind == "search" ? .search(value) : kind == "topic" ? .topic(value) : .person(value)

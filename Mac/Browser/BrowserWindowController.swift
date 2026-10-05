@@ -93,7 +93,19 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         }
     }
 
+    /// Content whose Open In setting is the browser goes there instead of
+    /// becoming a page of the tab.
     func navigate(to location: BrowserLocation) {
+        if case .article(let articleID) = location, let article = feedManager.article(byID: articleID) {
+            let opening = ContentOpening(article: article, feedManager: feedManager, context: history.current)
+            if opening.opensInBrowser, let url = URL(string: article.url) {
+                if opening.marksRead {
+                    feedManager.markRead(article)
+                }
+                NSWorkspace.shared.open(url)
+                return
+            }
+        }
         history.navigate(to: location)
         showCurrentLocation()
     }
@@ -104,7 +116,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
     }
 
     private func showCurrentLocation() {
-        splitViewController.show(history.current)
+        splitViewController.show(history.current, context: history.backStack.last)
         updateTitle()
         toolbarController.updateDisplayStyleItem(context: displayStyleContext)
         updateHandoffForCurrentLocation()

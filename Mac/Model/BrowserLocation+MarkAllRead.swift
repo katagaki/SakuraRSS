@@ -17,7 +17,8 @@ extension BrowserLocation {
         case .list(let listID):
             guard let list = feedManager.lists.first(where: { $0.id == listID }) else { return nil }
             return { feedManager.markAllRead(for: list) }
-        case .startPage, .bookmarks, .search, .article, .bookmarkFolder, .bookmarkTag, .topics, .topic, .person:
+        case .startPage, .bookmarks, .search, .article, .bookmarkFolder, .bookmarkTag, .topics, .topic, .person,
+             .webPage:
             return nil
         }
     }

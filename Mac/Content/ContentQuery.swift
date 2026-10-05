@@ -37,7 +37,7 @@ struct ContentQuery {
             bookmarkArticles(for: location)
         case .search, .topic, .person:
             matchingArticles(for: location)
-        case .article, .topics:
+        case .article, .topics, .webPage:
             []
         }
     }

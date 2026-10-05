@@ -49,10 +49,6 @@ struct ArchivePhView: View {
     }
 }
 
-private func archivePhURL(for articleURL: URL) -> URL? {
-    URL(string: "https://archive.md/\(articleURL.absoluteString)")
-}
-
 private struct ArchivePhWebView: UIViewRepresentable {
 
     let url: URL
@@ -71,7 +67,7 @@ private struct ArchivePhWebView: UIViewRepresentable {
         webView.allowsBackForwardNavigationGestures = true
         webView.customUserAgent = sakuraUserAgent
         context.coordinator.lastReloadTrigger = reloadTrigger
-        if let target = archivePhURL(for: url) {
+        if let target = ArchivePhAddress.url(for: url) {
             webView.load(URLRequest(url: target))
         }
         return webView
@@ -83,7 +79,7 @@ private struct ArchivePhWebView: UIViewRepresentable {
             Task { @MainActor in
                 isLoading = true
             }
-            if let target = archivePhURL(for: url) {
+            if let target = ArchivePhAddress.url(for: url) {
                 webView.load(URLRequest(url: target))
             }
         }

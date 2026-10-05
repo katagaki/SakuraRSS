@@ -54,7 +54,9 @@ final class BrowserDetailViewController: NSViewController {
         view = NSView()
     }
 
-    func show(_ location: BrowserLocation) {
+    /// `context` is the page this one was opened from, whose bookmark folder
+    /// settings apply to content opened from Bookmarks.
+    func show(_ location: BrowserLocation, context: BrowserLocation? = nil) {
         switch location {
         case .startPage:
             display(todayViewController)
@@ -62,7 +64,8 @@ final class BrowserDetailViewController: NSViewController {
             display(topicsViewController)
         case .article(let articleID):
             let article = feedManager.article(byID: articleID)
-            if let article {
+            if let article,
+               ContentOpening(article: article, feedManager: feedManager, context: context).marksRead {
                 feedManager.markRead(article)
             }
             articleViewController.rootView = ReaderPane(
@@ -70,7 +73,19 @@ final class BrowserDetailViewController: NSViewController {
                 feed: article.flatMap { feedManager.feedsByID[$0.feedID] },
                 activity: activity,
                 feedManager: feedManager,
-                actions: actions
+                actions: actions,
+                context: context
+            )
+            display(articleViewController)
+        case .webPage(let url, let mode, let textMode):
+            articleViewController.rootView = ReaderPane(
+                article: .ephemeral(url: url, title: url),
+                feed: nil,
+                activity: activity,
+                feedManager: feedManager,
+                actions: actions,
+                requestedMode: mode,
+                articleSource: ArticleSource(textMode: textMode)
             )
             display(articleViewController)
         default:

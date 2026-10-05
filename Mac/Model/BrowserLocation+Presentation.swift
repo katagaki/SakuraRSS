@@ -24,6 +24,8 @@ extension BrowserLocation {
             return feedManager.allBookmarkTags().first { $0.id == tagID }?.name ?? ""
         case .search(let name), .topic(let name), .person(let name):
             return name
+        case .webPage(let url, _, _):
+            return URL(string: url)?.host() ?? url
         default:
             return ""
         }
@@ -63,6 +65,7 @@ extension BrowserLocation {
         case .article: "doc.text"
         case .bookmarkTag: "tag"
         case .person: "person"
+        case .webPage: "globe"
         default: "number"
         }
     }

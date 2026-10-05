@@ -45,7 +45,9 @@ extension ContentListViewController: NSTableViewDataSource, NSTableViewDelegate 
     func tableViewSelectionDidChange(_ notification: Notification) {
         guard let article = selectedArticle, article.id != reportedArticleID else { return }
         reportedArticleID = article.id
-        feedManager.markRead(article)
+        if ContentOpening(article: article, feedManager: feedManager, context: location).marksRead {
+            feedManager.markRead(article)
+        }
         onSelectArticle?(article)
     }
 }

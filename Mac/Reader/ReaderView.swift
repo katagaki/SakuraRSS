@@ -9,6 +9,7 @@ struct ReaderView: View {
     let feedManager: FeedManager
     let actions: TodayActions?
     let isPreview: Bool
+    let articleSource: ArticleSource?
     @State private var extraction = ContentExtraction()
     @State private var assistant: ContentAssistant
 
@@ -18,6 +19,7 @@ struct ReaderView: View {
         activity: BrowserPageActivity,
         feedManager: FeedManager,
         actions: TodayActions? = nil,
+        articleSource: ArticleSource? = nil,
         isPreview: Bool = false
     ) {
         self.article = article
@@ -26,6 +28,7 @@ struct ReaderView: View {
         self.feedManager = feedManager
         self.actions = actions
         self.isPreview = isPreview
+        self.articleSource = articleSource
         _assistant = State(initialValue: ContentAssistant(article: article, translatesTitle: true))
     }
 
@@ -53,7 +56,7 @@ struct ReaderView: View {
         }
         .task(id: article.id) {
             await assistant.loadCached()
-            await extraction.extract(article: article, feed: feed)
+            await extraction.extract(article: article, feed: feed, articleSource: articleSource)
         }
         .onChange(of: extraction.isExtracting || assistant.isWorking, initial: true) { _, isBusy in
             activity.isExtractingContent = isBusy

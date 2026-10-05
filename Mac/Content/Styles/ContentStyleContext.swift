@@ -92,7 +92,7 @@ extension BrowserLocation {
         case .bookmarkTag(let tagID): "bookmarks.tag.\(tagID)"
         case .topic(let name): "topic.\(name)"
         case .person(let name): "person.\(name)"
-        case .startPage, .article, .topics: nil
+        case .startPage, .article, .topics, .webPage: nil
         }
     }
 }

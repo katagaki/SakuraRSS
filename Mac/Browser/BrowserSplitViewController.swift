@@ -50,8 +50,8 @@ final class BrowserSplitViewController: NSSplitViewController {
         splitView.autosaveName = "BrowserSplitView"
     }
 
-    func show(_ location: BrowserLocation) {
+    func show(_ location: BrowserLocation, context: BrowserLocation? = nil) {
         sidebarViewController.select(location)
-        detailViewController.show(location)
+        detailViewController.show(location, context: context)
     }
 }

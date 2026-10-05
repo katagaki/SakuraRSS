@@ -55,7 +55,8 @@ final class ContentSplitViewController: NSSplitViewController {
             feed: article.flatMap { feedManager.feedsByID[$0.feedID] },
             activity: activity,
             feedManager: feedManager,
-            actions: actions
+            actions: actions,
+            context: contentListViewController.location
         )
     }
 }

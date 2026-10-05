@@ -13,10 +13,12 @@ final class ContentExtraction {
     private(set) var author: String?
     private(set) var publishedDate: Date?
 
-    func extract(article: Article, feed: Feed?) async {
+    func extract(article: Article, feed: Feed?, articleSource: ArticleSource? = nil) async {
         isExtracting = true
         defer { isExtracting = false }
-        let result = await ContentResolver(article: article, feed: feed).extract()
+        let result = await ContentResolver(
+            article: article, feed: feed, articleSourceOverride: articleSource
+        ).extract()
         guard !Task.isCancelled else { return }
         isPaywalled = result.paywalled
         author = result.metadata.author
