@@ -16,8 +16,24 @@
                             "feedUrl": "https://feeds.bbci.co.uk/news/rss.xml"
                         },
                         {
+                            "title": "BBC News - World",
+                            "feedUrl": "https://feeds.bbci.co.uk/news/world/rss.xml"
+                        },
+                        {
+                            "title": "Deutsche Welle",
+                            "feedUrl": "https://rss.dw.com/rdf/rss-en-all"
+                        },
+                        {
                             "title": "France 24",
                             "feedUrl": "https://www.france24.com/en/rss"
+                        },
+                        {
+                            "title": "Sky News - World",
+                            "feedUrl": "https://feeds.skynews.com/feeds/rss/world.xml"
+                        },
+                        {
+                            "title": "The Guardian - World",
+                            "feedUrl": "https://www.theguardian.com/world/rss"
                         }
                     ]
                 },
@@ -153,6 +169,229 @@
                             "feedUrl": "https://www.skysports.com/rss/12040"
                         }
                     ]
+                },
+                {
+                    "title": "System Status",
+                    "sites": [
+                        {
+                            "title": "Apple Developer - Releases",
+                            "feedUrl": "https://developer.apple.com/news/releases/rss/releases.rss"
+                        },
+                        {
+                            "title": "Atlassian Status",
+                            "feedUrl": "https://status.atlassian.com/history.rss"
+                        },
+                        {
+                            "title": "AWS Health Dashboard",
+                            "feedUrl": "https://status.aws.amazon.com/rss/all.rss"
+                        },
+                        {
+                            "title": "Bluesky Status",
+                            "feedUrl": "https://status.bsky.app/history.rss"
+                        },
+                        {
+                            "title": "Claude Status",
+                            "feedUrl": "https://status.claude.com/history.rss"
+                        },
+                        {
+                            "title": "Cloudflare Status",
+                            "feedUrl": "https://www.cloudflarestatus.com/history.atom"
+                        },
+                        {
+                            "title": "DigitalOcean Status",
+                            "feedUrl": "https://status.digitalocean.com/history.rss"
+                        },
+                        {
+                            "title": "Discord Status",
+                            "feedUrl": "https://discordstatus.com/history.rss"
+                        },
+                        {
+                            "title": "Dropbox Status",
+                            "feedUrl": "https://status.dropbox.com/history.rss"
+                        },
+                        {
+                            "title": "Epic Games Status",
+                            "feedUrl": "https://status.epicgames.com/history.rss"
+                        },
+                        {
+                            "title": "Figma Status",
+                            "feedUrl": "https://status.figma.com/history.rss"
+                        },
+                        {
+                            "title": "GitHub Status",
+                            "feedUrl": "https://www.githubstatus.com/history.rss"
+                        },
+                        {
+                            "title": "GitLab Status",
+                            "feedUrl": "https://status.gitlab.com/pages/5b36dc6502d06804c08349f7/rss"
+                        },
+                        {
+                            "title": "Google Cloud Service Health",
+                            "feedUrl": "https://status.cloud.google.com/en/feed.atom"
+                        },
+                        {
+                            "title": "Google Workspace Status",
+                            "feedUrl": "https://www.google.com/appsstatus/dashboard/en/feed.atom"
+                        },
+                        {
+                            "title": "Heroku Status",
+                            "feedUrl": "https://status.heroku.com/feed"
+                        },
+                        {
+                            "title": "Netlify Status",
+                            "feedUrl": "https://www.netlifystatus.com/history.rss"
+                        },
+                        {
+                            "title": "npm Status",
+                            "feedUrl": "https://status.npmjs.org/history.rss"
+                        },
+                        {
+                            "title": "OpenAI Status",
+                            "feedUrl": "https://status.openai.com/history.rss"
+                        },
+                        {
+                            "title": "Reddit Status",
+                            "feedUrl": "https://www.redditstatus.com/history.rss"
+                        },
+                        {
+                            "title": "Slack Status",
+                            "feedUrl": "https://slack-status.com/feed/rss"
+                        },
+                        {
+                            "title": "Supabase Status",
+                            "feedUrl": "https://status.supabase.com/history.rss"
+                        },
+                        {
+                            "title": "Twilio Status",
+                            "feedUrl": "https://status.twilio.com/history.rss"
+                        },
+                        {
+                            "title": "Twitch Status",
+                            "feedUrl": "https://status.twitch.com/history.rss"
+                        },
+                        {
+                            "title": "Vercel Status",
+                            "feedUrl": "https://www.vercel-status.com/history.rss"
+                        },
+                        {
+                            "title": "Zoom Status",
+                            "feedUrl": "https://status.zoom.us/history.rss"
+                        }
+                    ]
+                },
+                {
+                    "title": "Videos",
+                    "sites": [
+                        {
+                            "title": "3Blue1Brown",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw"
+                        },
+                        {
+                            "title": "Al Jazeera English",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCNye-wNBqNL5ZzHSJj3l8Bg"
+                        },
+                        {
+                            "title": "Apple",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCE_M8A5yxnLfW0KghEeajjw"
+                        },
+                        {
+                            "title": "Associated Press",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC52X5wxOL_s5yw0dQk7NtgA"
+                        },
+                        {
+                            "title": "BBC News",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC16niRr50-MSBwiO3YDb3RA"
+                        },
+                        {
+                            "title": "DW News",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCknLrEdhRCp1aegoMqRaCZg"
+                        },
+                        {
+                            "title": "Fireship",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCsBjURrPoezykLs9EqgamOA"
+                        },
+                        {
+                            "title": "Google for Developers",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC_x5XG1OV2P6uZZ5FSM9Ttw"
+                        },
+                        {
+                            "title": "Kurzgesagt – In a Nutshell",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q"
+                        },
+                        {
+                            "title": "Linus Tech Tips",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw"
+                        },
+                        {
+                            "title": "Marques Brownlee",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCBJycsmduvYEL83R_U4JriQ"
+                        },
+                        {
+                            "title": "Mrwhosetheboss",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCMiJRAwDNSNzuYeN2uWa0pA"
+                        },
+                        {
+                            "title": "NASA",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLA_DiR1FfKNvjuUpBHmylQ"
+                        },
+                        {
+                            "title": "Reuters",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UChqUTb7kYRX8-EiaN3XFrSQ"
+                        },
+                        {
+                            "title": "Sky News",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCoMdktPbSTixAyNGwb-UYkQ"
+                        },
+                        {
+                            "title": "SmarterEveryDay",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6107grRI4m0o2-emgoDnAA"
+                        },
+                        {
+                            "title": "The Verge",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCddiUEpeqJcYeBxX1IVBKvQ"
+                        },
+                        {
+                            "title": "Veritasium",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA"
+                        }
+                    ]
+                },
+                {
+                    "title": "Podcasts",
+                    "sites": [
+                        {
+                            "title": "99% Invisible",
+                            "feedUrl": "https://feeds.99percentinvisible.org/99percentinvisible"
+                        },
+                        {
+                            "title": "Accidental Tech Podcast",
+                            "feedUrl": "https://atp.fm/rss"
+                        },
+                        {
+                            "title": "BBC Global News Podcast",
+                            "feedUrl": "https://podcasts.files.bbci.co.uk/p02nq0gn.rss"
+                        },
+                        {
+                            "title": "Darknet Diaries",
+                            "feedUrl": "https://feeds.megaphone.fm/darknetdiaries"
+                        },
+                        {
+                            "title": "Houston We Have a Podcast",
+                            "feedUrl": "https://www.nasa.gov/feeds/podcasts/houston-we-have-a-podcast"
+                        },
+                        {
+                            "title": "The Vergecast",
+                            "feedUrl": "https://feeds.megaphone.fm/vergecast"
+                        },
+                        {
+                            "title": "This Week in Tech",
+                            "feedUrl": "https://feeds.twit.tv/twit.xml"
+                        },
+                        {
+                            "title": "Waveform: The MKBHD Podcast",
+                            "feedUrl": "https://feeds.megaphone.fm/STU4418364045"
+                        }
+                    ]
                 }
             ]
         },
@@ -172,8 +411,16 @@
                             "feedUrl": "https://www.cbsnews.com/latest/rss/main"
                         },
                         {
+                            "title": "CNBC - Top News",
+                            "feedUrl": "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+                        },
+                        {
                             "title": "NPR News",
                             "feedUrl": "https://feeds.npr.org/1001/rss.xml"
+                        },
+                        {
+                            "title": "PBS NewsHour",
+                            "feedUrl": "https://www.pbs.org/newshour/feeds/rss/headlines"
                         },
                         {
                             "title": "The New York Times - Homepage",
@@ -301,6 +548,48 @@
                             "feedUrl": "https://sports.yahoo.com/rss/"
                         }
                     ]
+                },
+                {
+                    "title": "Videos",
+                    "sites": [
+                        {
+                            "title": "PBS NewsHour",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6ZFN9Tx6xh-skXCuRHCDpQ"
+                        }
+                    ]
+                },
+                {
+                    "title": "Podcasts",
+                    "sites": [
+                        {
+                            "title": "Hard Fork",
+                            "feedUrl": "https://feeds.simplecast.com/l2i9YnTd"
+                        },
+                        {
+                            "title": "Marketplace",
+                            "feedUrl": "https://feeds.publicradio.org/public_feeds/marketplace"
+                        },
+                        {
+                            "title": "NPR News Now",
+                            "feedUrl": "https://feeds.npr.org/500005/podcast.xml"
+                        },
+                        {
+                            "title": "Planet Money",
+                            "feedUrl": "https://feeds.npr.org/510289/podcast.xml"
+                        },
+                        {
+                            "title": "Short Wave",
+                            "feedUrl": "https://feeds.npr.org/510351/podcast.xml"
+                        },
+                        {
+                            "title": "The Daily",
+                            "feedUrl": "https://feeds.simplecast.com/54nAGcIl"
+                        },
+                        {
+                            "title": "Up First",
+                            "feedUrl": "https://feeds.npr.org/510318/podcast.xml"
+                        }
+                    ]
                 }
             ]
         },
@@ -320,6 +609,14 @@
                             "feedUrl": "https://newsonjapan.com/rss/top.xml"
                         },
                         {
+                            "title": "朝日新聞",
+                            "feedUrl": "https://www.asahi.com/rss/asahi/newsheadlines.rdf"
+                        },
+                        {
+                            "title": "毎日新聞 - 速報",
+                            "feedUrl": "https://mainichi.jp/rss/etc/mainichi-flash.rss"
+                        },
+                        {
                             "title": "読売新聞（The Japan News）",
                             "feedUrl": "https://japannews.yomiuri.co.jp/feed/"
                         },
@@ -336,6 +633,18 @@
                 {
                     "title": "Technology",
                     "sites": [
+                        {
+                            "title": "GIGAZINE",
+                            "feedUrl": "https://gigazine.net/news/rss_2.0/"
+                        },
+                        {
+                            "title": "GIZMODO JAPAN",
+                            "feedUrl": "https://www.gizmodo.jp/index.xml"
+                        },
+                        {
+                            "title": "ITmedia NEWS",
+                            "feedUrl": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml"
+                        },
                         {
                             "title": "Japan Industry News",
                             "feedUrl": "https://www.japanindustrynews.com/feed/"
@@ -443,6 +752,57 @@
                             "feedUrl": "https://news.yahoo.co.jp/rss/topics/sports.xml"
                         }
                     ]
+                },
+                {
+                    "title": "System Status",
+                    "sites": [
+                        {
+                            "title": "AWS - 東京リージョン（EC2）",
+                            "feedUrl": "https://status.aws.amazon.com/rss/ec2-ap-northeast-1.rss"
+                        }
+                    ]
+                },
+                {
+                    "title": "Videos",
+                    "sites": [
+                        {
+                            "title": "ANNnewsCH",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCGCZAYq5Xxojl_tSXcVJhiQ"
+                        },
+                        {
+                            "title": "FNNプライムオンライン",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCoQBJMzcwmXrRSHBFAlTsIw"
+                        },
+                        {
+                            "title": "HikakinTV",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZf__ehlCEBPop-_sldpBUQ"
+                        },
+                        {
+                            "title": "TBS NEWS DIG",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6AG81pAkf6Lbi_1VC5NmPA"
+                        },
+                        {
+                            "title": "日テレNEWS",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCuTAXTexrhetbOe3zgskJBQ"
+                        }
+                    ]
+                },
+                {
+                    "title": "Podcasts",
+                    "sites": [
+                        {
+                            "title": "COTEN RADIO",
+                            "feedUrl": "https://anchor.fm/s/8c2088c/podcast/rss"
+                        },
+                        {
+                            "title": "Rebuild",
+                            "feedUrl": "https://feeds.rebuild.fm/rebuildfm"
+                        },
+                        {
+                            "title": "The Japan Times Podcast",
+                            "feedUrl": "https://www.japantimes.co.jp/podcast/feed/"
+                        }
+                    ]
                 }
             ]
         },
@@ -456,6 +816,10 @@
                         {
                             "title": "CNA (Channel NewsAsia) - Latest",
                             "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml"
+                        },
+                        {
+                            "title": "CNA - Latest News",
+                            "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6311"
                         },
                         {
                             "title": "CNA - Singapore",
@@ -472,6 +836,10 @@
                         {
                             "title": "The Straits Times - Singapore",
                             "feedUrl": "https://www.straitstimes.com/news/singapore/rss.xml"
+                        },
+                        {
+                            "title": "The Straits Times - World",
+                            "feedUrl": "https://www.straitstimes.com/news/world/rss.xml"
                         }
                     ]
                 },
@@ -543,6 +911,10 @@
                             "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936"
                         },
                         {
+                            "title": "The Business Times - Top Stories",
+                            "feedUrl": "https://www.businesstimes.com.sg/rss/top-stories"
+                        },
+                        {
                             "title": "The Straits Times - Business",
                             "feedUrl": "https://www.straitstimes.com/news/business/rss.xml"
                         }
@@ -583,6 +955,28 @@
                         {
                             "title": "RUN Singapore",
                             "feedUrl": "https://runmagazine.asia/feed/"
+                        }
+                    ]
+                },
+                {
+                    "title": "System Status",
+                    "sites": [
+                        {
+                            "title": "AWS - Singapore Region (EC2)",
+                            "feedUrl": "https://status.aws.amazon.com/rss/ec2-ap-southeast-1.rss"
+                        }
+                    ]
+                },
+                {
+                    "title": "Videos",
+                    "sites": [
+                        {
+                            "title": "CNA",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC83jt4dlz1Gjl58fzQrrKZg"
+                        },
+                        {
+                            "title": "The Straits Times",
+                            "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC4p_I9eiRewn2KoU-nawrDg"
                         }
                     ]
                 }

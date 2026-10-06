@@ -12,6 +12,9 @@ extension SuggestedTopic {
         case "Sports": String(localized: "SuggestedFeeds.Topic.Sports", table: "Feeds")
         case "Politics": String(localized: "SuggestedFeeds.Topic.Politics", table: "Feeds")
         case "Weather": String(localized: "SuggestedFeeds.Topic.Weather", table: "Feeds")
+        case "System Status": String(localized: "SuggestedFeeds.Topic.SystemStatus", table: "Feeds")
+        case "Videos": String(localized: "SuggestedFeeds.Topic.Videos", table: "Feeds")
+        case "Podcasts": String(localized: "SuggestedFeeds.Topic.Podcasts", table: "Feeds")
         default: title
         }
     }
