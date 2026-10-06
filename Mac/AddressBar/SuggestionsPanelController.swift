@@ -94,10 +94,6 @@ final class SuggestionsPanelController: NSObject {
     func showFollowingGrid(feedManager: FeedManager, below field: NSView, onOpen: @escaping (BrowserLocation) -> Void) {
         rows = []
         tableView.reloadData()
-        guard !feedManager.feeds.isEmpty else {
-            hide()
-            return
-        }
         let grid = AddressFollowingGrid(feedManager: feedManager, onOpen: onOpen)
         let gridView = NSHostingView(rootView: grid)
         gridScrollView.documentView = gridView

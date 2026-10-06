@@ -17,6 +17,14 @@ struct AddressFollowingGrid: View {
     }
 
     var body: some View {
+        if feeds.isEmpty {
+            AddressSuggestedFeeds(feedManager: feedManager)
+        } else {
+            grid
+        }
+    }
+
+    private var grid: some View {
         VStack(alignment: .leading, spacing: 20) {
             let feeds = feeds
             ForEach(FeedSection.allCases, id: \.self) { section in
