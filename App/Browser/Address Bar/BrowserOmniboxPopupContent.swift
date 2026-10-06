@@ -11,10 +11,6 @@ struct BrowserOmniboxPopupContent: View {
     @Environment(BrowserOmniboxModel.self) private var omnibox
     @Environment(\.browserAddFeedAction) private var addFeed
 
-    static func hasContent(omnibox: BrowserOmniboxModel, feedManager: FeedManager) -> Bool {
-        !omnibox.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !feedManager.feeds.isEmpty
-    }
-
     private var actions: BrowserOmniboxActions {
         BrowserOmniboxActions(store: store, omnibox: omnibox, addFeed: addFeed)
     }

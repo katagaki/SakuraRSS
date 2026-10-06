@@ -24,15 +24,24 @@ struct BrowserOmniboxFollowingGrid: View {
         Group {
             if fitsContent {
                 ViewThatFits(in: .vertical) {
-                    gridContent
-                    ScrollView { gridContent }
+                    content
+                    ScrollView { content }
                 }
             } else {
-                ScrollView { gridContent }
+                ScrollView { content }
             }
         }
         .scrollContentBackground(.hidden)
         .compatibleInteractiveKeyboardDismissal()
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if feeds.isEmpty {
+            BrowserOmniboxSuggestedFeeds()
+        } else {
+            gridContent
+        }
     }
 
     private var gridContent: some View {

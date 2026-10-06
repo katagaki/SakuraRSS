@@ -48,9 +48,7 @@ struct BrowserAdaptiveShell: View {
         .tabOmniboxEditing(isEditing: isEditingAddress) {
             BrowserOmniboxEditingField()
         }
-        .tabOmniboxPopup(
-            isPresented: BrowserOmniboxPopupContent.hasContent(omnibox: omnibox, feedManager: feedManager)
-        ) {
+        .tabOmniboxPopup {
             BrowserOmniboxPopupContent()
         }
         // Container only: swallowing the keyboard region too leaves the

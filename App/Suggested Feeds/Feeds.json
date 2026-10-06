@@ -172,10 +172,6 @@
                             "feedUrl": "https://www.cbsnews.com/latest/rss/main"
                         },
                         {
-                            "title": "CNN - Top Stories",
-                            "feedUrl": "https://rss.cnn.com/rss/edition.rss"
-                        },
-                        {
                             "title": "NPR News",
                             "feedUrl": "https://feeds.npr.org/1001/rss.xml"
                         },
@@ -261,10 +257,6 @@
                         {
                             "title": "CNBC - Business",
                             "feedUrl": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147"
-                        },
-                        {
-                            "title": "CNN Business",
-                            "feedUrl": "https://rss.cnn.com/rss/edition_business.rss"
                         },
                         {
                             "title": "Fortune",

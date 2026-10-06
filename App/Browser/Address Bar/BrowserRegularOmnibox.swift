@@ -6,7 +6,6 @@ import Hanami
 /// popup through EnhancedNavigation's top bar instead.
 struct BrowserRegularOmnibox: View {
 
-    @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserPageSlots.self) private var slots
     @Environment(BrowserFavourites.self) private var favourites
@@ -44,8 +43,7 @@ struct BrowserRegularOmnibox: View {
         // that only hit-test within the capsule, so taps on the popup fell
         // through to the page.
         .overlay(alignment: .top) {
-            if omnibox.isActive,
-               BrowserOmniboxPopupContent.hasContent(omnibox: omnibox, feedManager: feedManager) {
+            if omnibox.isActive {
                 // An overlay is proposed the field's height, which squeezed
                 // the popup down to a single row.
                 popup
