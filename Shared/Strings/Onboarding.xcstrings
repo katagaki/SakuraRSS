@@ -3216,13 +3216,13 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新機能"
+            "value" : "新機能のご紹介"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "새로운 기능"
+            "value" : "새로운 기능 소개"
           }
         },
         "nl" : {
@@ -3240,13 +3240,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新功能"
+            "value" : "新功能介绍"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新功能"
+            "value" : "新功能介紹"
           }
         }
       }
