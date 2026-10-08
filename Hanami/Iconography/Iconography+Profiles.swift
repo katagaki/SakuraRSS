@@ -32,6 +32,17 @@ public extension Iconography {
         return false
     }
 
+    /// YouTube redirects cookieless EU requests to a consent page that has no
+    /// `og:image`; a rejected-consent `SOCS` cookie skips it.
+    nonisolated static func profilePageRequest(for url: URL) -> URLRequest {
+        var request = URLRequest(url: url)
+        if let host = url.host?.lowercased(),
+           host == "youtube.com" || host.hasSuffix(".youtube.com") {
+            request.setValue("SOCS=CAA", forHTTPHeaderField: "Cookie")
+        }
+        return request
+    }
+
     /// Downloads an image at `url` via the icon cache's URL session.
     nonisolated func downloadImage(from url: URL) async -> PlatformImage? {
         guard let (data, _) = try? await Self.urlSession.data(from: url) else { return nil }
@@ -71,7 +82,7 @@ public extension Iconography {
         }
 
         do {
-            let (data, _) = try await Self.urlSession.data(from: url)
+            let (data, _) = try await Self.urlSession.data(for: Self.profilePageRequest(for: url))
             guard let html = String(data: data, encoding: .utf8) else {
                 log("Icon", "profile avatar: og:image fallback non-utf8 body for \(siteURL)")
                 return nil
