@@ -7,6 +7,7 @@ struct FeedArticleRow: View {
     @Environment(\.openURL) var openURL
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
+    let imageLayout: FeedImageLayout
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State private var icon: UIImage?
     @State private var feedName: String?
@@ -23,8 +24,9 @@ struct FeedArticleRow: View {
 
     private static let imageMaxPixelSize: CGFloat = 1200
 
-    init(article: Article) {
+    init(article: Article, imageLayout: FeedImageLayout = .carousel) {
         self.article = article
+        self.imageLayout = imageLayout
         guard let imageURL = article.imageURL, let url = URL(string: imageURL) else { return }
         if let widthOverHeight = ImageAspectRatioCache.shared.aspectRatio(for: imageURL),
            widthOverHeight > 0 {
@@ -102,20 +104,15 @@ struct FeedArticleRow: View {
                 .lineLimit(allowsUnlimitedTitleLines ? nil : 3)
                 .truncationMode(.tail)
 
-                if article.carouselImageURLs.count > 1 {
-                    let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
-                    if !urls.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(Array(urls.enumerated()), id: \.offset) { _, url in
-                                    CarouselImageView(url: url, height: 300)
-                                }
-                            }
+                if imageLayout != .single, multipleImageURLs.count > 1 {
+                    Group {
+                        if imageLayout == .grid {
+                            FeedImageGridView(urls: multipleImageURLs)
+                        } else {
+                            FeedImageCarouselView(urls: multipleImageURLs)
                         }
-                        .scrollClipDisabled()
-                        .contentMargins(.horizontal, 0)
-                        .padding(.top, 4)
                     }
+                    .padding(.top, 4)
                 } else if let loadedImage {
                     Color.clear
                         .frame(maxWidth: imageAspectRatio ?? 0 > 1 ? nil : .infinity)
@@ -262,6 +259,10 @@ private extension FeedArticleRow {
         let pixelWidth = image.size.width * image.scale
         let pixelHeight = image.size.height * image.scale
         return pixelWidth > 100 || pixelHeight > 100
+    }
+
+    var multipleImageURLs: [URL] {
+        article.carouselImageURLs.compactMap { URL(string: $0) }
     }
 
     var imageHeight: CGFloat {

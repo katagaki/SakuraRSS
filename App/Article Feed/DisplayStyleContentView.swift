@@ -27,7 +27,15 @@ struct DisplayStyleContentView: View {
             InboxStyleView(articles: articles, onLoadMore: onLoadMore, headerView: headerView,
                            usesStackLayout: usesStackLayout)
         case .feed:
-            FeedStyleView(articles: articles, variant: .full,
+            FeedStyleView(articles: articles, variant: .full(.carousel),
+                          onLoadMore: onLoadMore, headerView: headerView,
+                          usesStackLayout: usesStackLayout)
+        case .feedSingle:
+            FeedStyleView(articles: articles, variant: .full(.single),
+                          onLoadMore: onLoadMore, headerView: headerView,
+                          usesStackLayout: usesStackLayout)
+        case .feedGrid:
+            FeedStyleView(articles: articles, variant: .full(.grid),
                           onLoadMore: onLoadMore, headerView: headerView,
                           usesStackLayout: usesStackLayout)
         case .feedCompact:

@@ -20,7 +20,7 @@ extension ContentListViewController: NSTableViewDataSource, NSTableViewDelegate 
             let cell = reusableCell(ContentTimelineCellView.identifier) { ContentTimelineCellView() }
             cell.configure(article: article, feedTitle: feed?.title, isRead: isRead)
             return cell
-        case .feed:
+        case .feed, .feedSingle, .feedGrid:
             let cell = reusableCell(ContentPostCellView.identifier) { ContentPostCellView() }
             cell.configure(
                 article: article, feed: feed, isRead: isRead,

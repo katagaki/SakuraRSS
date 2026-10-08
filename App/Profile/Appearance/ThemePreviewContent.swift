@@ -28,7 +28,7 @@ struct FeedPreviewContent: View {
         switch style {
         case .compact:
             CompactRowPlaceholder(deviceWidth: deviceWidth)
-        case .feed:
+        case .feed, .feedSingle, .feedGrid:
             FeedRowPlaceholder(deviceWidth: deviceWidth)
         default:
             InboxRowPlaceholder(deviceWidth: deviceWidth)

@@ -6,7 +6,7 @@ struct FeedStyleView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
-    var variant: FeedStyleVariant = .full
+    var variant: FeedStyleVariant = .full(.carousel)
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
     var usesStackLayout: Bool = false
@@ -94,10 +94,11 @@ struct FeedStyleView: View {
 
     private func rowContent(for article: Article) -> some View {
         Group {
-            if variant == .compact {
+            switch variant {
+            case .full(let imageLayout):
+                FeedArticleRow(article: article, imageLayout: imageLayout)
+            case .compact:
                 CompactFeedArticleRow(article: article)
-            } else {
-                FeedArticleRow(article: article)
             }
         }
         .zoomSource(id: article.id, namespace: zoomNamespace)
