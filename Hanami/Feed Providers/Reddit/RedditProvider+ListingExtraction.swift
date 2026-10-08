@@ -10,6 +10,7 @@ public extension RedditProvider {
         }
 
         var map: [String: String] = [:]
+        var galleries: [String: [String]] = [:]
         for child in children {
             guard let post = child["data"] as? [String: Any],
                   let postID = post["id"] as? String, !postID.isEmpty else {
@@ -18,8 +19,11 @@ public extension RedditProvider {
             if let imageURL = bestListingImageURL(from: post) {
                 map[postID] = imageURL
             }
+            if let galleryURLs = postGalleryImageURLs(from: post), galleryURLs.count > 1 {
+                galleries[postID] = galleryURLs
+            }
         }
-        return RedditListingFetchResult(imagesByPostID: map)
+        return RedditListingFetchResult(imagesByPostID: map, galleryImagesByPostID: galleries)
     }
 
     /// Best still image for a post: preview source, then gallery, then

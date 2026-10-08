@@ -2,28 +2,32 @@ import Foundation
 
 public extension FeedManager {
 
-    /// Fetches one subreddit listing and returns a post-ID → image URL
-    /// map for articles whose RSS entry lacks a thumbnail.
+    /// Fetches one subreddit listing so articles whose RSS entry lacks a
+    /// thumbnail (or only carries one gallery image) can be filled in.
     nonisolated static func fetchRedditImages(
         forFeedURL feedURL: String
-    ) async -> [String: String] {
+    ) async -> RedditListingFetchResult {
         guard let url = URL(string: feedURL),
               let subreddit = RedditProvider.extractSubredditName(from: url) else {
-            return [:]
+            return RedditListingFetchResult(imagesByPostID: [:])
         }
-        let result = await RedditProvider.shared.fetchListing(subreddit: subreddit)
-        return result.imagesByPostID
+        return await RedditProvider.shared.fetchListing(subreddit: subreddit)
     }
 
-    /// Looks up the listing-image URL for an article by its Reddit post ID.
     nonisolated static func redditImageURL(
-        for articleURL: String, in map: [String: String]
+        for articleURL: String, in listing: RedditListingFetchResult
     ) -> String? {
-        guard !map.isEmpty,
-              let url = URL(string: articleURL),
-              let postID = RedditProvider.postID(from: url) else {
-            return nil
-        }
-        return map[postID]
+        redditPostID(for: articleURL).flatMap { listing.imagesByPostID[$0] }
+    }
+
+    nonisolated static func redditGalleryImageURLs(
+        for articleURL: String, in listing: RedditListingFetchResult
+    ) -> [String] {
+        redditPostID(for: articleURL).flatMap { listing.galleryImagesByPostID[$0] } ?? []
+    }
+
+    private nonisolated static func redditPostID(for articleURL: String) -> String? {
+        guard let url = URL(string: articleURL) else { return nil }
+        return RedditProvider.postID(from: url)
     }
 }

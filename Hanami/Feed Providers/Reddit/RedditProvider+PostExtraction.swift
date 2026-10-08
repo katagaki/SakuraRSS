@@ -75,7 +75,7 @@ public extension RedditProvider {
         return .markerString(markerLines.joined(separator: "\n\n"))
     }
 
-    private static func postGalleryImageURLs(from post: [String: Any]) -> [String]? {
+    static func postGalleryImageURLs(from post: [String: Any]) -> [String]? {
         guard let galleryData = post["gallery_data"] as? [String: Any],
               let items = galleryData["items"] as? [[String: Any]],
               let mediaMetadata = post["media_metadata"] as? [String: Any] else {
