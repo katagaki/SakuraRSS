@@ -107,6 +107,9 @@ struct MasonryArticleCard: View {
                 isCircleIcon = feed.isCircleIcon
                 skipIconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
                 icon = await Iconography.shared.icon(for: feed)
+            } else if article.isExternalBookmark {
+                feedName = BookmarkSite.name(of: article)
+                icon = await BookmarkSite.icon(for: article)
             }
         }
     }

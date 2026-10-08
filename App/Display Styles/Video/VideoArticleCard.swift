@@ -134,6 +134,9 @@ struct VideoArticleCard: View {
                 feedName = loadedFeed.title
                 acronymIcon = AcronymIconCache.shared.icon(for: loadedFeed)
                 icon = await Iconography.shared.icon(for: loadedFeed)
+            } else if article.isExternalBookmark {
+                feedName = BookmarkSite.name(of: article)
+                icon = await BookmarkSite.icon(for: article)
             }
         }
     }

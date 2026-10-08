@@ -11,10 +11,6 @@ struct BookmarkSiteIcon: View {
 
     @State private var icon: PlatformImage?
 
-    private var host: String? {
-        URL(string: article.url)?.host()
-    }
-
     var body: some View {
         Group {
             if let icon {
@@ -23,16 +19,15 @@ struct BookmarkSiteIcon: View {
                     .scaledToFit()
                     .padding(size * 0.2)
             } else {
-                InitialsAvatarView(host ?? article.displayTitle, size: size, cornerRadius: cornerRadius)
+                InitialsAvatarView(BookmarkSite.name(of: article) ?? article.displayTitle,
+                                   size: size, cornerRadius: cornerRadius)
             }
         }
         .frame(width: size, height: size)
         .background(.quinary)
         .clipShape(.rect(cornerRadius: cornerRadius))
         .task(id: article.url) {
-            guard let host else { return }
-            let siteURL = AppStoreFeedIcons.appID(for: host) == nil ? article.url : nil
-            icon = await Iconography.shared.icon(for: host, siteURL: siteURL)
+            icon = await BookmarkSite.icon(for: article)
         }
     }
 }

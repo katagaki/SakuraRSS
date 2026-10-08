@@ -224,6 +224,9 @@ struct FeedArticleRow: View {
                 showsPlayBadge = isVideoFeed || loadedFeed.isPodcast
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: loadedFeed.domain)
                 icon = await Iconography.shared.icon(for: loadedFeed)
+            } else if article.isExternalBookmark {
+                feedName = BookmarkSite.name(of: article)
+                icon = await BookmarkSite.icon(for: article)
             }
         }
         .task(id: article.imageURL) {

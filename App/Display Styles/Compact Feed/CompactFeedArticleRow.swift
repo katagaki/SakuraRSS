@@ -156,6 +156,9 @@ struct CompactFeedArticleRow: View {
                     opensInExternalApp = false
                 }
                 icon = await Iconography.shared.icon(for: loadedFeed)
+            } else if article.isExternalBookmark {
+                feedName = BookmarkSite.name(of: article)
+                icon = await BookmarkSite.icon(for: article)
             }
         }
         .sheet(isPresented: $showSafari) {

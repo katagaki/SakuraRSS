@@ -14,7 +14,9 @@ struct DiscoverArticleCard: View {
     private let imageHeight: CGFloat = 124
 
     private var feedName: String {
-        feedManager.feedsByID[article.feedID]?.title ?? ""
+        feedManager.feedsByID[article.feedID]?.title
+            ?? (article.isExternalBookmark ? BookmarkSite.name(of: article) : nil)
+            ?? ""
     }
 
     var body: some View {
@@ -50,7 +52,12 @@ struct DiscoverArticleCard: View {
         })
         .buttonStyle(.plain)
         .task {
-            guard let feed = feedManager.feedsByID[article.feedID] else { return }
+            guard let feed = feedManager.feedsByID[article.feedID] else {
+                if article.isExternalBookmark {
+                    icon = await BookmarkSite.icon(for: article)
+                }
+                return
+            }
             isCircleIcon = feed.isCircleIcon
             shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
             icon = await Iconography.shared.icon(for: feed)

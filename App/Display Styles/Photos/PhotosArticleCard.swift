@@ -91,6 +91,9 @@ struct PhotosArticleCard: View {
                 acronymIcon = AcronymIconCache.shared.icon(for: loadedFeed)
                 skipIconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
                 icon = await Iconography.shared.icon(for: loadedFeed)
+            } else if article.isExternalBookmark {
+                feedName = BookmarkSite.name(of: article)
+                icon = await BookmarkSite.icon(for: article)
             }
         }
         .task(id: article.imageURL) {
