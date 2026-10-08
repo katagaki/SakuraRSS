@@ -10,6 +10,7 @@ struct BrowserStartPage: View {
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @State private var isPresentingNewListSheet = false
     @State private var isPresentingQuickAccessEditor = false
+    @State private var isPresentingWeatherSettings = false
 
     var body: some View {
         #if os(visionOS)
@@ -26,7 +27,8 @@ struct BrowserStartPage: View {
         .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
             BrowserStartPageMenu(actions: BrowserStartPageActions(
                 newList: { isPresentingNewListSheet = true },
-                editQuickAccess: { isPresentingQuickAccessEditor = true }
+                editQuickAccess: { isPresentingQuickAccessEditor = true },
+                showWeatherSettings: { isPresentingWeatherSettings = true }
             ))
         }
         .sheet(isPresented: $isPresentingNewListSheet) {
@@ -42,6 +44,10 @@ struct BrowserStartPage: View {
                 symbolName: { $0.browserSymbolName(in: feedManager) }
             )
             .presentationDetents([.medium, .large])
+        }
+        .sheet(isPresented: $isPresentingWeatherSettings) {
+            TodayWeatherSettingsSheet()
+                .presentationDetents([.medium, .large])
         }
         #endif
     }
