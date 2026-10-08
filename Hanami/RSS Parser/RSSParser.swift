@@ -9,6 +9,8 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
     var currentContent = ""
     var currentDateStrings: [String: String] = [:]
     var currentImageURL = ""
+    var currentMediaImageURLs: [String] = []
+    var mediaGroupDepth = 0
     var currentAudioURL = ""
     var currentDuration = ""
 
@@ -106,6 +108,8 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
 
         if elementName == "image" {
             isInsideImage = false
+        } else if elementName == "media:group" {
+            mediaGroupDepth = max(mediaGroupDepth - 1, 0)
         } else if elementName == "item" || elementName == "entry" {
             finishCurrentItem()
             isInsideItem = false
@@ -136,6 +140,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
             ),
             content: trimmedContent.isEmpty ? nil : trimmedContent,
             imageURL: resolveImageURL(),
+            carouselImageURLs: currentMediaImageURLs.count > 1 ? currentMediaImageURLs : [],
             publishedDate: parseDate(preferredItemDateString()),
             audioURL: trimmedAudioURL.isEmpty ? nil : trimmedAudioURL,
             duration: parseDuration(currentDuration.trimmingCharacters(in: .whitespacesAndNewlines))

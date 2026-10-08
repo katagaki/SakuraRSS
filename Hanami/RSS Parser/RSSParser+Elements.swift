@@ -2,6 +2,8 @@ import Foundation
 
 nonisolated extension RSSParser {
 
+    static let maximumMediaImageCount = 10
+
     func handleStartElement(_ elementName: String, attributes attributeDict: [String: String]) {
         switch elementName {
         case "rss":
@@ -15,6 +17,15 @@ nonisolated extension RSSParser {
             resetItemState()
         case "link" where isAtom:
             handleAtomLink(attributeDict)
+        default:
+            handleMediaRSSElement(elementName, attributes: attributeDict)
+        }
+    }
+
+    private func handleMediaRSSElement(_ elementName: String, attributes attributeDict: [String: String]) {
+        switch elementName {
+        case "media:group":
+            mediaGroupDepth += 1
         case "enclosure", "media:content":
             handleMediaElement(elementName, attributes: attributeDict)
         case "media:thumbnail":
@@ -50,6 +61,8 @@ nonisolated extension RSSParser {
         currentContent = ""
         currentDateStrings = [:]
         currentImageURL = ""
+        currentMediaImageURLs = []
+        mediaGroupDepth = 0
         currentAudioURL = ""
         currentDuration = ""
     }
@@ -73,16 +86,32 @@ nonisolated extension RSSParser {
                 return
             }
             if type.hasPrefix("image/") {
-                currentImageURL = url
+                addMediaImage(url)
                 return
             }
         }
 
         if attributes["medium"] == "image" {
-            currentImageURL = url
+            addMediaImage(url)
         } else if elementName == "media:content", currentImageURL.isEmpty {
             currentImageURL = url
         }
+    }
+
+    // `media:group` lists renditions of one image, not separate images.
+    private func addMediaImage(_ url: String) {
+        guard mediaGroupDepth == 0 else {
+            if currentMediaImageURLs.isEmpty { currentImageURL = url }
+            return
+        }
+        guard isLikelyHeroImage(url) else {
+            if currentImageURL.isEmpty { currentImageURL = url }
+            return
+        }
+        guard currentMediaImageURLs.count < Self.maximumMediaImageCount,
+              !currentMediaImageURLs.contains(url) else { return }
+        if currentMediaImageURLs.isEmpty { currentImageURL = url }
+        currentMediaImageURLs.append(url)
     }
 
     func appendCharacters(_ string: String, for elementName: String) {
