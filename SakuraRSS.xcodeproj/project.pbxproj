@@ -202,6 +202,7 @@
 				"Bookmarks/Move to Folder/MoveToFolderSheet.swift",
 				Bookmarks/Reading/BookmarkFolderReadingSection.swift,
 				Bookmarks/Reading/BookmarkPreviewSection.swift,
+				Bookmarks/Reading/BookmarkSite.swift,
 				Bookmarks/Reading/BookmarkSiteIcon.swift,
 				Bookmarks/Tags/BookmarkTagChip.swift,
 				Bookmarks/Tags/BookmarkTagEditorSection.swift,
