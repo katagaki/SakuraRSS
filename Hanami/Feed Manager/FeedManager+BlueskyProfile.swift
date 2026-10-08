@@ -87,6 +87,7 @@ public extension FeedManager {
                     summary: post.text.isEmpty ? nil : post.text,
                     content: contentHTML,
                     imageURL: rowThumbnail,
+                    carouselImageURLs: post.images.count > 1 ? post.images.map(\.thumbURL) : [],
                     publishedDate: post.publishedDate
                 )
             )
