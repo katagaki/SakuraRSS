@@ -5,6 +5,7 @@ struct TodayGreetingView: View {
 
     @Bindable var weatherService: TodayWeatherService = .shared
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
+    @AppStorage(TodayWeatherService.enabledKey) private var isWeatherEnabled: Bool = true
     private let deloreanClock = DeloreanClock.shared
     @State private var greeting: TodayGreeting = .from(date: Date())
 
@@ -27,7 +28,7 @@ struct TodayGreetingView: View {
                 .font(greetingFont)
                 .fontWeight(.bold)
 
-            if HomeLayout.showsTodayWeather {
+            if HomeLayout.showsTodayWeather, isWeatherEnabled {
                 TodayWeatherCard(
                     usesFlatBackground: isOnGlass,
                     showsHourlyTimeLabels: !isCompact

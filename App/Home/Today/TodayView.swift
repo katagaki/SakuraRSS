@@ -13,6 +13,7 @@ struct TodayView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @State var isWideWindow: Bool = false
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
+    @AppStorage(TodayWeatherService.enabledKey) var isWeatherEnabled: Bool = true
     @Bindable var weatherService: TodayWeatherService = .shared
 
     var body: some View {
@@ -75,6 +76,7 @@ struct TodayView: View {
 
     var isWeatherShowing: Bool {
         HomeLayout.showsTodayWeather
+            && isWeatherEnabled
             && weatherService.lastError == nil
             && weatherService.weather != nil
     }

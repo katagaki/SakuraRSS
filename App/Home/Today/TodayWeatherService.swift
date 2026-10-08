@@ -51,6 +51,7 @@ final class TodayWeatherService {
 
     static let dailyLocationChangeLimit: Int = 3
 
+    static let enabledKey = "Today.Weather.Enabled"
     static let cacheKey = "Today.Weather.Cache"
     static let locationKey = "Today.Weather.Location"
     static let changeCountKey = "Today.Weather.LocationChangeCount"
@@ -62,6 +63,10 @@ final class TodayWeatherService {
     var lastError: String?
     var locationAuthorizationStatus: CLAuthorizationStatus = .notDetermined
     var locationChangesToday: Int = 0
+
+    static var isEnabled: Bool {
+        UserDefaults.standard.object(forKey: enabledKey) as? Bool ?? true
+    }
 
     var remainingLocationChanges: Int {
         max(0, Self.dailyLocationChangeLimit - locationChangesToday)
@@ -143,6 +148,10 @@ final class TodayWeatherService {
         // visionOS, so never fetch it (and never prompt for location) there.
         return
         #else
+        guard Self.isEnabled else {
+            log("Weather", "weather is turned off; skipping fetch")
+            return
+        }
         if let weather {
             let age = Int(Date().timeIntervalSince(weather.fetchedAt))
             if age < Int(Self.cacheLifetime) {
@@ -288,7 +297,7 @@ final class TodayWeatherService {
                     if self.pendingResolution != nil,
                        let manager = self.locationManager {
                         manager.requestLocation()
-                    } else if self.weather == nil, !self.isFetching {
+                    } else if Self.isEnabled, self.weather == nil, !self.isFetching {
                         await self.refresh(force: true)
                     }
                 case .denied, .restricted:
