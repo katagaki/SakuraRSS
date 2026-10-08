@@ -234,6 +234,7 @@
 				"Following/Edit Feed/Metadata Tab/EditFeedMetadataTab+PetalSection.swift",
 				"Following/Edit Feed/Previews/ArticleViewerPreviewView.swift",
 				"Following/Edit Feed/Previews/DisplayStylePreviewView.swift",
+				Home/Today/Shortcuts/TodayShortcutsEditorSheet.swift,
 				Home/Today/TodayWeatherService.swift,
 				"Home/Today/TodayWeatherService+Cache.swift",
 				"Home/Today/TodayWeatherService+Geocoding.swift",
