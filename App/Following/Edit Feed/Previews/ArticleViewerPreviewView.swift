@@ -27,7 +27,7 @@ struct ArticleViewerPreviewView: View {
         .navigationTitle(String(localized: "FeedEdit.Preview.ArticleTitle", table: "Feeds"))
         .inlineNavigationTitle()
         .toolbar {
-            ToolbarItem(placement: .sheetTrailing) {
+            ToolbarItem(placement: .sheetTrailingAccessory) {
                 Button {
                     if currentIndex > 0 { currentIndex -= 1 }
                 } label: {
@@ -38,7 +38,7 @@ struct ArticleViewerPreviewView: View {
             #if !os(visionOS) && !os(macOS)
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
             #endif
-            ToolbarItem(placement: .sheetTrailing) {
+            ToolbarItem(placement: .sheetTrailingAccessory) {
                 Button {
                     if currentIndex < sample.count - 1 { currentIndex += 1 }
                 } label: {

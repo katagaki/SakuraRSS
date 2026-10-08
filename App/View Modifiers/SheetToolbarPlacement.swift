@@ -31,6 +31,16 @@ extension ToolbarItemPlacement {
         .topBarTrailing
         #endif
     }
+
+    /// Trailing controls that aren't the sheet's confirm action, which macOS
+    /// would otherwise bind to Return.
+    static var sheetTrailingAccessory: ToolbarItemPlacement {
+        #if os(macOS)
+        .primaryAction
+        #else
+        .topBarTrailing
+        #endif
+    }
 }
 
 extension View {
