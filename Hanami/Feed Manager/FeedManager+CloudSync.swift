@@ -33,6 +33,18 @@ public extension FeedManager {
         CloudSyncEngine.shared.noteFeedDeleted(syncID: syncID)
     }
 
+    func captureUserListEdit(listID: Int64) {
+        try? database.setListUserModifiedAt(listID: listID, date: Date())
+        CloudSyncEngine.shared.noteListChanged(syncID: database.listSyncID(forListID: listID))
+    }
+
+    /// Records the deletion for sync. Call after the local row is gone.
+    func captureUserListDeletion(syncID: String?) {
+        guard let syncID else { return }
+        try? database.insertSyncTombstone(syncID: syncID)
+        CloudSyncEngine.shared.noteListDeleted(syncID: syncID)
+    }
+
     private func handleRemoteSyncChanges(insertedNewFeeds: Bool) async {
         await loadFromDatabaseInBackground()
         guard insertedNewFeeds else { return }

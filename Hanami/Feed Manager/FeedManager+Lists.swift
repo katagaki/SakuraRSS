@@ -8,23 +8,31 @@ public extension FeedManager {
     func createList(name: String, icon: String) throws -> Int64 {
         let sortOrder = lists.count
         let newID = try database.insertList(name: name, icon: icon, sortOrder: sortOrder)
+        captureUserListEdit(listID: newID)
         loadFromDatabase()
         return newID
     }
 
     func updateList(_ list: FeedList, name: String, icon: String, displayStyle: String?) {
         try? database.updateList(id: list.id, name: name, icon: icon, displayStyle: displayStyle)
+        captureUserListEdit(listID: list.id)
         loadFromDatabase()
     }
 
     func deleteList(_ list: FeedList) {
+        let syncID = database.listSyncID(forListID: list.id)
         try? database.deleteList(id: list.id)
+        captureUserListDeletion(syncID: syncID)
         loadFromDatabase()
     }
 
     func reorderLists(_ reordered: [FeedList]) {
         let orders = reordered.enumerated().map { (id: $0.element.id, sortOrder: $0.offset) }
         try? database.updateListSortOrders(orders)
+        let previousSortOrders = Dictionary(uniqueKeysWithValues: lists.map { ($0.id, $0.sortOrder) })
+        for order in orders where previousSortOrders[order.id] != order.sortOrder {
+            captureUserListEdit(listID: order.id)
+        }
         loadFromDatabase()
     }
 
@@ -32,11 +40,13 @@ public extension FeedManager {
 
     func addFeedToList(_ list: FeedList, feed: Feed) {
         try? database.addFeedToList(listID: list.id, feedID: feed.id)
+        captureUserListEdit(listID: list.id)
         loadFromDatabase()
     }
 
     func removeFeedFromList(_ list: FeedList, feed: Feed) {
         try? database.removeFeedFromList(listID: list.id, feedID: feed.id)
+        captureUserListEdit(listID: list.id)
         loadFromDatabase()
     }
 
@@ -110,14 +120,17 @@ public extension FeedManager {
 
     func saveAllowedKeywords(_ keywords: [String], for list: FeedList) {
         try? database.replaceListRules(listID: list.id, type: "allowed_keyword", values: keywords)
+        captureUserListEdit(listID: list.id)
     }
 
     func saveMutedKeywords(_ keywords: [String], for list: FeedList) {
         try? database.replaceListRules(listID: list.id, type: "muted_keyword", values: keywords)
+        captureUserListEdit(listID: list.id)
     }
 
     func saveMutedAuthors(_ authors: [String], for list: FeedList) {
         try? database.replaceListRules(listID: list.id, type: "muted_author", values: authors)
+        captureUserListEdit(listID: list.id)
     }
 
     func uniqueAuthorsInList(_ list: FeedList) -> [String] {
