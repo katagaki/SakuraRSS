@@ -24,6 +24,9 @@ final class BrowserSplitViewController: NSSplitViewController {
             moveToFolder: { [weak self] article in
                 guard let self else { return }
                 self.presentSwiftUISheet(MoveToFolderSheet(article: article), feedManager: self.feedManager)
+            },
+            editShortcuts: { [weak self] in
+                self?.presentShortcutsEditor()
             }
         )
         detailViewController = BrowserDetailViewController(
@@ -61,5 +64,15 @@ final class BrowserSplitViewController: NSSplitViewController {
     func show(_ location: BrowserLocation, context: BrowserLocation? = nil) {
         sidebarViewController.select(location)
         detailViewController.show(location, context: context)
+    }
+
+    private func presentShortcutsEditor() {
+        let feedManager = feedManager
+        let editor = TodayShortcutsEditorSheet(
+            items: TodayShortcutItem.macItems(in: feedManager),
+            title: { $0.location?.title(in: feedManager) ?? "" },
+            symbolName: { $0.location?.symbolName(in: feedManager) ?? "square.grid.2x2" }
+        )
+        presentSwiftUISheet(editor, feedManager: feedManager)
     }
 }
