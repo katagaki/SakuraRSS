@@ -307,6 +307,7 @@
 				"Suggested Feeds/SuggestedSite+Domain.swift",
 				"Suggested Feeds/SuggestedTopic+LocalizedTitle.swift",
 				"View Modifiers/CompatibleGlassEffect.swift",
+				"View Modifiers/EscapeAction.swift",
 				"View Modifiers/MarkReadOnScrollModifier.swift",
 				"View Modifiers/SakuraBackground.swift",
 				"View Modifiers/SheetDismiss.swift",

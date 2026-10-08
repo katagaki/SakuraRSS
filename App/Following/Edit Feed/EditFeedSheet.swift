@@ -56,6 +56,7 @@ struct EditFeedSheet: View {
                 feed = newValue
             }
         }
+        .onEscape { dismiss() }
     }
 
     @ViewBuilder
