@@ -309,6 +309,7 @@
 				"View Modifiers/CompatibleGlassEffect.swift",
 				"View Modifiers/MarkReadOnScrollModifier.swift",
 				"View Modifiers/SakuraBackground.swift",
+				"View Modifiers/SheetDismiss.swift",
 				"View Modifiers/SheetToolbarPlacement.swift",
 				"View Modifiers/URLTextInput.swift",
 				"YouTube Player/InjectedUserScript.swift",

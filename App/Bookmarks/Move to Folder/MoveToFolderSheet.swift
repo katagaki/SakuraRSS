@@ -4,7 +4,7 @@ import Hanami
 struct MoveToFolderSheet: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.dismiss) var dismiss
+    @SheetDismiss var dismiss
     let article: Article
 
     private var destinationFolders: [BookmarkFolder] {

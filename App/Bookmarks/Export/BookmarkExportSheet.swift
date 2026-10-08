@@ -3,7 +3,7 @@ import Hanami
 
 struct BookmarkExportSheet: View {
 
-    @Environment(\.dismiss) private var dismiss
+    @SheetDismiss private var dismiss
 
     @State private var format: BookmarkExportFormat = .json
     @State private var items: [ExportedBookmark] = []

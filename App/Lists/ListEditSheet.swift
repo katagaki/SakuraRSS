@@ -4,7 +4,7 @@ import Hanami
 struct ListEditSheet: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.dismiss) var dismiss
+    @SheetDismiss var dismiss
 
     let list: FeedList?
 

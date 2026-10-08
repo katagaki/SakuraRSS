@@ -4,7 +4,7 @@ import Hanami
 struct BookmarkDetailSheet: View {
 
     @Environment(FeedManager.self) private var feedManager
-    @Environment(\.dismiss) private var dismiss
+    @SheetDismiss private var dismiss
 
     let article: Article
 

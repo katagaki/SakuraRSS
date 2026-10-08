@@ -4,7 +4,7 @@ import Hanami
 struct BookmarkFolderEditSheet: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.dismiss) var dismiss
+    @SheetDismiss var dismiss
 
     let folder: BookmarkFolder?
 

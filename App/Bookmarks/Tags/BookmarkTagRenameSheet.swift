@@ -4,7 +4,7 @@ import Hanami
 struct BookmarkTagRenameSheet: View {
 
     @Environment(FeedManager.self) private var feedManager
-    @Environment(\.dismiss) private var dismiss
+    @SheetDismiss private var dismiss
 
     let tag: BookmarkTag
 
