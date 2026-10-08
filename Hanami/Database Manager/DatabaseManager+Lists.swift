@@ -12,7 +12,9 @@ public nonisolated extension DatabaseManager {
             listName <- name,
             listIcon <- icon,
             listDisplayStyle <- displayStyle,
-            listSortOrder <- sortOrder
+            listSortOrder <- sortOrder,
+            listSyncID <- Self.newListSyncID(),
+            listUserModifiedAt <- Date().timeIntervalSince1970
         ))
     }
 
@@ -42,6 +44,9 @@ public nonisolated extension DatabaseManager {
     }
 
     func deleteList(id: Int64) throws {
+        if let syncID = listSyncID(forListID: id) {
+            try removePendingListMembers(listSyncID: syncID)
+        }
         try database.run(listFeeds.filter(listFeedListID == id).delete())
         try database.run(listRules.filter(listRuleListID == id).delete())
         try database.run(lists.filter(listID == id).delete())

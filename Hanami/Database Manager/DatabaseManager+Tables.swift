@@ -9,6 +9,7 @@ nonisolated extension DatabaseManager {
         try migrateBookmarkColumns()
         try createNLPTables()
         try createSyncTables()
+        try migrateListSyncColumns()
     }
 
     private func createCoreTables() throws {

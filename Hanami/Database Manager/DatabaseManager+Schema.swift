@@ -130,6 +130,8 @@ public nonisolated extension DatabaseManager {
     var listIcon: SQLite.Expression<String> { SQLite.Expression<String>("icon") }
     var listDisplayStyle: SQLite.Expression<String?> { SQLite.Expression<String?>("display_style") }
     var listSortOrder: SQLite.Expression<Int> { SQLite.Expression<Int>("sort_order") }
+    var listSyncID: SQLite.Expression<String?> { SQLite.Expression<String?>("sync_id") }
+    var listUserModifiedAt: SQLite.Expression<Double?> { SQLite.Expression<Double?>("user_modified_at") }
 
     var listFeeds: Table { Table("list_feeds") }
     var listFeedListID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("list_id") }
@@ -187,6 +189,10 @@ public nonisolated extension DatabaseManager {
     var syncState: Table { Table("sync_state") }
     var syncStateKey: SQLite.Expression<String> { SQLite.Expression<String>("key") }
     var syncStateData: SQLite.Expression<Data> { SQLite.Expression<Data>("data") }
+
+    var listPendingMembers: Table { Table("list_pending_members") }
+    var pendingMemberListSyncID: SQLite.Expression<String> { SQLite.Expression<String>("list_sync_id") }
+    var pendingMemberFeedSyncID: SQLite.Expression<String> { SQLite.Expression<String>("feed_sync_id") }
 
     // MARK: - Feed Refresh Metrics
 
