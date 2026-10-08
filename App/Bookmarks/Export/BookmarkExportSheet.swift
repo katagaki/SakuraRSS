@@ -66,7 +66,9 @@ struct BookmarkExportSheet: View {
                 document: BookmarkExportDocument(text: output),
                 contentType: format.contentType,
                 defaultFilename: "bookmarks.\(format.fileExtension)"
-            ) { _ in }
+            ) { result in
+                if case .success = result { dismiss() }
+            }
             .task {
                 items = await Task.detached {
                     (try? DatabaseManager.shared.exportableBookmarks()) ?? []
