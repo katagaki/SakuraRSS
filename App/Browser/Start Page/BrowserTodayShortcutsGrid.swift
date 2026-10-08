@@ -6,68 +6,66 @@ struct BrowserTodayShortcutsGrid: View {
 
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
+    var onEditShortcuts: () -> Void
 
+    private let preferences = TodayShortcutPreferences.shared
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
 
-    private var lists: [FeedList] {
-        let base = feedManager.isFocusEffective
-            ? feedManager.lists.filter { feedManager.isListInFocus($0) }
-            : feedManager.lists
-        return base.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-    }
-
-    private var feedSections: [FeedSection] {
-        let feeds = feedManager.isFocusEffective
-            ? feedManager.feeds.filter { feedManager.focusedFeedIDs.contains($0.id) }
-            : feedManager.feeds
-        let followedSections = Set(feeds.map(\.feedSection))
-        return FeedSection.allCases.filter { followedSections.contains($0) }
+    private var visibleItems: [TodayShortcutItem] {
+        preferences.visible(TodayShortcutItem.browserItems(in: feedManager))
     }
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 12) {
-            shortcutButton(.following)
-            ForEach(feedSections, id: \.self) { section in
+            ForEach(visibleItems) { item in
                 Button {
-                    store.navigate(to: .feedSection(section))
+                    open(item)
                 } label: {
-                    BrowserTodayShortcutCell(
-                        title: section.localizedTitle,
-                        symbolName: section.browserSymbolName,
-                        section: section
-                    )
+                    label(for: item)
                 }
                 .buttonStyle(.plain)
                 .contextMenu {
-                    openInNewTabButton(.feedSection(section))
-                }
-            }
-            ForEach(BrowserTodayShortcut.allCases.filter { $0 != .following }) { shortcut in
-                shortcutButton(shortcut)
-            }
-            ForEach(lists) { list in
-                Button {
-                    store.navigate(to: .list(list.id))
-                } label: {
-                    FollowingListGridCell(list: list)
-                }
-                .buttonStyle(.plain)
-                .contextMenu {
-                    openInNewTabButton(.list(list.id))
+                    if let location = item.browserLocation {
+                        openInNewTabButton(location)
+                    }
+                    Button {
+                        withAnimation(.smooth.speed(2.0)) {
+                            preferences.setHidden(true, for: item)
+                        }
+                    } label: {
+                        Label(String(localized: "Today.Shortcuts.Hide", table: "Home"),
+                              systemImage: "eye.slash")
+                    }
+                    Button(action: onEditShortcuts) {
+                        Label(String(localized: "Today.Shortcuts.Edit", table: "Home"),
+                              systemImage: "square.grid.2x2")
+                    }
                 }
             }
         }
-        .animation(.smooth.speed(2.0), value: feedSections)
+        .animation(.smooth.speed(2.0), value: visibleItems)
         .animation(.smooth.speed(2.0), value: feedManager.lists)
     }
 
-    private func shortcutButton(_ shortcut: BrowserTodayShortcut) -> some View {
-        Button {
-            open(shortcut)
-        } label: {
-            BrowserTodayShortcutCell(title: shortcut.title, symbolName: shortcut.symbolName)
+    @ViewBuilder
+    private func label(for item: TodayShortcutItem) -> some View {
+        switch item {
+        case .list(let listID):
+            if let list = feedManager.lists.first(where: { $0.id == listID }) {
+                FollowingListGridCell(list: list)
+            }
+        case .feedSection(let section):
+            BrowserTodayShortcutCell(
+                title: item.browserTitle(in: feedManager),
+                symbolName: item.browserSymbolName(in: feedManager),
+                section: section
+            )
+        default:
+            BrowserTodayShortcutCell(
+                title: item.browserTitle(in: feedManager),
+                symbolName: item.browserSymbolName(in: feedManager)
+            )
         }
-        .buttonStyle(.plain)
     }
 
     private func openInNewTabButton(_ location: BrowserLocation) -> some View {
@@ -79,12 +77,11 @@ struct BrowserTodayShortcutsGrid: View {
         }
     }
 
-    private func open(_ shortcut: BrowserTodayShortcut) {
-        switch shortcut {
-        case .following: store.navigate(to: .feeds)
-        case .allContent: store.navigate(to: .allContent)
-        case .topics: store.navigate(to: .topics)
-        case .bookmarks: store.push(BrowserBookmarksDestination())
+    private func open(_ item: TodayShortcutItem) {
+        if let location = item.browserLocation {
+            store.navigate(to: location)
+        } else {
+            store.push(BrowserBookmarksDestination())
         }
     }
 }

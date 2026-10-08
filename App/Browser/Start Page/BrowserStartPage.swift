@@ -9,6 +9,7 @@ struct BrowserStartPage: View {
     @Environment(FeedManager.self) private var feedManager
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @State private var isPresentingNewListSheet = false
+    @State private var isPresentingShortcutsEditor = false
 
     var body: some View {
         #if os(visionOS)
@@ -17,14 +18,15 @@ struct BrowserStartPage: View {
         #else
         TodayView(pinnedSection: AnyView(
             VStack(alignment: .leading, spacing: 16) {
-                BrowserTodayShortcutsGrid()
+                BrowserTodayShortcutsGrid(onEditShortcuts: { isPresentingShortcutsEditor = true })
                 BrowserRecentContentSection()
             }
             .padding(.horizontal)
         ))
         .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
             BrowserStartPageMenu(actions: BrowserStartPageActions(
-                newList: { isPresentingNewListSheet = true }
+                newList: { isPresentingNewListSheet = true },
+                editShortcuts: { isPresentingShortcutsEditor = true }
             ))
         }
         .sheet(isPresented: $isPresentingNewListSheet) {
@@ -32,6 +34,14 @@ struct BrowserStartPage: View {
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
+        }
+        .sheet(isPresented: $isPresentingShortcutsEditor) {
+            TodayShortcutsEditorSheet(
+                items: TodayShortcutItem.browserItems(in: feedManager),
+                title: { $0.browserTitle(in: feedManager) },
+                symbolName: { $0.browserSymbolName(in: feedManager) }
+            )
+            .presentationDetents([.medium, .large])
         }
         #endif
     }
