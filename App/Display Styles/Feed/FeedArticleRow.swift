@@ -16,6 +16,7 @@ struct FeedArticleRow: View {
     @State private var isCircleIcon = false
     @State private var allowsUnlimitedTitleLines = false
     @State private var showsPlayBadge = false
+    @State private var isLinkFeed = false
     @State private var shouldCenterImage = false
     @State private var feed: Feed?
     @State private var showSafari = false
@@ -129,6 +130,11 @@ struct FeedArticleRow: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
                         }
+                        .overlay(alignment: .bottomLeading) {
+                            if let imageOverlayTitle {
+                                FeedImageTitleOverlay(title: imageOverlayTitle)
+                            }
+                        }
                         .overlay {
                             if showsPlayBadge || article.hasXVideoThumbnail {
                                 Image(systemName: "play.fill")
@@ -219,9 +225,12 @@ struct FeedArticleRow: View {
                 isCircleIcon = loadedFeed.isCircleIcon
                 allowsUnlimitedTitleLines = isXFeed || isInstagramFeed
                 showsPlayBadge = isVideoFeed || loadedFeed.isPodcast
+                isLinkFeed = !loadedFeed.isSocialFeed && !loadedFeed.isFediverseFeed
+                    && !loadedFeed.isBlueskyFeed
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: loadedFeed.domain)
                 icon = await Iconography.shared.icon(for: loadedFeed)
             } else if article.isExternalBookmark {
+                isLinkFeed = true
                 feedName = BookmarkSite.name(of: article)
                 icon = await BookmarkSite.icon(for: article)
             }
@@ -263,6 +272,13 @@ private extension FeedArticleRow {
 
     var multipleImageURLs: [URL] {
         article.carouselImageURLs.compactMap { URL(string: $0) }
+    }
+
+    var imageOverlayTitle: String? {
+        guard isLinkFeed, article.hasMeaningfulSummary, let summary = article.summary else { return nil }
+        let title = article.displayTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty, !summary.hasPrefix(title) else { return nil }
+        return title
     }
 
     var imageHeight: CGFloat {
