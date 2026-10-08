@@ -188,6 +188,14 @@ public nonisolated extension DatabaseManager {
     var syncStateKey: SQLite.Expression<String> { SQLite.Expression<String>("key") }
     var syncStateData: SQLite.Expression<Data> { SQLite.Expression<Data>("data") }
 
+    var pendingItemStatuses: Table { Table("pending_item_statuses") }
+    var pendingStatusURL: SQLite.Expression<String> { SQLite.Expression<String>("url") }
+    var pendingStatusIsRead: SQLite.Expression<Bool> { SQLite.Expression<Bool>("is_read") }
+    var pendingStatusIsBookmarked: SQLite.Expression<Bool> { SQLite.Expression<Bool>("is_bookmarked") }
+    var pendingStatusModifiedAt: SQLite.Expression<Double> { SQLite.Expression<Double>("modified_at") }
+    var pendingStatusSyncID: SQLite.Expression<String> { SQLite.Expression<String>("sync_id") }
+    var pendingStatusReceivedAt: SQLite.Expression<Double> { SQLite.Expression<Double>("received_at") }
+
     // MARK: - Feed Refresh Metrics
 
     var feedRefreshMetrics: Table { Table("feed_refresh_metrics") }

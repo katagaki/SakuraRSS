@@ -78,6 +78,7 @@ nonisolated extension CloudSyncEngine {
             appliedAnything = true
         }
         if appliedAnything {
+            database.prunePendingItemStatuses()
             onRemoteChangesApplied?(insertedNewFeeds)
         }
     }
@@ -115,7 +116,10 @@ nonisolated extension CloudSyncEngine {
         database.setSyncEngineStateData(nil, forKey: Self.archivedRecordKeyPrefix + syncID)
         // A deleted status record only clears sync bookkeeping (e.g. the other
         // device cleaned up an old item); the local read/bookmark state stays.
-        if Self.isItemStatusID(syncID) { return }
+        if Self.isItemStatusID(syncID) {
+            database.removePendingItemStatus(syncID: syncID)
+            return
+        }
         try? database.removeSyncTombstone(syncID: syncID)
         guard let feed = try? database.feed(bySyncID: syncID) else { return }
         if let onRemoteFeedDeleted {

@@ -146,6 +146,7 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
     func clearSyncMetadata() {
         database.clearSyncEngineState()
         try? database.removeAllSyncTombstones()
+        database.removeAllPendingItemStatuses()
     }
 
     // MARK: - Change Notifications
