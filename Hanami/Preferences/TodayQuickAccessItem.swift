@@ -1,6 +1,6 @@
 import Foundation
 
-public nonisolated enum TodayShortcutItem: Hashable, Sendable, Identifiable {
+public nonisolated enum TodayQuickAccessItem: Hashable, Sendable, Identifiable {
     case following
     case allContent
     case bookmarks

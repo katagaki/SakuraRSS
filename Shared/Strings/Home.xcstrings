@@ -1695,137 +1695,137 @@
         }
       }
     },
-    "Today.Shortcuts.Edit" : {
+    "Today.QuickAccess.Edit" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kurzbefehle bearbeiten"
+            "value" : "Schnellzugriff bearbeiten"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Edit Shortcuts"
+            "value" : "Edit Quick Access"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modifier les raccourcis"
+            "value" : "Modifier l'accès rapide"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modifica scorciatoie"
+            "value" : "Modifica accesso rapido"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ショートカットを編集"
+            "value" : "クイックアクセスを編集"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "바로가기 편집"
+            "value" : "빠른 접근 편집"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Snelkoppelingen wijzigen"
+            "value" : "Snelle toegang wijzigen"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sửa lối tắt"
+            "value" : "Sửa truy cập nhanh"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "编辑快捷方式"
+            "value" : "编辑快速访问"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "編輯捷徑"
+            "value" : "編輯快速存取"
           }
         }
       }
     },
-    "Today.Shortcuts.Footer" : {
+    "Today.QuickAccess.Footer" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wähle aus, welche Kurzbefehle angezeigt werden, und ziehe sie, um ihre Reihenfolge zu ändern."
+            "value" : "Wähle aus, was im Schnellzugriff angezeigt wird, und ziehe Einträge, um ihre Reihenfolge zu ändern."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Choose which shortcuts to show, and drag them to change their order."
+            "value" : "Choose what appears in Quick Access, and drag items to change their order."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choisissez les raccourcis à afficher et faites-les glisser pour modifier leur ordre."
+            "value" : "Choisissez ce qui apparaît dans l'accès rapide et faites glisser les éléments pour modifier leur ordre."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scegli quali scorciatoie mostrare e trascinale per cambiarne l'ordine."
+            "value" : "Scegli cosa mostrare in Accesso rapido e trascina gli elementi per cambiarne l'ordine."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "表示するショートカットを選び、ドラッグして並べ替えます。"
+            "value" : "クイックアクセスに表示する項目を選び、ドラッグして並べ替えます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "표시할 바로가기를 선택하고 드래그하여 순서를 변경하세요."
+            "value" : "빠른 접근에 표시할 항목을 선택하고 드래그하여 순서를 변경하세요."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kies welke snelkoppelingen je wilt tonen en sleep ze om de volgorde te wijzigen."
+            "value" : "Kies wat er in Snelle toegang verschijnt en sleep items om de volgorde te wijzigen."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chọn lối tắt cần hiển thị và kéo để thay đổi thứ tự."
+            "value" : "Chọn mục hiển thị trong Truy cập nhanh và kéo để thay đổi thứ tự."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择要显示的快捷方式，拖移即可更改顺序。"
+            "value" : "选择要在快速访问中显示的项目，拖移即可更改顺序。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇要顯示的捷徑，拖移即可更改順序。"
+            "value" : "選擇要在快速存取中顯示的項目，拖移即可更改順序。"
           }
         }
       }
     },
-    "Today.Shortcuts.Hide" : {
+    "Today.QuickAccess.Hide" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -1890,7 +1890,7 @@
         }
       }
     },
-    "Today.Shortcuts.Reset" : {
+    "Today.QuickAccess.Reset" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {

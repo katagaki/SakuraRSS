@@ -1,15 +1,15 @@
 import SwiftUI
 import Hanami
 
-struct TodayShortcutsEditorSheet: View {
+struct TodayQuickAccessEditorSheet: View {
 
-    let items: [TodayShortcutItem]
-    let title: (TodayShortcutItem) -> String
-    let symbolName: (TodayShortcutItem) -> String
+    let items: [TodayQuickAccessItem]
+    let title: (TodayQuickAccessItem) -> String
+    let symbolName: (TodayQuickAccessItem) -> String
 
     @Environment(\.dismiss) private var dismiss
-    @State private var orderedItems: [TodayShortcutItem] = []
-    private let preferences = TodayShortcutPreferences.shared
+    @State private var orderedItems: [TodayQuickAccessItem] = []
+    private let preferences = TodayQuickAccessPreferences.shared
 
     var body: some View {
         NavigationStack {
@@ -25,11 +25,11 @@ struct TodayShortcutsEditorSheet: View {
                         preferences.saveOrder(orderedItems)
                     }
                 } footer: {
-                    Text(String(localized: "Today.Shortcuts.Footer", table: "Home"))
+                    Text(String(localized: "Today.QuickAccess.Footer", table: "Home"))
                 }
 
                 Section {
-                    Button(String(localized: "Today.Shortcuts.Reset", table: "Home"), role: .destructive) {
+                    Button(String(localized: "Today.QuickAccess.Reset", table: "Home"), role: .destructive) {
                         preferences.reset()
                         withAnimation(.smooth.speed(2.0)) {
                             orderedItems = preferences.ordered(items)
@@ -42,7 +42,7 @@ struct TodayShortcutsEditorSheet: View {
             #if os(iOS)
             .environment(\.editMode, .constant(.active))
             #endif
-            .navigationTitle(String(localized: "Today.Shortcuts.Edit", table: "Home"))
+            .navigationTitle(String(localized: "Today.QuickAccess.Edit", table: "Home"))
             .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
@@ -58,7 +58,7 @@ struct TodayShortcutsEditorSheet: View {
         }
     }
 
-    private func visibilityBinding(for item: TodayShortcutItem) -> Binding<Bool> {
+    private func visibilityBinding(for item: TodayQuickAccessItem) -> Binding<Bool> {
         Binding(
             get: { !preferences.isHidden(item) },
             set: { preferences.setHidden(!$0, for: item) }

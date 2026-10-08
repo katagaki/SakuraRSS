@@ -1,7 +1,7 @@
 import SwiftUI
 import Hanami
 
-struct BrowserTodayShortcutCell: View {
+struct BrowserTodayQuickAccessCell: View {
     let title: String
     let symbolName: String
     var section: FeedSection?
@@ -12,7 +12,7 @@ struct BrowserTodayShortcutCell: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 6) {
-            shortcutIcon
+            itemIcon
                 .contentShape(
                     .hoverEffect,
                     AnyShape(RoundedRectangle(cornerRadius: iconCornerRadius))
@@ -35,7 +35,7 @@ struct BrowserTodayShortcutCell: View {
     }
 
     @ViewBuilder
-    private var shortcutIcon: some View {
+    private var itemIcon: some View {
         if let icon {
             Image(uiImage: icon)
                 .resizable()

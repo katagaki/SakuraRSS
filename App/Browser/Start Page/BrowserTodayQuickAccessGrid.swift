@@ -2,17 +2,17 @@ import EnhancedNavigation
 import SwiftUI
 import Hanami
 
-struct BrowserTodayShortcutsGrid: View {
+struct BrowserTodayQuickAccessGrid: View {
 
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
-    var onEditShortcuts: () -> Void
+    var onEditQuickAccess: () -> Void
 
-    private let preferences = TodayShortcutPreferences.shared
+    private let preferences = TodayQuickAccessPreferences.shared
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
 
-    private var visibleItems: [TodayShortcutItem] {
-        preferences.visible(TodayShortcutItem.browserItems(in: feedManager))
+    private var visibleItems: [TodayQuickAccessItem] {
+        preferences.visible(TodayQuickAccessItem.browserItems(in: feedManager))
     }
 
     var body: some View {
@@ -33,11 +33,11 @@ struct BrowserTodayShortcutsGrid: View {
                             preferences.setHidden(true, for: item)
                         }
                     } label: {
-                        Label(String(localized: "Today.Shortcuts.Hide", table: "Home"),
+                        Label(String(localized: "Today.QuickAccess.Hide", table: "Home"),
                               systemImage: "eye.slash")
                     }
-                    Button(action: onEditShortcuts) {
-                        Label(String(localized: "Today.Shortcuts.Edit", table: "Home"),
+                    Button(action: onEditQuickAccess) {
+                        Label(String(localized: "Today.QuickAccess.Edit", table: "Home"),
                               systemImage: "square.grid.2x2")
                     }
                 }
@@ -48,20 +48,20 @@ struct BrowserTodayShortcutsGrid: View {
     }
 
     @ViewBuilder
-    private func label(for item: TodayShortcutItem) -> some View {
+    private func label(for item: TodayQuickAccessItem) -> some View {
         switch item {
         case .list(let listID):
             if let list = feedManager.lists.first(where: { $0.id == listID }) {
                 FollowingListGridCell(list: list)
             }
         case .feedSection(let section):
-            BrowserTodayShortcutCell(
+            BrowserTodayQuickAccessCell(
                 title: item.browserTitle(in: feedManager),
                 symbolName: item.browserSymbolName(in: feedManager),
                 section: section
             )
         default:
-            BrowserTodayShortcutCell(
+            BrowserTodayQuickAccessCell(
                 title: item.browserTitle(in: feedManager),
                 symbolName: item.browserSymbolName(in: feedManager)
             )
@@ -77,7 +77,7 @@ struct BrowserTodayShortcutsGrid: View {
         }
     }
 
-    private func open(_ item: TodayShortcutItem) {
+    private func open(_ item: TodayQuickAccessItem) {
         if let location = item.browserLocation {
             store.navigate(to: location)
         } else {

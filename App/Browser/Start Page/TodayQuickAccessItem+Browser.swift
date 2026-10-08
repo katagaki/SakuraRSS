@@ -1,10 +1,10 @@
 import SwiftUI
 import Hanami
 
-extension TodayShortcutItem {
+extension TodayQuickAccessItem {
 
-    /// Every shortcut Today can offer right now, in the default order.
-    static func browserItems(in feedManager: FeedManager) -> [TodayShortcutItem] {
+    /// Every Quick Access item Today can offer right now, in the default order.
+    static func browserItems(in feedManager: FeedManager) -> [TodayQuickAccessItem] {
         let feeds = feedManager.isFocusEffective
             ? feedManager.feeds.filter { feedManager.focusedFeedIDs.contains($0.id) }
             : feedManager.feeds

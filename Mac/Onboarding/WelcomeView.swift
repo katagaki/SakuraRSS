@@ -69,7 +69,7 @@ struct WelcomeView: View {
             do {
                 try await iCloudBackupManager.shared.restore()
                 feedManager.loadFromDatabase()
-                TodayShortcutPreferences.shared.reload()
+                TodayQuickAccessPreferences.shared.reload()
                 finish()
             } catch {
                 showsRestoreError = true

@@ -4,5 +4,5 @@ import SwiftUI
 struct BrowserStartPageActions {
 
     var newList: () -> Void
-    var editShortcuts: () -> Void
+    var editQuickAccess: () -> Void
 }

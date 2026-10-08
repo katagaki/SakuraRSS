@@ -96,7 +96,7 @@ extension OnboardingView {
             do {
                 try await iCloudBackupManager.shared.restore()
                 feedManager.loadFromDatabase()
-                TodayShortcutPreferences.shared.reload()
+                TodayQuickAccessPreferences.shared.reload()
                 UserDefaults.standard.set(true, forKey: "Onboarding.Completed")
                 onComplete()
             } catch {

@@ -25,8 +25,8 @@ final class BrowserSplitViewController: NSSplitViewController {
                 guard let self else { return }
                 self.presentSwiftUISheet(MoveToFolderSheet(article: article), feedManager: self.feedManager)
             },
-            editShortcuts: { [weak self] in
-                self?.presentShortcutsEditor()
+            editQuickAccess: { [weak self] in
+                self?.presentQuickAccessEditor()
             }
         )
         detailViewController = BrowserDetailViewController(
@@ -66,10 +66,10 @@ final class BrowserSplitViewController: NSSplitViewController {
         detailViewController.show(location, context: context)
     }
 
-    private func presentShortcutsEditor() {
+    private func presentQuickAccessEditor() {
         let feedManager = feedManager
-        let editor = TodayShortcutsEditorSheet(
-            items: TodayShortcutItem.macItems(in: feedManager),
+        let editor = TodayQuickAccessEditorSheet(
+            items: TodayQuickAccessItem.macItems(in: feedManager),
             title: { $0.location?.title(in: feedManager) ?? "" },
             symbolName: { $0.location?.symbolName(in: feedManager) ?? "square.grid.2x2" }
         )
