@@ -46,6 +46,7 @@ struct PetalElementPickerView: View {
                 .background(.background)
             }
         }
+        .onEscape { dismiss() }
         .interactiveDismissDisabled()
     }
 }
