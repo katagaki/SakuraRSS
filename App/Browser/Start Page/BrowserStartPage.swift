@@ -9,7 +9,7 @@ struct BrowserStartPage: View {
     @Environment(FeedManager.self) private var feedManager
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @State private var isPresentingNewListSheet = false
-    @State private var isPresentingQuickAccessEditor = false
+    @State private var isEditingQuickAccess = false
     @State private var isPresentingWeatherSettings = false
 
     var body: some View {
@@ -19,15 +19,25 @@ struct BrowserStartPage: View {
         #else
         TodayView(pinnedSection: AnyView(
             VStack(alignment: .leading, spacing: 16) {
-                BrowserTodayQuickAccessGrid(onEditQuickAccess: { isPresentingQuickAccessEditor = true })
+                BrowserTodayQuickAccessGrid(
+                    isEditing: isEditingQuickAccess,
+                    onBeginEditing: { setEditingQuickAccess(true) }
+                )
                 BrowserRecentContentSection()
             }
             .padding(.horizontal)
         ))
+        .safeAreaInset(edge: .bottom) {
+            if isEditingQuickAccess {
+                TodayQuickAccessEndEditingButton { setEditingQuickAccess(false) }
+                    .padding(.bottom, 8)
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
         .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
             BrowserStartPageMenu(actions: BrowserStartPageActions(
                 newList: { isPresentingNewListSheet = true },
-                editQuickAccess: { isPresentingQuickAccessEditor = true },
+                editQuickAccess: { setEditingQuickAccess(true) },
                 showWeatherSettings: { isPresentingWeatherSettings = true }
             ))
         }
@@ -37,18 +47,16 @@ struct BrowserStartPage: View {
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
         }
-        .sheet(isPresented: $isPresentingQuickAccessEditor) {
-            TodayQuickAccessEditorSheet(
-                items: TodayQuickAccessItem.browserItems(in: feedManager),
-                title: { $0.browserTitle(in: feedManager) },
-                symbolName: { $0.browserSymbolName(in: feedManager) }
-            )
-            .presentationDetents([.medium, .large])
-        }
         .sheet(isPresented: $isPresentingWeatherSettings) {
             TodayWeatherSettingsSheet()
                 .presentationDetents([.medium, .large])
         }
         #endif
+    }
+
+    private func setEditingQuickAccess(_ isEditing: Bool) {
+        withAnimation(.smooth.speed(2.0)) {
+            isEditingQuickAccess = isEditing
+        }
     }
 }

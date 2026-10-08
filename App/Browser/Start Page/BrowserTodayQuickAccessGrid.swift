@@ -6,22 +6,32 @@ struct BrowserTodayQuickAccessGrid: View {
 
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
-    var onEditQuickAccess: () -> Void
+    var isEditing: Bool
+    var onBeginEditing: () -> Void
+
+    static let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
 
     private let preferences = TodayQuickAccessPreferences.shared
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
 
     private var visibleItems: [TodayQuickAccessItem] {
         preferences.visible(TodayQuickAccessItem.browserItems(in: feedManager))
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 12) {
+        if isEditing {
+            BrowserTodayQuickAccessEditingGrid()
+        } else {
+            quickAccessGrid
+        }
+    }
+
+    private var quickAccessGrid: some View {
+        LazyVGrid(columns: Self.columns, spacing: 12) {
             ForEach(visibleItems) { item in
                 Button {
                     open(item)
                 } label: {
-                    label(for: item)
+                    BrowserTodayQuickAccessLabel(item: item)
                 }
                 .buttonStyle(.plain)
                 .contextMenu {
@@ -36,7 +46,7 @@ struct BrowserTodayQuickAccessGrid: View {
                         Label(String(localized: "Today.QuickAccess.Hide", table: "Home"),
                               systemImage: "eye.slash")
                     }
-                    Button(action: onEditQuickAccess) {
+                    Button(action: onBeginEditing) {
                         Label(String(localized: "Today.QuickAccess.Edit", table: "Home"),
                               systemImage: "square.grid.2x2")
                     }
@@ -45,27 +55,6 @@ struct BrowserTodayQuickAccessGrid: View {
         }
         .animation(.smooth.speed(2.0), value: visibleItems)
         .animation(.smooth.speed(2.0), value: feedManager.lists)
-    }
-
-    @ViewBuilder
-    private func label(for item: TodayQuickAccessItem) -> some View {
-        switch item {
-        case .list(let listID):
-            if let list = feedManager.lists.first(where: { $0.id == listID }) {
-                FollowingListGridCell(list: list)
-            }
-        case .feedSection(let section):
-            BrowserTodayQuickAccessCell(
-                title: item.browserTitle(in: feedManager),
-                symbolName: item.browserSymbolName(in: feedManager),
-                section: section
-            )
-        default:
-            BrowserTodayQuickAccessCell(
-                title: item.browserTitle(in: feedManager),
-                symbolName: item.browserSymbolName(in: feedManager)
-            )
-        }
     }
 
     private func openInNewTabButton(_ location: BrowserLocation) -> some View {
