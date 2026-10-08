@@ -4,7 +4,7 @@ import SwiftUI
 struct AddFeedSheet: View {
 
     let feedManager: FeedManager
-    let onDone: () -> Void
+    @SheetDismiss private var dismiss
     @State var session: FeedDiscoverySession
     @State private var input = ""
     @State private var isGeneratingWebFeed = false
@@ -34,12 +34,13 @@ struct AddFeedSheet: View {
                         .disabled(input.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
                 Spacer()
-                Button(String(localized: "Shared.Done"), action: onDone)
+                Button(String(localized: "Shared.Done")) { dismiss() }
                     .keyboardShortcut(.defaultAction)
             }
         }
         .padding(20)
         .frame(width: 520)
+        .onEscape { dismiss() }
         .sheet(isPresented: $isGeneratingWebFeed) {
             PetalBuilderView(mode: .create(initialURL: BrowserAddressInput.normalizedURLString(from: input) ?? input))
                 .environment(feedManager)
