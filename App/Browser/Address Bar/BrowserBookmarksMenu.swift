@@ -51,5 +51,6 @@ struct BrowserBookmarksMenu: View {
             Label(String(localized: "Tabs.More"), systemImage: "ellipsis")
         }
         .menuActionDismissBehavior(.disabled)
+        .menuOrder(.fixed)
     }
 }

@@ -102,6 +102,7 @@ struct BookmarkFolderArticlesView: View {
                         Image(systemName: "line.3.horizontal.decrease")
                     }
                     .menuActionDismissBehavior(.disabled)
+                    .menuOrder(.fixed)
                 }
             }
         }

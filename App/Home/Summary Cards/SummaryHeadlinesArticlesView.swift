@@ -58,6 +58,7 @@ struct SummaryHeadlinesArticlesView: View {
                     Image(systemName: "line.3.horizontal.decrease")
                 }
                 .menuActionDismissBehavior(.disabled)
+                .menuOrder(.fixed)
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
