@@ -10,6 +10,9 @@ struct BrowserTodayQuickAccessEditingGrid: View {
 
     private let preferences = TodayQuickAccessPreferences.shared
 
+    /// The icon's centre, measured from the badge, so the badge swings with the icon.
+    private static let badgeRotationAnchor = UnitPoint(x: 0.5 + 26.0 / 24.0, y: 0.5 + 26.0 / 24.0)
+
     var body: some View {
         LazyVGrid(columns: BrowserTodayQuickAccessGrid.columns, spacing: 12) {
             ForEach(Array(items.enumerated()), id: \.element) { index, item in
@@ -27,9 +30,10 @@ struct BrowserTodayQuickAccessEditingGrid: View {
             .opacity(isHidden ? 0.4 : 1)
             .overlay(alignment: .top) {
                 TodayQuickAccessVisibilityBadge(isVisible: !isHidden)
+                    .wiggleRotation(anchor: Self.badgeRotationAnchor)
                     .offset(x: -26, y: -10)
             }
-            .wiggle(true, seed: Double(index % 17) / 17.0)
+            .wiggleChildren(true, seed: Double(index % 17) / 17.0)
             .contentShape(.rect)
             .onTapGesture {
                 withAnimation(.smooth.speed(2.0)) {

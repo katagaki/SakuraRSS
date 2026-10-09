@@ -5,6 +5,7 @@ struct WiggleModifier: ViewModifier {
 
     let isActive: Bool
     let seed: Double
+    var rotatesContent: Bool = true
     @State private var animate = false
 
     private var magnitude: Double {
@@ -23,7 +24,8 @@ struct WiggleModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .rotationEffect(.degrees(rotation))
+            .rotationEffect(.degrees(rotatesContent ? rotation : 0))
+            .environment(\.wiggleAngle, .degrees(rotatesContent ? 0 : rotation))
             .onChange(of: isActive) { _, newValue in
                 if newValue {
                     DispatchQueue.main.asyncAfter(deadline: .now() + phaseOffset) {
@@ -56,5 +58,11 @@ struct WiggleModifier: ViewModifier {
 extension View {
     func wiggle(_ isActive: Bool, seed: Double = 0) -> some View {
         modifier(WiggleModifier(isActive: isActive, seed: seed))
+    }
+
+    /// Liquid Glass balloons in size under `rotationEffect`, so views holding glass
+    /// wiggle their parts instead, through `wiggleRotation()` and `wiggleGlassEffect(in:)`.
+    func wiggleChildren(_ isActive: Bool, seed: Double = 0) -> some View {
+        modifier(WiggleModifier(isActive: isActive, seed: seed, rotatesContent: false))
     }
 }

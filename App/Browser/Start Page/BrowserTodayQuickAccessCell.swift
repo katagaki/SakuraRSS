@@ -25,6 +25,7 @@ struct BrowserTodayQuickAccessCell: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(2, reservesSpace: true)
                 .truncationMode(.middle)
+                .wiggleRotation()
         }
         .frame(maxWidth: .infinity)
         .contentShape(.rect)
@@ -42,15 +43,14 @@ struct BrowserTodayQuickAccessCell: View {
                 .scaledToFill()
                 .frame(width: iconSize, height: iconSize)
                 .clipShape(RoundedRectangle(cornerRadius: iconCornerRadius))
+                .wiggleRotation()
         } else {
             Image(systemName: symbolName)
                 .font(.system(size: 24))
                 .foregroundStyle(.tint)
+                .wiggleRotation()
                 .frame(width: iconSize, height: iconSize)
-                .compatibleGlassEffect(
-                    in: RoundedRectangle(cornerRadius: iconCornerRadius),
-                    clear: false
-                )
+                .wiggleGlassEffect(in: RoundedRectangle(cornerRadius: iconCornerRadius))
         }
     }
 }
