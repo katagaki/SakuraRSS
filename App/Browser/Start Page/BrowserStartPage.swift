@@ -24,13 +24,13 @@ struct BrowserStartPage: View {
                         isEditing: isEditingQuickAccess,
                         onBeginEditing: { setEditingQuickAccess(true) }
                     )
-                    if !isEditingQuickAccess {
+                    if !hidesContentBelowQuickAccess {
                         BrowserRecentContentSection()
                     }
                 }
                 .padding(.horizontal)
             ),
-            isEditing: isEditingQuickAccess
+            isEditing: hidesContentBelowQuickAccess
         )
         .safeAreaInset(edge: .bottom) {
             if isEditingQuickAccess {
@@ -57,6 +57,10 @@ struct BrowserStartPage: View {
                 .presentationDetents([.medium, .large])
         }
         #endif
+    }
+
+    private var hidesContentBelowQuickAccess: Bool {
+        isEditingQuickAccess && HomeLayout.usesPhoneTopBar
     }
 
     private func setEditingQuickAccess(_ isEditing: Bool) {
