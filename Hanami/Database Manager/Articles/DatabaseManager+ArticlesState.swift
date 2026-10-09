@@ -88,7 +88,7 @@ public nonisolated extension DatabaseManager {
 
     func allUnreadCounts() throws -> [Int64: Int] {
         var counts: [Int64: Int] = [:]
-        let query = "SELECT feed_id, COUNT(*) FROM articles WHERE is_read = 0 GROUP BY feed_id"
+        let query = "SELECT feed_id, COUNT(*) FROM articles WHERE is_read = 0 AND feed_id != 0 GROUP BY feed_id"
         for row in try database.prepare(query) {
             if let feedID = row[0] as? Int64, let count = row[1] as? Int64 {
                 counts[feedID] = Int(count)
