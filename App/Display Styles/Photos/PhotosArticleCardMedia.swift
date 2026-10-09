@@ -3,6 +3,7 @@ import Hanami
 
 struct PhotosArticleCardMedia: View {
 
+    @Environment(FeedManager.self) private var feedManager
     let article: Article
     let maxPixelSize: CGFloat
     @Binding var photoImage: UIImage?
@@ -11,12 +12,16 @@ struct PhotosArticleCardMedia: View {
 
     private static let minimumAspectRatio: CGFloat = 4.0 / 5.0
 
+    private var carouselImageURLs: [String] {
+        feedManager.carouselImageURLs(for: article)
+    }
+
     private var effectiveAspectRatio: CGFloat {
         max(imageAspectRatio ?? Self.minimumAspectRatio, Self.minimumAspectRatio)
     }
 
     var body: some View {
-        if article.carouselImageURLs.count > 1 {
+        if carouselImageURLs.count > 1 {
             carouselView
         } else if let photoImage, article.imageURL != nil {
             singleImageView(photoImage)
@@ -25,7 +30,7 @@ struct PhotosArticleCardMedia: View {
 
     @ViewBuilder
     private var carouselView: some View {
-        let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
+        let urls = carouselImageURLs.compactMap { URL(string: $0) }
         if !urls.isEmpty {
             TabView(selection: $currentPage) {
                 ForEach(Array(urls.enumerated()), id: \.offset) { index, url in

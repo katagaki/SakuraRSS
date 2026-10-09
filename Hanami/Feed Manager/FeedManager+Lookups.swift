@@ -12,6 +12,14 @@ public extension FeedManager {
         feedsByID[article.feedID]
     }
 
+    /// Every feed stores its media images, but blogs list each inline image as
+    /// media, so only social and Fediverse posts show theirs as a carousel.
+    func carouselImageURLs(for article: Article) -> [String] {
+        guard let feed = feed(forArticle: article),
+              feed.isSocialFeed || feed.isFediverseFeed || feed.isBlueskyFeed else { return [] }
+        return article.carouselImageURLs
+    }
+
     /// Returns the raw article (no Content Override applied). The viewer relies on this
     /// to display the original RSS data; lists go through the override pipeline instead.
     ///

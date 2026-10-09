@@ -271,7 +271,7 @@ private extension FeedArticleRow {
     }
 
     var multipleImageURLs: [URL] {
-        article.carouselImageURLs.compactMap { URL(string: $0) }
+        feedManager.carouselImageURLs(for: article).compactMap { URL(string: $0) }
     }
 
     var imageOverlayTitle: String? {

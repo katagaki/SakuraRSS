@@ -172,8 +172,6 @@ public extension FeedManager {
         let redditListing = (!skipImageFetch && feed.isRedditFeed && hasNewArticles)
             ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
             : RedditListingFetchResult(imagesByPostID: [:])
-        // Blogs declare every inline image as media, which would turn long-form posts into carousels.
-        let keepsMediaCarousels = feed.isFediverseFeed || feed.isSocialFeed
         // Stored articles only need a row when their published date can be backfilled.
         let insertableArticles = parsed.articles.filter { article in
             !existingURLs.contains(article.url)
@@ -197,8 +195,7 @@ public extension FeedManager {
                     summary: article.summary,
                     content: article.content,
                     imageURL: resolvedImageURL,
-                    carouselImageURLs: !redditGallery.isEmpty ? redditGallery
-                        : keepsMediaCarousels ? article.carouselImageURLs : [],
+                    carouselImageURLs: !redditGallery.isEmpty ? redditGallery : article.carouselImageURLs,
                     publishedDate: article.publishedDate,
                     audioURL: article.audioURL,
                     duration: article.duration
