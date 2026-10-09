@@ -73,6 +73,14 @@ public nonisolated extension DatabaseManager {
         ).map { $0[listFeedFeedID] }
     }
 
+    func allListFeedIDs() throws -> [Int64: Set<Int64>] {
+        var membership: [Int64: Set<Int64>] = [:]
+        for row in try readDatabase.prepare(listFeeds.select(listFeedListID, listFeedFeedID)) {
+            membership[row[listFeedListID], default: []].insert(row[listFeedFeedID])
+        }
+        return membership
+    }
+
     func listIDs(forFeedID fid: Int64) throws -> [Int64] {
         try readDatabase.prepare(
             listFeeds.filter(listFeedFeedID == fid).select(listFeedListID)

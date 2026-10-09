@@ -51,24 +51,24 @@ public extension FeedManager {
     }
 
     func feeds(for list: FeedList) -> [Feed] {
-        let ids = Set((try? database.feedIDs(forListID: list.id)) ?? [])
+        let ids = feedIDs(for: list)
         return feeds.filter { ids.contains($0.id) }
     }
 
     func feedIDs(for list: FeedList) -> Set<Int64> {
-        Set((try? database.feedIDs(forListID: list.id)) ?? [])
+        listFeedIDs[list.id] ?? []
     }
 
     func feedCount(for list: FeedList) -> Int {
-        (try? database.feedCount(forListID: list.id)) ?? 0
+        listFeedIDs[list.id]?.count ?? 0
     }
 
     func listsContainingFeed(_ feed: Feed) -> [FeedList] {
-        (try? database.listsContainingFeed(feedID: feed.id)) ?? []
+        lists.filter { listFeedIDs[$0.id]?.contains(feed.id) ?? false }
     }
 
     func listIDsForFeed(_ feed: Feed) -> Set<Int64> {
-        Set((try? database.listIDs(forFeedID: feed.id)) ?? [])
+        Set(listFeedIDs.compactMap { $0.value.contains(feed.id) ? $0.key : nil })
     }
 
     // MARK: - List Article Queries
@@ -97,7 +97,6 @@ public extension FeedManager {
     }
 
     func unreadCount(for list: FeedList) -> Int {
-        _ = dataRevision
         let ids = feedIDs(for: list)
         return ids.reduce(0) { partial, feedID in
             partial + effectiveUnreadCount(forFeedID: feedID)

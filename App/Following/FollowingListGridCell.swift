@@ -28,7 +28,6 @@ struct FollowingListGridCell: View {
     }
 
     private var feedsInList: [Feed] {
-        _ = feedManager.dataRevision
         let ids = feedManager.feedIDs(for: list)
         let ordered = feedManager.feeds.filter { ids.contains($0.id) }
         return Array(ordered.prefix(4))

@@ -10,6 +10,8 @@ public final class FeedManager {
     public var feeds: [Feed] = []
     public var articles: [Article] = []
     public var lists: [FeedList] = []
+    /// Feed IDs per list ID, loaded with `lists` so rows don't query membership on render.
+    public internal(set) var listFeedIDs: [Int64: Set<Int64>] = [:]
     public var bookmarkFolders: [BookmarkFolder] = []
     public var isLoading = false
     public var isStopping = false
@@ -176,6 +178,7 @@ public final class FeedManager {
             articles = try database.allArticlesList(limit: 200)
             reloadUnreadCounts()
             lists = (try? database.allLists()) ?? []
+            listFeedIDs = (try? database.allListFeedIDs()) ?? [:]
             bookmarkFolders = (try? database.allBookmarkFolders()) ?? []
             pendingReadIDs.removeAll()
             unflushedReadIDs.removeAll()
@@ -201,14 +204,8 @@ public final class FeedManager {
     public func loadFromDatabaseInBackground(animated: Bool = false) async {
         let dbm = database
         do {
-            let (
-                loadedFeeds,
-                loadedArticles,
-                loadedUnreadCounts,
-                loadedReelsCounts,
-                loadedLists,
-                loadedBookmarkFolders
-            ) = try await Task.detached {
+            let (loadedFeeds, loadedArticles, loadedUnreadCounts, loadedReelsCounts,
+                 loadedLists, loadedListFeedIDs, loadedBookmarkFolders) = try await Task.detached {
                 let feeds = try dbm.allFeeds()
                 let articles = try dbm.allArticlesList(limit: 200)
                 let rawUnreadCounts = (try? dbm.allUnreadCounts()) ?? [:]
@@ -216,8 +213,9 @@ public final class FeedManager {
                 let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
                 let reelsCounts = (try? dbm.unreadReelsCounts(forFeedIDs: instagramFeedIDs)) ?? [:]
                 let lists = (try? dbm.allLists()) ?? []
+                let listFeedIDs = (try? dbm.allListFeedIDs()) ?? [:]
                 let bookmarkFolders = (try? dbm.allBookmarkFolders()) ?? []
-                return (feeds, articles, unreadCounts, reelsCounts, lists, bookmarkFolders)
+                return (feeds, articles, unreadCounts, reelsCounts, lists, listFeedIDs, bookmarkFolders)
             }.value
             await MainActor.run {
                 let apply = {
@@ -227,6 +225,7 @@ public final class FeedManager {
                     self.unreadCounts = loadedUnreadCounts
                     self.unreadReelsCounts = loadedReelsCounts
                     self.lists = loadedLists
+                    self.listFeedIDs = loadedListFeedIDs
                     self.bookmarkFolders = loadedBookmarkFolders
                     self.applyLoadedPageHidesReadContent(FeedManager.loadPageHidesReadContent(from: dbm))
                     self.pendingReadIDs.removeAll()
