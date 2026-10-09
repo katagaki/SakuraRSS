@@ -24,13 +24,9 @@ struct ArticlesView: View {
     var headerView: AnyView?
     var additionalLeadingToolbar: AnyView?
     var effectiveStyleBinding: Binding<FeedDisplayStyle?>?
-    var onScrollOffsetChange: ((CGFloat) -> Void)?
 
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @Environment(\.isBrowserModeActive) private var isBrowserModeActive
     @State private var displayStyle: FeedDisplayStyle
-    @State private var isShowingMarkAllReadConfirmation = false
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
     let hasImages: Bool
@@ -48,8 +44,7 @@ struct ArticlesView: View {
          scrollToTopTrigger: Int = 0,
          headerView: AnyView? = nil,
          additionalLeadingToolbar: AnyView? = nil,
-         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
-         onScrollOffsetChange: ((CGFloat) -> Void)? = nil) {
+         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil) {
         self.articles = articles
         var foundImage = false
         var foundAudio = false
@@ -77,7 +72,6 @@ struct ArticlesView: View {
         self.headerView = headerView
         self.additionalLeadingToolbar = additionalLeadingToolbar
         self.effectiveStyleBinding = effectiveStyleBinding
-        self.onScrollOffsetChange = onScrollOffsetChange
         let traits = FeedKindTraits(
             isPodcastFeed: isPodcastFeed,
             isVideoFeed: isVideoFeed,
@@ -123,11 +117,6 @@ struct ArticlesView: View {
                     proxy.scrollTo(firstID, anchor: .top)
                 }
             }
-            .onScrollGeometryChange(for: CGFloat.self) { geometry in
-                geometry.contentOffset.y
-            } action: { _, newOffset in
-                onScrollOffsetChange?(newOffset)
-            }
         }
         .browserReaderSplit(isEnabled: usesReaderSplit(for: effectiveStyle))
         .sakuraBackground()
@@ -138,37 +127,10 @@ struct ArticlesView: View {
         .toolbarTitleDisplayMode(titleDisplayMode)
         // The browser hides the top bar, so the list's own actions go in the
         // omnibox's menu instead.
-        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+        .tabOmniboxAccessory {
             BrowserPageDisplayMenu(options: browserDisplayStyleOptions, markAllRead: onMarkAllRead)
         }
         .toolbar {
-            if !isBrowserChromeActive, markAllReadPosition == .top, let onMarkAllRead {
-                ToolbarItemGroup(placement: .topBarLeading) {
-                    Button {
-                        isShowingMarkAllReadConfirmation = true
-                    } label: {
-                        Image(systemName: "envelope.open")
-                            .font(.system(size: 14.0))
-                    }
-                    .popover(isPresented: $isShowingMarkAllReadConfirmation) {
-                        VStack(spacing: 12) {
-                            Text(String(localized: "MarkAllRead.Confirm", table: "Articles"))
-                                .font(.body)
-                            Button {
-                                isShowingMarkAllReadConfirmation = false
-                                Task { @MainActor in onMarkAllRead() }
-                            } label: {
-                                Text(String(localized: "MarkAllRead", table: "Articles"))
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 6)
-                            }
-                            .buttonStyle(.bordered)
-                        }
-                        .padding(20)
-                        .presentationCompactAdaptation(.popover)
-                    }
-                }
-            }
             if let additionalLeadingToolbar {
                 #if !os(visionOS)
                 ToolbarSpacer(.fixed, placement: .topBarLeading)
