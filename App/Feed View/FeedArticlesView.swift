@@ -15,7 +15,6 @@ struct FeedArticlesView: View {
     @State private var hasInitializedSinceDate = false
     @State private var preloadedEntries: [ArticleIDEntry] = []
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
-    @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
     @State private var hasScrolledPastTitle: Bool = false
@@ -32,8 +31,12 @@ struct FeedArticlesView: View {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
     }
 
+    private var pageKey: String {
+        feedManager.pageKey(for: currentFeed)
+    }
+
     private var hideViewedContent: Bool {
-        DoomscrollingMode.effectiveHideViewedContent(storedHideViewedContent)
+        feedManager.hidesReadContent(onPage: pageKey)
     }
 
     private var currentFeed: Feed {
@@ -126,14 +129,6 @@ struct FeedArticlesView: View {
         undatedTail = feedManager.undatedArticles(for: feed)
     }
 
-    var styleSupportsRichHeader: Bool {
-        effectiveDisplayStyle?.supportsRichHeader ?? true
-    }
-
-    var showsPrincipalTitle: Bool {
-        !isBrowserChromeActive && (!styleSupportsRichHeader || hasScrolledPastTitle)
-    }
-
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
@@ -153,6 +148,7 @@ struct FeedArticlesView: View {
             onMarkAllRead: {
                 feedManager.markAllRead(feed: feed)
             },
+            hideReadContent: feedManager.hideReadContentBinding(onPage: pageKey),
             scrollToTopTrigger: scrollToTopTick,
             headerView: AnyView(
                 FeedHeaderView(feed: currentFeed)
@@ -279,6 +275,14 @@ struct FeedArticlesView: View {
 }
 
 extension FeedArticlesView {
+
+    var styleSupportsRichHeader: Bool {
+        effectiveDisplayStyle?.supportsRichHeader ?? true
+    }
+
+    var showsPrincipalTitle: Bool {
+        !isBrowserChromeActive && (!styleSupportsRichHeader || hasScrolledPastTitle)
+    }
 
     @ViewBuilder
     var principalTitleContent: some View {

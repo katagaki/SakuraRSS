@@ -74,7 +74,6 @@ struct HomeSectionView: View {
     @State private var hasInitializedSinceDate = false
     @State var preloadedEntries: [ArticleIDEntry] = []
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
-    @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
     @State private var loadMoreTarget: LoadMoreTarget?
@@ -92,7 +91,7 @@ struct HomeSectionView: View {
     }
 
     var hideViewedContent: Bool {
-        DoomscrollingMode.effectiveHideViewedContent(storedHideViewedContent)
+        feedManager.hidesReadContent(onPage: pageKey)
     }
 
     private var batcher: ArticleIDBatcher {
@@ -179,6 +178,7 @@ struct HomeSectionView: View {
             onLoadMore: loadMoreAction,
             onRefresh: { await performRefresh() },
             onMarkAllRead: performMarkAllRead,
+            hideReadContent: feedManager.hideReadContentBinding(onPage: pageKey),
             scrollToTopTrigger: scrollToTopTick &+ externalScrollToTopTrigger,
             headerView: headerView,
             effectiveStyleBinding: effectiveStyleBinding,

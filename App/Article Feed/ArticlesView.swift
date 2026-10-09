@@ -20,6 +20,7 @@ struct ArticlesView: View {
     var onLoadMore: (() -> Void)?
     var onRefresh: (() async -> Void)?
     var onMarkAllRead: (() -> Void)?
+    var hideReadContent: Binding<Bool>?
     var scrollToTopTrigger: Int
     var headerView: AnyView?
     var additionalLeadingToolbar: AnyView?
@@ -45,6 +46,7 @@ struct ArticlesView: View {
          onLoadMore: (() -> Void)? = nil,
          onRefresh: (() async -> Void)? = nil,
          onMarkAllRead: (() -> Void)? = nil,
+         hideReadContent: Binding<Bool>? = nil,
          scrollToTopTrigger: Int = 0,
          headerView: AnyView? = nil,
          additionalLeadingToolbar: AnyView? = nil,
@@ -73,6 +75,7 @@ struct ArticlesView: View {
         self.onLoadMore = onLoadMore
         self.onRefresh = onRefresh
         self.onMarkAllRead = onMarkAllRead
+        self.hideReadContent = hideReadContent
         self.scrollToTopTrigger = scrollToTopTrigger
         self.headerView = headerView
         self.additionalLeadingToolbar = additionalLeadingToolbar
@@ -139,7 +142,11 @@ struct ArticlesView: View {
         // The browser hides the top bar, so the list's own actions go in the
         // omnibox's menu instead.
         .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
-            BrowserPageDisplayMenu(options: browserDisplayStyleOptions, markAllRead: onMarkAllRead)
+            BrowserPageDisplayMenu(
+                options: browserDisplayStyleOptions,
+                markAllRead: onMarkAllRead,
+                hideReadContent: hideReadContent
+            )
         }
         .toolbar {
             if !isBrowserChromeActive, markAllReadPosition == .top, let onMarkAllRead {
@@ -194,6 +201,11 @@ struct ArticlesView: View {
                         showTimeline: feedKey != "all",
                         showPodcast: isPodcastFeed || hasAudioArticles
                     )
+                    if let hideReadContent {
+                        Section {
+                            HideReadContentToggle(isOn: hideReadContent)
+                        }
+                    }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")
                 }
