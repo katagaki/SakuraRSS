@@ -6,13 +6,11 @@ struct BookmarkFolderArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) var dismiss
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     let folder: BookmarkFolder
 
     @State private var articles: [Article] = []
     @State private var articleIDs: [Int64] = []
     @State private var displayStyle: FeedDisplayStyle
-    @State private var hasScrolledPastTitle: Bool = false
 
     init(folder: BookmarkFolder) {
         self.folder = folder
@@ -53,10 +51,6 @@ struct BookmarkFolderArticlesView: View {
         return displayStyle
     }
 
-    private var showsPrincipalTitle: Bool {
-        !effectiveDisplayStyle.supportsRichHeader || hasScrolledPastTitle
-    }
-
     var body: some View {
         Group {
             if articles.isEmpty {
@@ -85,41 +79,12 @@ struct BookmarkFolderArticlesView: View {
         // .automatic inherits .inlineLarge from the Bookmarks root and
         // reserves empty large title space above the header.
         .toolbarTitleDisplayMode(.inline)
-        .toolbar {
-            if !isBrowserChromeActive {
-                ToolbarItem(placement: .principal) {
-                    principalTitle
-                }
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Menu {
-                        DisplayStylePicker(
-                            displayStyle: $displayStyle,
-                            hasImages: hasImages,
-                            showCards: false,
-                            showScroll: false
-                        )
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
-                    }
-                    .menuActionDismissBehavior(.disabled)
-                    .menuOrder(.fixed)
-                }
-            }
-        }
-        .onScrollGeometryChange(for: Bool.self) { geometry in
-            geometry.contentOffset.y > 90
-        } action: { _, scrolled in
-            guard scrolled != hasScrolledPastTitle else { return }
-            withAnimation(.smooth.speed(2.0)) {
-                hasScrolledPastTitle = scrolled
-            }
-        }
         .animation(.smooth.speed(2.0), value: displayStyle)
         .animation(.smooth.speed(2.0), value: articleIDs)
         .onChange(of: displayStyle) { _, newValue in
             feedManager.updateBookmarkFolderDisplayStyle(currentFolder, displayStyle: newValue.rawValue)
         }
-        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+        .tabOmniboxAccessory {
             BrowserPageDisplayMenu(options: browserDisplayStyleOptions)
         }
         .task(id: feedManager.dataRevision) {
@@ -128,31 +93,6 @@ struct BookmarkFolderArticlesView: View {
         .onChange(of: folderExists) { _, exists in
             if !exists { dismiss() }
         }
-    }
-
-    @ViewBuilder
-    private var principalTitle: some View {
-        #if os(visionOS)
-        Text(currentFolder.name)
-            .font(.subheadline)
-            .fontWeight(.semibold)
-            .lineLimit(1)
-            .truncationMode(.middle)
-            .frame(height: 42)
-            .opacity(showsPrincipalTitle ? 1 : 0)
-            .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
-        #else
-        Text(currentFolder.name)
-            .font(.subheadline)
-            .fontWeight(.semibold)
-            .lineLimit(1)
-            .truncationMode(.middle)
-            .frame(height: 42)
-            .padding(.horizontal, 18)
-            .compatibleGlassEffect(in: .capsule)
-            .opacity(showsPrincipalTitle ? 1 : 0)
-            .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
-        #endif
     }
 
     private func reloadArticles() async {

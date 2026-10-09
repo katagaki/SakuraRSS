@@ -18,7 +18,6 @@ struct HomeSectionView: View {
     let showsListHeader: Bool
     let showsLastUpdated: Bool
     let effectiveStyleBinding: Binding<FeedDisplayStyle?>?
-    let externalScrollToTopTrigger: Int
     var leadingHeader: AnyView?
 
     init(
@@ -26,14 +25,12 @@ struct HomeSectionView: View {
         showsListHeader: Bool = false,
         showsLastUpdated: Bool = true,
         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
-        externalScrollToTopTrigger: Int = 0,
         leadingHeader: AnyView? = nil
     ) {
         self.source = source
         self.showsListHeader = showsListHeader
         self.showsLastUpdated = showsLastUpdated
         self.effectiveStyleBinding = effectiveStyleBinding
-        self.externalScrollToTopTrigger = externalScrollToTopTrigger
         self.leadingHeader = leadingHeader
     }
 
@@ -42,21 +39,18 @@ struct HomeSectionView: View {
         self.showsListHeader = false
         self.showsLastUpdated = true
         self.effectiveStyleBinding = nil
-        self.externalScrollToTopTrigger = 0
     }
 
     init(
         list: FeedList,
         showsListHeader: Bool = false,
         showsLastUpdated: Bool = true,
-        effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
-        externalScrollToTopTrigger: Int = 0
+        effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil
     ) {
         self.source = .list(list)
         self.showsListHeader = showsListHeader
         self.showsLastUpdated = showsLastUpdated
         self.effectiveStyleBinding = effectiveStyleBinding
-        self.externalScrollToTopTrigger = externalScrollToTopTrigger
     }
 
     init(topic: String) {
@@ -64,7 +58,6 @@ struct HomeSectionView: View {
         self.showsListHeader = false
         self.showsLastUpdated = true
         self.effectiveStyleBinding = nil
-        self.externalScrollToTopTrigger = 0
     }
 
     @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
@@ -81,10 +74,6 @@ struct HomeSectionView: View {
     @State private var lastLoadedHideViewed: Bool?
     @State private var fetchedArticles: [Article] = []
     @State private var hasLoadedWindow = false
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
-    @State private var isMarkReadPillVisible = false
-    @State private var isShowingMarkAllReadConfirmation = false
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -180,17 +169,12 @@ struct HomeSectionView: View {
             onRefresh: { await performRefresh() },
             onMarkAllRead: performMarkAllRead,
             hideReadContent: feedManager.hideReadContentBinding(onPage: pageKey),
-            scrollToTopTrigger: scrollToTopTick &+ externalScrollToTopTrigger,
+            scrollToTopTrigger: scrollToTopTick,
             headerView: headerView,
-            effectiveStyleBinding: effectiveStyleBinding,
-            onScrollOffsetChange: handleScrollOffsetChange
+            effectiveStyleBinding: effectiveStyleBinding
         )
         .refreshable { [source] in
             startRefreshWithoutBlocking(source: source)
-        }
-        .environment(\.articleListBottomInset, markAllReadBottomInset)
-        .overlay(alignment: .bottom) {
-            markAllReadPill
         }
         .hideReadContentPrompt(
             isVisible: visibility.containsReadContent(shownArticles, isRead: feedManager.isRead)
@@ -260,41 +244,6 @@ extension HomeSectionView {
     /// Latest preloaded entry date, so the initial batch anchors on visible content.
     func latestArticleDate() -> Date? {
         preloadedEntries.compactMap(\.publishedDate).max()
-    }
-
-    var markAllReadBottomInset: CGFloat {
-        !isBrowserChromeActive && HomeLayout.usesPhoneTopBar && markAllReadPosition == .top ? 64 : 0
-    }
-
-    @ViewBuilder
-    var markAllReadPill: some View {
-        // The browser has a single mark as read button in its bottom bar,
-        // so the floating pill would be a second one.
-        if !isBrowserChromeActive, HomeLayout.usesPhoneTopBar,
-           markAllReadPosition == .top, isMarkReadPillVisible {
-            MarkAllReadPill {
-                isShowingMarkAllReadConfirmation = true
-            }
-            .padding(.bottom, 8)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-            .confirmationDialog(
-                String(localized: "MarkAllRead.Confirm", table: "Articles"),
-                isPresented: $isShowingMarkAllReadConfirmation,
-                titleVisibility: .visible
-            ) {
-                Button(String(localized: "MarkAllRead", table: "Articles")) {
-                    performMarkAllRead()
-                }
-            }
-        }
-    }
-
-    func handleScrollOffsetChange(_ offset: CGFloat) {
-        let shouldShow = offset > 60
-        guard shouldShow != isMarkReadPillVisible else { return }
-        withAnimation(.smooth.speed(2.0)) {
-            isMarkReadPillVisible = shouldShow
-        }
     }
 
     func hideShownReadContent() async {

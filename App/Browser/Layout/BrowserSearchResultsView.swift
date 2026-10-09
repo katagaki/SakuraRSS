@@ -6,7 +6,6 @@ struct BrowserSearchResultsView: View {
 
     @Environment(FeedManager.self) private var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     let query: String
     @State private var results: [Article] = []
 
@@ -49,7 +48,7 @@ struct BrowserSearchResultsView: View {
             .navigationTitle(query)
             .toolbarTitleDisplayMode(.inline)
             .sakuraBackground()
-            .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            .tabOmniboxAccessory {
                 BrowserPageDisplayMenu(options: browserDisplayStyleOptions)
             }
             .task(id: query) {

@@ -89,10 +89,8 @@ struct BrowserBottomBar: View {
 
 extension View {
     @ViewBuilder
-    func browserTabBar(for tabID: UUID, in store: BrowserTabStore, isEnabled: Bool) -> some View {
-        if !isEnabled {
-            self
-        } else if BrowserLayout.usesWideTabs {
+    func browserTabBar(for tabID: UUID, in store: BrowserTabStore) -> some View {
+        if BrowserLayout.usesWideTabs {
             registersTabBarItems(for: tabID, in: store)
         } else {
             tabBottomBar(for: tabID, in: store) { items in

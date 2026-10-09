@@ -6,8 +6,6 @@ struct BookmarkCollectionDestinations: ViewModifier {
 
     @Environment(BrowserTabStore.self) private var browserStore: BrowserTabStore?
     @Environment(\.browserTabID) private var browserTabID
-    @Namespace private var fallbackNamespace
-    let namespace: Namespace.ID?
 
     func body(content: Content) -> some View {
         content
@@ -27,13 +25,9 @@ struct BookmarkCollectionDestinations: ViewModifier {
     private func tagDestination(_ tag: BookmarkTag) -> some View {
         if let browserStore, let browserTabID {
             BookmarkTagArticlesView(tag: tag)
-                .browserNavigationEnvironment(
-                    path: browserStore.pathBinding(for: browserTabID),
-                    namespace: namespace ?? fallbackNamespace
-                )
+                .browserNavigationEnvironment(path: browserStore.pathBinding(for: browserTabID))
         } else {
             BookmarkTagArticlesView(tag: tag)
-                .environment(\.zoomNamespace, namespace)
         }
     }
 
@@ -41,19 +35,15 @@ struct BookmarkCollectionDestinations: ViewModifier {
     private func folderDestination(_ folder: BookmarkFolder) -> some View {
         if let browserStore, let browserTabID {
             BookmarkFolderArticlesView(folder: folder)
-                .browserNavigationEnvironment(
-                    path: browserStore.pathBinding(for: browserTabID),
-                    namespace: namespace ?? fallbackNamespace
-                )
+                .browserNavigationEnvironment(path: browserStore.pathBinding(for: browserTabID))
         } else {
             BookmarkFolderArticlesView(folder: folder)
-                .environment(\.zoomNamespace, namespace)
         }
     }
 }
 
 extension View {
-    func bookmarkCollectionDestinations(namespace: Namespace.ID?) -> some View {
-        modifier(BookmarkCollectionDestinations(namespace: namespace))
+    func bookmarkCollectionDestinations() -> some View {
+        modifier(BookmarkCollectionDestinations())
     }
 }

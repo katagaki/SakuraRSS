@@ -4,7 +4,6 @@ import Hanami
 struct CardsStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onRefresh: (() async -> Void)?
 
@@ -83,7 +82,6 @@ struct CardsStyleView: View {
                                 dismissedIDs.insert(article.id)
                             }
                         )
-                        .zoomSource(id: article.id, namespace: zoomNamespace)
                     })
                     .buttonStyle(.plain)
                     .scaleEffect(1.0 - CGFloat(index) * 0.04)
@@ -98,7 +96,6 @@ struct CardsStyleView: View {
         .navigationDestination(item: $selectedArticle) { article in
             let raw = feedManager.article(byID: article.id) ?? article
             ArticleDetailView(article: raw, marksReadOnAppear: false)
-                .zoomTransition(sourceID: article.id, in: zoomNamespace)
         }
         .browserOverlayPage(item: $selectedArticle) { article in
             BrowserPageIdentity(

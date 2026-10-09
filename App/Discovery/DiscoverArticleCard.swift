@@ -4,7 +4,6 @@ import Hanami
 struct DiscoverArticleCard: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let article: Article
     @State private var icon: UIImage?
     @State private var isCircleIcon = false
@@ -32,8 +31,6 @@ struct DiscoverArticleCard: View {
                             .strokeBorder(.quaternary, lineWidth: 0.5)
                     )
                     .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
-                    .zoomSource(id: article.id, namespace: zoomNamespace)
-
                 VStack(alignment: .leading, spacing: 2) {
                     Text(article.title)
                         .font(.subheadline)

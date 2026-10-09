@@ -7,7 +7,6 @@ import Hanami
 struct BrowserStartPage: View {
 
     @Environment(FeedManager.self) private var feedManager
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @State private var isPresentingNewListSheet = false
     @State private var isEditingQuickAccess = false
     @State private var isPresentingWeatherSettings = false
@@ -39,7 +38,7 @@ struct BrowserStartPage: View {
                     .transition(.scale.combined(with: .opacity))
             }
         }
-        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+        .tabOmniboxAccessory {
             BrowserStartPageMenu(actions: BrowserStartPageActions(
                 newList: { isPresentingNewListSheet = true },
                 editQuickAccess: { setEditingQuickAccess(true) },

@@ -7,14 +7,12 @@ import Hanami
 struct BrowserTabContentView: View {
 
     @Environment(FeedManager.self) private var feedManager
-    @Environment(\.browserLayout) private var layout
     let store: BrowserTabStore
     let tabID: UUID
     /// Handed in rather than looked up: reading `store.tabs` here re-runs
     /// this body, and every page under it, whenever any tab changes.
     let location: BrowserLocation
     @State private var reporters: BrowserTabReporters
-    @Namespace private var cardZoom
 
     init(store: BrowserTabStore, slots: BrowserPageSlots, tabID: UUID, location: BrowserLocation) {
         self.store = store
@@ -27,10 +25,10 @@ struct BrowserTabContentView: View {
         let path = store.pathBinding(for: tabID)
         NavigationStack(path: path) {
             BrowserRootContentView(location: location)
-                .browserNavigationEnvironment(path: path, namespace: cardZoom)
-                .browserNavigationDestinations(path: path, namespace: cardZoom)
+                .browserNavigationEnvironment(path: path)
+                .browserNavigationDestinations(path: path)
         }
-        .browserTabBar(for: tabID, in: store, isEnabled: layout == .adaptive)
+        .browserTabBar(for: tabID, in: store)
         .environment(\.browserTabID, tabID)
         .environment(\.browserPageReporter, reporters.page)
         .environment(\.browserOverlayPageReporter, reporters.overlayPage)

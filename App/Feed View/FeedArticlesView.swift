@@ -4,7 +4,6 @@ import Hanami
 struct FeedArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
     @Environment(\.dismiss) var dismiss
     let feed: Feed
 
@@ -16,9 +15,8 @@ struct FeedArticlesView: View {
     @State private var preloadedEntries: [ArticleIDEntry] = []
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
-    @State var scrollToTopTick: Int = 0
-    @State var hasScrolledPastTitle: Bool = false
-    @State var effectiveDisplayStyle: FeedDisplayStyle?
+    @State private var scrollToTopTick: Int = 0
+    @State private var effectiveDisplayStyle: FeedDisplayStyle?
     @State private var prominentColors: [Color] = []
     @State private var fetchedArticles: [Article] = []
     @State private var undatedTail: [Article] = []
@@ -39,7 +37,7 @@ struct FeedArticlesView: View {
         feedManager.hidesReadContent(onPage: pageKey)
     }
 
-    var currentFeed: Feed {
+    private var currentFeed: Feed {
         feedManager.feedsByID[feed.id] ?? feed
     }
 
@@ -49,7 +47,7 @@ struct FeedArticlesView: View {
 
     private var scopeKey: String { "feed.\(feed.id)" }
 
-    var scopedRefreshState: ScopedRefreshState {
+    private var scopedRefreshState: ScopedRefreshState {
         feedManager.scopedRefreshes[scopeKey] ?? ScopedRefreshState()
     }
 
@@ -129,6 +127,10 @@ struct FeedArticlesView: View {
         undatedTail = feedManager.undatedArticles(for: feed)
     }
 
+    var styleSupportsRichHeader: Bool {
+        effectiveDisplayStyle?.supportsRichHeader ?? true
+    }
+
     var body: some View {
         let shownArticles = visibility.filter(rawArticles, isEnabled: hideViewedContent)
         ArticlesView(
@@ -164,17 +166,6 @@ struct FeedArticlesView: View {
             effectiveStyleBinding: $effectiveDisplayStyle
         )
         .environment(\.feedBackgroundColors, prominentColors)
-        .toolbar {
-            principalTitleItem
-        }
-        .onScrollGeometryChange(for: Bool.self) { geo in
-            geo.contentOffset.y > 90
-        } action: { _, scrolled in
-            guard scrolled != hasScrolledPastTitle else { return }
-            withAnimation(.smooth.speed(2.0)) {
-                hasScrolledPastTitle = scrolled
-            }
-        }
         .animation(.smooth.speed(2.0), value: styleSupportsRichHeader)
         .refreshable {
             log("FeedArticlesView", ".refreshable triggered id=\(feed.id)")

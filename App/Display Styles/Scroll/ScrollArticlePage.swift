@@ -6,7 +6,6 @@ struct ScrollArticlePage: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.zoomNamespace) private var zoomNamespace
     @Environment(\.navigateToFeed) private var navigateToFeed
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
 
@@ -66,7 +65,6 @@ struct ScrollArticlePage: View {
                 }
             }
         }
-        .zoomSource(id: article.id, namespace: zoomNamespace)
         .sheet(isPresented: $showSafari) {
             if let url = URL(string: article.url) {
                 SafariView(url: url)

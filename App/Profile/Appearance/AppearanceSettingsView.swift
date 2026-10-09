@@ -7,9 +7,7 @@ struct AppearanceSettingsView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
-    @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
     @AppStorage("Display.ShowStatusBar") private var showStatusBar: Bool = true
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
     @AppStorage("Display.FeedBackground") private var feedBackgroundEnabled: Bool = true
@@ -57,15 +55,6 @@ struct AppearanceSettingsView: View {
 
             contentWidthSection
 
-            #if os(visionOS)
-            Section {
-                Toggle(String(localized: "ZoomTransition", table: "Settings"),
-                       isOn: $zoomTransitionEnabled)
-            } header: {
-                Text(String(localized: "Section.Navigation", table: "Settings"))
-            }
-            #endif
-
             #if !os(visionOS)
             Section {
                 Toggle(String(localized: "ShowStatusBar", table: "Settings"),
@@ -76,11 +65,6 @@ struct AppearanceSettingsView: View {
             #endif
 
             Section {
-                Toggle(String(localized: "ShowMarkAllRead", table: "Settings"),
-                       isOn: Binding(
-                            get: { markAllReadPosition == .top },
-                            set: { markAllReadPosition = $0 ? .top : .none }
-                       ))
                 Picker(String(localized: "UnreadBadgeMode", table: "Settings"), selection: $unreadBadgeMode) {
                     Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
                         .tag(UnreadBadgeMode.homeScreenOnly)

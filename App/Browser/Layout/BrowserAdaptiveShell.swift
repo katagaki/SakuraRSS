@@ -70,6 +70,5 @@ struct BrowserAdaptiveShell: View {
             // Edge to edge, or the snapshot carries blank status bar and home
             // indicator bands into the card.
             .ignoresSafeArea(.container, edges: edgeToEdgeEdges)
-            .environment(\.isBrowserChromeActive, true)
     }
 }

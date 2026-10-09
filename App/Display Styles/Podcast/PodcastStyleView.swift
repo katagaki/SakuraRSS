@@ -4,7 +4,6 @@ import Hanami
 struct PodcastStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     @Environment(\.iPadArticleSelection) private var iPadArticleSelection
     let articles: [Article]
     var onLoadMore: (() -> Void)?
@@ -39,7 +38,6 @@ struct PodcastStyleView: View {
                     }
 
                     PodcastEpisodeRow(article: article)
-                        .zoomSource(id: article.id, namespace: zoomNamespace)
                         .markReadOnScroll(article: article)
                 }
                 .listRowBackground(Color.clear)

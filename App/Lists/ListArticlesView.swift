@@ -4,13 +4,10 @@ import Hanami
 struct ListArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @Environment(\.dismiss) var dismiss
     let list: FeedList
 
-    @State private var hasScrolledPastTitle: Bool = false
     @State private var effectiveDisplayStyle: FeedDisplayStyle?
-    @State private var scrollToTopTick: Int = 0
 
     private var currentList: FeedList {
         feedManager.lists.first(where: { $0.id == list.id }) ?? list
@@ -24,65 +21,13 @@ struct ListArticlesView: View {
         effectiveDisplayStyle?.supportsRichHeader ?? true
     }
 
-    private var showsPrincipalTitle: Bool {
-        !isBrowserChromeActive && (!styleSupportsRichHeader || hasScrolledPastTitle)
-    }
-
     var body: some View {
         HomeSectionView(
             list: currentList,
             showsListHeader: true,
             showsLastUpdated: false,
-            effectiveStyleBinding: $effectiveDisplayStyle,
-            externalScrollToTopTrigger: scrollToTopTick
+            effectiveStyleBinding: $effectiveDisplayStyle
         )
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                #if os(visionOS)
-                Text(currentList.name)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(height: 42)
-                    .contentShape(.rect)
-                    .onTapGesture {
-                        scrollToTopTick &+= 1
-                    }
-                    .allowsHitTesting(showsPrincipalTitle)
-                    .opacity(showsPrincipalTitle ? 1 : 0)
-                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
-                #else
-                Text(currentList.name)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(height: 42)
-                    .padding(.horizontal, 18)
-                    .compatibleGlassEffect(in: .capsule, interactive: true)
-                    .contentShape(.capsule)
-                    .onTapGesture {
-                        scrollToTopTick &+= 1
-                    }
-                    .allowsHitTesting(showsPrincipalTitle)
-                    .opacity(showsPrincipalTitle ? 1 : 0)
-                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
-                #endif
-            }
-        }
-        .onScrollGeometryChange(for: Bool.self) { geo in
-            geo.contentOffset.y > 90
-        } action: { _, scrolled in
-            guard scrolled != hasScrolledPastTitle else { return }
-            withAnimation(.smooth.speed(2.0)) {
-                hasScrolledPastTitle = scrolled
-            }
-        }
         .onChange(of: listExists) { _, exists in
             if !exists { dismiss() }
         }

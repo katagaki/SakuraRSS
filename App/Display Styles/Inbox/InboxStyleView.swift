@@ -4,7 +4,6 @@ import Hanami
 struct InboxStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -93,7 +92,6 @@ struct InboxStyleView: View {
     private func articleRow(_ article: Article) -> some View {
         ArticleLink(article: article, label: {
             InboxArticleRow(article: article)
-                .zoomSource(id: article.id, namespace: zoomNamespace)
                 .markReadOnScroll(article: article)
                 .contentShape(.rect)
         })

@@ -22,15 +22,12 @@ struct BrowserView: View {
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
 
-    private let layout = BrowserLayout.current
-
     var body: some View {
-        shell
+        BrowserAdaptiveShell()
         .environment(\.isBrowserModeActive, true)
         .environment(store)
         .environment(slots)
         .environment(favourites)
-        .environment(\.browserLayout, layout)
         .environment(\.browserBookmarksAction) {
             store.push(BrowserBookmarksDestination())
         }
@@ -107,16 +104,6 @@ struct BrowserView: View {
         }
         withAnimation(BrowserOmniboxModel.transition) {
             omnibox.deactivate()
-        }
-    }
-
-    @ViewBuilder
-    private var shell: some View {
-        switch layout {
-        case .adaptive:
-            BrowserAdaptiveShell()
-        case .regular:
-            BrowserRegularShell()
         }
     }
 

@@ -4,7 +4,6 @@ import Hanami
 struct MagazineStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -24,7 +23,6 @@ struct MagazineStyleView: View {
                     ForEach(articles) { article in
                         ArticleLink(article: article, label: {
                             MagazineArticleCard(article: article)
-                                .zoomSource(id: article.id, namespace: zoomNamespace)
                                 .markReadOnScroll(article: article)
                         })
                         .buttonStyle(.plain)

@@ -4,7 +4,6 @@ import Hanami
 struct VideoStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -18,7 +17,6 @@ struct VideoStyleView: View {
                 ForEach(articles) { article in
                     ArticleLink(article: article, label: {
                         VideoArticleCard(article: article)
-                            .zoomSource(id: article.id, namespace: zoomNamespace)
                             .markReadOnScroll(article: article)
                     })
                     .buttonStyle(.plain)

@@ -50,7 +50,6 @@ struct ArticleDetailView: View {
     @State var hasCachedSummary = false
     @State var showingSummary = false
     @State var isBookmarked = false
-    @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
     @Environment(\.browserPageProgressReporter) var browserPageProgressReporter
     @State var summarizationError: String?
     @State var showYouTubeSafari = false
