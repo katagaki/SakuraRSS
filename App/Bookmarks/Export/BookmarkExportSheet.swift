@@ -52,14 +52,11 @@ struct BookmarkExportSheet: View {
             }
             .navigationTitle(String(localized: "BookmarksExport.Title", table: "Articles"))
             .inlineNavigationTitle()
-            .toolbar {
-                ToolbarItem(placement: .sheetLeading) {
-                    Button(role: .cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .sheetTrailing) {
-                    exportButton
-                        .disabled(isLoading || items.isEmpty)
-                }
+            .sheetActions {
+                Button(role: .cancel) { dismiss() }
+            } trailing: {
+                exportButton
+                    .disabled(isLoading || items.isEmpty)
             }
             .fileExporter(
                 isPresented: $isSaving,

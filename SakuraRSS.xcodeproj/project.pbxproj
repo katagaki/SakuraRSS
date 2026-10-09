@@ -310,6 +310,7 @@
 				"View Modifiers/EscapeAction.swift",
 				"View Modifiers/MarkReadOnScrollModifier.swift",
 				"View Modifiers/SakuraBackground.swift",
+				"View Modifiers/SheetActions.swift",
 				"View Modifiers/SheetDismiss.swift",
 				"View Modifiers/SheetToolbarPlacement.swift",
 				"View Modifiers/URLTextInput.swift",

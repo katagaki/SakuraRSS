@@ -135,18 +135,15 @@ struct ListEditSheet: View {
                              : String(localized: "ListEdit.Title.New", table: "Lists"))
             .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
-            .toolbar {
-                ToolbarItem(placement: .sheetLeading) {
-                    Button(role: .cancel) {
-                        dismiss()
-                    }
+            .sheetActions {
+                Button(role: .cancel) {
+                    dismiss()
                 }
-                ToolbarItem(placement: .sheetTrailing) {
-                    Button(role: .confirm) {
-                        save()
-                    }
-                    .disabled(!canSave)
+            } trailing: {
+                Button(role: .confirm) {
+                    save()
                 }
+                .disabled(!canSave)
             }
             .onAppear {
                 guard !hasInitialized else { return }
