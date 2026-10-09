@@ -4,7 +4,7 @@ import Hanami
 struct ScrollEndOfFeedPage: View {
 
     let pageSize: CGSize
-    let onLoadMore: () -> Void
+    let onLoadMore: (() -> Void)?
 
     var body: some View {
         ZStack {
@@ -16,34 +16,38 @@ struct ScrollEndOfFeedPage: View {
                         localized: "Scroll.EndOfFeed.Title",
                         table: "Articles"
                     ),
-                    systemImage: "clock.arrow.circlepath"
+                    systemImage: onLoadMore != nil ? "clock.arrow.circlepath" : "checkmark.circle"
                 )
                 .foregroundStyle(.white)
             } description: {
-                Text(
-                    String(
-                        localized: "Scroll.EndOfFeed.Description",
-                        table: "Articles"
-                    )
-                )
-                .foregroundStyle(.white.opacity(0.75))
-            } actions: {
-                Button {
-                    onLoadMore()
-                } label: {
-                    Label(
+                if onLoadMore != nil {
+                    Text(
                         String(
-                            localized: "LoadPrevious",
+                            localized: "Scroll.EndOfFeed.Description",
                             table: "Articles"
-                        ),
-                        systemImage: "clock.arrow.circlepath"
+                        )
                     )
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                    .foregroundStyle(.white.opacity(0.75))
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.white.opacity(0.2))
-                .foregroundStyle(.white)
+            } actions: {
+                if let onLoadMore {
+                    Button {
+                        onLoadMore()
+                    } label: {
+                        Label(
+                            String(
+                                localized: "LoadPrevious",
+                                table: "Articles"
+                            ),
+                            systemImage: "clock.arrow.circlepath"
+                        )
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.white.opacity(0.2))
+                    .foregroundStyle(.white)
+                }
             }
         }
         .frame(width: pageSize.width, height: pageSize.height)

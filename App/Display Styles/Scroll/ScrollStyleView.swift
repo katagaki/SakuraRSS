@@ -35,10 +35,10 @@ struct ScrollStyleView: View {
                                 .frame(width: pageSize.width, height: pageSize.height)
                                 .id(ScrollPageID.article(article.id))
                             }
-                            if onLoadMore != nil {
+                            if !articles.isEmpty {
                                 ScrollEndOfFeedPage(
                                     pageSize: pageSize,
-                                    onLoadMore: { onLoadMore?() }
+                                    onLoadMore: onLoadMore
                                 )
                                 .frame(width: pageSize.width, height: pageSize.height)
                                 .id(ScrollPageID.endOfFeed)
@@ -105,7 +105,7 @@ struct ScrollStyleView: View {
             expandedArticleID = nil
             if idx + 1 < articles.count {
                 currentID = .article(articles[idx + 1].id)
-            } else if onLoadMore != nil {
+            } else {
                 currentID = .endOfFeed
             }
         }
