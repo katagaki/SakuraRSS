@@ -266,7 +266,7 @@ public final class FeedManager {
     /// Adjusts `unreadCounts` (and `unreadReelsCounts` for Instagram reels) by `delta`,
     /// clamping at zero. Lets `markRead`/`toggleRead` skip a full reload.
     public func adjustUnreadCount(for article: Article, delta: Int) {
-        guard delta != 0 else { return }
+        guard delta != 0, article.feedID != 0 else { return }
         let current = unreadCounts[article.feedID] ?? 0
         unreadCounts[article.feedID] = max(0, current + delta)
         if article.url.contains("/reel/") {
