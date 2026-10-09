@@ -5,6 +5,7 @@ struct ScrollEndOfFeedPage: View {
 
     let pageSize: CGSize
     let onLoadMore: (() -> Void)?
+    let onBackToTop: () -> Void
 
     var body: some View {
         ZStack {
@@ -48,6 +49,23 @@ struct ScrollEndOfFeedPage: View {
                     .tint(.white.opacity(0.2))
                     .foregroundStyle(.white)
                 }
+                Button {
+                    onBackToTop()
+                } label: {
+                    Label(
+                        String(
+                            localized: "Scroll.EndOfFeed.BackToTop",
+                            table: "Articles"
+                        ),
+                        systemImage: "arrow.up"
+                    )
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                }
+                .compatibleGlassButtonStyle()
+                .buttonBorderShape(.capsule)
+                .foregroundStyle(.white)
+                .padding(.top, onLoadMore == nil ? 24 : 0)
             }
         }
         .frame(width: pageSize.width, height: pageSize.height)

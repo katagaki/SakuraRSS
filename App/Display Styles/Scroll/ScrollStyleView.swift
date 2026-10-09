@@ -38,7 +38,8 @@ struct ScrollStyleView: View {
                             if !articles.isEmpty {
                                 ScrollEndOfFeedPage(
                                     pageSize: pageSize,
-                                    onLoadMore: onLoadMore
+                                    onLoadMore: onLoadMore,
+                                    onBackToTop: scrollToTop
                                 )
                                 .frame(width: pageSize.width, height: pageSize.height)
                                 .id(ScrollPageID.endOfFeed)
@@ -96,6 +97,13 @@ struct ScrollStyleView: View {
                 feedManager.markReadOnScroll(article)
                 expandedArticleID = article.id
             }
+        }
+    }
+
+    private func scrollToTop() {
+        guard let firstArticle = articles.first else { return }
+        withAnimation(.smooth.speed(2.0)) {
+            currentID = .article(firstArticle.id)
         }
     }
 
