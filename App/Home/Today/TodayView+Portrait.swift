@@ -21,17 +21,19 @@ extension TodayView {
                     sectionDivider
                 }
 
-                if !isWeatherShowing,
-                   !todayManager.hasLoadedInitially || !sections.isEmpty || showEmpty {
-                    sectionDivider
-                }
+                if !isEditing {
+                    if !isWeatherShowing,
+                       !todayManager.hasLoadedInitially || !sections.isEmpty || showEmpty {
+                        sectionDivider
+                    }
 
-                if !todayManager.hasLoadedInitially {
-                    loadingIndicator
-                } else if showEmpty {
-                    emptyContentView
-                } else {
-                    contentSectionsStack(sections, episodes: episodes)
+                    if !todayManager.hasLoadedInitially {
+                        loadingIndicator
+                    } else if showEmpty {
+                        emptyContentView
+                    } else {
+                        contentSectionsStack(sections, episodes: episodes)
+                    }
                 }
 
                 TodayAttributionFooter()

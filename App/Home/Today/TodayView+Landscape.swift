@@ -41,7 +41,9 @@ extension TodayView {
         let sections = contentSections(episodes: episodes)
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                if !todayManager.hasLoadedInitially {
+                if isEditing {
+                    EmptyView()
+                } else if !todayManager.hasLoadedInitially {
                     loadingIndicator
                 } else if sections.isEmpty {
                     emptyContentView
