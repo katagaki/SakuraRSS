@@ -24,10 +24,10 @@ public nonisolated extension DatabaseManager {
         return result
     }
 
-    func feedIDsWithRules() throws -> Set<Int64> {
-        var result = Set<Int64>()
-        for row in try readDatabase.prepare(feedRules.select(distinct: ruleFeedID)) {
-            result.insert(row[ruleFeedID])
+    func allRulesByFeedID() throws -> [Int64: [String: [String]]] {
+        var result: [Int64: [String: [String]]] = [:]
+        for row in try readDatabase.prepare(feedRules.order(ruleValue.asc)) {
+            result[row[ruleFeedID], default: [:]][row[ruleType], default: []].append(row[ruleValue])
         }
         return result
     }
