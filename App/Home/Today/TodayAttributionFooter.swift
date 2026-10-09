@@ -2,6 +2,8 @@ import SwiftUI
 
 struct TodayAttributionFooter: View {
 
+    @AppStorage(TodayWeatherService.enabledKey) private var isWeatherEnabled: Bool = true
+
     private static let attributedText: AttributedString = {
         let prefix = String(localized: "Today.WeatherAttribution.Prefix", table: "Home")
         let linkLabel = String(localized: "Today.WeatherAttribution.Link", table: "Home")
@@ -10,14 +12,16 @@ struct TodayAttributionFooter: View {
     }()
 
     var body: some View {
-        VStack(spacing: 16) {
-            Divider()
-            Text(Self.attributedText)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
+        if isWeatherEnabled {
+            VStack(spacing: 16) {
+                Divider()
+                Text(Self.attributedText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
     }
 }

@@ -65,7 +65,7 @@ extension View {
 }
 
 #if !os(visionOS)
-private struct CompatibleGlassEffectModifier<S: Shape>: ViewModifier {
+struct CompatibleGlassEffectModifier<S: Shape>: ViewModifier {
     let shape: S
     let tint: Color?
     let interactive: Bool

@@ -1,7 +1,7 @@
 import Hanami
 import SwiftUI
 
-struct TodayShortcutTile: View {
+struct TodayQuickAccessTile: View {
 
     let title: String
     let symbolName: String
