@@ -23,6 +23,9 @@ public nonisolated extension HTMLContentExtractor {
         result = result.replacingOccurrences(of: imgLinkClosePlaceholder, with: "{{/IMGLINK}}")
         result = result.replacingOccurrences(of: codeOpenPlaceholder, with: "`")
         result = result.replacingOccurrences(of: codeClosePlaceholder, with: "`")
+        result = result.replacingOccurrences(of: rubyOpenPlaceholder, with: RubyMarkup.openMarker)
+        result = result.replacingOccurrences(of: rubyReadingPlaceholder, with: RubyMarkup.readingMarker)
+        result = result.replacingOccurrences(of: rubyClosePlaceholder, with: RubyMarkup.closeMarker)
         return result
     }
 
