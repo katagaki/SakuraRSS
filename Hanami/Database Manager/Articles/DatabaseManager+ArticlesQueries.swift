@@ -19,7 +19,7 @@ public nonisolated extension DatabaseManager {
         if requireUnread {
             query = query.filter(articleIsRead == false)
         }
-        return try database
+        return try readDatabase
             .prepare(query.order(articlePublishedDate.desc).limit(limit))
             .map(rowToArticle)
     }
@@ -320,7 +320,7 @@ public nonisolated extension DatabaseManager {
         if requireUnread {
             query = query.filter(articleIsRead == false)
         }
-        return try database
+        return try readDatabase
             .prepare(query.order(articlePublishedDate.desc).limit(limit))
             .map(rowToListArticle)
     }
