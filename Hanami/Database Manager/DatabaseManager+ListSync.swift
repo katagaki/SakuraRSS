@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 @preconcurrency import SQLite
 
@@ -10,6 +11,16 @@ nonisolated extension DatabaseManager {
         listSyncIDPrefix + UUID().uuidString
     }
 
+    /// Lists made before list sync existed get an ID from their name, so the
+    /// same list recreated by hand on each device lands on one record.
+    static func preSyncListSyncID(forName name: String) -> String {
+        let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            .precomposedStringWithCanonicalMapping
+            .lowercased()
+        let digest = SHA256.hash(data: Data(normalizedName.utf8))
+        return listSyncIDPrefix + "presync." + digest.map { String(format: "%02x", $0) }.joined()
+    }
+
     // MARK: - Migration
 
     /// Runs on every launch for the same reason as `migrateBookmarkColumns()`.
@@ -20,6 +31,9 @@ nonisolated extension DatabaseManager {
         }
         if !listColumns.contains("user_modified_at") {
             try database.run(lists.addColumn(listUserModifiedAt))
+        }
+        if !listColumns.contains("awaits_first_sync") {
+            try database.run(lists.addColumn(listAwaitsFirstSync, defaultValue: false))
         }
         try database.run(lists.createIndex(listSyncID, unique: true, ifNotExists: true))
         try database.run(listPendingMembers.create(ifNotExists: true) { table in
@@ -41,6 +55,13 @@ nonisolated extension DatabaseManager {
         return row[listID]
     }
 
+    func listAwaitsFirstSync(listID id: Int64) -> Bool {
+        guard let row = try? database.pluck(lists.filter(listID == id).select(listAwaitsFirstSync)) else {
+            return false
+        }
+        return (try? row.get(listAwaitsFirstSync)) ?? false
+    }
+
     func setListUserModifiedAt(listID id: Int64, date: Date) throws {
         try database.run(lists.filter(listID == id).update(listUserModifiedAt <- date.timeIntervalSince1970))
     }
@@ -53,9 +74,16 @@ nonisolated extension DatabaseManager {
 
     func backfillListSyncIDs() throws -> [String] {
         var assignedSyncIDs: [String] = []
-        for row in try database.prepare(lists.filter(listSyncID == nil).select(listID)) {
-            let newSyncID = Self.newListSyncID()
-            try database.run(lists.filter(listID == row[listID]).update(listSyncID <- newSyncID))
+        let unsyncedLists = try database.prepare(lists.filter(listSyncID == nil).select(listID, listName))
+            .map { (id: $0[listID], name: $0[listName]) }
+        for unsyncedList in unsyncedLists {
+            let preSyncID = Self.preSyncListSyncID(forName: unsyncedList.name)
+            let isPreSyncIDTaken = localListID(bySyncID: preSyncID) != nil
+            let newSyncID = isPreSyncIDTaken ? Self.newListSyncID() : preSyncID
+            try database.run(lists.filter(listID == unsyncedList.id).update(
+                listSyncID <- newSyncID,
+                listAwaitsFirstSync <- !isPreSyncIDTaken
+            ))
             assignedSyncIDs.append(newSyncID)
         }
         return assignedSyncIDs

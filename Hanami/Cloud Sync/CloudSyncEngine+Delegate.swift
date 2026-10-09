@@ -160,7 +160,9 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
 
         if Self.isListID(syncID) {
             let localModifiedAt = database.listUserModifiedAt(syncID: syncID) ?? .distantPast
-            if localModifiedAt > serverModifiedAt {
+            let awaitsFirstSync = database.localListID(bySyncID: syncID)
+                .map { database.listAwaitsFirstSync(listID: $0) } ?? false
+            if localModifiedAt > serverModifiedAt, !awaitsFirstSync {
                 syncEngine.state.add(pendingRecordZoneChanges: [.saveRecord(recordID)])
             } else {
                 applyFetchedList(serverRecord)

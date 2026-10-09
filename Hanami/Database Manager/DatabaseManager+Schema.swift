@@ -132,6 +132,7 @@ public nonisolated extension DatabaseManager {
     var listSortOrder: SQLite.Expression<Int> { SQLite.Expression<Int>("sort_order") }
     var listSyncID: SQLite.Expression<String?> { SQLite.Expression<String?>("sync_id") }
     var listUserModifiedAt: SQLite.Expression<Double?> { SQLite.Expression<Double?>("user_modified_at") }
+    var listAwaitsFirstSync: SQLite.Expression<Bool> { SQLite.Expression<Bool>("awaits_first_sync") }
 
     var listFeeds: Table { Table("list_feeds") }
     var listFeedListID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("list_id") }

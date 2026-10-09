@@ -58,22 +58,12 @@ nonisolated extension CloudSyncEngine {
         if tombstones.contains(synced.syncID) { return }
         do {
             let outcome = try database.applySyncedList(synced)
-            if case .merged(let survivingSyncID, let supersededSyncID) = outcome {
-                queueMergedList(survivingSyncID: survivingSyncID, supersededSyncID: supersededSyncID)
+            if case .merged = outcome {
+                engine?.state.add(pendingRecordZoneChanges: [.saveRecord(Self.recordID(for: synced.syncID))])
             }
         } catch {
             log("CloudSyncEngine", "Failed to apply list \(synced.syncID): \(error)")
         }
-    }
-
-    private func queueMergedList(survivingSyncID: String, supersededSyncID: String?) {
-        var changes: [CKSyncEngine.PendingRecordZoneChange] = [.saveRecord(Self.recordID(for: survivingSyncID))]
-        if let supersededSyncID {
-            try? database.insertSyncTombstone(syncID: supersededSyncID)
-            database.setSyncEngineStateData(nil, forKey: Self.archivedRecordKeyPrefix + supersededSyncID)
-            changes.append(.deleteRecord(Self.recordID(for: supersededSyncID)))
-        }
-        engine?.state.add(pendingRecordZoneChanges: changes)
     }
 
     /// Remote deletions skip the tombstone so they don't echo back.

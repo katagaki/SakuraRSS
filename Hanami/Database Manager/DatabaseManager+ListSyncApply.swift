@@ -5,11 +5,12 @@ nonisolated extension DatabaseManager {
 
     // MARK: - Applying Remote Lists
 
-    /// Matches by sync ID first, then by name (list names are unique per
-    /// device), so a list the user recreated on another device before list
-    /// sync existed merges instead of duplicating.
     func applySyncedList(_ synced: SyncedList) throws -> SyncedListApplyOutcome {
         if let localID = localListID(bySyncID: synced.syncID) {
+            if listAwaitsFirstSync(listID: localID) {
+                try mergeFirstSyncedList(synced, into: localID)
+                return .merged
+            }
             let localModifiedAt = listUserModifiedAt(syncID: synced.syncID) ?? .distantPast
             if localModifiedAt > (synced.userModifiedAt ?? .distantPast) { return .skipped }
             try database.transaction {
@@ -18,11 +19,6 @@ nonisolated extension DatabaseManager {
                                        memberFeedSyncIDs: synced.memberFeedSyncIDs)
             }
             return .applied
-        }
-        if let namesake = try allLists().first(where: {
-            $0.name.localizedCaseInsensitiveCompare(synced.name) == .orderedSame
-        }) {
-            return try mergeSyncedList(synced, into: namesake)
         }
         try database.transaction {
             let insertedID = try database.run(lists.insert(
@@ -38,30 +34,21 @@ nonisolated extension DatabaseManager {
         return .applied
     }
 
-    /// Both devices pick the lexicographically smaller sync ID as the
-    /// survivor, so they converge without deleting each other's list.
-    private func mergeSyncedList(_ synced: SyncedList, into localList: FeedList) throws -> SyncedListApplyOutcome {
-        let localSyncID = listSyncID(forListID: localList.id)
-        let survivingSyncID = localSyncID.map { min($0, synced.syncID) } ?? synced.syncID
-        let supersededSyncID = survivingSyncID == synced.syncID ? localSyncID : nil
-        let localModifiedAt = localSyncID.flatMap(listUserModifiedAt(syncID:)) ?? .distantPast
-        let remoteIsNewer = (synced.userModifiedAt ?? .distantPast) >= localModifiedAt
-        let mergedMembers = Set(try memberFeedSyncIDs(forListID: localList.id, listSyncID: localSyncID))
+    /// A list made before list sync existed keeps the members it had here as
+    /// well as the other device's, rather than one side replacing the other.
+    private func mergeFirstSyncedList(_ synced: SyncedList, into localID: Int64) throws {
+        let mergedMembers = Set(try memberFeedSyncIDs(forListID: localID, listSyncID: synced.syncID))
             .union(synced.memberFeedSyncIDs)
         try database.transaction {
-            if let supersededSyncID {
-                try removePendingListMembers(listSyncID: supersededSyncID)
-            }
-            let target = lists.filter(listID == localList.id)
-            try database.run(target.update(listSyncID <- survivingSyncID))
-            if remoteIsNewer {
-                try writeSyncedListFields(synced, listID: localList.id)
-            }
-            try database.run(target.update(listUserModifiedAt <- Date().timeIntervalSince1970))
-            try replaceListMembers(listID: localList.id, listSyncID: survivingSyncID,
+            try writeSyncedListFields(synced, listID: localID)
+            let target = lists.filter(listID == localID)
+            try database.run(target.update(
+                listUserModifiedAt <- Date().timeIntervalSince1970,
+                listAwaitsFirstSync <- false
+            ))
+            try replaceListMembers(listID: localID, listSyncID: synced.syncID,
                                    memberFeedSyncIDs: Array(mergedMembers))
         }
-        return .merged(survivingSyncID: survivingSyncID, supersededSyncID: supersededSyncID)
     }
 
     private func writeSyncedListFields(_ synced: SyncedList, listID id: Int64) throws {
