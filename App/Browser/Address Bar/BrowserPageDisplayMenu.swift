@@ -32,5 +32,6 @@ struct BrowserPageDisplayMenu: View {
         } label: {
             Label(String(localized: "Tabs.More"), systemImage: "ellipsis")
         }
+        .menuOrder(.fixed)
     }
 }

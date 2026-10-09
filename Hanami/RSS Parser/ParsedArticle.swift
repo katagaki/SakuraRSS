@@ -7,6 +7,7 @@ public nonisolated struct ParsedArticle: Sendable {
     public var summary: String?
     public var content: String?
     public var imageURL: String?
+    public var carouselImageURLs: [String] = []
     public var publishedDate: Date?
     public var audioURL: String?
     public var duration: Int?

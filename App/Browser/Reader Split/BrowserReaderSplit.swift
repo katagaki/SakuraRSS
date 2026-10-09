@@ -34,7 +34,7 @@ struct BrowserReaderSplit: ViewModifier {
 extension FeedDisplayStyle {
     var usesBrowserReaderSplit: Bool {
         switch self {
-        case .inbox, .compact, .timeline, .feed, .feedCompact: true
+        case .inbox, .compact, .timeline, .feed, .feedSingle, .feedGrid, .feedCompact: true
         default: false
         }
     }

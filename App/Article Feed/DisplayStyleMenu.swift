@@ -29,5 +29,6 @@ struct DisplayStyleMenu: View {
                   systemImage: displayStyle.symbol)
         }
         .menuActionDismissBehavior(.disabled)
+        .menuOrder(.fixed)
     }
 }

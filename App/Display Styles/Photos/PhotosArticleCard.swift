@@ -97,7 +97,7 @@ struct PhotosArticleCard: View {
             }
         }
         .task(id: article.imageURL) {
-            guard article.carouselImageURLs.count <= 1,
+            guard feedManager.carouselImageURLs(for: article).count <= 1,
                   let imageURL = article.imageURL,
                   let url = URL(string: imageURL) else { return }
             let loaded = await CachedAsyncImage<EmptyView>.loadImage(

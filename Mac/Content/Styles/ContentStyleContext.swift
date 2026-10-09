@@ -64,16 +64,10 @@ struct ContentStyleContext {
 
     /// The groups iOS's style picker shows, without the styles this page can't use.
     var menuSections: [(title: String, styles: [FeedDisplayStyle])] {
-        let groups: [(String, [FeedDisplayStyle])] = [
-            ("StyleSection.Classic", [.inbox, .compact, .timeline]),
-            ("StyleSection.MediaFocused", [.feed, .feedCompact, .photos, .video, .podcast]),
-            ("StyleSection.Grids", [.magazine, .masonry, .grid]),
-            ("StyleSection.Immersive", [.cards, .scroll])
-        ]
-        return groups.compactMap { title, styles in
-            let available = styles.filter(isAvailable)
+        FeedDisplayStyleSection.allCases.compactMap { section in
+            let available = section.styles.filter(isAvailable)
             guard !available.isEmpty else { return nil }
-            return (String(localized: String.LocalizationValue(title), table: "Articles"), available)
+            return (section.localizedTitle, available)
         }
     }
 }
@@ -103,7 +97,7 @@ extension FeedDisplayStyle {
     /// Styles laid out as a list beside the reader, as iOS's reader split does.
     var isListStyle: Bool {
         switch self {
-        case .inbox, .compact, .timeline, .feed, .feedCompact: true
+        case .inbox, .compact, .timeline, .feed, .feedSingle, .feedGrid, .feedCompact: true
         default: false
         }
     }

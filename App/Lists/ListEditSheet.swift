@@ -87,10 +87,14 @@ struct ListEditSheet: View {
                                 String(localized: "ListEdit.DisplayStyle", table: "Lists"),
                                 selection: $selectedStyle
                             ) {
-                                ForEach(FeedDisplayStyle.allCases.filter {
-                                    $0 != .video && $0 != .podcast
-                                }, id: \.self) { style in
-                                    Text(style.localizedName).tag(style)
+                                ForEach(FeedDisplayStyleSection.allCases, id: \.self) { section in
+                                    Section(section.localizedTitle) {
+                                        ForEach(section.styles.filter {
+                                            $0 != .video && $0 != .podcast
+                                        }, id: \.self) { style in
+                                            Text(style.localizedName).tag(style)
+                                        }
+                                    }
                                 }
                             }
                         }

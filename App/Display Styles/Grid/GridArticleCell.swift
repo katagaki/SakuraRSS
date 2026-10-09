@@ -3,6 +3,7 @@ import Hanami
 
 struct GridArticleCell: View {
 
+    @Environment(FeedManager.self) private var feedManager
     let article: Article
 
     var body: some View {
@@ -18,7 +19,7 @@ struct GridArticleCell: View {
         .clipped()
         .contentShape(.rect)
         .overlay(alignment: .topTrailing) {
-            if article.carouselImageURLs.count > 1 {
+            if feedManager.carouselImageURLs(for: article).count > 1 {
                 Image(systemName: "square.on.square.fill")
                     .font(.caption)
                     .foregroundStyle(.white)

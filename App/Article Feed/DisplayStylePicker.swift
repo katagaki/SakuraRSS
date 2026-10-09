@@ -22,8 +22,14 @@ struct DisplayStylePicker: View {
             }
             .pickerStyle(.inline)
             .labelsVisibility(.visible)
-            Picker(String(localized: "StyleSection.MediaFocused", table: "Articles"), selection: $displayStyle) {
+            Picker(String(localized: "StyleSection.Feed", table: "Articles"), selection: $displayStyle) {
                 styleLabel(.feed)
+                styleLabel(.feedSingle)
+                styleLabel(.feedGrid)
+            }
+            .pickerStyle(.inline)
+            .labelsVisibility(.visible)
+            Picker(String(localized: "StyleSection.MediaFocused", table: "Articles"), selection: $displayStyle) {
                 styleLabel(.feedCompact)
                 if hasImages {
                     styleLabel(.photos)

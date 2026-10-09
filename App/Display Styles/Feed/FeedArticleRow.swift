@@ -7,6 +7,7 @@ struct FeedArticleRow: View {
     @Environment(\.openURL) var openURL
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
+    let imageLayout: FeedImageLayout
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State private var icon: UIImage?
     @State private var feedName: String?
@@ -15,6 +16,7 @@ struct FeedArticleRow: View {
     @State private var isCircleIcon = false
     @State private var allowsUnlimitedTitleLines = false
     @State private var showsPlayBadge = false
+    @State private var isLinkFeed = false
     @State private var shouldCenterImage = false
     @State private var feed: Feed?
     @State private var showSafari = false
@@ -23,8 +25,9 @@ struct FeedArticleRow: View {
 
     private static let imageMaxPixelSize: CGFloat = 1200
 
-    init(article: Article) {
+    init(article: Article, imageLayout: FeedImageLayout = .carousel) {
         self.article = article
+        self.imageLayout = imageLayout
         guard let imageURL = article.imageURL, let url = URL(string: imageURL) else { return }
         if let widthOverHeight = ImageAspectRatioCache.shared.aspectRatio(for: imageURL),
            widthOverHeight > 0 {
@@ -102,20 +105,15 @@ struct FeedArticleRow: View {
                 .lineLimit(allowsUnlimitedTitleLines ? nil : 3)
                 .truncationMode(.tail)
 
-                if article.carouselImageURLs.count > 1 {
-                    let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
-                    if !urls.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(Array(urls.enumerated()), id: \.offset) { _, url in
-                                    CarouselImageView(url: url, height: 300)
-                                }
-                            }
+                if imageLayout != .single, multipleImageURLs.count > 1 {
+                    Group {
+                        if imageLayout == .grid {
+                            FeedImageGridView(urls: multipleImageURLs)
+                        } else {
+                            FeedImageCarouselView(urls: multipleImageURLs)
                         }
-                        .scrollClipDisabled()
-                        .contentMargins(.horizontal, 0)
-                        .padding(.top, 4)
                     }
+                    .padding(.top, 4)
                 } else if let loadedImage {
                     Color.clear
                         .frame(maxWidth: imageAspectRatio ?? 0 > 1 ? nil : .infinity)
@@ -131,6 +129,11 @@ struct FeedArticleRow: View {
                         .overlay {
                             RoundedRectangle(cornerRadius: 12)
                                 .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                        }
+                        .overlay(alignment: .bottomLeading) {
+                            if let imageOverlayTitle {
+                                FeedImageTitleOverlay(title: imageOverlayTitle)
+                            }
                         }
                         .overlay {
                             if showsPlayBadge || article.hasXVideoThumbnail {
@@ -222,9 +225,12 @@ struct FeedArticleRow: View {
                 isCircleIcon = loadedFeed.isCircleIcon
                 allowsUnlimitedTitleLines = isXFeed || isInstagramFeed
                 showsPlayBadge = isVideoFeed || loadedFeed.isPodcast
+                isLinkFeed = !loadedFeed.isSocialFeed && !loadedFeed.isFediverseFeed
+                    && !loadedFeed.isBlueskyFeed
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: loadedFeed.domain)
                 icon = await Iconography.shared.icon(for: loadedFeed)
             } else if article.isExternalBookmark {
+                isLinkFeed = true
                 feedName = BookmarkSite.name(of: article)
                 icon = await BookmarkSite.icon(for: article)
             }
@@ -262,6 +268,25 @@ private extension FeedArticleRow {
         let pixelWidth = image.size.width * image.scale
         let pixelHeight = image.size.height * image.scale
         return pixelWidth > 100 || pixelHeight > 100
+    }
+
+    var multipleImageURLs: [URL] {
+        feedManager.carouselImageURLs(for: article).compactMap { URL(string: $0) }
+    }
+
+    var imageOverlayTitle: String? {
+        guard isLinkFeed, article.hasMeaningfulSummary, let summary = article.summary else { return nil }
+        let title = article.displayTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty, !Self.summary(summary, beginsWith: title) else { return nil }
+        return title
+    }
+
+    // Untitled items take their title from the description with every tag and line
+    // break stripped, while the summary keeps Markdown links, markers and line breaks.
+    static func summary(_ summary: String, beginsWith title: String) -> Bool {
+        let comparableSummary = ContentBlock.stripMarkdown(summary).filter { !$0.isWhitespace }
+        let comparableTitle = title.filter { !$0.isWhitespace }.prefix(40)
+        return comparableSummary.hasPrefix(comparableTitle)
     }
 
     var imageHeight: CGFloat {

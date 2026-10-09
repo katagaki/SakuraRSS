@@ -169,9 +169,9 @@ public extension FeedManager {
                 for: parsed.articles, skippingURLs: existingURLs
             )
         }
-        let redditImages: [String: String] = (!skipImageFetch && feed.isRedditFeed && hasNewArticles)
+        let redditListing = (!skipImageFetch && feed.isRedditFeed && hasNewArticles)
             ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
-            : [:]
+            : RedditListingFetchResult(imagesByPostID: [:])
         // Stored articles only need a row when their published date can be backfilled.
         let insertableArticles = parsed.articles.filter { article in
             !existingURLs.contains(article.url)
@@ -179,7 +179,10 @@ public extension FeedManager {
         }
         return insertableArticles.map { article in
             let redditImage = FeedManager.redditImageURL(
-                for: article.url, in: redditImages
+                for: article.url, in: redditListing
+            )
+            let redditGallery = FeedManager.redditGalleryImageURLs(
+                for: article.url, in: redditListing
             )
             let resolvedImageURL = redditImage
                 ?? article.imageURL
@@ -192,6 +195,7 @@ public extension FeedManager {
                     summary: article.summary,
                     content: article.content,
                     imageURL: resolvedImageURL,
+                    carouselImageURLs: !redditGallery.isEmpty ? redditGallery : article.carouselImageURLs,
                     publishedDate: article.publishedDate,
                     audioURL: article.audioURL,
                     duration: article.duration

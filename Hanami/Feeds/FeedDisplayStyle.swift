@@ -3,6 +3,8 @@ import Foundation
 public nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case inbox
     case feed
+    case feedSingle
+    case feedGrid
     case feedCompact
     case magazine
     case masonry
@@ -18,7 +20,9 @@ public nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     public var localizedName: String {
         switch self {
         case .inbox: String(localized: "Style.Inbox", table: "Articles")
-        case .feed: String(localized: "Style.Feed", table: "Articles")
+        case .feed: String(localized: "Style.FeedCarousel", table: "Articles")
+        case .feedSingle: String(localized: "Style.FeedSingle", table: "Articles")
+        case .feedGrid: String(localized: "Style.FeedGrid", table: "Articles")
         case .feedCompact: String(localized: "Style.FeedCompact", table: "Articles")
         case .magazine: String(localized: "Style.Magazine", table: "Articles")
         case .masonry: String(localized: "Style.Masonry", table: "Articles")
@@ -36,7 +40,9 @@ public nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     public var symbol: String {
         switch self {
         case .inbox: "tray"
-        case .feed: "text.rectangle.page"
+        case .feed: "rectangle.split.3x1"
+        case .feedSingle: "text.rectangle.page"
+        case .feedGrid: "square.grid.2x2"
         case .feedCompact: "square.text.square"
         case .magazine: "rectangle.grid.2x2"
         case .masonry: "rectangle.3.group"
