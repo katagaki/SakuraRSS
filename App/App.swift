@@ -76,6 +76,16 @@ struct SakuraRSSApp: App {
                     LogManager.shared.flush()
                 }
                 .onReceive(
+                    NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+                ) { _ in
+                    AppSuspensionCoordinator.shared.appDidBecomeActive()
+                }
+                .onReceive(
+                    NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
+                ) { _ in
+                    AppSuspensionCoordinator.shared.appDidEnterBackground()
+                }
+                .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
                     feedManager.updateBadgeCount()

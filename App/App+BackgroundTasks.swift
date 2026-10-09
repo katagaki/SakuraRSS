@@ -318,6 +318,7 @@ nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {
 
     init(task: BGTask) {
         self.task = task
+        DatabaseSuspensionGate.shared.beginActivity()
     }
 
     func complete(success: Bool) {
@@ -328,7 +329,11 @@ nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {
         }
         didComplete = true
         lock.unlock()
-        LogManager.shared.flush()
-        task.setTaskCompleted(success: success)
+        let task = task
+        DispatchQueue.global(qos: .userInitiated).async {
+            DatabaseSuspensionGate.shared.endActivity()
+            LogManager.shared.flush()
+            task.setTaskCompleted(success: success)
+        }
     }
 }

@@ -68,6 +68,7 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
         try connection.run("PRAGMA synchronous = NORMAL")
         connection.busyTimeout = 5.0
         applyDataProtection(atPath: databasePath)
+        DatabaseSuspensionGate.shared.register(connection)
     }
 
     /// Lowers the database file's data protection so a SQLite lock held while the
