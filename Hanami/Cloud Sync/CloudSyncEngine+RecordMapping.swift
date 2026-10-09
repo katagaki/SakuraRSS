@@ -83,6 +83,7 @@ nonisolated extension CloudSyncEngine {
         if appliedAnything {
             // Lists can arrive before the feeds they contain, in this batch or an earlier one.
             try? database.resolvePendingListMembers()
+            database.prunePendingItemStatuses()
             onRemoteChangesApplied?(insertedNewFeeds)
         }
     }
@@ -120,7 +121,10 @@ nonisolated extension CloudSyncEngine {
         database.setSyncEngineStateData(nil, forKey: Self.archivedRecordKeyPrefix + syncID)
         // A deleted status record only clears sync bookkeeping (e.g. the other
         // device cleaned up an old item); the local read/bookmark state stays.
-        if Self.isItemStatusID(syncID) { return }
+        if Self.isItemStatusID(syncID) {
+            database.removePendingItemStatus(syncID: syncID)
+            return
+        }
         if Self.isListID(syncID) {
             applyRemoteListDeletion(syncID: syncID)
             return

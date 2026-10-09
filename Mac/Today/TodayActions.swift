@@ -7,4 +7,5 @@ struct TodayActions {
     let openInNewTab: (BrowserLocation) -> Void
     var showBookmarkDetails: (Article) -> Void = { _ in }
     var moveToFolder: (Article) -> Void = { _ in }
+    var editQuickAccess: () -> Void = {}
 }

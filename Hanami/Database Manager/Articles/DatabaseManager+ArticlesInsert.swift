@@ -55,7 +55,7 @@ public nonisolated extension DatabaseManager {
     ) throws -> Int64 {
         let carouselValue = data.carouselImageURLs.isEmpty
             ? nil : data.carouselImageURLs.joined(separator: "\n")
-        return try database.run(articles.insert(or: .ignore,
+        let rowid = try database.run(articles.insert(or: .ignore,
             articleFeedID <- fid,
             articleTitle <- title,
             articleURL <- url,
@@ -70,6 +70,10 @@ public nonisolated extension DatabaseManager {
             articleAudioURL <- data.audioURL,
             articleDuration <- data.duration
         ))
+        if database.changes > 0, hasPendingItemStatuses() {
+            try applyPendingItemStatus(toInsertedArticleWithURL: url)
+        }
+        return rowid
     }
 
     /// `undatedFallbackDate` dates undated items by feed order so date sorting preserves it;
@@ -106,6 +110,7 @@ public nonisolated extension DatabaseManager {
         undatedFallbackDate: Date? = nil
     ) throws -> [Int64] {
         var insertedIDs: [Int64] = []
+        let hasPendingStatuses = hasPendingItemStatuses()
         for (itemIndex, item) in items.enumerated() {
             if let cutoff = cutoffDate, let published = item.data.publishedDate,
                published < cutoff {
@@ -133,6 +138,9 @@ public nonisolated extension DatabaseManager {
             ))
             if database.changes > 0 {
                 insertedIDs.append(rowid)
+                if hasPendingStatuses {
+                    try applyPendingItemStatus(toInsertedArticleWithURL: item.url)
+                }
             } else if let published = item.data.publishedDate {
                 try backfillPublishedDate(url: item.url, publishedDate: published)
             }

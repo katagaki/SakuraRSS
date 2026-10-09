@@ -40,10 +40,10 @@ struct FollowingListGridCell: View {
                 .padding(iconInnerPadding)
                 .frame(width: iconSize, height: iconSize)
                 .drawingGroup()
-                .compatibleGlassEffect(
+                .wiggleRotation()
+                .wiggleGlassEffect(
                     in: RoundedRectangle(cornerRadius: iconCornerRadius),
-                    tint: listTint?.opacity(0.3),
-                    clear: false
+                    tint: listTint?.opacity(0.3)
                 )
                 .contentShape(
                     .hoverEffect,
@@ -69,6 +69,7 @@ struct FollowingListGridCell: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(2, reservesSpace: true)
                 .truncationMode(.middle)
+                .wiggleRotation()
         }
         .frame(maxWidth: .infinity)
         .contentShape(.rect)

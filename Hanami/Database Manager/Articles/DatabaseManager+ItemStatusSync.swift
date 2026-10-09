@@ -66,7 +66,12 @@ public nonisolated extension DatabaseManager {
     func applyRemoteItemStatus(
         url: String, isRead: Bool, isBookmarked: Bool, modifiedAt: Double, syncID: String
     ) throws -> Bool {
-        guard let row = try database.pluck(articles.filter(articleURL == url)) else { return false }
+        guard let row = try database.pluck(articles.filter(articleURL == url)) else {
+            try parkRemoteItemStatus(
+                url: url, isRead: isRead, isBookmarked: isBookmarked, modifiedAt: modifiedAt, syncID: syncID
+            )
+            return false
+        }
         let localModified = (try? row.get(articleStatusModifiedAt)) ?? 0
         guard modifiedAt >= localModified else {
             _ = try? database.run(articles.filter(articleURL == url).update(articleStatusSyncID <- syncID))

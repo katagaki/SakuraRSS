@@ -10,6 +10,7 @@ nonisolated extension DatabaseManager {
         try createNLPTables()
         try createSyncTables()
         try migrateListSyncColumns()
+        try createTodayQuickAccessTable()
     }
 
     private func createCoreTables() throws {
