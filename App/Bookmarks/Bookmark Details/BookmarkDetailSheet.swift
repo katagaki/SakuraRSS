@@ -4,7 +4,7 @@ import Hanami
 struct BookmarkDetailSheet: View {
 
     @Environment(FeedManager.self) private var feedManager
-    @Environment(\.dismiss) private var dismiss
+    @SheetDismiss private var dismiss
 
     let article: Article
 
@@ -29,14 +29,11 @@ struct BookmarkDetailSheet: View {
             .settingsListStyle()
             .navigationTitle(String(localized: "BookmarkDetail.Title", table: "Articles"))
             .inlineNavigationTitle()
-            .toolbar {
-                ToolbarItem(placement: .sheetLeading) {
-                    Button(role: .cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .sheetTrailing) {
-                    Button(role: .confirm) { save() }
-                        .disabled(trimmedTitle.isEmpty)
-                }
+            .sheetActions {
+                Button(role: .cancel) { dismiss() }
+            } trailing: {
+                Button(role: .confirm) { save() }
+                    .disabled(trimmedTitle.isEmpty)
             }
             .onAppear(perform: loadIfNeeded)
         }

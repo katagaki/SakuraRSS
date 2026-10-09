@@ -4,7 +4,7 @@ import Hanami
 struct MoveToFolderSheet: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.dismiss) var dismiss
+    @SheetDismiss var dismiss
     let article: Article
 
     private var destinationFolders: [BookmarkFolder] {
@@ -34,11 +34,9 @@ struct MoveToFolderSheet: View {
             .navigationTitle(String(localized: "Article.MoveToFolder", table: "Articles"))
             .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
-            .toolbar {
-                ToolbarItem(placement: .sheetLeading) {
-                    Button(role: .cancel) {
-                        dismiss()
-                    }
+            .sheetActions {
+                Button(role: .cancel) {
+                    dismiss()
                 }
             }
         }

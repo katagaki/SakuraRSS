@@ -4,7 +4,7 @@ import Hanami
 struct EditFeedSheet: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.dismiss) private var dismiss
+    @SheetDismiss private var dismiss
     let feedID: Int64
 
     @State private var feed: Feed?
@@ -56,6 +56,7 @@ struct EditFeedSheet: View {
                 feed = newValue
             }
         }
+        .onEscape { dismiss() }
     }
 
     @ViewBuilder

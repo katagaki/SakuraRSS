@@ -16,7 +16,7 @@ struct InstagramLoginView: View {
                 .inlineNavigationTitle()
                 .compatibleSoftScrollEdgeEffectStyle()
                 .toolbar {
-                    ToolbarItem(placement: .sheetTrailing) {
+                    ToolbarItem(placement: .sheetClose) {
                         Button(role: .close) {
                             dismiss()
                         }

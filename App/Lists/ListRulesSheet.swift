@@ -4,7 +4,7 @@ import Hanami
 struct ListRulesSheet: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.dismiss) var dismiss
+    @SheetDismiss var dismiss
 
     let list: FeedList
 
@@ -162,16 +162,13 @@ struct ListRulesSheet: View {
             .navigationTitle(String(localized: "ListRules.Title", table: "Lists"))
             .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
-            .toolbar {
-                ToolbarItem(placement: .sheetLeading) {
-                    Button(role: .cancel) {
-                        dismiss()
-                    }
+            .sheetActions {
+                Button(role: .cancel) {
+                    dismiss()
                 }
-                ToolbarItem(placement: .sheetTrailing) {
-                    Button(role: .confirm) {
-                        save()
-                    }
+            } trailing: {
+                Button(role: .confirm) {
+                    save()
                 }
             }
             .onAppear {

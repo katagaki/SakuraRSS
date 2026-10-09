@@ -15,12 +15,9 @@ extension BrowserWindowController {
     }
 
     func presentAddFeedSheet(for urlString: String) {
-        let sheet = NSHostingController(rootView: AnyView(EmptyView()))
-        sheet.rootView = AnyView(AddFeedSheet(
+        contentViewController?.presentHostedSheet(AddFeedSheet(
             feedManager: feedManager,
-            onDone: { [weak sheet] in sheet?.dismiss(nil) },
             session: FeedDiscoverySession(urlString: urlString)
         ))
-        contentViewController?.presentAsSheet(sheet)
     }
 }

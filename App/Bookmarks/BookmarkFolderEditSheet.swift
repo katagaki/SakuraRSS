@@ -4,7 +4,7 @@ import Hanami
 struct BookmarkFolderEditSheet: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.dismiss) var dismiss
+    @SheetDismiss var dismiss
 
     let folder: BookmarkFolder?
 
@@ -71,18 +71,15 @@ struct BookmarkFolderEditSheet: View {
                              : String(localized: "FolderEdit.Title.New", table: "Articles"))
             .inlineNavigationTitle()
             .compatibleSoftScrollEdgeEffectStyle()
-            .toolbar {
-                ToolbarItem(placement: .sheetLeading) {
-                    Button(role: .cancel) {
-                        dismiss()
-                    }
+            .sheetActions {
+                Button(role: .cancel) {
+                    dismiss()
                 }
-                ToolbarItem(placement: .sheetTrailing) {
-                    Button(role: .confirm) {
-                        save()
-                    }
-                    .disabled(!canSave)
+            } trailing: {
+                Button(role: .confirm) {
+                    save()
                 }
+                .disabled(!canSave)
             }
             .onAppear {
                 initializeIfNeeded()

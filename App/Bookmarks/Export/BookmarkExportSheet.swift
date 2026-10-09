@@ -3,7 +3,7 @@ import Hanami
 
 struct BookmarkExportSheet: View {
 
-    @Environment(\.dismiss) private var dismiss
+    @SheetDismiss private var dismiss
 
     @State private var format: BookmarkExportFormat = .json
     @State private var items: [ExportedBookmark] = []
@@ -52,21 +52,20 @@ struct BookmarkExportSheet: View {
             }
             .navigationTitle(String(localized: "BookmarksExport.Title", table: "Articles"))
             .inlineNavigationTitle()
-            .toolbar {
-                ToolbarItem(placement: .sheetLeading) {
-                    Button(role: .cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .sheetTrailing) {
-                    exportButton
-                        .disabled(isLoading || items.isEmpty)
-                }
+            .sheetActions {
+                Button(role: .cancel) { dismiss() }
+            } trailing: {
+                exportButton
+                    .disabled(isLoading || items.isEmpty)
             }
             .fileExporter(
                 isPresented: $isSaving,
                 document: BookmarkExportDocument(text: output),
                 contentType: format.contentType,
                 defaultFilename: "bookmarks.\(format.fileExtension)"
-            ) { _ in }
+            ) { result in
+                if case .success = result { dismiss() }
+            }
             .task {
                 items = await Task.detached {
                     (try? DatabaseManager.shared.exportableBookmarks()) ?? []

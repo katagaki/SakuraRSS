@@ -21,6 +21,26 @@ extension ToolbarItemPlacement {
         .topBarTrailing
         #endif
     }
+
+    /// A sheet's close position: the top bar's trailing edge on iOS, the
+    /// cancellation slot on macOS so that Escape closes the sheet.
+    static var sheetClose: ToolbarItemPlacement {
+        #if os(macOS)
+        .cancellationAction
+        #else
+        .topBarTrailing
+        #endif
+    }
+
+    /// Trailing controls that aren't the sheet's confirm action, which macOS
+    /// would otherwise bind to Return.
+    static var sheetTrailingAccessory: ToolbarItemPlacement {
+        #if os(macOS)
+        .primaryAction
+        #else
+        .topBarTrailing
+        #endif
+    }
 }
 
 extension View {

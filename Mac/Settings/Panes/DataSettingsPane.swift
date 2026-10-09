@@ -71,6 +71,7 @@ private struct DataSettingsPageSheet: View {
                 }
             }
         }
+        .onEscape { dismiss() }
         .frame(width: 560, height: 520)
     }
 }
