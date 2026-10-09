@@ -70,7 +70,7 @@ struct AddFeedSheet: View {
         } else if !session.hasSearched {
             Text(String(localized: "AddFeed.Section.SearchFooter.\(MainMenuBuilder.applicationName)", table: "Feeds"))
                 .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         } else if session.discoveredFeeds.isEmpty {
             Text(session.errorMessage ?? "")
                 .foregroundStyle(.secondary)
