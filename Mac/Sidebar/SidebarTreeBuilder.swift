@@ -5,23 +5,39 @@ struct SidebarTreeBuilder {
 
     let feedManager: FeedManager
 
+    private let preferences = TodayQuickAccessPreferences.shared
+
     func build() -> [SidebarNode] {
-        var nodes = [locationNode(.startPage), locationNode(.allContent), bookmarksNode()]
+        var nodes = [locationNode(.startPage)]
+        nodes += preferences.visible([.allContent, .bookmarks]).compactMap(quickAccessNode)
         if UserDefaults.standard.bool(forKey: "Intelligence.ContentInsights.Enabled") {
             nodes.append(locationNode(.topics))
         }
-        if !feedManager.lists.isEmpty {
-            let lists = feedManager.lists
-                .sorted { $0.sortOrder < $1.sortOrder }
-                .map { locationNode(.list($0.id)) }
+        let listItems = feedManager.lists
+            .sorted { $0.sortOrder < $1.sortOrder }
+            .map { TodayQuickAccessItem.list($0.id) }
+        let lists = preferences.visible(listItems).compactMap(quickAccessNode)
+        if !lists.isEmpty {
             nodes.append(SidebarNode(.group(title: String(localized: "Tabs.Lists")), children: lists))
         }
-        let sections = FeedSection.allCases.compactMap(sectionNode)
+        let sectionItems = FeedSection.allCases.map { TodayQuickAccessItem.feedSection($0) }
+        let sections = preferences.visible(sectionItems).compactMap(quickAccessNode)
         if !sections.isEmpty {
             let title = String(localized: "Sidebar.Following", table: "Feeds")
             nodes.append(SidebarNode(.group(title: title), children: sections))
         }
         return nodes
+    }
+
+    /// The sidebar follows the Quick Access settings, which the Sidebar settings pane edits.
+    private func quickAccessNode(_ item: TodayQuickAccessItem) -> SidebarNode? {
+        switch item {
+        case .allContent: locationNode(.allContent)
+        case .bookmarks: bookmarksNode()
+        case .list(let listID): locationNode(.list(listID))
+        case .feedSection(let section): sectionNode(section)
+        case .following, .topics: nil
+        }
     }
 
     /// Bookmarks, with its folders and then the tags in use beneath it. Counts

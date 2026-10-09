@@ -56,6 +56,7 @@ final class SidebarViewController: NSViewController {
         treeObserver = ChangeObserver { [weak self] in
             guard let revisions = self?.revisions else { return }
             _ = (revisions.dataRevision, revisions.readStateRevision)
+            _ = TodayQuickAccessPreferences.shared.isCustomized
         } onChange: { [weak self] in
             self?.scheduleTreeReload()
         }
