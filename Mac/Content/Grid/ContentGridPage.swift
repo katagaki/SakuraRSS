@@ -81,7 +81,10 @@ struct ContentGridPage: View {
                 }
             }
         default:
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: minimumWidth), spacing: spacing)], spacing: spacing) {
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: minimumWidth), spacing: spacing, alignment: .top)],
+                spacing: spacing
+            ) {
                 ForEach(articles) { article in item(article) }
             }
         }

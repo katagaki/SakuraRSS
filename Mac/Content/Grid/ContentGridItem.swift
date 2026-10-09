@@ -13,12 +13,12 @@ struct ContentGridItem: View {
         switch style {
         case .photos:
             TodayThumbnail(urlString: article.imageURL)
-                .aspectRatio(1, contentMode: .fill)
+                .aspectRatio(1, contentMode: .fit)
                 .clipShape(.rect(cornerRadius: 4))
         case .grid, .podcast:
             VStack(alignment: .leading, spacing: 6) {
                 TodayThumbnail(urlString: article.imageURL)
-                    .aspectRatio(1, contentMode: .fill)
+                    .aspectRatio(1, contentMode: .fit)
                     .clipShape(.rect(cornerRadius: 10))
                 ContentGridCaption(article: article, feedTitle: feedTitle, isRead: isRead, titleLines: 2)
             }
@@ -30,7 +30,7 @@ struct ContentGridItem: View {
         case .video:
             VStack(alignment: .leading, spacing: 6) {
                 TodayThumbnail(urlString: article.imageURL)
-                    .aspectRatio(16 / 9, contentMode: .fill)
+                    .aspectRatio(16 / 9, contentMode: .fit)
                     .clipShape(.rect(cornerRadius: 10))
                     .overlay(alignment: .bottomTrailing) {
                         Image(systemName: "play.fill")
@@ -44,7 +44,7 @@ struct ContentGridItem: View {
         default:
             VStack(alignment: .leading, spacing: 8) {
                 TodayThumbnail(urlString: article.imageURL)
-                    .aspectRatio(16 / 9, contentMode: .fill)
+                    .aspectRatio(16 / 9, contentMode: .fit)
                     .clipShape(.rect(cornerRadius: 12))
                 ContentGridCaption(article: article, feedTitle: feedTitle, isRead: isRead, titleLines: 3)
             }
