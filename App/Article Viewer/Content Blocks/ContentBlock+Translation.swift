@@ -56,7 +56,7 @@ extension ContentBlock {
     static func translateArticleContent(
         title: String?, markerText: String, session: TranslationSession
     ) async throws -> (title: String?, text: String) {
-        let segments = translationSegments(from: markerText)
+        let segments = translationSegments(from: RubyMarkup.strippingReadings(markerText))
         let requests = translationRequests(title: title, segments: segments)
 
         guard !requests.isEmpty else {

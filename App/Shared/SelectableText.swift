@@ -1,7 +1,7 @@
 import SwiftUI
 import Hanami
 
-/// Read-only text view with range selection, Markdown formatting, and `{{SUP}}`/`{{SUB}}` markers.
+/// Read-only text view with range selection, Markdown formatting, `{{SUP}}`/`{{SUB}}` and `{{RUBY}}` markers.
 struct SelectableText: UIViewRepresentable {
 
     let text: String
@@ -44,6 +44,9 @@ struct SelectableText: UIViewRepresentable {
         context.coordinator.renderedText = text
         context.coordinator.renderedFont = font
         context.coordinator.renderedTextColor = textColor
+        if RubyMarkup.containsRuby(text) {
+            context.coordinator.rubyLineBreakGuard.install(on: textView.textLayoutManager)
+        }
         textView.attributedText = buildAttributedString()
         context.coordinator.measuredHeights.removeAll()
         textView.invalidateIntrinsicContentSize()
@@ -76,6 +79,7 @@ struct SelectableText: UIViewRepresentable {
         var renderedFont: UIFont?
         var renderedTextColor: UIColor?
         var measuredHeights: [CGFloat: CGFloat] = [:]
+        let rubyLineBreakGuard = RubyLineBreakGuard()
 
         init(onLinkTap: ((URL) -> Void)?) {
             self.onLinkTap = onLinkTap
@@ -119,10 +123,28 @@ struct SelectableText: UIViewRepresentable {
                 lineFont = UIFont.preferredFont(forTextStyle: .title1)
             }
 
-            attributed.append(parseLine(contentLine, baseFont: lineFont))
+            let parsedLine = NSMutableAttributedString(
+                attributedString: parseLine(contentLine, baseFont: lineFont)
+            )
+            if parsedLine.applyRubyAnnotations() {
+                parsedLine.addAttribute(
+                    .paragraphStyle,
+                    value: Self.rubyParagraphStyle(for: lineFont),
+                    range: NSRange(location: 0, length: parsedLine.length)
+                )
+            }
+            attributed.append(parsedLine)
         }
 
         return attributed
+    }
+
+    /// TextKit 2 draws ruby but doesn't reserve room for it, so the reading
+    /// would overlap the line above and clip at the top of the view.
+    private static func rubyParagraphStyle(for font: UIFont) -> NSParagraphStyle {
+        let style = NSMutableParagraphStyle()
+        style.minimumLineHeight = font.lineHeight + font.pointSize * 0.6
+        return style
     }
 
     nonisolated private static let supSubRegex = try? NSRegularExpression(
