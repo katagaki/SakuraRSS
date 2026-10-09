@@ -4,6 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
+		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds</string>
 		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds.rss</string>
 		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds.reddit</string>
 		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds.youtube</string>
