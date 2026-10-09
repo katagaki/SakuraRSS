@@ -56,6 +56,7 @@ public nonisolated extension DatabaseManager {
         _ = try? database.run(articles.addColumn(articleStatusDirty, defaultValue: false))
         _ = try? database.run(articles.createIndex(articleStatusDirty, ifNotExists: true))
         _ = try? database.run(articles.createIndex(articleStatusSyncID, ifNotExists: true))
+        try createPendingItemStatusesTable()
     }
 
     // MARK: - Feed Sync Metadata
