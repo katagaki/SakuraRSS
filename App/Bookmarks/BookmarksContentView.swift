@@ -8,7 +8,6 @@ struct BookmarksContentView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
-    @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
 
     @State var bookmarkedArticles: [Article] = []
     @State private var bookmarkedArticleIDs: [Int64] = []
@@ -23,9 +22,6 @@ struct BookmarksContentView: View {
 
     /// Sheets want an inline title; the tab and sidebar hosts want the large one.
     private let titleDisplayMode: ToolbarTitleDisplayMode
-
-    @Namespace private var newFolderNamespace
-    private let newFolderTransitionID = "NewFolder"
 
     var hasImages: Bool {
         visibleArticles.contains { $0.imageURL != nil }
@@ -93,10 +89,9 @@ struct BookmarksContentView: View {
         .toolbarTitleDisplayMode(titleDisplayMode)
         .sakuraBackground()
         .searchable(text: $searchText,
-                    placement: .browserChrome(isActive: isBrowserChromeActive),
+                    placement: .navigationBarDrawer,
                     prompt: String(localized: "Bookmarks.Search.Prompt", table: "Articles"))
         .bookmarkCollectionDestinations(namespace: zoomNamespace)
-        .toolbar { topBarItems }
         .animation(.smooth.speed(2.0), value: displayStyle)
         .animation(.smooth.speed(2.0), value: bookmarkedArticleIDs)
         .animation(.smooth.speed(2.0), value: sortOrder)
@@ -118,11 +113,6 @@ struct BookmarksContentView: View {
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
-                .optionalZoomTransition(
-                    isEnabled: !isBrowserChromeActive,
-                    sourceID: newFolderTransitionID,
-                    in: newFolderNamespace
-                )
         }
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
@@ -135,62 +125,8 @@ struct BookmarksContentView: View {
         }
         // The browser hides the top bar, so these controls go in the
         // omnibox's menu instead.
-        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+        .tabOmniboxAccessory {
             BrowserBookmarksMenu(actions: browserBookmarksActions)
-        }
-    }
-
-    /// Under browser chrome these same actions live in the bottom bar's
-    /// ellipsis menu instead, so the top bar contributes nothing.
-    @ToolbarContentBuilder
-    private var topBarItems: some ToolbarContent {
-        if !isBrowserChromeActive {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    isCreatingFolder = true
-                } label: {
-                    Image(systemName: "folder.badge.plus")
-                        .matchedTransitionSource(id: newFolderTransitionID, in: newFolderNamespace)
-                }
-                .accessibilityLabel(String(localized: "Folders.New", table: "Articles"))
-            }
-            if !bookmarkedArticles.isEmpty {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        showingDeleteReadAlert = true
-                    } label: {
-                        Image(systemName: "bookmark.slash")
-                    }
-                }
-                #if !os(visionOS)
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-                #endif
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Menu {
-                        Button {
-                            isExporting = true
-                        } label: {
-                            Label(String(localized: "BookmarksExport.Title", table: "Articles"),
-                                  systemImage: "square.and.arrow.up")
-                        }
-                        Divider()
-                        BookmarkScopeMenu(scope: $scope)
-                        Divider()
-                        BookmarkSortMenu(sortOrder: $sortOrder)
-                        Divider()
-                        DisplayStylePicker(
-                            displayStyle: $displayStyle,
-                            hasImages: hasImages,
-                            showCards: false,
-                            showScroll: false
-                        )
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
-                    }
-                    .menuActionDismissBehavior(.disabled)
-                    .menuOrder(.fixed)
-                }
-            }
         }
     }
 

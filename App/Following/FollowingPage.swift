@@ -5,7 +5,6 @@ import Hanami
 struct FollowingPage: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
     let followingNavigationNamespace: Namespace.ID
     @State var searchText = ""
     @State var isPresentingAddFeedSheet = false
@@ -20,9 +19,7 @@ struct FollowingPage: View {
     @State var isPresentingBulkEditSheet = false
     @State var isPresentingBulkDeleteAlert = false
     @State var isPresentingNewListSheet = false
-    @Namespace var addFeedNamespace
     @Namespace var feedEditNamespace
-    @Namespace var newListNamespace
 
     let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 16)]
 
@@ -50,9 +47,8 @@ struct FollowingPage: View {
         .toolbarTitleDisplayMode(.inlineLarge)
         .searchable(
             text: $searchText,
-            placement: .browserChrome(isActive: isBrowserChromeActive),
+            placement: .navigationBarDrawer,
             prompt: Text(String(localized: "FeedList.SearchPrompt", table: "Feeds")))
-        .toolbar { toolbarContent }
         .sakuraBackground()
         .overlay { emptyStateOverlay }
         .onChange(of: feedManager.activeFocus) { _, _ in
@@ -60,18 +56,13 @@ struct FollowingPage: View {
         }
         // The browser hides the top bar, so these controls go in the
         // omnibox's menu instead.
-        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+        .tabOmniboxAccessory {
             BrowserFollowingMenu(actions: browserFollowingActions)
         }
         .sheet(isPresented: $isPresentingAddFeedSheet) {
             AddFeedView(session: addFeedSession)
                 .environment(feedManager)
                 .presentationDetents([.large])
-                .optionalZoomTransition(
-                    isEnabled: !isBrowserChromeActive,
-                    sourceID: "addFeed",
-                    in: addFeedNamespace
-                )
         }
         .sheet(item: $feedToEdit) { feed in
             EditFeedSheet(feedID: feed.id)
@@ -92,11 +83,6 @@ struct FollowingPage: View {
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
-                .optionalZoomTransition(
-                    isEnabled: !isBrowserChromeActive,
-                    sourceID: "newList",
-                    in: newListNamespace
-                )
         }
         .alert(
             String(localized: "FeedMenu.Unfollow.Title", table: "Feeds"),

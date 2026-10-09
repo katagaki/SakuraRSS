@@ -6,7 +6,6 @@ struct BookmarkTagArticlesView: View {
 
     @Environment(FeedManager.self) private var feedManager
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
 
     let tag: BookmarkTag
 
@@ -51,26 +50,8 @@ struct BookmarkTagArticlesView: View {
         .sakuraBackground()
         .navigationTitle(tag.name)
         .toolbarTitleDisplayMode(.inline)
-        .toolbar {
-            if !isBrowserChromeActive {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Menu {
-                        DisplayStylePicker(
-                            displayStyle: $displayStyle,
-                            hasImages: hasImages,
-                            showCards: false,
-                            showScroll: false
-                        )
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
-                    }
-                    .menuActionDismissBehavior(.disabled)
-                    .menuOrder(.fixed)
-                }
-            }
-        }
         .animation(.smooth.speed(2.0), value: articleIDs)
-        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+        .tabOmniboxAccessory {
             BrowserPageDisplayMenu(options: browserDisplayStyleOptions)
         }
         .task(id: feedManager.dataRevision) {
