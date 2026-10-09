@@ -121,6 +121,13 @@ extension SakuraRSSApp {
             WidgetCenter.shared.reloadAllTimelines()
         }
 
+        let watchdog = Task {
+            try? await Task.sleep(for: Self.appRefreshHardLimit)
+            guard !Task.isCancelled else { return }
+            log("BackgroundRefresh", "handleAppRefresh hit time limit category=\(category.rawValue)")
+            refreshTask.cancel()
+        }
+
         task.expirationHandler = {
             log("BackgroundRefresh", "handleAppRefresh expired category=\(category.rawValue)")
             refreshTask.cancel()
@@ -129,6 +136,7 @@ extension SakuraRSSApp {
 
         Task {
             _ = await refreshTask.value
+            watchdog.cancel()
             log(
                 "BackgroundRefresh",
                 "handleAppRefresh end category=\(category.rawValue) cancelled=\(refreshTask.isCancelled)"
@@ -136,6 +144,10 @@ extension SakuraRSSApp {
             completion.complete(success: !refreshTask.isCancelled)
         }
     }
+
+    /// Requests time out after 60s, so one slow feed would otherwise hold the
+    /// task until the system expires it.
+    nonisolated private static let appRefreshHardLimit: Duration = .seconds(25)
 
     nonisolated private static func resolveSkipImageFetch(pathExpensive: Bool) -> Bool {
         // nil probe means "assume expensive" so we default to the safer behavior.

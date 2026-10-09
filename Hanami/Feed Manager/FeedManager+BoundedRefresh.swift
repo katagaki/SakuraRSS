@@ -107,6 +107,10 @@ public extension FeedManager {
         log("FeedRefresh.Bounded", "end count=\(feeds.count)")
     }
 
+    /// Stops starting new feeds well inside the ~30s `BGAppRefreshTask` budget;
+    /// the stalest feeds go first, so the rest roll over to the next run.
+    private static let backgroundRefreshBudget: Duration = .seconds(20)
+
     /// Refreshes only the feeds matching the given background category.
     /// `contentOnly: true` suppresses all meta updates (title, description,
     /// podcast detection, Substack URL wrap, Fediverse probe, fetcher metadata
@@ -120,56 +124,63 @@ public extension FeedManager {
         let cooldownRaw = UserDefaults.standard.string(forKey: "BackgroundRefresh.Cooldown")
         let cooldownSeconds = (cooldownRaw.flatMap(FeedRefreshCooldown.init(rawValue:)) ?? .fiveMinutes).seconds
         let eligible = filterByRefreshCooldown(matching, cooldownSeconds: cooldownSeconds)
+            .sorted { ($0.lastFetched ?? .distantPast) < ($1.lastFetched ?? .distantPast) }
         guard !eligible.isEmpty else {
             log("FeedRefresh.Category", "category=\(category.rawValue) no feeds eligible")
             return
         }
         log("FeedRefresh.Category", "category=\(category.rawValue) begin count=\(eligible.count)")
         let maxConcurrent = category == .x || category == .instagram ? 2 : 6
+        let deadline = ContinuousClock.now.advanced(by: Self.backgroundRefreshBudget)
+        var deferredCount = 0
         await withTaskGroup(of: Void.self) { group in
-            var submitted = 0
+            var runningCount = 0
             var iterator = eligible.makeIterator()
-            while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
-                group.addTask { [weak self] in
-                    guard let self, !Task.isCancelled else { return }
-                    try? await self.refreshFeed(
-                        feed,
-                        updateTitle: false,
-                        reloadData: false,
-                        skipImageFetch: skipImageFetch,
-                        skipImagePreload: skipImagePreload,
-                        runNLP: false,
-                        contentOnly: true
-                    )
-                }
-                submitted += 1
-            }
-            while await group.next() != nil {
-                if Task.isCancelled {
-                    group.cancelAll()
-                    continue
-                }
-                if let feed = iterator.next() {
+            while true {
+                while runningCount < maxConcurrent, !Task.isCancelled,
+                      ContinuousClock.now < deadline, let feed = iterator.next() {
                     group.addTask { [weak self] in
-                        guard let self, !Task.isCancelled else { return }
-                        try? await self.refreshFeed(
+                        await self?.refreshFeedContent(
                             feed,
-                            updateTitle: false,
-                            reloadData: false,
                             skipImageFetch: skipImageFetch,
-                            skipImagePreload: skipImagePreload,
-                            runNLP: false,
-                            contentOnly: true
+                            skipImagePreload: skipImagePreload
                         )
                     }
+                    runningCount += 1
                 }
+                guard await group.next() != nil else { break }
+                runningCount -= 1
+                if Task.isCancelled {
+                    group.cancelAll()
+                }
+            }
+            while iterator.next() != nil {
+                deferredCount += 1
             }
         }
         await MainActor.run {
             self.lastRefreshedAt = Date()
             self.scopedLastRefreshedAt = [:]
         }
-        log("FeedRefresh.Category", "category=\(category.rawValue) end count=\(eligible.count)")
+        // swiftlint:disable:next line_length
+        log("FeedRefresh.Category", "category=\(category.rawValue) end count=\(eligible.count) deferred=\(deferredCount)")
+    }
+
+    private func refreshFeedContent(
+        _ feed: Feed,
+        skipImageFetch: Bool,
+        skipImagePreload: Bool
+    ) async {
+        guard !Task.isCancelled else { return }
+        try? await refreshFeed(
+            feed,
+            updateTitle: false,
+            reloadData: false,
+            skipImageFetch: skipImageFetch,
+            skipImagePreload: skipImagePreload,
+            runNLP: false,
+            contentOnly: true
+        )
     }
 
     @MainActor
