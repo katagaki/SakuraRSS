@@ -7,6 +7,9 @@ struct ContentBlockView: View {
 
     var body: some View {
         switch block {
+        case .text(let text) where RubyMarkup.containsRuby(text):
+            RubyTextView(text: text, fontSize: 15)
+                .frame(maxWidth: .infinity, alignment: .leading)
         case .text(let text):
             Text(LocalizedStringKey(text))
                 .font(.system(size: 15))
