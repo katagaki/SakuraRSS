@@ -13,8 +13,10 @@ public extension FeedManager {
     private func deleteAllFeedsBeforeImport() throws {
         let existing = try database.allFeeds()
         for feed in existing {
+            let containingListIDs = (try? database.listIDs(forFeedID: feed.id)) ?? []
             try database.deleteFeed(id: feed.id)
             captureUserFeedDeletion(syncID: feed.syncID)
+            containingListIDs.forEach(captureUserListEdit(listID:))
         }
     }
 

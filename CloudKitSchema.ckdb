@@ -25,3 +25,18 @@ DEFINE SCHEMA
         GRANT CREATE TO "_icloud",
         GRANT READ TO "_creator"
     );
+
+    RECORD TYPE List (
+        allowedKeywords   LIST<STRING>,
+        displayStyle      STRING,
+        icon              STRING,
+        memberFeedSyncIDs LIST<STRING>,
+        mutedAuthors      LIST<STRING>,
+        mutedKeywords     LIST<STRING>,
+        name              STRING QUERYABLE SEARCHABLE SORTABLE,
+        sortOrder         INT64 QUERYABLE SORTABLE,
+        userModifiedAt    TIMESTAMP QUERYABLE SORTABLE,
+        GRANT WRITE TO "_creator",
+        GRANT CREATE TO "_icloud",
+        GRANT READ TO "_creator"
+    );

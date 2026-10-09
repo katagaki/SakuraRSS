@@ -69,6 +69,9 @@ nonisolated extension CloudSyncEngine {
             case Self.itemStatusRecordType:
                 applyFetchedItemStatus(modification.record)
                 appliedAnything = true
+            case Self.listRecordType:
+                applyFetchedList(modification.record, tombstoneIDs: tombstoneIDs)
+                appliedAnything = true
             default:
                 break
             }
@@ -78,6 +81,8 @@ nonisolated extension CloudSyncEngine {
             appliedAnything = true
         }
         if appliedAnything {
+            // Lists can arrive before the feeds they contain, in this batch or an earlier one.
+            try? database.resolvePendingListMembers()
             database.prunePendingItemStatuses()
             onRemoteChangesApplied?(insertedNewFeeds)
         }
@@ -120,7 +125,12 @@ nonisolated extension CloudSyncEngine {
             database.removePendingItemStatus(syncID: syncID)
             return
         }
+        if Self.isListID(syncID) {
+            applyRemoteListDeletion(syncID: syncID)
+            return
+        }
         try? database.removeSyncTombstone(syncID: syncID)
+        try? database.removePendingListMembers(feedSyncID: syncID)
         guard let feed = try? database.feed(bySyncID: syncID) else { return }
         if let onRemoteFeedDeleted {
             onRemoteFeedDeleted(feed)

@@ -40,6 +40,8 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
             let record: CKRecord?
             if Self.isItemStatusID(recordID.recordName) {
                 record = self.record(forItemStatusSyncID: recordID.recordName)
+            } else if Self.isListID(recordID.recordName) {
+                record = self.record(forListSyncID: recordID.recordName)
             } else if let feed = try? self.database.feed(bySyncID: recordID.recordName) {
                 record = self.record(for: feed)
             } else {
@@ -151,6 +153,20 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
                 syncEngine.state.add(pendingRecordZoneChanges: [.saveRecord(recordID)])
             } else {
                 applyFetchedItemStatus(serverRecord)
+                onRemoteChangesApplied?(false)
+            }
+            return
+        }
+
+        if Self.isListID(syncID) {
+            let localModifiedAt = database.listUserModifiedAt(syncID: syncID) ?? .distantPast
+            let awaitsFirstSync = database.localListID(bySyncID: syncID)
+                .map { database.listAwaitsFirstSync(listID: $0) } ?? false
+            if localModifiedAt > serverModifiedAt, !awaitsFirstSync {
+                syncEngine.state.add(pendingRecordZoneChanges: [.saveRecord(recordID)])
+            } else {
+                applyFetchedList(serverRecord)
+                try? database.resolvePendingListMembers()
                 onRemoteChangesApplied?(false)
             }
             return

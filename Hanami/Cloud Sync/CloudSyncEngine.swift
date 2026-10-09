@@ -9,12 +9,14 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
     public static let enabledDefaultsKey = "iCloudSync.Enabled"
     public static let lastSyncedAtDefaultsKey = "iCloudSync.LastSyncedAt"
     public static let didMigrateItemStatusesKey = "iCloudSync.DidMigrateItemStatuses"
+    public static let didCatchUpListsKey = "iCloudSync.DidCatchUpLists"
 
     static let containerIdentifier = "iCloud.com.tsubuzaki.SakuraRSS"
     static let zoneName = "SakuraFeeds"
     static let feedRecordType = "Feed"
     static let itemStatusRecordType = "ItemStatus"
     static let itemStatusIDPrefix = "status."
+    static let listRecordType = "List"
     static let engineStateKey = "engineState"
     static let archivedRecordKeyPrefix = "record."
 
@@ -117,6 +119,8 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
         if stateSerialization == nil {
             queueInitialSync(on: newEngine)
         }
+        enqueueUnsyncedLists(on: newEngine)
+        catchUpListsIfNeeded(startedFresh: stateSerialization == nil)
         migrateItemStatusesIfNeeded()
         enqueueDirtyItemStatuses()
         log("CloudSyncEngine", "Started (fresh state: \(stateSerialization == nil))")
@@ -138,9 +142,13 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
         engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneName: Self.zoneName))])
         let feedSyncIDs = (try? database.allFeedSyncIDs()) ?? []
         engine.state.add(pendingRecordZoneChanges: feedSyncIDs.map { .saveRecord(Self.recordID(for: $0)) })
+        _ = try? database.backfillListSyncIDs()
+        let listSyncIDs = (try? database.allListSyncIDs()) ?? []
+        engine.state.add(pendingRecordZoneChanges: listSyncIDs.map { .saveRecord(Self.recordID(for: $0)) })
         let tombstoneIDs = (try? database.allSyncTombstoneIDs()) ?? []
         engine.state.add(pendingRecordZoneChanges: tombstoneIDs.map { .deleteRecord(Self.recordID(for: $0)) })
-        log("CloudSyncEngine", "Queued initial sync: \(feedSyncIDs.count) feeds, \(tombstoneIDs.count) tombstones")
+        // swiftlint:disable:next line_length
+        log("CloudSyncEngine", "Queued initial sync: \(feedSyncIDs.count) feeds, \(listSyncIDs.count) lists, \(tombstoneIDs.count) tombstones")
     }
 
     func clearSyncMetadata() {
@@ -160,6 +168,14 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
         guard let syncID else { return }
         database.setSyncEngineStateData(nil, forKey: Self.archivedRecordKeyPrefix + syncID)
         engine?.state.add(pendingRecordZoneChanges: [.deleteRecord(Self.recordID(for: syncID))])
+    }
+
+    public func noteListChanged(syncID: String?) {
+        noteFeedChanged(syncID: syncID)
+    }
+
+    public func noteListDeleted(syncID: String?) {
+        noteFeedDeleted(syncID: syncID)
     }
 
     // MARK: - Item Status Sync
@@ -220,6 +236,10 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
 
     static func isItemStatusID(_ recordName: String) -> Bool {
         recordName.hasPrefix(itemStatusIDPrefix)
+    }
+
+    static func isListID(_ recordName: String) -> Bool {
+        recordName.hasPrefix(DatabaseManager.listSyncIDPrefix)
     }
 
     // MARK: - Manual Sync

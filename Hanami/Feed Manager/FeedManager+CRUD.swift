@@ -47,8 +47,10 @@ public extension FeedManager {
     func deleteFeed(_ feed: Feed) throws {
         let syncID = (try? database.feed(byID: feed.id))?.syncID ?? feed.syncID
         let articleIDs = (try? database.articles(forFeedID: feed.id)).map { $0.map(\.id) } ?? []
+        let containingListIDs = (try? database.listIDs(forFeedID: feed.id)) ?? []
         try database.deleteFeed(id: feed.id)
         captureUserFeedDeletion(syncID: syncID)
+        containingListIDs.forEach(captureUserListEdit(listID:))
         PodcastDownloadManager.cleanupOrphanedDownloads()
         SpotlightIndexer.removeArticles(feedID: feed.id, articleIDs: articleIDs)
         Task { await loadFromDatabaseInBackground() }
