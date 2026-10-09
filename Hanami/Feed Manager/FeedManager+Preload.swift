@@ -13,34 +13,18 @@ public extension FeedManager {
 
     func preloadedArticleEntries(requireUnread: Bool = false) -> [ArticleIDEntry] {
         _ = dataRevision
-        let muted = mutedFeedIDs
-        let raw = (try? database.allArticlesList(limit: FeedManager.maximumPreloadedEntries)) ?? []
-        var pool = applyAllRules(raw)
-        if !muted.isEmpty {
-            pool = pool.filter { !muted.contains($0.feedID) }
-        }
-        if requireUnread {
-            pool = pool.filter { !$0.isRead }
-        }
-        return pool.compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
+        return Self.computeAllPreloadedEntries(
+            database: database, muted: mutedFeedIDs, requireUnread: requireUnread
+        )
     }
 
     // MARK: - Feed
 
     func preloadedArticleEntries(for feed: Feed, requireUnread: Bool = false) -> [ArticleIDEntry] {
         _ = dataRevision
-        let raw = (try? database.articlesList(forFeedID: feed.id)) ?? []
-        var pool = applyRules(raw, feedID: feed.id)
-        if requireUnread {
-            pool = pool.filter { !$0.isRead }
-        }
-        return pool.compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
+        return Self.computeFeedPreloadedEntries(
+            database: database, feedID: feed.id, requireUnread: requireUnread
+        )
     }
 
     // MARK: - Section
@@ -51,16 +35,9 @@ public extension FeedManager {
         let sectionFeedIDs = feeds
             .filter { $0.feedSection == section && !muted.contains($0.id) }
             .map(\.id)
-        guard !sectionFeedIDs.isEmpty else { return [] }
-        let raw = (try? database.articlesList(
-            forFeedIDs: sectionFeedIDs,
-            limit: Int.max,
-            requireUnread: requireUnread
-        )) ?? []
-        return applyAllRules(raw).compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
+        return Self.computeSectionPreloadedEntries(
+            database: database, feedIDs: sectionFeedIDs, requireUnread: requireUnread
+        )
     }
 
     // MARK: - List
@@ -70,18 +47,10 @@ public extension FeedManager {
     /// authors) and per-list rules still apply.
     func preloadedArticleEntries(for list: FeedList, requireUnread: Bool = false) -> [ArticleIDEntry] {
         _ = dataRevision
-        let listFeedIDs = feedIDs(for: list)
-        guard !listFeedIDs.isEmpty else { return [] }
-        let raw = (try? database.articlesList(
-            forFeedIDs: Array(listFeedIDs),
-            limit: Int.max,
-            requireUnread: requireUnread
-        )) ?? []
-        let listed = applyListRules(applyAllRules(raw), listID: list.id)
-        return listed.compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
+        return Self.computeListPreloadedEntries(
+            database: database, feedIDs: Array(feedIDs(for: list)),
+            listID: list.id, requireUnread: requireUnread
+        )
     }
 
     // MARK: - Topic
@@ -91,23 +60,9 @@ public extension FeedManager {
     /// still apply.
     func preloadedArticleEntries(forTopic topic: String, requireUnread: Bool = false) -> [ArticleIDEntry] {
         _ = dataRevision
-        let muted = mutedFeedIDs
-        let ids = (try? database.articleIDs(
-            forEntity: topic,
-            types: ["organization", "place"]
-        )) ?? []
-        let raw = (try? database.articlesList(withIDs: ids)) ?? []
-        var pool = applyAllRules(raw)
-        if !muted.isEmpty {
-            pool = pool.filter { !muted.contains($0.feedID) }
-        }
-        if requireUnread {
-            pool = pool.filter { !$0.isRead }
-        }
-        return pool.compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
+        return Self.computeTopicPreloadedEntries(
+            database: database, topic: topic, muted: mutedFeedIDs, requireUnread: requireUnread
+        )
     }
 
     // MARK: - Materialization
@@ -191,106 +146,5 @@ public extension FeedManager {
                 muted: muted, requireUnread: requireUnread
             )
         }.value
-    }
-
-    // MARK: - Background computation helpers
-
-    nonisolated static func computeAllPreloadedEntries(
-        database: DatabaseManager,
-        muted: Set<Int64>,
-        requireUnread: Bool
-    ) -> [ArticleIDEntry] {
-        let raw = (try? database.allArticlesList(limit: FeedManager.maximumPreloadedEntries)) ?? []
-        var pool = applyAllRules(raw, database: database)
-        if !muted.isEmpty {
-            pool = pool.filter { !muted.contains($0.feedID) }
-        }
-        if requireUnread {
-            pool = pool.filter { !$0.isRead }
-        }
-        return pool.compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
-    }
-
-    nonisolated static func computeFeedPreloadedEntries(
-        database: DatabaseManager,
-        feedID: Int64,
-        requireUnread: Bool
-    ) -> [ArticleIDEntry] {
-        let raw = (try? database.articlesList(forFeedID: feedID)) ?? []
-        var pool = applyRules(raw, feedID: feedID, database: database)
-        if requireUnread {
-            pool = pool.filter { !$0.isRead }
-        }
-        return pool.compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
-    }
-
-    nonisolated static func computeSectionPreloadedEntries(
-        database: DatabaseManager,
-        feedIDs: [Int64],
-        requireUnread: Bool
-    ) -> [ArticleIDEntry] {
-        guard !feedIDs.isEmpty else { return [] }
-        let raw = (try? database.articlesList(
-            forFeedIDs: feedIDs,
-            limit: Int.max,
-            requireUnread: requireUnread
-        )) ?? []
-        return applyAllRules(raw, database: database).compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
-    }
-
-    nonisolated static func computeListPreloadedEntries(
-        database: DatabaseManager,
-        feedIDs: [Int64],
-        listID: Int64,
-        requireUnread: Bool
-    ) -> [ArticleIDEntry] {
-        guard !feedIDs.isEmpty else { return [] }
-        let raw = (try? database.articlesList(
-            forFeedIDs: feedIDs,
-            limit: Int.max,
-            requireUnread: requireUnread
-        )) ?? []
-        let listed = applyListRules(
-            applyAllRules(raw, database: database),
-            listID: listID,
-            database: database
-        )
-        return listed.compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
-    }
-
-    nonisolated static func computeTopicPreloadedEntries(
-        database: DatabaseManager,
-        topic: String,
-        muted: Set<Int64>,
-        requireUnread: Bool
-    ) -> [ArticleIDEntry] {
-        let ids = (try? database.articleIDs(
-            forEntity: topic,
-            types: ["organization", "place"]
-        )) ?? []
-        let raw = (try? database.articlesList(withIDs: ids)) ?? []
-        var pool = applyAllRules(raw, database: database)
-        if !muted.isEmpty {
-            pool = pool.filter { !muted.contains($0.feedID) }
-        }
-        if requireUnread {
-            pool = pool.filter { !$0.isRead }
-        }
-        return pool.compactMap { article in
-            guard let date = article.publishedDate else { return nil }
-            return ArticleIDEntry(id: article.id, publishedDate: date)
-        }
     }
 }
