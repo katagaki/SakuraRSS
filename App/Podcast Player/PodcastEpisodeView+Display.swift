@@ -45,6 +45,30 @@ extension PodcastEpisodeView {
         return summary
     }
 
+    var episodeNotes: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if showingSummary && summarizedText != nil {
+                Text(
+                    String(
+                        localized: "AppleIntelligence.VerifyImportantInformation",
+                        table: "Settings"
+                    )
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+            if let text = displayText {
+                ContentBlockStack(
+                    text: text,
+                    imageNamespace: imageViewerNamespace,
+                    onImageTap: { url in imageViewerURL = url }
+                )
+                .id("\(showingSummary)-\(showingTranslation)")
+                .transition(.blurReplace)
+            }
+        }
+    }
+
     var isThisEpisode: Bool {
         audioPlayer.currentArticleID == article.id
     }
