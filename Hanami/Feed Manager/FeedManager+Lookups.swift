@@ -29,4 +29,9 @@ public extension FeedManager {
         (try? database.article(byID: id))
     }
 
+    /// Skips the `content` blob, for chrome that only shows the title and image.
+    func listArticle(byID id: Int64) -> Article? {
+        (try? database.listArticle(byID: id))
+    }
+
 }
