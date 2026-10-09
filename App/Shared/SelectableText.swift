@@ -1,7 +1,7 @@
 import SwiftUI
 import Hanami
 
-/// Read-only text view with range selection, Markdown formatting, and `{{SUP}}`/`{{SUB}}` markers.
+/// Read-only text view with range selection, Markdown formatting, `{{SUP}}`/`{{SUB}}` and `{{RUBY}}` markers.
 struct SelectableText: UIViewRepresentable {
 
     let text: String
@@ -119,10 +119,28 @@ struct SelectableText: UIViewRepresentable {
                 lineFont = UIFont.preferredFont(forTextStyle: .title1)
             }
 
-            attributed.append(parseLine(contentLine, baseFont: lineFont))
+            let parsedLine = NSMutableAttributedString(
+                attributedString: parseLine(contentLine, baseFont: lineFont)
+            )
+            if parsedLine.applyRubyAnnotations() {
+                parsedLine.addAttribute(
+                    .paragraphStyle,
+                    value: Self.rubyParagraphStyle(for: lineFont),
+                    range: NSRange(location: 0, length: parsedLine.length)
+                )
+            }
+            attributed.append(parsedLine)
         }
 
         return attributed
+    }
+
+    /// TextKit 2 draws ruby but doesn't reserve room for it, so the reading
+    /// would overlap the line above and clip at the top of the view.
+    private static func rubyParagraphStyle(for font: UIFont) -> NSParagraphStyle {
+        let style = NSMutableParagraphStyle()
+        style.minimumLineHeight = font.lineHeight + font.pointSize * 0.6
+        return style
     }
 
     nonisolated private static let supSubRegex = try? NSRegularExpression(
