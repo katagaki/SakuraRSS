@@ -157,8 +157,8 @@ final class ContentListViewController: NSViewController {
         tableView.scrollRowToVisible(0)
     }
 
-    /// Selecting content marks it read, which bumps `dataRevision`; coalescing keeps
-    /// arrowing through the list from re-running the query on every row.
+    /// Refreshes, sync and bookmark changes can bump `dataRevision` in quick
+    /// succession; coalescing keeps the query from re-running on every bump.
     private func scheduleDataReload() {
         pendingDataReload?.cancel()
         let work = DispatchWorkItem { [weak self] in
