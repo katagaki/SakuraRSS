@@ -92,6 +92,13 @@ public final class FeedManager {
     /// count unchanged does not invalidate the observer.
     public private(set) var unreadBadgeCount: Int = 0
     public private(set) var iconRevision: Int = 0
+    /// Bumped when content is opened, so only recents reload instead of every list.
+    public internal(set) var recentsRevision: Int = 0
+
+    /// Changes with either `dataRevision` or `recentsRevision`, for views that show recents.
+    public var dataAndRecentsRevision: Int {
+        dataRevision + recentsRevision
+    }
     public private(set) var unreadCounts: [Int64: Int] = [:]
     /// Per-Instagram-feed count of unread articles that are reels.
     /// Subtracted from `unreadCounts` when the user has hidden reels.

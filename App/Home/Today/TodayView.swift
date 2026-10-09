@@ -42,10 +42,10 @@ struct TodayView: View {
             }
         }
         #endif
-        .task(id: feedManager.dataRevision) {
+        .task(id: feedManager.dataAndRecentsRevision) {
             todayManager.loadIfStale(
                 feeds: feedManager.feeds,
-                dataRevision: feedManager.dataRevision,
+                dataRevision: feedManager.dataAndRecentsRevision,
                 loadEntities: contentInsightsEnabled
             )
         }

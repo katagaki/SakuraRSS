@@ -4,12 +4,11 @@ public extension FeedManager {
 
     func markRead(_ article: Article) {
         let articleID = article.id
-        // Reopened read content only moves up the recents; the read mask re-evaluates every row.
         guard !isSettledAsRead(article) else {
             writeArticleState { databaseManager in
                 try? databaseManager.updateLastAccessed(articleID: articleID)
             } completion: { [weak self] in
-                self?.bumpDataRevision()
+                self?.recentsRevision += 1
             }
             return
         }
@@ -20,7 +19,7 @@ public extension FeedManager {
             try? databaseManager.updateLastAccessed(articleID: articleID)
             try? databaseManager.markArticleRead(id: articleID, read: true)
         } completion: { [weak self] in
-            self?.bumpDataRevision()
+            self?.recentsRevision += 1
         }
         if !wasRead {
             adjustUnreadCount(for: article, delta: -1)
