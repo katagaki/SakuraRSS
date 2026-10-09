@@ -79,17 +79,17 @@ public nonisolated extension DatabaseManager {
     }
 
     func unreadCount(forFeedID fid: Int64) throws -> Int {
-        try database.scalar(articles.filter(articleFeedID == fid && articleIsRead == false).count)
+        try readDatabase.scalar(articles.filter(articleFeedID == fid && articleIsRead == false).count)
     }
 
     func totalUnreadCount() throws -> Int {
-        try database.scalar(articles.filter(articleIsRead == false).count)
+        try readDatabase.scalar(articles.filter(articleIsRead == false).count)
     }
 
     func allUnreadCounts() throws -> [Int64: Int] {
         var counts: [Int64: Int] = [:]
         let query = "SELECT feed_id, COUNT(*) FROM articles WHERE is_read = 0 AND feed_id != 0 GROUP BY feed_id"
-        for row in try database.prepare(query) {
+        for row in try readDatabase.prepare(query) {
             if let feedID = row[0] as? Int64, let count = row[1] as? Int64 {
                 counts[feedID] = Int(count)
             }
@@ -108,7 +108,7 @@ public nonisolated extension DatabaseManager {
             GROUP BY feed_id
             """
         var counts: [Int64: Int] = [:]
-        for row in try database.prepare(query) {
+        for row in try readDatabase.prepare(query) {
             if let feedID = row[0] as? Int64, let count = row[1] as? Int64 {
                 counts[feedID] = Int(count)
             }

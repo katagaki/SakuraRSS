@@ -9,7 +9,7 @@ public nonisolated extension DatabaseManager {
         let query = articles
             .filter(ids.contains(articleID))
             .order(articlePublishedDate.desc)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     /// Returns articles for a set of feed IDs ordered by published date descending.
@@ -32,7 +32,7 @@ public nonisolated extension DatabaseManager {
             .filter(feedIDs.contains(articleFeedID)
                     && articlePublishedDate >= date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     /// Returns articles for a set of feed IDs that have no `publishedDate`,
@@ -42,18 +42,18 @@ public nonisolated extension DatabaseManager {
         let query = articles
             .filter(feedIDs.contains(articleFeedID) && articlePublishedDate == nil)
             .order(articleID.desc)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func article(byID id: Int64) throws -> Article? {
         let query = articles.filter(articleID == id).limit(1)
-        return try database.prepare(query).map(rowToArticle).first
+        return try readDatabase.prepare(query).map(rowToArticle).first
     }
 
     /// Same row as `article(byID:)` without the full-text `content` column.
     func listArticle(byID id: Int64) throws -> Article? {
         let query = selectingListColumns(articles).filter(articleID == id).limit(1)
-        return try database.prepare(query).map(rowToListArticle).first
+        return try readDatabase.prepare(query).map(rowToListArticle).first
     }
 
     func articles(forFeedID fid: Int64, limit: Int? = nil) throws -> [Article] {
@@ -63,24 +63,24 @@ public nonisolated extension DatabaseManager {
         if let limit {
             query = query.limit(limit)
         }
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func unreadArticles(forFeedID fid: Int64) throws -> [Article] {
         let query = articles
             .filter(articleFeedID == fid && articleIsRead == false)
             .order(articlePublishedDate.desc)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func articleCount(forFeedID fid: Int64) throws -> Int {
-        try database.scalar(articles.filter(articleFeedID == fid).count)
+        try readDatabase.scalar(articles.filter(articleFeedID == fid).count)
     }
 
     /// Returns the URLs already ingested for `fid`.
     /// Highest article row id; grows whenever a refresh inserts anything.
     func latestArticleID() -> Int64 {
-        (try? database.scalar(articles.select(articleID.max))) ?? 0
+        (try? readDatabase.scalar(articles.select(articleID.max))) ?? 0
     }
 
     func existingArticleURLs(forFeedID fid: Int64) throws -> Set<String> {
@@ -88,7 +88,7 @@ public nonisolated extension DatabaseManager {
             .filter(articleFeedID == fid)
             .select(articleURL)
         var result = Set<String>()
-        for row in try database.prepare(query) {
+        for row in try readDatabase.prepare(query) {
             result.insert(row[articleURL])
         }
         return result
@@ -98,7 +98,7 @@ public nonisolated extension DatabaseManager {
         let query = articles
             .filter(articleFeedID == fid && articlePublishedDate == nil)
             .select(articleURL)
-        return Set(try database.prepare(query).map { $0[articleURL] })
+        return Set(try readDatabase.prepare(query).map { $0[articleURL] })
     }
 
     func articles(forFeedID fid: Int64, since date: Date) throws -> [Article] {
@@ -106,14 +106,14 @@ public nonisolated extension DatabaseManager {
             .filter(articleFeedID == fid
                     && articlePublishedDate >= date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func undatedArticles(forFeedID fid: Int64) throws -> [Article] {
         let query = articles
             .filter(articleFeedID == fid && articlePublishedDate == nil)
             .order(articleID.desc)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func earliestArticleDate(forFeedID fid: Int64, before date: Date) throws -> Date? {
@@ -123,7 +123,7 @@ public nonisolated extension DatabaseManager {
                     && articlePublishedDate < date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
             .limit(1)
-        guard let row = try database.pluck(query),
+        guard let row = try readDatabase.pluck(query),
               let timestamp = row[articlePublishedDate] else { return nil }
         return Date(timeIntervalSince1970: timestamp)
     }
@@ -137,7 +137,7 @@ public nonisolated extension DatabaseManager {
             .filter(feedIDs.contains(articleFeedID) && articlePublishedDate != nil)
             .order(articlePublishedDate.desc)
             .limit(1)
-        guard let row = try database.pluck(query),
+        guard let row = try readDatabase.pluck(query),
               let timestamp = row[articlePublishedDate] else { return nil }
         return Date(timeIntervalSince1970: timestamp)
     }
@@ -147,7 +147,7 @@ public nonisolated extension DatabaseManager {
             .filter(articlePublishedDate != nil)
             .order(articlePublishedDate.desc)
             .limit(1)
-        guard let row = try database.pluck(query),
+        guard let row = try readDatabase.pluck(query),
               let timestamp = row[articlePublishedDate] else { return nil }
         return Date(timeIntervalSince1970: timestamp)
     }
@@ -158,7 +158,7 @@ public nonisolated extension DatabaseManager {
                     && articlePublishedDate < date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
             .limit(1)
-        guard let row = try database.pluck(query),
+        guard let row = try readDatabase.pluck(query),
               let timestamp = row[articlePublishedDate] else { return nil }
         return Date(timeIntervalSince1970: timestamp)
     }
@@ -167,7 +167,7 @@ public nonisolated extension DatabaseManager {
         let query = feedArticles
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func allArticles(since date: Date, limit: Int? = 200) throws -> [Article] {
@@ -177,7 +177,7 @@ public nonisolated extension DatabaseManager {
         if let limit {
             query = query.limit(limit)
         }
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func allArticles(from startDate: Date, to endDate: Date, limit: Int = 200) throws -> [Article] {
@@ -186,7 +186,7 @@ public nonisolated extension DatabaseManager {
                     && articlePublishedDate < endDate.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func allArticles(before date: Date, limit: Int = 200) throws -> [Article] {
@@ -194,7 +194,7 @@ public nonisolated extension DatabaseManager {
             .filter(articlePublishedDate < date.timeIntervalSince1970 || articlePublishedDate == nil)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func unreadArticles(limit: Int = 50) throws -> [Article] {
@@ -202,7 +202,7 @@ public nonisolated extension DatabaseManager {
             .filter(articleIsRead == false)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func searchArticles(query: String) throws -> [Article] {
@@ -213,7 +213,7 @@ public nonisolated extension DatabaseManager {
                     articleSummary.like(pattern))
             .order(articlePublishedDate.desc)
             .limit(200)
-        return try database.prepare(query).map(rowToArticle)
+        return try readDatabase.prepare(query).map(rowToArticle)
     }
 
     func bookmarkedArticles(limit: Int = 2000) throws -> [Article] {
@@ -221,11 +221,11 @@ public nonisolated extension DatabaseManager {
             .filter(articleIsBookmarked == true)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func bookmarkedCount() throws -> Int {
-        try database.scalar(articles.filter(articleIsBookmarked == true).count)
+        try readDatabase.scalar(articles.filter(articleIsBookmarked == true).count)
     }
 
     func articlesForEntity(name: String, types: [String], limit: Int = 10) throws -> [Article] {
@@ -245,7 +245,7 @@ public nonisolated extension DatabaseManager {
         bindings.append(contentsOf: types.map { $0 as Binding? })
         bindings.append(limit)
         var results: [Article] = []
-        let stmt = try database.prepare(sql, bindings)
+        let stmt = try readDatabase.prepare(sql, bindings)
         for row in stmt {
             guard let id = row[0] as? Int64,
                   let feedID = row[1] as? Int64,
@@ -286,14 +286,14 @@ public nonisolated extension DatabaseManager {
         let query = selectingListColumns(articles)
             .filter(ids.contains(articleID))
             .order(articlePublishedDate.desc)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func unreadArticlesList(forFeedID fid: Int64) throws -> [Article] {
         let query = selectingListColumns(articles)
             .filter(articleFeedID == fid && articleIsRead == false)
             .order(articlePublishedDate.desc)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func unreadArticlesList(limit: Int = 50) throws -> [Article] {
@@ -301,7 +301,7 @@ public nonisolated extension DatabaseManager {
             .filter(articleIsRead == false)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func articlesList(forFeedID fid: Int64, limit: Int? = nil) throws -> [Article] {
@@ -311,7 +311,7 @@ public nonisolated extension DatabaseManager {
         if let limit {
             query = query.limit(limit)
         }
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func articlesList(forFeedIDs feedIDs: [Int64], limit: Int, requireUnread: Bool = false) throws -> [Article] {
@@ -330,14 +330,14 @@ public nonisolated extension DatabaseManager {
             .filter(articleFeedID == fid
                     && articlePublishedDate >= date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func undatedArticlesList(forFeedID fid: Int64) throws -> [Article] {
         let query = selectingListColumns(articles)
             .filter(articleFeedID == fid && articlePublishedDate == nil)
             .order(articleID.desc)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func articlesList(forFeedIDs feedIDs: Set<Int64>, since date: Date) throws -> [Article] {
@@ -346,7 +346,7 @@ public nonisolated extension DatabaseManager {
             .filter(feedIDs.contains(articleFeedID)
                     && articlePublishedDate >= date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func undatedArticlesList(forFeedIDs feedIDs: Set<Int64>) throws -> [Article] {
@@ -354,14 +354,14 @@ public nonisolated extension DatabaseManager {
         let query = selectingListColumns(articles)
             .filter(feedIDs.contains(articleFeedID) && articlePublishedDate == nil)
             .order(articleID.desc)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func allArticlesList(limit: Int = 100) throws -> [Article] {
         let query = selectingListColumns(feedArticles)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func allArticlesList(since date: Date, limit: Int? = 200) throws -> [Article] {
@@ -371,7 +371,7 @@ public nonisolated extension DatabaseManager {
         if let limit {
             query = query.limit(limit)
         }
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func allArticlesList(before date: Date, limit: Int = 200) throws -> [Article] {
@@ -379,7 +379,7 @@ public nonisolated extension DatabaseManager {
             .filter(articlePublishedDate < date.timeIntervalSince1970 || articlePublishedDate == nil)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func allArticlesList(from startDate: Date, to endDate: Date, limit: Int = 200) throws -> [Article] {
@@ -388,6 +388,6 @@ public nonisolated extension DatabaseManager {
                     && articlePublishedDate < endDate.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 }

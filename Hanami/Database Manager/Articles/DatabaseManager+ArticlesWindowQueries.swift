@@ -15,7 +15,7 @@ public nonisolated extension DatabaseManager {
                     && articlePublishedDate < endDate.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func articlesList(
@@ -31,7 +31,7 @@ public nonisolated extension DatabaseManager {
                     && articlePublishedDate < endDate.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map(rowToListArticle)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
 }
