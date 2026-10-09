@@ -312,6 +312,7 @@
 				"View Modifiers/SakuraBackground.swift",
 				"View Modifiers/SheetActions.swift",
 				"View Modifiers/SheetDismiss.swift",
+				"View Modifiers/SheetTitle.swift",
 				"View Modifiers/SheetToolbarPlacement.swift",
 				"View Modifiers/URLTextInput.swift",
 				"YouTube Player/InjectedUserScript.swift",

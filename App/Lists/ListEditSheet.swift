@@ -37,10 +37,15 @@ struct ListEditSheet: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            Form {
                 Section {
-                    TextField(String(localized: "ListEdit.NamePlaceholder", table: "Lists"), text: $name)
-                        .focused($isNameFieldFocused)
+                    TextField(
+                        String(localized: "ListEdit.NamePlaceholder", table: "Lists"),
+                        text: $name,
+                        prompt: Text(String(localized: "ListEdit.NamePlaceholder", table: "Lists"))
+                    )
+                    .labelsHidden()
+                    .focused($isNameFieldFocused)
                     if nameAlreadyExists {
                         Text(String(localized: "ListEdit.NameExists", table: "Lists"))
                             .font(.caption)
@@ -129,11 +134,9 @@ struct ListEditSheet: View {
                     }
                 }
             }
-            .settingsListStyle()
-            .navigationTitle(isEditing
-                             ? String(localized: "ListEdit.Title.Edit", table: "Lists")
-                             : String(localized: "ListEdit.Title.New", table: "Lists"))
-            .inlineNavigationTitle()
+            .sheetTitle(isEditing
+                        ? String(localized: "ListEdit.Title.Edit", table: "Lists")
+                        : String(localized: "ListEdit.Title.New", table: "Lists"))
             .compatibleSoftScrollEdgeEffectStyle()
             .sheetActions {
                 Button(role: .cancel) {
