@@ -205,15 +205,16 @@ public nonisolated extension DatabaseManager {
         return try readDatabase.prepare(query).map(rowToArticle)
     }
 
-    func searchArticles(query: String) throws -> [Article] {
+    /// Omits the `content` blob; the reader re-fetches the full row by id.
+    func searchArticles(query: String, limit: Int = 200) throws -> [Article] {
         let pattern = "%\(query)%"
-        let query = articles
+        let query = selectingListColumns(articles)
             .filter(articleTitle.like(pattern) ||
                     articleAuthor.like(pattern) ||
                     articleSummary.like(pattern))
             .order(articlePublishedDate.desc)
-            .limit(200)
-        return try readDatabase.prepare(query).map(rowToArticle)
+            .limit(limit)
+        return try readDatabase.prepare(query).map(rowToListArticle)
     }
 
     func bookmarkedArticles(limit: Int = 2000) throws -> [Article] {

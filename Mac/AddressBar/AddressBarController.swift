@@ -168,7 +168,7 @@ final class AddressBarController: NSObject, NSTextFieldDelegate {
             try? await Task.sleep(for: .milliseconds(150))
             guard !Task.isCancelled else { return }
             let matches = await Task.detached {
-                Array(((try? DatabaseManager.shared.searchArticles(query: trimmed)) ?? []).prefix(5))
+                (try? DatabaseManager.shared.searchArticles(query: trimmed, limit: 5)) ?? []
             }.value
             guard let self, !Task.isCancelled, self.field.currentEditor() != nil else { return }
             self.contentMatches = matches

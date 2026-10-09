@@ -39,8 +39,10 @@ struct BrowserOmniboxActions {
         }
         try? await Task.sleep(for: .milliseconds(250))
         guard !Task.isCancelled else { return }
-        let found = (try? DatabaseManager.shared.searchArticles(query: query)) ?? []
+        let found = await Task.detached(priority: .userInitiated) {
+            (try? DatabaseManager.shared.searchArticles(query: query, limit: 4)) ?? []
+        }.value
         guard !Task.isCancelled else { return }
-        omnibox.contentMatches = Array(found.prefix(4))
+        omnibox.contentMatches = found
     }
 }

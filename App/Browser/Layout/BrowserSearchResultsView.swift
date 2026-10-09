@@ -52,7 +52,9 @@ struct BrowserSearchResultsView: View {
                 BrowserPageDisplayMenu(options: browserDisplayStyleOptions)
             }
             .task(id: query) {
-                let found = (try? DatabaseManager.shared.searchArticles(query: query)) ?? []
+                let found = await Task.detached(priority: .userInitiated) { [query] in
+                    (try? DatabaseManager.shared.searchArticles(query: query)) ?? []
+                }.value
                 guard !Task.isCancelled else { return }
                 withAnimation(.smooth.speed(2.0)) {
                     results = found
