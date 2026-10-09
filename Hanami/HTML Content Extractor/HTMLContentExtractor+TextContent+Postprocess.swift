@@ -6,13 +6,6 @@ public nonisolated extension HTMLContentExtractor {
 
     static func convertPlaceholdersToMarkdown(_ text: String) -> String {
         var result = text
-        result = result.replacingOccurrences(of: linkOpenPlaceholder, with: "[")
-        result = result.replacingOccurrences(of: linkMidPlaceholder, with: "](")
-        result = result.replacingOccurrences(of: linkClosePlaceholder, with: ")")
-        result = result.replacingOccurrences(of: boldOpenPlaceholder, with: "**")
-        result = result.replacingOccurrences(of: boldClosePlaceholder, with: "**")
-        result = result.replacingOccurrences(of: italicOpenPlaceholder, with: "*")
-        result = result.replacingOccurrences(of: italicClosePlaceholder, with: "*")
         result = result.replacingOccurrences(of: supOpenPlaceholder, with: "{{SUP}}")
         result = result.replacingOccurrences(of: supClosePlaceholder, with: "{{/SUP}}")
         result = result.replacingOccurrences(of: subOpenPlaceholder, with: "{{SUB}}")
@@ -21,9 +14,7 @@ public nonisolated extension HTMLContentExtractor {
         result = result.replacingOccurrences(of: imgClosePlaceholder, with: "{{/IMG}}")
         result = result.replacingOccurrences(of: imgLinkOpenPlaceholder, with: "{{IMGLINK}}")
         result = result.replacingOccurrences(of: imgLinkClosePlaceholder, with: "{{/IMGLINK}}")
-        result = result.replacingOccurrences(of: codeOpenPlaceholder, with: "`")
-        result = result.replacingOccurrences(of: codeClosePlaceholder, with: "`")
-        return result
+        return composeInlineFormatting(result)
     }
 
     // MARK: - Utility
@@ -58,33 +49,6 @@ public nonisolated extension HTMLContentExtractor {
         return result
     }
 
-    /// Escapes `[` and `]` characters that appear inside link text.
-    static func escapeBracketsInLinkText(
-        _ text: String,
-        open: String,
-        mid: String
-    ) -> String {
-        var result = ""
-        var remaining = text[text.startIndex...]
-        while let openRange = remaining.range(of: open) {
-            result += remaining[remaining.startIndex..<openRange.lowerBound]
-            result += open
-            let afterOpen = remaining[openRange.upperBound...]
-            if let midRange = afterOpen.range(of: mid) {
-                let linkText = afterOpen[afterOpen.startIndex..<midRange.lowerBound]
-                result += linkText
-                    .replacingOccurrences(of: "[", with: "\\[")
-                    .replacingOccurrences(of: "]", with: "\\]")
-                result += mid
-                remaining = afterOpen[midRange.upperBound...]
-            } else {
-                remaining = afterOpen
-            }
-        }
-        result += remaining
-        return result
-    }
-
     /// Collapses empty, formatting-only, or separator-only lines in extracted text.
     static func compactWhitespace(in text: String) -> String {
         mapOutsideCodeSpans(in: text) { segment in
@@ -95,7 +59,7 @@ public nonisolated extension HTMLContentExtractor {
     private static func compactWhitespaceOutsideCode(in text: String) -> String {
         var result = text
         result = result.replacingOccurrences(
-            of: #"(?m)^[ \t]*(?:-{3,}|={3,}|_{3,}|\*{3,})[ \t]*$"#,
+            of: #"(?m)^[ \t]*(?:-{3,}|={3,}|(?:\\?_){3,}|(?:\\?\*){3,})[ \t]*$"#,
             with: "",
             options: .regularExpression
         )

@@ -29,17 +29,17 @@ nonisolated private let rssInlineMarkupRules: [(regex: NSRegularExpression, temp
         (#"<h3(?:\s[^>]*)?>(.+?)</h3>"#, "\n### $1\n")
     ]
     for tag in ["h4", "h5", "h6"] {
-        specs.append(("<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", "\n**$1**\n"))
-    }
-    for tag in ["strong", "b"] {
-        specs.append(("<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", "**$1**"))
-    }
-    for tag in ["em", "i"] {
-        specs.append(("<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", "*$1*"))
+        specs.append((
+            "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>",
+            "\n\(HTMLContentExtractor.boldOpenPlaceholder)$1\(HTMLContentExtractor.boldClosePlaceholder)\n"
+        ))
     }
     specs.append((#"<sup(?:\s[^>]*)?>(.+?)</sup>"#, "{{SUP}}$1{{/SUP}}"))
     specs.append((#"<sub(?:\s[^>]*)?>(.+?)</sub>"#, "{{SUB}}$1{{/SUB}}"))
-    specs.append((#"<code(?:\s[^>]*)?>(.+?)</code>"#, "`$1`"))
+    specs.append((
+        #"<code(?:\s[^>]*)?>(.+?)</code>"#,
+        "\(HTMLContentExtractor.codeOpenPlaceholder)$1\(HTMLContentExtractor.codeClosePlaceholder)"
+    ))
 
     return specs.compactMap { spec in
         guard let regex = try? NSRegularExpression(
@@ -67,11 +67,13 @@ public nonisolated extension RSSParser {
         var result = RSSParser.replaceMatches(rssLineBreakRegex, in: html, with: "\n")
         result = convertLinksToMarkdown(result, baseURL: baseURL)
         result = convertInlineMarkup(result)
-        result = stripInvalidURLSupSub(result)
+        result = HTMLContentExtractor.replaceEmphasisTags(in: result)
         result = RSSParser.replaceMatches(rssBlockTagRegex, in: result, with: "\n")
         result = replacePreTagsWithMarkers(result)
         result = replaceImgTagsWithMarkers(result)
         result = RSSParser.decodeHTMLEntities(RSSParser.stripHTMLTags(result))
+        result = HTMLContentExtractor.composeInlineFormatting(result)
+        result = stripInvalidURLSupSub(result)
         result = RSSParser.replaceMatches(rssBlankLineRegex, in: result, with: "\n\n")
 
         result = result
@@ -117,10 +119,8 @@ public nonisolated extension RSSParser {
                         url = resolved.absoluteString
                     }
                 }
-                let escaped = linkText
-                    .replacingOccurrences(of: "[", with: "\\[")
-                    .replacingOccurrences(of: "]", with: "\\]")
-                let replacement = "[\(escaped)](\(url))"
+                let replacement = HTMLContentExtractor.linkOpenPlaceholder + linkText
+                    + HTMLContentExtractor.linkMidPlaceholder + url + HTMLContentExtractor.linkClosePlaceholder
                 result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
             }
         }

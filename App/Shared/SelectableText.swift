@@ -195,7 +195,9 @@ struct SelectableText: UIViewRepresentable {
         let result = NSMutableAttributedString()
 
         for run in parsed.runs {
+            // Word joiners only exist to keep emphasis delimiters flanking for the parser.
             let runText = String(parsed[run.range].characters)
+                .replacingOccurrences(of: "\u{2060}", with: "")
             var attrs: [NSAttributedString.Key: Any] = [
                 .font: baseFont,
                 .foregroundColor: textColor

@@ -91,6 +91,32 @@ public nonisolated extension HTMLContentExtractor {
     }
 
     static func replaceFormattingTags(in html: String) -> String {
+        var result = replaceEmphasisTags(in: html)
+        result = result.replacingOccurrences(
+            of: "<sup(?:\\s[^>]*)?>", with: supOpenPlaceholder,
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: "</sup>", with: supClosePlaceholder, options: .caseInsensitive
+        )
+        result = result.replacingOccurrences(
+            of: "<sub(?:\\s[^>]*)?>", with: subOpenPlaceholder,
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: "</sub>", with: subClosePlaceholder, options: .caseInsensitive
+        )
+        result = result.replacingOccurrences(
+            of: "<code(?:\\s[^>]*)?>", with: codeOpenPlaceholder,
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: "</code>", with: codeClosePlaceholder, options: .caseInsensitive
+        )
+        return result
+    }
+
+    static func replaceEmphasisTags(in html: String) -> String {
         var result = html
         for tag in ["strong", "b"] {
             result = result.replacingOccurrences(
@@ -114,27 +140,6 @@ public nonisolated extension HTMLContentExtractor {
         )
         result = result.replacingOccurrences(
             of: "</i>", with: italicClosePlaceholder, options: .caseInsensitive
-        )
-        result = result.replacingOccurrences(
-            of: "<sup(?:\\s[^>]*)?>", with: supOpenPlaceholder,
-            options: [.regularExpression, .caseInsensitive]
-        )
-        result = result.replacingOccurrences(
-            of: "</sup>", with: supClosePlaceholder, options: .caseInsensitive
-        )
-        result = result.replacingOccurrences(
-            of: "<sub(?:\\s[^>]*)?>", with: subOpenPlaceholder,
-            options: [.regularExpression, .caseInsensitive]
-        )
-        result = result.replacingOccurrences(
-            of: "</sub>", with: subClosePlaceholder, options: .caseInsensitive
-        )
-        result = result.replacingOccurrences(
-            of: "<code(?:\\s[^>]*)?>", with: codeOpenPlaceholder,
-            options: [.regularExpression, .caseInsensitive]
-        )
-        result = result.replacingOccurrences(
-            of: "</code>", with: codeClosePlaceholder, options: .caseInsensitive
         )
         return result
     }
