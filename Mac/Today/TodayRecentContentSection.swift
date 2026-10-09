@@ -9,7 +9,8 @@ struct TodayRecentContentSection: View {
     @State private var articles: [Article] = []
 
     var body: some View {
-        Group {
+        // Not a Group: it forwards .task to its children, so the load would never run while empty.
+        VStack(spacing: 0) {
             if !articles.isEmpty {
                 section
             }
