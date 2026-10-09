@@ -9,7 +9,7 @@ extension ArticleDetailView {
     /// starts them.
     func reportBrowserProgress() {
         let isWorking = isExtracting || isTranslating || isSummarizing
-        guard isBrowserChromeActive, isWorking else {
+        guard isWorking else {
             browserPageProgressReporter?(nil)
             return
         }
@@ -19,7 +19,7 @@ extension ArticleDetailView {
     /// The browser hides the top bar, so the viewer's trailing actions go in
     /// the omnibox instead.
     var showsBrowserArticleMenu: Bool {
-        isBrowserChromeActive && !previewMode
+        !previewMode
     }
 
     private var hasTransformableText: Bool {

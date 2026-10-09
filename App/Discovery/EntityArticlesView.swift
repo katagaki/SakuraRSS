@@ -8,7 +8,6 @@ struct EntityArticlesView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.navigateToEphemeralArticle) private var navigateToEphemeralArticle
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @State private var articles: [Article] = []
 
     private var hasImages: Bool {
@@ -41,7 +40,7 @@ struct EntityArticlesView: View {
         .sakuraBackground()
         .navigationTitle(destination.name)
         .toolbarTitleDisplayMode(.inline)
-        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+        .tabOmniboxAccessory {
             BrowserPageDisplayMenu(options: browserDisplayStyleOptions)
         }
         .toolbar {
