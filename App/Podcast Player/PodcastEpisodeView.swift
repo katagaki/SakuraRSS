@@ -53,6 +53,9 @@ struct PodcastEpisodeView: View {
     @State var showingSummary = false
     @State var summarizationError: String?
 
+    @State var imageViewerURL: URL?
+    @Namespace var imageViewerNamespace
+
     var body: some View {
         ScrollViewReader { scrollProxy in
             ScrollView {
@@ -180,23 +183,7 @@ struct PodcastEpisodeView: View {
                             }
                             .transition(.blurReplace)
                         } else {
-                            VStack(alignment: .leading, spacing: 8) {
-                                if showingSummary && summarizedText != nil {
-                                    Text(
-                                        String(
-                                            localized: "AppleIntelligence.VerifyImportantInformation",
-                                            table: "Settings"
-                                        )
-                                    )
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                }
-                                if let text = displayText {
-                                    SelectableText(text)
-                                        .id("\(showingSummary)-\(showingTranslation)")
-                                        .transition(.blurReplace)
-                                }
-                            }
+                            episodeNotes
                         }
                     }
                     .animation(.smooth.speed(2.0), value: showingSummary)
@@ -273,5 +260,6 @@ struct PodcastEpisodeView: View {
             await handleTranslation(session: session)
         }
         #endif
+        .imageViewerDestination(item: $imageViewerURL, in: imageViewerNamespace)
     }
 }

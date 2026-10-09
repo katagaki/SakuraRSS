@@ -19,8 +19,8 @@ extension ContentListViewController {
         }
     }
 
-    /// The settings change from Settings while the page is open; the page
-    /// starts over with them, as it would when opened again.
+    /// The settings change from Settings or the page's own menu while the
+    /// page is open; the page starts over with them, as it would when opened again.
     func observePresentationSettings() {
         settingsObserver = NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification,
@@ -28,10 +28,23 @@ extension ContentListViewController {
             queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
-                guard let self, self.presentation.settings != .current else { return }
-                self.reloadArticles(keepingSelection: false)
+                self?.restartIfPresentationSettingsChanged()
             }
         }
+        pagePreferencesObserver = NotificationCenter.default.addObserver(
+            forName: FeedManager.pagePreferencesDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.restartIfPresentationSettingsChanged()
+            }
+        }
+    }
+
+    private func restartIfPresentationSettingsChanged() {
+        guard let location, presentation.settings != .current(for: location, in: feedManager) else { return }
+        reloadArticles(keepingSelection: false)
     }
 
     private func listDidScroll() {

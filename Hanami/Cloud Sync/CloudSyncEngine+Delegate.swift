@@ -42,6 +42,8 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
                 record = self.record(forItemStatusSyncID: recordID.recordName)
             } else if Self.isListID(recordID.recordName) {
                 record = self.record(forListSyncID: recordID.recordName)
+            } else if Self.isPagePreferenceID(recordID.recordName) {
+                record = self.record(forPagePreferenceSyncID: recordID.recordName)
             } else if let feed = try? self.database.feed(bySyncID: recordID.recordName) {
                 record = self.record(for: feed)
             } else {
@@ -155,6 +157,11 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
                 applyFetchedItemStatus(serverRecord)
                 onRemoteChangesApplied?(false)
             }
+            return
+        }
+
+        if Self.isPagePreferenceID(syncID) {
+            resolvePagePreferenceConflict(recordID: recordID, serverRecord: serverRecord, syncEngine: syncEngine)
             return
         }
 

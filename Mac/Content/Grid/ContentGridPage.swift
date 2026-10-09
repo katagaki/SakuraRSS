@@ -38,16 +38,27 @@ struct ContentGridPage: View {
                 presentation.absorb(loaded, isRead: feedManager.isRead)
             } else {
                 presentedLocation = location
-                presentation.begin(with: loaded, isRead: feedManager.isRead)
+                presentation.begin(with: loaded, isRead: feedManager.isRead, settings: currentSettings)
             }
             allArticles = loaded
             articles = presentation.present(loaded)
         }
         .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
-            guard presentation.settings != .current else { return }
-            presentation.begin(with: allArticles, isRead: feedManager.isRead)
-            articles = presentation.present(allArticles)
+            restartIfSettingsChanged()
         }
+        .onReceive(NotificationCenter.default.publisher(for: FeedManager.pagePreferencesDidChangeNotification)) { _ in
+            restartIfSettingsChanged()
+        }
+    }
+
+    private var currentSettings: ContentPresentation.Settings {
+        .current(for: location, in: feedManager)
+    }
+
+    private func restartIfSettingsChanged() {
+        guard presentation.settings != currentSettings else { return }
+        presentation.begin(with: allArticles, isRead: feedManager.isRead, settings: currentSettings)
+        articles = presentation.present(allArticles)
     }
 
     /// Batching reveals the next batch once the last item shows.

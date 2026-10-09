@@ -19,6 +19,11 @@ extension MainMenuBuilder {
         )
         markAllReadItem.keyEquivalentModifierMask = [.command, .shift]
         menu.addItem(markAllReadItem)
+        menu.addItem(NSMenuItem(
+            title: String(localized: "HideReadContent", table: "Articles"),
+            action: #selector(BrowserActions.toggleHideReadContent(_:)),
+            keyEquivalent: ""
+        ))
         let displayStyleItem = NSMenuItem()
         displayStyleItem.title = String(localized: "DisplayStyle", table: "Articles")
         let displayStyleMenu = NSMenu()

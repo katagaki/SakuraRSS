@@ -30,7 +30,10 @@ public nonisolated enum ArticleMarker {
         ("{{SUP}}", "\u{E000}SUP\u{E001}"),
         ("{{/SUP}}", "\u{E000}/SUP\u{E001}"),
         ("{{SUB}}", "\u{E000}SUB\u{E001}"),
-        ("{{/SUB}}", "\u{E000}/SUB\u{E001}")
+        ("{{/SUB}}", "\u{E000}/SUB\u{E001}"),
+        ("{{RUBY}}", "\u{E000}RUBY\u{E001}"),
+        ("{{RT}}", "\u{E000}RT\u{E001}"),
+        ("{{/RUBY}}", "\u{E000}/RUBY\u{E001}")
     ]
 
     public static func escape(_ text: String) -> String {

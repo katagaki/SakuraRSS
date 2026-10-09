@@ -2,7 +2,7 @@ import Foundation
 import Hanami
 
 /// The Browsing settings applied to a page's content, as iOS applies them:
-/// Hide Viewed Content keeps only what was unread when the page opened, plus
+/// Hide Read Content keeps only what was unread when the page opened, plus
 /// what arrives while it's open, and batching reveals older content a batch
 /// at a time. Doomscrolling Mode turns both off.
 struct ContentPresentation {
@@ -10,25 +10,25 @@ struct ContentPresentation {
     private var shownIDs: Set<Int64>?
     private var loadedCount = 0
     private var loadedSinceDate = Date.distantPast
-    private(set) var settings = Settings.current
+    private(set) var settings = Settings(hidesViewedContent: false, batchingMode: BatchingMode.current())
 
     struct Settings: Equatable {
         let hidesViewedContent: Bool
         let batchingMode: BatchingMode
 
-        static var current: Settings {
+        @MainActor
+        static func current(for location: BrowserLocation, in feedManager: FeedManager) -> Settings {
             Settings(
-                hidesViewedContent: DoomscrollingMode.effectiveHideViewedContent(
-                    UserDefaults.standard.bool(forKey: "Articles.HideViewedContent")
-                ),
+                hidesViewedContent: location.pageKey(in: feedManager)
+                    .map(feedManager.hidesReadContent(onPage:)) ?? false,
                 batchingMode: BatchingMode.current()
             )
         }
     }
 
     /// Starts over for a page that has just been opened.
-    mutating func begin(with articles: [Article], isRead: (Article) -> Bool) {
-        settings = .current
+    mutating func begin(with articles: [Article], isRead: (Article) -> Bool, settings: Settings) {
+        self.settings = settings
         shownIDs = settings.hidesViewedContent ? Set(articles.filter { !isRead($0) }.map(\.id)) : nil
         loadedCount = settings.batchingMode.initialCount()
         loadedSinceDate = settings.batchingMode.initialSinceDate(

@@ -41,7 +41,7 @@ public nonisolated enum ContentOverrideApplier {
     /// so a body/content value can be safely promoted into a plain-text title.
     private static func stripContentMarkers(_ text: String) -> String {
         let pairedTags = ["IMG", "IMGLINK", "VIDEO", "AUDIO", "YOUTUBE", "XPOST", "EMBED", "TABLE", "MATH"]
-        var result = text
+        var result = RubyMarkup.strippingReadings(text)
         for tag in pairedTags {
             let pattern = "\\{\\{\(tag)\\}\\}.+?\\{\\{/\(tag)\\}\\}"
             result = result.replacingOccurrences(

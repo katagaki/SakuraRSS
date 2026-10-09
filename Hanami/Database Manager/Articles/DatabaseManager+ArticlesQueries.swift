@@ -143,7 +143,7 @@ public nonisolated extension DatabaseManager {
     }
 
     func latestPublishedDate() throws -> Date? {
-        let query = articles
+        let query = feedArticles
             .filter(articlePublishedDate != nil)
             .order(articlePublishedDate.desc)
             .limit(1)
@@ -153,7 +153,7 @@ public nonisolated extension DatabaseManager {
     }
 
     func earliestArticleDate(before date: Date) throws -> Date? {
-        let query = articles
+        let query = feedArticles
             .filter(articlePublishedDate != nil
                     && articlePublishedDate < date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
@@ -164,14 +164,14 @@ public nonisolated extension DatabaseManager {
     }
 
     func allArticles(limit: Int = 100) throws -> [Article] {
-        let query = articles
+        let query = feedArticles
             .order(articlePublishedDate.desc)
             .limit(limit)
         return try database.prepare(query).map(rowToArticle)
     }
 
     func allArticles(since date: Date, limit: Int? = 200) throws -> [Article] {
-        var query = articles
+        var query = feedArticles
             .filter(articlePublishedDate >= date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
         if let limit {
@@ -181,7 +181,7 @@ public nonisolated extension DatabaseManager {
     }
 
     func allArticles(from startDate: Date, to endDate: Date, limit: Int = 200) throws -> [Article] {
-        let query = articles
+        let query = feedArticles
             .filter(articlePublishedDate >= startDate.timeIntervalSince1970
                     && articlePublishedDate < endDate.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
@@ -190,7 +190,7 @@ public nonisolated extension DatabaseManager {
     }
 
     func allArticles(before date: Date, limit: Int = 200) throws -> [Article] {
-        let query = articles
+        let query = feedArticles
             .filter(articlePublishedDate < date.timeIntervalSince1970 || articlePublishedDate == nil)
             .order(articlePublishedDate.desc)
             .limit(limit)
@@ -198,7 +198,7 @@ public nonisolated extension DatabaseManager {
     }
 
     func unreadArticles(limit: Int = 50) throws -> [Article] {
-        let query = articles
+        let query = feedArticles
             .filter(articleIsRead == false)
             .order(articlePublishedDate.desc)
             .limit(limit)
@@ -297,7 +297,7 @@ public nonisolated extension DatabaseManager {
     }
 
     func unreadArticlesList(limit: Int = 50) throws -> [Article] {
-        let query = selectingListColumns(articles)
+        let query = selectingListColumns(feedArticles)
             .filter(articleIsRead == false)
             .order(articlePublishedDate.desc)
             .limit(limit)
@@ -358,14 +358,14 @@ public nonisolated extension DatabaseManager {
     }
 
     func allArticlesList(limit: Int = 100) throws -> [Article] {
-        let query = selectingListColumns(articles)
+        let query = selectingListColumns(feedArticles)
             .order(articlePublishedDate.desc)
             .limit(limit)
         return try database.prepare(query).map(rowToListArticle)
     }
 
     func allArticlesList(since date: Date, limit: Int? = 200) throws -> [Article] {
-        var query = selectingListColumns(articles)
+        var query = selectingListColumns(feedArticles)
             .filter(articlePublishedDate >= date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
         if let limit {
@@ -375,7 +375,7 @@ public nonisolated extension DatabaseManager {
     }
 
     func allArticlesList(before date: Date, limit: Int = 200) throws -> [Article] {
-        let query = selectingListColumns(articles)
+        let query = selectingListColumns(feedArticles)
             .filter(articlePublishedDate < date.timeIntervalSince1970 || articlePublishedDate == nil)
             .order(articlePublishedDate.desc)
             .limit(limit)
@@ -383,7 +383,7 @@ public nonisolated extension DatabaseManager {
     }
 
     func allArticlesList(from startDate: Date, to endDate: Date, limit: Int = 200) throws -> [Article] {
-        let query = selectingListColumns(articles)
+        let query = selectingListColumns(feedArticles)
             .filter(articlePublishedDate >= startDate.timeIntervalSince1970
                     && articlePublishedDate < endDate.timeIntervalSince1970)
             .order(articlePublishedDate.desc)

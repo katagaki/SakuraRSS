@@ -42,6 +42,17 @@ extension HomeSectionView {
         scopeKey(for: source)
     }
 
+    var pageKey: String {
+        switch source {
+        case .section(let section):
+            return ContentPageKey.section(section)
+        case .list(let list):
+            return feedManager.pageKey(for: list)
+        case .topic(let name):
+            return ContentPageKey.topic(name)
+        }
+    }
+
     func scopeKey(for source: HomeContentSource) -> String {
         switch source {
         case .section(let section):

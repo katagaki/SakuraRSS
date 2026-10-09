@@ -120,7 +120,9 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
             queueInitialSync(on: newEngine)
         }
         enqueueUnsyncedLists(on: newEngine)
+        enqueuePagePreferencesNeedingSync()
         catchUpListsIfNeeded(startedFresh: stateSerialization == nil)
+        catchUpPagePreferencesIfNeeded(startedFresh: stateSerialization == nil)
         migrateItemStatusesIfNeeded()
         enqueueDirtyItemStatuses()
         log("CloudSyncEngine", "Started (fresh state: \(stateSerialization == nil))")
@@ -145,6 +147,8 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
         _ = try? database.backfillListSyncIDs()
         let listSyncIDs = (try? database.allListSyncIDs()) ?? []
         engine.state.add(pendingRecordZoneChanges: listSyncIDs.map { .saveRecord(Self.recordID(for: $0)) })
+        let pagePreferenceSyncIDs = (try? database.allPagePreferenceSyncIDs()) ?? []
+        engine.state.add(pendingRecordZoneChanges: pagePreferenceSyncIDs.map { .saveRecord(Self.recordID(for: $0)) })
         let tombstoneIDs = (try? database.allSyncTombstoneIDs()) ?? []
         engine.state.add(pendingRecordZoneChanges: tombstoneIDs.map { .deleteRecord(Self.recordID(for: $0)) })
         // swiftlint:disable:next line_length

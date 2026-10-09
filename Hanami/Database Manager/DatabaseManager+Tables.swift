@@ -11,6 +11,7 @@ nonisolated extension DatabaseManager {
         try createSyncTables()
         try migrateListSyncColumns()
         try createTodayQuickAccessTable()
+        try createPagePreferencesTable()
     }
 
     private func createCoreTables() throws {

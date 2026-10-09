@@ -17,16 +17,21 @@ struct BrowserStartPage: View {
         // visionOS has no Today, so the start page keeps its own sections there.
         BrowserFallbackStartPage()
         #else
-        TodayView(pinnedSection: AnyView(
-            VStack(alignment: .leading, spacing: 16) {
-                BrowserTodayQuickAccessGrid(
-                    isEditing: isEditingQuickAccess,
-                    onBeginEditing: { setEditingQuickAccess(true) }
-                )
-                BrowserRecentContentSection()
-            }
-            .padding(.horizontal)
-        ))
+        TodayView(
+            pinnedSection: AnyView(
+                VStack(alignment: .leading, spacing: 16) {
+                    BrowserTodayQuickAccessGrid(
+                        isEditing: isEditingQuickAccess,
+                        onBeginEditing: { setEditingQuickAccess(true) }
+                    )
+                    if !hidesContentBelowQuickAccess {
+                        BrowserRecentContentSection()
+                    }
+                }
+                .padding(.horizontal)
+            ),
+            isEditing: hidesContentBelowQuickAccess
+        )
         .safeAreaInset(edge: .bottom) {
             if isEditingQuickAccess {
                 TodayQuickAccessEndEditingButton { setEditingQuickAccess(false) }
@@ -52,6 +57,10 @@ struct BrowserStartPage: View {
                 .presentationDetents([.medium, .large])
         }
         #endif
+    }
+
+    private var hidesContentBelowQuickAccess: Bool {
+        isEditingQuickAccess && HomeLayout.usesPhoneTopBar
     }
 
     private func setEditingQuickAccess(_ isEditing: Bool) {

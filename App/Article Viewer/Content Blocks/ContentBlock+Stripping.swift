@@ -5,7 +5,7 @@ extension ContentBlock {
 
     /// Strips block markers, returning plain text suitable for translation/summarization.
     nonisolated static func plainText(from text: String) -> String {
-        let stripped = text.replacingOccurrences(
+        let stripped = RubyMarkup.strippingReadings(text).replacingOccurrences(
             of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
         )
         .replacingOccurrences(
@@ -45,7 +45,7 @@ extension ContentBlock {
 
     /// Strips Markdown formatting, returning plain text for content previews.
     nonisolated static func stripMarkdown(_ text: String) -> String {
-        var result = text
+        var result = RubyMarkup.strippingReadings(text)
         for (regex, template) in markdownStripRegexes {
             result = regex.stringByReplacingMatches(
                 in: result,

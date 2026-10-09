@@ -23,6 +23,7 @@ final class ContentListViewController: NSViewController {
     var firstVisibleRow = 0
     nonisolated(unsafe) var scrollObserver: NSObjectProtocol?
     nonisolated(unsafe) var settingsObserver: NSObjectProtocol?
+    nonisolated(unsafe) var pagePreferencesObserver: NSObjectProtocol?
     var onSelectArticle: ((Article?) -> Void)?
     var reportedArticleID: Int64?
     private(set) var displayStyle: FeedDisplayStyle = .inbox
@@ -47,7 +48,7 @@ final class ContentListViewController: NSViewController {
     }
 
     deinit {
-        for observer in [scrollObserver, settingsObserver].compactMap(\.self) {
+        for observer in [scrollObserver, settingsObserver, pagePreferencesObserver].compactMap(\.self) {
             NotificationCenter.default.removeObserver(observer)
         }
     }
@@ -199,7 +200,11 @@ final class ContentListViewController: NSViewController {
         if keepingSelection {
             presentation.absorb(reloaded, isRead: feedManager.isRead)
         } else {
-            presentation.begin(with: reloaded, isRead: feedManager.isRead)
+            presentation.begin(
+                with: reloaded,
+                isRead: feedManager.isRead,
+                settings: .current(for: location, in: feedManager)
+            )
             firstVisibleRow = 0
         }
         allArticles = reloaded

@@ -74,7 +74,6 @@ struct HomeSectionView: View {
     @State private var hasInitializedSinceDate = false
     @State var preloadedEntries: [ArticleIDEntry] = []
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
-    @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
     @State private var loadMoreTarget: LoadMoreTarget?
@@ -92,7 +91,7 @@ struct HomeSectionView: View {
     }
 
     var hideViewedContent: Bool {
-        DoomscrollingMode.effectiveHideViewedContent(storedHideViewedContent)
+        feedManager.hidesReadContent(onPage: pageKey)
     }
 
     private var batcher: ArticleIDBatcher {
@@ -169,8 +168,9 @@ struct HomeSectionView: View {
     }
 
     var body: some View {
+        let shownArticles = visibility.filter(rawArticles, isEnabled: hideViewedContent)
         ArticlesView(
-            articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
+            articles: shownArticles,
             title: title,
             feedKey: feedKey,
             isVideoFeed: isVideoSection,
@@ -179,6 +179,7 @@ struct HomeSectionView: View {
             onLoadMore: loadMoreAction,
             onRefresh: { await performRefresh() },
             onMarkAllRead: performMarkAllRead,
+            hideReadContent: feedManager.hideReadContentBinding(onPage: pageKey),
             scrollToTopTrigger: scrollToTopTick &+ externalScrollToTopTrigger,
             headerView: headerView,
             effectiveStyleBinding: effectiveStyleBinding,
@@ -190,6 +191,11 @@ struct HomeSectionView: View {
         .environment(\.articleListBottomInset, markAllReadBottomInset)
         .overlay(alignment: .bottom) {
             markAllReadPill
+        }
+        .hideReadContentPrompt(
+            isVisible: visibility.containsReadContent(shownArticles, isRead: feedManager.isRead)
+        ) {
+            Task { await hideShownReadContent() }
         }
         .id(source)
         .trackArticleVisibility(
@@ -213,13 +219,12 @@ struct HomeSectionView: View {
             revision: feedManager.dataRevision,
             hideViewed: hideViewedContent
         )) {
-            let priorSource = lastLoadedSource
-            let priorHideViewed = lastLoadedHideViewed
-            await reloadPreloadedEntries()
+            let sourceChanged = lastLoadedSource != source
+            let hideViewedChanged = lastLoadedHideViewed != hideViewedContent
+            let isFreshLoad = sourceChanged || hideViewedChanged || !hasInitializedSinceDate
+            await reloadPreloadedEntries(keepingShownContent: !isFreshLoad)
             if Task.isCancelled { return }
-            let sourceChanged = priorSource != source
-            let hideViewedChanged = priorHideViewed != hideViewedContent
-            if sourceChanged || hideViewedChanged || !hasInitializedSinceDate {
+            if isFreshLoad {
                 loadedSinceDate = batchingMode.initialSinceDate(
                     latestArticleDate: latestArticleDate()
                 )
@@ -290,6 +295,18 @@ extension HomeSectionView {
         withAnimation(.smooth.speed(2.0)) {
             isMarkReadPillVisible = shouldShow
         }
+    }
+
+    func hideShownReadContent() async {
+        feedManager.flushDebouncedReads()
+        await reloadPreloadedEntries()
+        loadedSinceDate = batchingMode.initialSinceDate(latestArticleDate: latestArticleDate())
+        loadedCount = batchingMode.initialCount()
+        refreshWindowedArticles()
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent, isRead: feedManager.isRead)
+        }
+        scrollToTopTick &+= 1
     }
 
     func acceptPendingRefresh() {
