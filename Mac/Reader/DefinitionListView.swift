@@ -9,10 +9,10 @@ struct DefinitionListView: View {
         VStack(alignment: .leading, spacing: 10) {
             ForEach(items, id: \.self) { item in
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(item.term)
+                    Text(LocalizedStringKey(item.term))
                         .font(.system(size: 15, weight: .semibold))
                     ForEach(item.definitions, id: \.self) { definition in
-                        Text(definition)
+                        Text(LocalizedStringKey(definition))
                             .font(.system(size: 15))
                             .foregroundStyle(.secondary)
                     }

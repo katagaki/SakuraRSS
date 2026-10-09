@@ -26,7 +26,7 @@ struct ContentTableView: View {
     private func row(_ cells: [String], isHeader: Bool) -> some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(Array(cells.enumerated()), id: \.offset) { _, cell in
-                Text(cell)
+                Text(LocalizedStringKey(cell))
                     .font(.system(size: 13, weight: isHeader ? .semibold : .regular))
                     .frame(minWidth: 90, alignment: .leading)
                     .padding(.horizontal, 10)

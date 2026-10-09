@@ -37,6 +37,7 @@ extension ContentBlock {
         )
         .replacingOccurrences(of: "{{CODE}}", with: "")
         .replacingOccurrences(of: "{{/CODE}}", with: "")
+        .replacingOccurrences(of: "\u{2060}", with: "")
         .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
         .trimmingCharacters(in: .whitespacesAndNewlines)
         return ArticleMarker.unescape(stripped)
@@ -54,8 +55,8 @@ extension ContentBlock {
         }
         result = result.replacingOccurrences(of: "{{CODE}}", with: "")
         result = result.replacingOccurrences(of: "{{/CODE}}", with: "")
-        result = result.replacingOccurrences(of: "\\[", with: "[")
-        result = result.replacingOccurrences(of: "\\]", with: "]")
+        result = result.replacingOccurrences(of: "\u{2060}", with: "")
+        result = result.markdownUnescaped
         result = ArticleMarker.unescape(result)
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -80,8 +81,8 @@ extension ContentBlock {
         (#"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#, "$1"),
         (#"\{\{SUB\}\}(.+?)\{\{/SUB\}\}"#, "$1"),
         (#"\[((?:[^\]\\]|\\.)+)\]\([^)]+\)"#, "$1"),
-        (#"\*\*(.+?)\*\*"#, "$1"),
-        (#"\*(.+?)\*"#, "$1"),
+        (#"(?<!\\)\*\*(.+?)(?<!\\)\*\*"#, "$1"),
+        (#"(?<!\\)\*(.+?)(?<!\\)\*"#, "$1"),
         (#"(?m)^#{1,6}\s+"#, ""),
         (#"\n{3,}"#, "\n\n")
     ]

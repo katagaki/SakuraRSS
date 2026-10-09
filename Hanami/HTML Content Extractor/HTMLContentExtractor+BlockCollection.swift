@@ -248,7 +248,7 @@ public nonisolated extension HTMLContentExtractor {
         let headingTags = ["h1", "h2", "h3", "h4", "h5", "h6"]
         if headingTags.contains(tag),
            let excludeTitle,
-           text.caseInsensitiveCompare(excludeTitle) == .orderedSame {
+           text.markdownUnescaped.caseInsensitiveCompare(excludeTitle) == .orderedSame {
             log("Block", "<\(tag)> → skipped (matches article title)")
             return
         }

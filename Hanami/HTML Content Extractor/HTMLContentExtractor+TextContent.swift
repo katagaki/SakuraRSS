@@ -67,9 +67,6 @@ public nonisolated extension HTMLContentExtractor {
         var text = try fragment.body()?.text() ?? ""
         text = text.replacingOccurrences(of: doubleLFPlaceholder, with: "\n\n")
         text = text.replacingOccurrences(of: singleLFPlaceholder, with: "\n")
-        text = escapeBracketsInLinkText(text,
-                                        open: linkOpenPlaceholder,
-                                        mid: linkMidPlaceholder)
         // Escape literal markers before SAKURA placeholders become real ones.
         text = ArticleMarker.escape(text)
         text = convertPlaceholdersToMarkdown(text)
