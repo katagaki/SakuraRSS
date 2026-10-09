@@ -18,7 +18,6 @@ struct HomeSectionView: View {
     let showsListHeader: Bool
     let showsLastUpdated: Bool
     let effectiveStyleBinding: Binding<FeedDisplayStyle?>?
-    let externalScrollToTopTrigger: Int
     var leadingHeader: AnyView?
 
     init(
@@ -26,14 +25,12 @@ struct HomeSectionView: View {
         showsListHeader: Bool = false,
         showsLastUpdated: Bool = true,
         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
-        externalScrollToTopTrigger: Int = 0,
         leadingHeader: AnyView? = nil
     ) {
         self.source = source
         self.showsListHeader = showsListHeader
         self.showsLastUpdated = showsLastUpdated
         self.effectiveStyleBinding = effectiveStyleBinding
-        self.externalScrollToTopTrigger = externalScrollToTopTrigger
         self.leadingHeader = leadingHeader
     }
 
@@ -42,21 +39,18 @@ struct HomeSectionView: View {
         self.showsListHeader = false
         self.showsLastUpdated = true
         self.effectiveStyleBinding = nil
-        self.externalScrollToTopTrigger = 0
     }
 
     init(
         list: FeedList,
         showsListHeader: Bool = false,
         showsLastUpdated: Bool = true,
-        effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
-        externalScrollToTopTrigger: Int = 0
+        effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil
     ) {
         self.source = .list(list)
         self.showsListHeader = showsListHeader
         self.showsLastUpdated = showsLastUpdated
         self.effectiveStyleBinding = effectiveStyleBinding
-        self.externalScrollToTopTrigger = externalScrollToTopTrigger
     }
 
     init(topic: String) {
@@ -64,7 +58,6 @@ struct HomeSectionView: View {
         self.showsListHeader = false
         self.showsLastUpdated = true
         self.effectiveStyleBinding = nil
-        self.externalScrollToTopTrigger = 0
     }
 
     @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
@@ -175,7 +168,7 @@ struct HomeSectionView: View {
             onLoadMore: loadMoreAction,
             onRefresh: { await performRefresh() },
             onMarkAllRead: performMarkAllRead,
-            scrollToTopTrigger: scrollToTopTick &+ externalScrollToTopTrigger,
+            scrollToTopTrigger: scrollToTopTick,
             headerView: headerView,
             effectiveStyleBinding: effectiveStyleBinding
         )

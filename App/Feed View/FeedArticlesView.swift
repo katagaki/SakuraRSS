@@ -4,7 +4,6 @@ import Hanami
 struct FeedArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @Environment(\.dismiss) var dismiss
     let feed: Feed
 
@@ -18,7 +17,6 @@ struct FeedArticlesView: View {
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
-    @State private var hasScrolledPastTitle: Bool = false
     @State private var effectiveDisplayStyle: FeedDisplayStyle?
     @State private var prominentColors: [Color] = []
     @State private var fetchedArticles: [Article] = []
@@ -130,10 +128,6 @@ struct FeedArticlesView: View {
         effectiveDisplayStyle?.supportsRichHeader ?? true
     }
 
-    var showsPrincipalTitle: Bool {
-        !isBrowserChromeActive && (!styleSupportsRichHeader || hasScrolledPastTitle)
-    }
-
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
@@ -167,45 +161,6 @@ struct FeedArticlesView: View {
             effectiveStyleBinding: $effectiveDisplayStyle
         )
         .environment(\.feedBackgroundColors, prominentColors)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                #if os(visionOS)
-                principalTitleContent
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(height: 42)
-                    .contentShape(.rect)
-                    .onTapGesture { scrollToTopTick &+= 1 }
-                    .allowsHitTesting(showsPrincipalTitle)
-                    .opacity(showsPrincipalTitle ? 1 : 0)
-                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
-                #else
-                principalTitleContent
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(height: 44)
-                    .padding(.horizontal, 18)
-                    .compatibleGlassEffect(in: .capsule, interactive: true)
-                    .contentShape(.capsule)
-                    .onTapGesture { scrollToTopTick &+= 1 }
-                    .allowsHitTesting(showsPrincipalTitle)
-                    .opacity(showsPrincipalTitle ? 1 : 0)
-                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
-                #endif
-            }
-        }
-        .onScrollGeometryChange(for: Bool.self) { geo in
-            geo.contentOffset.y > 90
-        } action: { _, scrolled in
-            guard scrolled != hasScrolledPastTitle else { return }
-            withAnimation(.smooth.speed(2.0)) {
-                hasScrolledPastTitle = scrolled
-            }
-        }
         .animation(.smooth.speed(2.0), value: styleSupportsRichHeader)
         .refreshable {
             log("FeedArticlesView", ".refreshable triggered id=\(feed.id)")
@@ -280,37 +235,6 @@ struct FeedArticlesView: View {
 }
 
 extension FeedArticlesView {
-
-    @ViewBuilder
-    var principalTitleContent: some View {
-        if scopedRefreshState.isStopping {
-            Text(String(localized: "Refresh.Stopping", table: "Home"))
-                .font(.subheadline)
-                .fontWeight(.semibold)
-        } else {
-            #if os(visionOS)
-            VStack(alignment: .leading, spacing: 0) {
-                feedTitleAndDomain
-            }
-            #else
-            VStack(spacing: 0) {
-                feedTitleAndDomain
-            }
-            #endif
-        }
-    }
-
-    @ViewBuilder
-    private var feedTitleAndDomain: some View {
-        Text(currentFeed.title)
-            .font(.subheadline)
-            .fontWeight(.semibold)
-        if !currentFeed.domain.isEmpty {
-            Text(currentFeed.domain)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
-    }
 
     func reloadPreloadedEntries() async {
         let entries = await feedManager.preloadedArticleEntriesAsync(
