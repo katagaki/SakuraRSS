@@ -213,13 +213,12 @@ struct HomeSectionView: View {
             revision: feedManager.dataRevision,
             hideViewed: hideViewedContent
         )) {
-            let priorSource = lastLoadedSource
-            let priorHideViewed = lastLoadedHideViewed
-            await reloadPreloadedEntries()
+            let sourceChanged = lastLoadedSource != source
+            let hideViewedChanged = lastLoadedHideViewed != hideViewedContent
+            let isFreshLoad = sourceChanged || hideViewedChanged || !hasInitializedSinceDate
+            await reloadPreloadedEntries(keepingShownContent: !isFreshLoad)
             if Task.isCancelled { return }
-            let sourceChanged = priorSource != source
-            let hideViewedChanged = priorHideViewed != hideViewedContent
-            if sourceChanged || hideViewedChanged || !hasInitializedSinceDate {
+            if isFreshLoad {
                 loadedSinceDate = batchingMode.initialSinceDate(
                     latestArticleDate: latestArticleDate()
                 )

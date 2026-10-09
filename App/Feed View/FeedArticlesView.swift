@@ -238,13 +238,12 @@ struct FeedArticlesView: View {
             revision: feedManager.dataRevision,
             hideViewed: hideViewedContent
         )) {
-            let priorFeedID = lastLoadedFeedID
-            let priorHideViewed = lastLoadedHideViewed
-            await reloadPreloadedEntries()
+            let feedChanged = lastLoadedFeedID != feed.id
+            let hideViewedChanged = lastLoadedHideViewed != hideViewedContent
+            let isFreshLoad = feedChanged || hideViewedChanged || !hasInitializedSinceDate
+            await reloadPreloadedEntries(keepingShownContent: !isFreshLoad)
             if Task.isCancelled { return }
-            let feedChanged = priorFeedID != feed.id
-            let hideViewedChanged = priorHideViewed != hideViewedContent
-            if feedChanged || hideViewedChanged || !hasInitializedSinceDate {
+            if isFreshLoad {
                 loadedSinceDate = batchingMode.initialSinceDate(
                     latestArticleDate: latestArticleDateForFeed()
                 )
@@ -312,7 +311,7 @@ extension FeedArticlesView {
         }
     }
 
-    func reloadPreloadedEntries() async {
+    func reloadPreloadedEntries(keepingShownContent: Bool = false) async {
         let entries = await feedManager.preloadedArticleEntriesAsync(
             for: feed,
             requireUnread: hideViewedContent
@@ -321,7 +320,9 @@ extension FeedArticlesView {
         if entries.isEmpty, !preloadedEntries.isEmpty, lastLoadedFeedID == feed.id {
             return
         }
-        preloadedEntries = entries
+        preloadedEntries = keepingShownContent
+            ? visibility.keepingShownEntries(of: preloadedEntries, in: entries)
+            : entries
         refreshWindowedArticles()
         refreshUndatedTail()
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
