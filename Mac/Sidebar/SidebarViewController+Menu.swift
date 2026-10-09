@@ -1,5 +1,6 @@
 import AppKit
 import Hanami
+import SwiftUI
 
 extension SidebarViewController: NSMenuDelegate {
 
@@ -86,7 +87,9 @@ extension SidebarViewController: NSMenuDelegate {
         let title = String(localized: String.LocalizationValue(titleKey), table: "Feeds")
         return ActionMenuItem(title, symbolName: symbolName) { [weak self] in
             guard let self else { return }
-            self.presentSwiftUISheet(EditFeedSheet(feedID: feed.id, initialTab: tab), feedManager: self.feedManager)
+            self.presentHostedSheet(
+                EditFeedTabbedSheet(feedID: feed.id, initialTab: tab).environment(self.feedManager)
+            )
         }
     }
 }
