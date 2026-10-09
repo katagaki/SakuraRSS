@@ -14,6 +14,7 @@ final class SettingsWindowController: NSWindowController {
         let panes = [
             SettingsTab("Section.Refreshing", "arrow.triangle.2.circlepath") { RefreshingSettingsPane() },
             SettingsTab("Section.Browsing", "book") { BrowsingSettingsPane() },
+            SettingsTab("Section.Sidebar", "sidebar.left") { SidebarSettingsPane(feedManager: feedManager) },
             SettingsTab("Section.Focus", "moon") { FocusSettingsPane(feedManager: feedManager) },
             SettingsTab("Section.InsightsAndIntelligence", "sparkles") {
                 IntelligenceSettingsPane(feedManager: feedManager)
