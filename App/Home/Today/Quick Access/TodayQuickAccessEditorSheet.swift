@@ -7,7 +7,7 @@ struct TodayQuickAccessEditorSheet: View {
     let title: (TodayQuickAccessItem) -> String
     let symbolName: (TodayQuickAccessItem) -> String
 
-    @Environment(\.dismiss) private var dismiss
+    @SheetDismiss private var dismiss
     @State private var orderedItems: [TodayQuickAccessItem] = []
     private let preferences = TodayQuickAccessPreferences.shared
 
@@ -42,15 +42,17 @@ struct TodayQuickAccessEditorSheet: View {
             #if os(iOS)
             .environment(\.editMode, .constant(.active))
             #endif
-            .navigationTitle(String(localized: "Today.QuickAccess.Edit", table: "Home"))
-            .inlineNavigationTitle()
+            .sheetTitle(String(localized: "Today.QuickAccess.Edit", table: "Home"))
             .compatibleSoftScrollEdgeEffectStyle()
-            .toolbar {
-                ToolbarItem(placement: .sheetTrailing) {
-                    Button(role: .confirm) {
-                        dismiss()
-                    }
+            .sheetActions {
+                EmptyView()
+            } trailing: {
+                Button(role: .confirm) {
+                    dismiss()
                 }
+            }
+            .onEscape {
+                dismiss()
             }
             .onAppear {
                 orderedItems = preferences.ordered(items)
