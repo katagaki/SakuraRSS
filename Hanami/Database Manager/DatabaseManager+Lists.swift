@@ -142,7 +142,8 @@ public nonisolated extension DatabaseManager {
             name: row[listName],
             icon: row[listIcon],
             displayStyle: row[listDisplayStyle],
-            sortOrder: row[listSortOrder]
+            sortOrder: row[listSortOrder],
+            syncID: (try? row.get(listSyncID)) ?? nil
         )
     }
 }

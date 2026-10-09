@@ -98,27 +98,9 @@ nonisolated extension CloudSyncEngine {
     }
 
     private func catchUpLists() async {
-        let cloudDatabase = CKContainer(identifier: Self.containerIdentifier).privateCloudDatabase
-        var listRecords: [CKRecord] = []
-        var changeToken: CKServerChangeToken?
-        var moreComing = true
-        do {
-            while moreComing {
-                let changes = try await cloudDatabase.recordZoneChanges(
-                    inZoneWith: Self.zoneID, since: changeToken, desiredKeys: Self.listFieldKeys
-                )
-                listRecords += changes.modificationResultsByID.values
-                    .compactMap { try? $0.get().record }
-                    .filter { $0.recordType == Self.listRecordType }
-                changeToken = changes.changeToken
-                moreComing = changes.moreComing
-            }
-        } catch let error as CKError where error.code == .zoneNotFound {
-            listRecords = []
-        } catch {
-            log("CloudSyncEngine", "List catch-up failed: \(error.localizedDescription)")
-            return
-        }
+        guard let listRecords = await fetchAllRecords(
+            ofType: Self.listRecordType, desiredKeys: Self.listFieldKeys
+        ) else { return }
         if !listRecords.isEmpty {
             archiveSystemFields(of: listRecords)
             let tombstoneIDs = Set((try? database.allSyncTombstoneIDs()) ?? [])
@@ -130,5 +112,35 @@ nonisolated extension CloudSyncEngine {
         }
         UserDefaults.standard.set(true, forKey: Self.didCatchUpListsKey)
         log("CloudSyncEngine", "List catch-up applied \(listRecords.count) lists")
+    }
+
+    /// Reads the whole zone, outside the engine's change token, for record
+    /// types an older version fetched and dropped. Returns nil on failure.
+    func fetchAllRecords(
+        ofType recordType: CKRecord.RecordType,
+        desiredKeys: [CKRecord.FieldKey]
+    ) async -> [CKRecord]? {
+        let cloudDatabase = CKContainer(identifier: Self.containerIdentifier).privateCloudDatabase
+        var records: [CKRecord] = []
+        var changeToken: CKServerChangeToken?
+        var moreComing = true
+        do {
+            while moreComing {
+                let changes = try await cloudDatabase.recordZoneChanges(
+                    inZoneWith: Self.zoneID, since: changeToken, desiredKeys: desiredKeys
+                )
+                records += changes.modificationResultsByID.values
+                    .compactMap { try? $0.get().record }
+                    .filter { $0.recordType == recordType }
+                changeToken = changes.changeToken
+                moreComing = changes.moreComing
+            }
+        } catch let error as CKError where error.code == .zoneNotFound {
+            return []
+        } catch {
+            log("CloudSyncEngine", "Catch-up for \(recordType) failed: \(error.localizedDescription)")
+            return nil
+        }
+        return records
     }
 }

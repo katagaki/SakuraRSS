@@ -7,6 +7,7 @@ struct TodayView: View {
     /// Optional content pinned directly below the greeting. The browser shell
     /// uses it to keep Favourites on the start page.
     var pinnedSection: AnyView?
+    var isEditing: Bool = false
 
     @Environment(FeedManager.self) var feedManager
     @Environment(TodayManager.self) var todayManager

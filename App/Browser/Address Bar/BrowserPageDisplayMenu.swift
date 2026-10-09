@@ -7,6 +7,7 @@ struct BrowserPageDisplayMenu: View {
 
     let options: BrowserDisplayStyleOptions
     var markAllRead: (() -> Void)?
+    var hideReadContent: Binding<Bool>?
 
     var body: some View {
         Menu {
@@ -19,13 +20,18 @@ struct BrowserPageDisplayMenu: View {
                 showCards: options.showsCards,
                 showScroll: options.showsScroll
             )
-            if let markAllRead {
+            if markAllRead != nil || hideReadContent != nil {
                 Section {
-                    Button {
-                        Task { @MainActor in markAllRead() }
-                    } label: {
-                        Label(String(localized: "MarkAllRead", table: "Articles"),
-                              systemImage: "envelope.open")
+                    if let hideReadContent {
+                        HideReadContentToggle(isOn: hideReadContent)
+                    }
+                    if let markAllRead {
+                        Button {
+                            Task { @MainActor in markAllRead() }
+                        } label: {
+                            Label(String(localized: "MarkAllRead", table: "Articles"),
+                                  systemImage: "envelope.open")
+                        }
                     }
                 }
             }

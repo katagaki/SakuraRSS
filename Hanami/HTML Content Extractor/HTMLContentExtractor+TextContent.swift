@@ -21,6 +21,9 @@ public nonisolated extension HTMLContentExtractor {
     static let subClosePlaceholder = "{{SAKURA_SUB_CLOSE}}"
     static let codeOpenPlaceholder = "{{SAKURA_CODE_OPEN}}"
     static let codeClosePlaceholder = "{{SAKURA_CODE_CLOSE}}"
+    static let rubyOpenPlaceholder = "{{SAKURA_RUBY_OPEN}}"
+    static let rubyReadingPlaceholder = "{{SAKURA_RUBY_READING}}"
+    static let rubyClosePlaceholder = "{{SAKURA_RUBY_CLOSE}}"
 
     static let doubleLFPlaceholder = "{{SAKURA_DOUBLE_LF}}"
     static let singleLFPlaceholder = "{{SAKURA_SINGLE_LF}}"
@@ -53,6 +56,12 @@ public nonisolated extension HTMLContentExtractor {
         html = replaceLinkedImgTags(in: html, baseURL: baseURL)
         html = replaceImgTags(in: html, baseURL: baseURL)
         html = replaceLinkTags(in: html)
+        html = RubyMarkup.convertRubyTags(
+            in: html,
+            open: rubyOpenPlaceholder,
+            reading: rubyReadingPlaceholder,
+            close: rubyClosePlaceholder
+        )
         html = replaceFormattingTags(in: html)
         let fragment = try SwiftSoup.parseBodyFragment(html)
         var text = try fragment.body()?.text() ?? ""

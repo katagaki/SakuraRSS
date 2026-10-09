@@ -4,20 +4,9 @@ import Hanami
 struct BrowsingSettingsView: View {
 
     @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .items25
-    @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
     @AppStorage(LinkOpenMode.storageKey) private var linkOpenMode: LinkOpenMode = .inAppViewer
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
-
-    private var hideViewedContentBinding: Binding<Bool> {
-        Binding(
-            get: { doomscrollingMode ? false : hideViewedContent },
-            set: { newValue in
-                guard !doomscrollingMode else { return }
-                hideViewedContent = newValue
-            }
-        )
-    }
 
     private var scrollMarkAsReadBinding: Binding<Bool> {
         Binding(
@@ -42,9 +31,6 @@ struct BrowsingSettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle(String(localized: "HideViewedContent", table: "Settings"),
-                       isOn: hideViewedContentBinding)
-                    .disabled(doomscrollingMode)
                 Picker(selection: batchingModeBinding) {
                     Section {
                         Text(String(localized: "Batching.Day1", table: "Settings"))

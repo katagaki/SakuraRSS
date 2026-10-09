@@ -3,7 +3,7 @@ import Hanami
 
 extension HomeSectionView {
 
-    func reloadPreloadedEntries() async {
+    func reloadPreloadedEntries(keepingShownContent: Bool = false) async {
         let entries: [ArticleIDEntry]
         switch source {
         case .section(let section):
@@ -34,7 +34,9 @@ extension HomeSectionView {
            lastLoadedSource == source {
             return
         }
-        preloadedEntries = entries
+        preloadedEntries = keepingShownContent
+            ? visibility.keepingShownEntries(of: preloadedEntries, in: entries)
+            : entries
         refreshWindowedArticles()
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
             visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)

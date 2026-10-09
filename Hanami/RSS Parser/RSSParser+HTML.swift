@@ -52,7 +52,8 @@ nonisolated private let rssInlineMarkupRules: [(regex: NSRegularExpression, temp
 public nonisolated extension RSSParser {
 
     func cleanHTML(_ html: String) -> String? {
-        let decoded = RSSParser.decodeHTMLEntities(RSSParser.stripHTMLTags(html))
+        let withoutReadings = RubyMarkup.strippingReadings(RubyMarkup.convertRubyTags(in: html))
+        let decoded = RSSParser.decodeHTMLEntities(RSSParser.stripHTMLTags(withoutReadings))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return decoded.isEmpty ? nil : decoded
     }
@@ -65,6 +66,7 @@ public nonisolated extension RSSParser {
         }
 
         var result = RSSParser.replaceMatches(rssLineBreakRegex, in: html, with: "\n")
+        result = RubyMarkup.convertRubyTags(in: result)
         result = convertLinksToMarkdown(result, baseURL: baseURL)
         result = convertInlineMarkup(result)
         result = stripInvalidURLSupSub(result)

@@ -34,10 +34,11 @@ struct ScrollStyleView: View {
                                 .frame(width: pageSize.width, height: pageSize.height)
                                 .id(ScrollPageID.article(article.id))
                             }
-                            if onLoadMore != nil {
+                            if !articles.isEmpty {
                                 ScrollEndOfFeedPage(
                                     pageSize: pageSize,
-                                    onLoadMore: { onLoadMore?() }
+                                    onLoadMore: onLoadMore,
+                                    onBackToTop: scrollToTop
                                 )
                                 .frame(width: pageSize.width, height: pageSize.height)
                                 .id(ScrollPageID.endOfFeed)
@@ -98,13 +99,20 @@ struct ScrollStyleView: View {
         }
     }
 
+    private func scrollToTop() {
+        guard let firstArticle = articles.first else { return }
+        withAnimation(.smooth.speed(2.0)) {
+            currentID = .article(firstArticle.id)
+        }
+    }
+
     private func advance(from article: Article) {
         guard let idx = articles.firstIndex(where: { $0.id == article.id }) else { return }
         withAnimation(.smooth.speed(2.0)) {
             expandedArticleID = nil
             if idx + 1 < articles.count {
                 currentID = .article(articles[idx + 1].id)
-            } else if onLoadMore != nil {
+            } else {
                 currentID = .endOfFeed
             }
         }

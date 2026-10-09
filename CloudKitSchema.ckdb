@@ -40,3 +40,12 @@ DEFINE SCHEMA
         GRANT CREATE TO "_icloud",
         GRANT READ TO "_creator"
     );
+
+    RECORD TYPE PagePreference (
+        hidesReadContent  INT64,
+        pageKey           STRING,
+        userModifiedAt    TIMESTAMP QUERYABLE SORTABLE,
+        GRANT WRITE TO "_creator",
+        GRANT CREATE TO "_icloud",
+        GRANT READ TO "_creator"
+    );

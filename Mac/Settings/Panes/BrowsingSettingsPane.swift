@@ -4,7 +4,6 @@ import SwiftUI
 struct BrowsingSettingsPane: View {
 
     @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .items25
-    @AppStorage("Articles.HideViewedContent") private var hideViewedContent = false
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead = false
     @AppStorage(LinkOpenMode.storageKey) private var linkOpenMode: LinkOpenMode = .inAppViewer
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode = false
@@ -27,10 +26,6 @@ struct BrowsingSettingsPane: View {
             }
             SettingsGroupSpacer()
             Group {
-                LabeledContent(SettingsText.settings("Section.Feeds")) {
-                    Toggle(SettingsText.settings("HideViewedContent"), isOn: $hideViewedContent)
-                        .disabled(doomscrollingMode)
-                }
                 SettingsPicker(SettingsText.settings("BatchingMode"), selection: $batchingMode) {
                     Text(SettingsText.settings("Batching.Day1")).tag(BatchingMode.day1)
                     Text(SettingsText.settings("Batching.Day3")).tag(BatchingMode.day3)
