@@ -4,7 +4,6 @@ import Hanami
 struct SummaryHeadlineCard: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     @Environment(\.colorScheme) private var colorScheme
     let headline: SummaryHeadline
 
@@ -14,13 +13,6 @@ struct SummaryHeadlineCard: View {
     private var primaryFeed: Feed? {
         guard let feedID = headline.feedIDs.first else { return nil }
         return feedManager.feedsByID[feedID]
-    }
-
-    /// Stable Int64 ID for the zoom transition. We can't use the headline's
-    /// UUID directly (the matched-transition API takes Int64), so derive it
-    /// from the first article ID, which is stable across reloads from cache.
-    var zoomTransitionID: Int64 {
-        headline.articleIDs.first ?? 0
     }
 
     var body: some View {
@@ -52,7 +44,6 @@ struct SummaryHeadlineCard: View {
                 .strokeBorder(.quaternary, lineWidth: 0.5)
         )
         .shadow(color: .black.opacity(0.12), radius: 6, y: 3)
-        .zoomSource(id: zoomTransitionID, namespace: zoomNamespace)
         .task {
             guard let feed = primaryFeed else { return }
             primaryFeedIsCircleIcon = feed.isCircleIcon

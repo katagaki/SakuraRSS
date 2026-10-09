@@ -13,7 +13,6 @@ struct BrowserTabContentView: View {
     /// this body, and every page under it, whenever any tab changes.
     let location: BrowserLocation
     @State private var reporters: BrowserTabReporters
-    @Namespace private var cardZoom
 
     init(store: BrowserTabStore, slots: BrowserPageSlots, tabID: UUID, location: BrowserLocation) {
         self.store = store
@@ -26,8 +25,8 @@ struct BrowserTabContentView: View {
         let path = store.pathBinding(for: tabID)
         NavigationStack(path: path) {
             BrowserRootContentView(location: location)
-                .browserNavigationEnvironment(path: path, namespace: cardZoom)
-                .browserNavigationDestinations(path: path, namespace: cardZoom)
+                .browserNavigationEnvironment(path: path)
+                .browserNavigationDestinations(path: path)
         }
         .browserTabBar(for: tabID, in: store)
         .environment(\.browserTabID, tabID)

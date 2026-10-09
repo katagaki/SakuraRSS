@@ -8,7 +8,6 @@ struct AppearanceSettingsView: View {
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
-    @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
     @AppStorage("Display.ShowStatusBar") private var showStatusBar: Bool = true
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
     @AppStorage("Display.FeedBackground") private var feedBackgroundEnabled: Bool = true
@@ -55,15 +54,6 @@ struct AppearanceSettingsView: View {
             }
 
             contentWidthSection
-
-            #if os(visionOS)
-            Section {
-                Toggle(String(localized: "ZoomTransition", table: "Settings"),
-                       isOn: $zoomTransitionEnabled)
-            } header: {
-                Text(String(localized: "Section.Navigation", table: "Settings"))
-            }
-            #endif
 
             #if !os(visionOS)
             Section {

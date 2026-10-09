@@ -4,7 +4,6 @@ import Hanami
 struct PhotosStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -17,7 +16,6 @@ struct PhotosStyleView: View {
                 }
                 ForEach(articles) { article in
                     PhotosArticleCard(article: article)
-                        .zoomSource(id: article.id, namespace: zoomNamespace)
                         .markReadOnScroll(article: article)
                 }
                 if let onLoadMore {

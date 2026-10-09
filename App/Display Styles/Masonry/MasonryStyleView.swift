@@ -4,7 +4,6 @@ import Hanami
 struct MasonryStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -36,7 +35,6 @@ struct MasonryStyleView: View {
                             ForEach(columnArticles) { article in
                                 ArticleLink(article: article, label: {
                                     MasonryArticleCard(article: article)
-                                        .zoomSource(id: article.id, namespace: zoomNamespace)
                                         .markReadOnScroll(article: article)
                                 })
                                 .buttonStyle(.plain)

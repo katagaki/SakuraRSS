@@ -4,7 +4,6 @@ import Hanami
 struct GridStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -33,7 +32,6 @@ struct GridStyleView: View {
                     ForEach(articlesWithImages) { article in
                         ArticleLink(article: article, label: {
                             GridArticleCell(article: article)
-                                .zoomSource(id: article.id, namespace: zoomNamespace)
                                 .markReadOnScroll(article: article)
                         })
                         .buttonStyle(.plain)

@@ -4,7 +4,6 @@ import Hanami
 struct FeedStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var variant: FeedStyleVariant = .full(.carousel)
     var onLoadMore: (() -> Void)?
@@ -101,7 +100,6 @@ struct FeedStyleView: View {
                 CompactFeedArticleRow(article: article)
             }
         }
-        .zoomSource(id: article.id, namespace: zoomNamespace)
         .markReadOnScroll(article: article)
     }
 

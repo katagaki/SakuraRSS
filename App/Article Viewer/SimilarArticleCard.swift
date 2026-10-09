@@ -3,7 +3,6 @@ import Hanami
 
 struct SimilarArticleCard: View {
 
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let item: SimilarArticleItem
 
     private let cardWidth: CGFloat = 240
@@ -19,8 +18,6 @@ struct SimilarArticleCard: View {
                         .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
                 )
                 .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
-                .zoomSource(id: item.article.id, namespace: zoomNamespace)
-
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.article.title)
                     .font(.subheadline)

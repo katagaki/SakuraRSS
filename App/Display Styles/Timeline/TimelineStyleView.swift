@@ -4,7 +4,6 @@ import Hanami
 struct TimelineStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -58,7 +57,6 @@ struct TimelineStyleView: View {
                                 isLast: index == group.articles.count - 1,
                                 isFeatured: groupIndex == 0 && index == 0
                             )
-                            .zoomSource(id: article.id, namespace: zoomNamespace)
                             .markReadOnScroll(article: article)
                         }
                         .listRowBackground(Color.clear)
@@ -106,7 +104,6 @@ struct TimelineStyleView: View {
                                 isLast: index == group.articles.count - 1,
                                 isFeatured: groupIndex == 0 && index == 0
                             )
-                            .zoomSource(id: article.id, namespace: zoomNamespace)
                             .markReadOnScroll(article: article)
                             .contentShape(.rect)
                         })

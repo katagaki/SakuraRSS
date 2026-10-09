@@ -7,13 +7,11 @@ struct BrowserArticleDestinations: ViewModifier {
 
     @Environment(FeedManager.self) private var feedManager
     @Binding var path: NavigationPath
-    let namespace: Namespace.ID
 
     func body(content: Content) -> some View {
         content
             .navigationDestination(for: Article.self) { article in
                 articleDestination(article)
-                    .zoomTransition(sourceID: article.id, in: namespace)
                     .environment(\.browserPathToken, .article(article.id))
             }
             .navigationDestination(for: EphemeralArticleDestination.self) { destination in
@@ -22,7 +20,7 @@ struct BrowserArticleDestinations: ViewModifier {
                     overrideMode: destination.mode,
                     overrideTextMode: destination.textMode
                 )
-                .browserNavigationEnvironment(path: $path, namespace: namespace)
+                .browserNavigationEnvironment(path: $path)
                 .browserPage(
                     title: destination.article.title,
                     subtitle: URL(string: destination.article.url)?.host,
@@ -39,7 +37,7 @@ struct BrowserArticleDestinations: ViewModifier {
     private func articleDestination(_ article: Article) -> some View {
         let feed = feedManager.feed(forArticle: article)
         ArticleDestinationView(article: article)
-            .browserNavigationEnvironment(path: $path, namespace: namespace)
+            .browserNavigationEnvironment(path: $path)
             .browserPage(
                 title: feed?.title ?? article.displayTitle,
                 subtitle: feed == nil
@@ -53,10 +51,7 @@ struct BrowserArticleDestinations: ViewModifier {
 }
 
 extension View {
-    func browserArticleDestinations(
-        path: Binding<NavigationPath>,
-        namespace: Namespace.ID
-    ) -> some View {
-        modifier(BrowserArticleDestinations(path: path, namespace: namespace))
+    func browserArticleDestinations(path: Binding<NavigationPath>) -> some View {
+        modifier(BrowserArticleDestinations(path: path))
     }
 }

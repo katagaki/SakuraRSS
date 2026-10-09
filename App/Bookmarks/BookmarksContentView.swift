@@ -6,7 +6,6 @@ import Hanami
 struct BookmarksContentView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.zoomNamespace) private var zoomNamespace
 
     @State var bookmarkedArticles: [Article] = []
     @State private var bookmarkedArticleIDs: [Int64] = []
@@ -89,7 +88,7 @@ struct BookmarksContentView: View {
         .searchable(text: $searchText,
                     placement: .navigationBarDrawer,
                     prompt: String(localized: "Bookmarks.Search.Prompt", table: "Articles"))
-        .bookmarkCollectionDestinations(namespace: zoomNamespace)
+        .bookmarkCollectionDestinations()
         .animation(.smooth.speed(2.0), value: displayStyle)
         .animation(.smooth.speed(2.0), value: bookmarkedArticleIDs)
         .animation(.smooth.speed(2.0), value: sortOrder)
