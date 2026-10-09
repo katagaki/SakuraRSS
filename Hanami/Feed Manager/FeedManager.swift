@@ -123,6 +123,9 @@ public final class FeedManager {
 
     @ObservationIgnored public var contentOverrideCache: [Int64: CachedContentOverride] = [:]
 
+    /// Hide Read Content choices made on individual pages, keyed by `ContentPageKey`.
+    public internal(set) var pageHidesReadContent = FeedManager.loadPageHidesReadContent(from: .shared)
+
     @ObservationIgnored nonisolated(unsafe) private var userDefaultsObserver: NSObjectProtocol?
     @ObservationIgnored private var lastObservedHideReels: Bool =
         UserDefaults.standard.bool(forKey: FeedManager.hideInstagramReelsDefaultsKey)
@@ -225,6 +228,7 @@ public final class FeedManager {
                     self.unreadReelsCounts = loadedReelsCounts
                     self.lists = loadedLists
                     self.bookmarkFolders = loadedBookmarkFolders
+                    self.applyLoadedPageHidesReadContent(FeedManager.loadPageHidesReadContent(from: dbm))
                     self.pendingReadIDs.removeAll()
                     self.unflushedReadIDs.removeAll()
                     self.pendingReadDecrements.removeAll()
@@ -256,6 +260,25 @@ public final class FeedManager {
             unreadBadgeCount = newCount
         }
     }
+
+    public func bumpDataRevision() {
+        dataRevision += 1
+    }
+
+    /// Effective unread count for `feedID` after subtracting reels when the user
+    /// has the "Hide reels" Instagram setting enabled.
+    public func effectiveUnreadCount(forFeedID feedID: Int64) -> Int {
+        let raw = unreadCounts[feedID] ?? 0
+        guard raw > 0, lastObservedHideReels else { return raw }
+        let reels = unreadReelsCounts[feedID] ?? 0
+        return max(0, raw - reels)
+    }
+
+}
+
+// MARK: - Unread Counts
+
+extension FeedManager {
 
     public func decrementUnreadCount(feedID: Int64) {
         if let count = unreadCounts[feedID], count > 0 {
@@ -295,20 +318,6 @@ public final class FeedManager {
             unreadReelsCounts = newReelsCounts
         }
     }
-
-    public func bumpDataRevision() {
-        dataRevision += 1
-    }
-
-    /// Effective unread count for `feedID` after subtracting reels when the user
-    /// has the "Hide reels" Instagram setting enabled.
-    public func effectiveUnreadCount(forFeedID feedID: Int64) -> Int {
-        let raw = unreadCounts[feedID] ?? 0
-        guard raw > 0, lastObservedHideReels else { return raw }
-        let reels = unreadReelsCounts[feedID] ?? 0
-        return max(0, raw - reels)
-    }
-
 }
 
 public struct ScopedRefreshState: Hashable, Sendable {

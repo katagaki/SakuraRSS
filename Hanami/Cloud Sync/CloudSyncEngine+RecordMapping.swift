@@ -72,6 +72,9 @@ nonisolated extension CloudSyncEngine {
             case Self.listRecordType:
                 applyFetchedList(modification.record, tombstoneIDs: tombstoneIDs)
                 appliedAnything = true
+            case Self.pagePreferenceRecordType:
+                applyFetchedPagePreference(modification.record)
+                appliedAnything = true
             default:
                 break
             }
@@ -127,6 +130,10 @@ nonisolated extension CloudSyncEngine {
         }
         if Self.isListID(syncID) {
             applyRemoteListDeletion(syncID: syncID)
+            return
+        }
+        if Self.isPagePreferenceID(syncID) {
+            try? database.deletePagePreference(syncID: syncID)
             return
         }
         try? database.removeSyncTombstone(syncID: syncID)

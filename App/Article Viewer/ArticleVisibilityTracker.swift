@@ -36,14 +36,32 @@ struct ArticleVisibilityTracker {
         return result
     }
 
-    mutating func capture(from articles: [Article], isEnabled: Bool) {
+    /// Unread-only queries drop content as soon as it's read, so entries
+    /// still shown are carried over to keep the page from moving.
+    func keepingShownEntries(of previous: [ArticleIDEntry], in fresh: [ArticleIDEntry]) -> [ArticleIDEntry] {
+        guard let visibleIDs else { return fresh }
+        let freshIDs = Set(fresh.map(\.id))
+        let kept = previous.filter { visibleIDs.contains($0.id) && !freshIDs.contains($0.id) }
+        guard !kept.isEmpty else { return fresh }
+        return (fresh + kept).sorted { ($0.publishedDate ?? .distantPast) > ($1.publishedDate ?? .distantPast) }
+    }
+
+    mutating func capture(
+        from articles: [Article],
+        isEnabled: Bool,
+        isRead: (Article) -> Bool = { $0.isRead }
+    ) {
         hasReachedEnd = false
         guard isEnabled else {
             visibleIDs = nil
             return
         }
         guard !articles.isEmpty else { return }
-        visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
+        visibleIDs = Set(articles.filter { !isRead($0) }.map(\.id))
+    }
+
+    func containsReadContent(_ shownArticles: [Article], isRead: (Article) -> Bool) -> Bool {
+        visibleIDs != nil && shownArticles.contains(where: isRead)
     }
 
     @discardableResult
