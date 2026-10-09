@@ -19,7 +19,7 @@ struct BrowserStartPageMenu: View {
                       systemImage: "cloud.sun")
             }
         } label: {
-            Label(String(localized: "Tabs.More"), systemImage: "ellipsis")
+            BrowserOmniboxMenuLabel(title: String(localized: "Tabs.More"), systemImage: "ellipsis")
         }
     }
 }

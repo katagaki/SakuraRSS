@@ -15,7 +15,11 @@ struct BrowserFollowingMenu: View {
                 browsingItems
             }
         } label: {
-            Label(String(localized: actions.isEditing ? "FeedList.Edit" : "Tabs.More", table: actions.isEditing ? "Feeds" : nil), systemImage: actions.isEditing ? "pencil.circle.fill" : "ellipsis")
+            BrowserOmniboxMenuLabel(
+                title: String(localized: actions.isEditing ? "FeedList.Edit" : "Tabs.More",
+                              table: actions.isEditing ? "Feeds" : nil),
+                systemImage: actions.isEditing ? "pencil.circle.fill" : "ellipsis"
+            )
         }
     }
 

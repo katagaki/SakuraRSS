@@ -48,7 +48,7 @@ struct BrowserBookmarksMenu: View {
                 }
             }
         } label: {
-            Label(String(localized: "Tabs.More"), systemImage: "ellipsis")
+            BrowserOmniboxMenuLabel(title: String(localized: "Tabs.More"), systemImage: "ellipsis")
         }
         .menuActionDismissBehavior(.disabled)
         .menuOrder(.fixed)

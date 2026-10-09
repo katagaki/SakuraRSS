@@ -41,7 +41,7 @@ extension ArticleDetailView {
     /// Read straight off the viewer's state whenever the omnibox draws it, so
     /// nothing has to be re-sent as that state changes.
     var browserArticleMenu: some View {
-        Menu(String(localized: "Tabs.More"), systemImage: "ellipsis") {
+        Menu {
             if !article.isEphemeral {
                 Button {
                     isBookmarked.toggle()
@@ -85,6 +85,8 @@ extension ArticleDetailView {
                           systemImage: "square.and.arrow.up")
                 }
             }
+        } label: {
+            BrowserOmniboxMenuLabel(title: String(localized: "Tabs.More"), systemImage: "ellipsis")
         }
     }
 }
