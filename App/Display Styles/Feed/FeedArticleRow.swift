@@ -277,8 +277,16 @@ private extension FeedArticleRow {
     var imageOverlayTitle: String? {
         guard isLinkFeed, article.hasMeaningfulSummary, let summary = article.summary else { return nil }
         let title = article.displayTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !title.isEmpty, !summary.hasPrefix(title) else { return nil }
+        guard !title.isEmpty, !Self.summary(summary, beginsWith: title) else { return nil }
         return title
+    }
+
+    // Untitled items take their title from the description with every tag and line
+    // break stripped, while the summary keeps Markdown links, markers and line breaks.
+    static func summary(_ summary: String, beginsWith title: String) -> Bool {
+        let comparableSummary = ContentBlock.stripMarkdown(summary).filter { !$0.isWhitespace }
+        let comparableTitle = title.filter { !$0.isWhitespace }.prefix(40)
+        return comparableSummary.hasPrefix(comparableTitle)
     }
 
     var imageHeight: CGFloat {
