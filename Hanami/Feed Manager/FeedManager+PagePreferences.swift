@@ -5,6 +5,7 @@ public extension FeedManager {
     /// The global setting from before per-page preferences existed. It has no
     /// switch anymore, but pages without their own choice still follow it.
     static let legacyHideViewedContentDefaultsKey = "Articles.HideViewedContent"
+    static let pagePreferencesDidChangeNotification = Notification.Name("FeedManager.PagePreferencesDidChange")
 
     func pageKey(for feed: Feed) -> String {
         ContentPageKey.feed(url: feed.url)
@@ -30,6 +31,7 @@ public extension FeedManager {
         pageHidesReadContent[pageKey] = hidesReadContent
         try? database.saveUserPagePreference(pageKey: pageKey, hidesReadContent: hidesReadContent)
         CloudSyncEngine.shared.notePagePreferenceChanged()
+        NotificationCenter.default.post(name: Self.pagePreferencesDidChangeNotification, object: self)
     }
 
     internal nonisolated static func loadPageHidesReadContent(from database: DatabaseManager) -> [String: Bool] {
@@ -43,6 +45,7 @@ public extension FeedManager {
     internal func applyLoadedPageHidesReadContent(_ loaded: [String: Bool]) {
         if loaded != pageHidesReadContent {
             pageHidesReadContent = loaded
+            NotificationCenter.default.post(name: Self.pagePreferencesDidChangeNotification, object: self)
         }
     }
 }
