@@ -47,6 +47,7 @@ struct SakuraRSSApp: App {
                     feedManager.onBookmarkAdded = { [feedManager] article in
                         BookmarkToastManager.shared.show(article: article, feedManager: feedManager)
                     }
+                    RefreshProgressActivity.shared.start(observing: feedManager)
                     feedManager.connectCloudSync()
                     feedManager.connectProviderSessions()
                     await FeedProviderRegistry.migrateAuthenticatedCookies()
