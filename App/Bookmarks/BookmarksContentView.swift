@@ -2,8 +2,7 @@ import EnhancedNavigation
 import SwiftUI
 import Hanami
 
-/// Stackless bookmarks view used inside a parent `NavigationStack`
-/// (the Home tab and the iPad sidebar detail column).
+/// Stackless bookmarks view used inside a parent `NavigationStack`.
 struct BookmarksContentView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -20,7 +19,6 @@ struct BookmarksContentView: View {
     @AppStorage(BookmarkSortOrder.storageKey) var sortOrder: BookmarkSortOrder = .newest
     @State var scope: BookmarkSmartGroup = .unsorted
 
-    /// Sheets want an inline title; the tab and sidebar hosts want the large one.
     private let titleDisplayMode: ToolbarTitleDisplayMode
 
     var hasImages: Bool {
