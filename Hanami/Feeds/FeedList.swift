@@ -6,4 +6,5 @@ public nonisolated struct FeedList: Identifiable, Hashable, Sendable {
     public var icon: String
     public var displayStyle: String?
     public var sortOrder: Int
+    public var syncID: String?
 }
