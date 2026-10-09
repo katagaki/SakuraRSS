@@ -4,7 +4,7 @@ import Hanami
 struct FeedArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
+    @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
     @Environment(\.dismiss) var dismiss
     let feed: Feed
 
@@ -16,9 +16,9 @@ struct FeedArticlesView: View {
     @State private var preloadedEntries: [ArticleIDEntry] = []
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
-    @State private var scrollToTopTick: Int = 0
-    @State private var hasScrolledPastTitle: Bool = false
-    @State private var effectiveDisplayStyle: FeedDisplayStyle?
+    @State var scrollToTopTick: Int = 0
+    @State var hasScrolledPastTitle: Bool = false
+    @State var effectiveDisplayStyle: FeedDisplayStyle?
     @State private var prominentColors: [Color] = []
     @State private var fetchedArticles: [Article] = []
     @State private var undatedTail: [Article] = []
@@ -39,7 +39,7 @@ struct FeedArticlesView: View {
         feedManager.hidesReadContent(onPage: pageKey)
     }
 
-    private var currentFeed: Feed {
+    var currentFeed: Feed {
         feedManager.feedsByID[feed.id] ?? feed
     }
 
@@ -49,7 +49,7 @@ struct FeedArticlesView: View {
 
     private var scopeKey: String { "feed.\(feed.id)" }
 
-    private var scopedRefreshState: ScopedRefreshState {
+    var scopedRefreshState: ScopedRefreshState {
         feedManager.scopedRefreshes[scopeKey] ?? ScopedRefreshState()
     }
 
@@ -130,8 +130,9 @@ struct FeedArticlesView: View {
     }
 
     var body: some View {
+        let shownArticles = visibility.filter(rawArticles, isEnabled: hideViewedContent)
         ArticlesView(
-            articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
+            articles: shownArticles,
             title: currentFeed.title,
             subtitle: nil,
             feedKey: String(feed.id),
@@ -164,35 +165,7 @@ struct FeedArticlesView: View {
         )
         .environment(\.feedBackgroundColors, prominentColors)
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                #if os(visionOS)
-                principalTitleContent
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(height: 42)
-                    .contentShape(.rect)
-                    .onTapGesture { scrollToTopTick &+= 1 }
-                    .allowsHitTesting(showsPrincipalTitle)
-                    .opacity(showsPrincipalTitle ? 1 : 0)
-                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
-                #else
-                principalTitleContent
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(height: 44)
-                    .padding(.horizontal, 18)
-                    .compatibleGlassEffect(in: .capsule, interactive: true)
-                    .contentShape(.capsule)
-                    .onTapGesture { scrollToTopTick &+= 1 }
-                    .allowsHitTesting(showsPrincipalTitle)
-                    .opacity(showsPrincipalTitle ? 1 : 0)
-                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
-                #endif
-            }
+            principalTitleItem
         }
         .onScrollGeometryChange(for: Bool.self) { geo in
             geo.contentOffset.y > 90
@@ -222,6 +195,11 @@ struct FeedArticlesView: View {
         )
         .refreshPromptOverlay(isVisible: visibility.hasPendingRefresh) {
             acceptPendingRefresh()
+        }
+        .hideReadContentPrompt(
+            isVisible: visibility.containsReadContent(shownArticles, isRead: feedManager.isRead)
+        ) {
+            Task { await hideShownReadContent() }
         }
         .task(id: feed.id) {
             await loadProminentColors()
@@ -276,45 +254,6 @@ struct FeedArticlesView: View {
 
 extension FeedArticlesView {
 
-    var styleSupportsRichHeader: Bool {
-        effectiveDisplayStyle?.supportsRichHeader ?? true
-    }
-
-    var showsPrincipalTitle: Bool {
-        !isBrowserChromeActive && (!styleSupportsRichHeader || hasScrolledPastTitle)
-    }
-
-    @ViewBuilder
-    var principalTitleContent: some View {
-        if scopedRefreshState.isStopping {
-            Text(String(localized: "Refresh.Stopping", table: "Home"))
-                .font(.subheadline)
-                .fontWeight(.semibold)
-        } else {
-            #if os(visionOS)
-            VStack(alignment: .leading, spacing: 0) {
-                feedTitleAndDomain
-            }
-            #else
-            VStack(spacing: 0) {
-                feedTitleAndDomain
-            }
-            #endif
-        }
-    }
-
-    @ViewBuilder
-    private var feedTitleAndDomain: some View {
-        Text(currentFeed.title)
-            .font(.subheadline)
-            .fontWeight(.semibold)
-        if !currentFeed.domain.isEmpty {
-            Text(currentFeed.domain)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
-    }
-
     func reloadPreloadedEntries(keepingShownContent: Bool = false) async {
         let entries = await feedManager.preloadedArticleEntriesAsync(
             for: feed,
@@ -363,6 +302,18 @@ extension FeedArticlesView {
     func acceptPendingRefresh() {
         withAnimation(.smooth.speed(2.0)) {
             visibility.acceptPendingRefresh()
+        }
+        scrollToTopTick &+= 1
+    }
+
+    func hideShownReadContent() async {
+        feedManager.flushDebouncedReads()
+        await reloadPreloadedEntries()
+        loadedSinceDate = batchingMode.initialSinceDate(latestArticleDate: latestArticleDateForFeed())
+        loadedCount = batchingMode.initialCount()
+        refreshWindowedArticles()
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent, isRead: feedManager.isRead)
         }
         scrollToTopTick &+= 1
     }

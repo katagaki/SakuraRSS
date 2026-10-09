@@ -46,14 +46,22 @@ struct ArticleVisibilityTracker {
         return (fresh + kept).sorted { ($0.publishedDate ?? .distantPast) > ($1.publishedDate ?? .distantPast) }
     }
 
-    mutating func capture(from articles: [Article], isEnabled: Bool) {
+    mutating func capture(
+        from articles: [Article],
+        isEnabled: Bool,
+        isRead: (Article) -> Bool = { $0.isRead }
+    ) {
         hasReachedEnd = false
         guard isEnabled else {
             visibleIDs = nil
             return
         }
         guard !articles.isEmpty else { return }
-        visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
+        visibleIDs = Set(articles.filter { !isRead($0) }.map(\.id))
+    }
+
+    func containsReadContent(_ shownArticles: [Article], isRead: (Article) -> Bool) -> Bool {
+        visibleIDs != nil && shownArticles.contains(where: isRead)
     }
 
     @discardableResult

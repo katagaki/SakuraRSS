@@ -168,8 +168,9 @@ struct HomeSectionView: View {
     }
 
     var body: some View {
+        let shownArticles = visibility.filter(rawArticles, isEnabled: hideViewedContent)
         ArticlesView(
-            articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
+            articles: shownArticles,
             title: title,
             feedKey: feedKey,
             isVideoFeed: isVideoSection,
@@ -190,6 +191,11 @@ struct HomeSectionView: View {
         .environment(\.articleListBottomInset, markAllReadBottomInset)
         .overlay(alignment: .bottom) {
             markAllReadPill
+        }
+        .hideReadContentPrompt(
+            isVisible: visibility.containsReadContent(shownArticles, isRead: feedManager.isRead)
+        ) {
+            Task { await hideShownReadContent() }
         }
         .id(source)
         .trackArticleVisibility(
@@ -289,6 +295,18 @@ extension HomeSectionView {
         withAnimation(.smooth.speed(2.0)) {
             isMarkReadPillVisible = shouldShow
         }
+    }
+
+    func hideShownReadContent() async {
+        feedManager.flushDebouncedReads()
+        await reloadPreloadedEntries()
+        loadedSinceDate = batchingMode.initialSinceDate(latestArticleDate: latestArticleDate())
+        loadedCount = batchingMode.initialCount()
+        refreshWindowedArticles()
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent, isRead: feedManager.isRead)
+        }
+        scrollToTopTick &+= 1
     }
 
     func acceptPendingRefresh() {
