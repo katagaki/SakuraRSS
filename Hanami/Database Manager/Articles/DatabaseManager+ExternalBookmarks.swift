@@ -3,6 +3,12 @@ import Foundation
 
 public nonisolated extension DatabaseManager {
 
+    /// Articles that belong to a feed. Pages saved from outside the app are
+    /// stored with no feed and must stay out of content lists and unread counts.
+    var feedArticles: Table {
+        articles.filter(articleFeedID != 0)
+    }
+
     /// Saves an externally shared link into Bookmarks. Reuses an existing
     /// article row when the URL is already known, otherwise inserts a
     /// feed-less article dated now so it surfaces at the top of Bookmarks.
