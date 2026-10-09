@@ -44,6 +44,9 @@ struct SelectableText: UIViewRepresentable {
         context.coordinator.renderedText = text
         context.coordinator.renderedFont = font
         context.coordinator.renderedTextColor = textColor
+        if RubyMarkup.containsRuby(text) {
+            context.coordinator.rubyLineBreakGuard.install(on: textView.textLayoutManager)
+        }
         textView.attributedText = buildAttributedString()
         context.coordinator.measuredHeights.removeAll()
         textView.invalidateIntrinsicContentSize()
@@ -76,6 +79,7 @@ struct SelectableText: UIViewRepresentable {
         var renderedFont: UIFont?
         var renderedTextColor: UIColor?
         var measuredHeights: [CGFloat: CGFloat] = [:]
+        let rubyLineBreakGuard = RubyLineBreakGuard()
 
         init(onLinkTap: ((URL) -> Void)?) {
             self.onLinkTap = onLinkTap

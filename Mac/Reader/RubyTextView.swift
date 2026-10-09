@@ -25,6 +25,7 @@ struct RubyTextView: NSViewRepresentable {
         textView.isVerticallyResizable = false
         textView.isHorizontallyResizable = false
         textView.delegate = context.coordinator
+        context.coordinator.rubyLineBreakGuard.install(on: textView.textLayoutManager)
         return textView
     }
 
@@ -96,6 +97,7 @@ struct RubyTextView: NSViewRepresentable {
     final class Coordinator: NSObject, NSTextViewDelegate {
         var renderedText: String?
         var openURL: OpenURLAction?
+        let rubyLineBreakGuard = RubyLineBreakGuard()
 
         func textView(_ textView: NSTextView, clickedOnLink link: Any, at charIndex: Int) -> Bool {
             guard let url = link as? URL, let openURL else { return false }
