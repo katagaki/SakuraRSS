@@ -4,6 +4,7 @@ struct TodayWeatherSettingsSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @AppStorage(TodayWeatherService.enabledKey) private var isWeatherEnabled: Bool = true
+    @AppStorage("Today.Weather.GraphMode") private var graphMode: WeatherGraphMode = .temperature
     @State private var locationName: String = ""
     private let weatherService = TodayWeatherService.shared
 
@@ -23,6 +24,17 @@ struct TodayWeatherSettingsSheet: View {
                                 String(localized: "TodayWeather.Settings.Location", table: "Home"),
                                 value: locationName
                             )
+                        }
+                    }
+
+                    Section {
+                        Picker(
+                            String(localized: "TodayWeather.Settings.Background", table: "Home"),
+                            selection: $graphMode
+                        ) {
+                            ForEach(WeatherGraphMode.allCases) { mode in
+                                Label(mode.title, systemImage: mode.symbol).tag(mode)
+                            }
                         }
                     }
                 }
