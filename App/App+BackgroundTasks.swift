@@ -14,15 +14,7 @@ extension SakuraRSSApp {
     }
 
     nonisolated private func registerLaunchHandlers(cloudBackupTaskID: String) {
-        for category in BackgroundRefreshCategory.allCases {
-            BGTaskScheduler.shared.register(
-                forTaskWithIdentifier: category.taskID,
-                using: nil
-            ) { task in
-                guard let task = task as? BGAppRefreshTask else { return }
-                self.handleAppRefresh(category: category, task: task)
-            }
-        }
+        registerAppRefreshHandlers()
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: cloudBackupTaskID,
             using: nil
@@ -56,101 +48,6 @@ extension SakuraRSSApp {
         )
     }
 
-    /// Submits a `BGAppRefreshTaskRequest` per category so each one gets its
-    /// own ~30s budget. All categories share the same user-configured interval.
-    nonisolated func scheduleAppRefresh() {
-        let isEnabled = UserDefaults.standard.object(forKey: "BackgroundRefresh.Enabled") as? Bool ?? true
-        guard isEnabled else {
-            for category in BackgroundRefreshCategory.allCases {
-                BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: category.taskID)
-            }
-            return
-        }
-        let refreshInterval = UserDefaults.standard.integer(forKey: "BackgroundRefresh.Interval")
-        let minutes = refreshInterval > 0 ? refreshInterval : 240
-        let base = Date(timeIntervalSinceNow: TimeInterval(minutes * 60))
-        for (index, category) in BackgroundRefreshCategory.allCases.enumerated() {
-            let earliest = base.addingTimeInterval(TimeInterval(index * 2 * 60))
-            let request = BGAppRefreshTaskRequest(identifier: category.taskID)
-            request.earliestBeginDate = earliest
-            do {
-                try BGTaskScheduler.shared.submit(request)
-                log("BackgroundRefresh", "submit success category=\(category.rawValue) scheduledAt=\(earliest)")
-            } catch {
-                log("BackgroundRefresh", "submit failed category=\(category.rawValue) error=\(Self.describe(error))")
-            }
-        }
-    }
-
-    nonisolated func handleAppRefresh(
-        category: BackgroundRefreshCategory,
-        task: BGAppRefreshTask
-    ) {
-        scheduleAppRefresh()
-        log("BackgroundRefresh", "handleAppRefresh begin category=\(category.rawValue)")
-
-        let completion = BackgroundTaskCompletion(task: task)
-
-        if ProcessInfo.processInfo.isLowPowerModeEnabled {
-            log("BackgroundRefresh", "skipping category=\(category.rawValue): Low Power Mode is on")
-            completion.complete(success: true)
-            return
-        }
-
-        let refreshTask = Task {
-            let pathExpensive = await NetworkMonitor.currentPathIsExpensive() ?? true
-            let skipImageFetch = Self.resolveSkipImageFetch(pathExpensive: pathExpensive)
-            // Gate image preload on plugged-in + Wi-Fi so it only runs during overnight charging.
-            let pluggedIn = await Self.deviceIsPluggedIn()
-            let skipImagePreload = pathExpensive || !pluggedIn
-
-            let manager = await MainActor.run { FeedManager.forBackgroundRefresh() }
-            let latestArticleIDBefore = DatabaseManager.shared.latestArticleID()
-            await manager.refreshFeeds(
-                in: category,
-                skipImageFetch: skipImageFetch,
-                skipImagePreload: skipImagePreload
-            )
-            if Task.isCancelled { return }
-            await MainActor.run { manager.reloadUnreadCounts() }
-            manager.updateBadgeCount()
-            guard DatabaseManager.shared.latestArticleID() != latestArticleIDBefore else {
-                log("BackgroundRefresh", "no new articles category=\(category.rawValue), skipping widget reload")
-                return
-            }
-            WidgetCenter.shared.reloadAllTimelines()
-        }
-
-        task.expirationHandler = {
-            log("BackgroundRefresh", "handleAppRefresh expired category=\(category.rawValue)")
-            refreshTask.cancel()
-            completion.complete(success: false)
-        }
-
-        Task {
-            _ = await refreshTask.value
-            log(
-                "BackgroundRefresh",
-                "handleAppRefresh end category=\(category.rawValue) cancelled=\(refreshTask.isCancelled)"
-            )
-            completion.complete(success: !refreshTask.isCancelled)
-        }
-    }
-
-    nonisolated private static func resolveSkipImageFetch(pathExpensive: Bool) -> Bool {
-        // nil probe means "assume expensive" so we default to the safer behavior.
-        let imageFetchModeRaw = UserDefaults.standard.string(
-            forKey: "BackgroundRefresh.ImageFetchMode"
-        )
-        let imageFetchMode = imageFetchModeRaw
-            .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
-        switch imageFetchMode {
-        case .always: return false
-        case .wifiOnly: return pathExpensive
-        case .off: return true
-        }
-    }
-
     nonisolated static func describe(_ error: Error) -> String {
         let nsError = error as NSError
         if nsError.domain == BGTaskScheduler.errorDomain,
@@ -164,20 +61,6 @@ extension SakuraRSSApp {
             }
         }
         return "\(nsError.domain):\(nsError.code) \(nsError.localizedDescription)"
-    }
-
-    nonisolated private static func deviceIsPluggedIn() async -> Bool {
-        await MainActor.run { () -> Bool in
-            let device = UIDevice.current
-            let wasMonitoring = device.isBatteryMonitoringEnabled
-            device.isBatteryMonitoringEnabled = true
-            defer { device.isBatteryMonitoringEnabled = wasMonitoring }
-            switch device.batteryState {
-            case .charging, .full: return true
-            case .unplugged, .unknown: return false
-            @unknown default: return false
-            }
-        }
     }
 
     /// Submits a `BGProcessingTaskRequest` for the iCloud backup; requires
@@ -318,6 +201,7 @@ nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {
 
     init(task: BGTask) {
         self.task = task
+        DatabaseSuspensionGate.shared.beginActivity()
     }
 
     func complete(success: Bool) {
@@ -328,7 +212,11 @@ nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {
         }
         didComplete = true
         lock.unlock()
-        LogManager.shared.flush()
-        task.setTaskCompleted(success: success)
+        let task = task
+        DispatchQueue.global(qos: .userInitiated).async {
+            DatabaseSuspensionGate.shared.endActivity()
+            LogManager.shared.flush()
+            task.setTaskCompleted(success: success)
+        }
     }
 }

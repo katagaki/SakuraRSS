@@ -15,7 +15,7 @@ struct TodayRecentContentSection: View {
                 section
             }
         }
-        .task(id: revisions.dataRevision) {
+        .task(id: revisions.dataRevision + revisions.recentsRevision) {
             let unread = feedManager.articles(limit: 6, requireUnread: true)
             articles = unread.isEmpty ? feedManager.articles(limit: 6) : unread
         }

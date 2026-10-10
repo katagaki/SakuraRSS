@@ -172,78 +172,8 @@ public extension FeedManager {
         return nil
     }
 
-    // MARK: - Read / Bookmark State
-
-    func markRead(_ article: Article) {
-        try? database.updateLastAccessed(articleID: article.id)
-        // Reopened read content only moves up the recents; the read mask re-evaluates every row.
-        guard !isSettledAsRead(article) else {
-            bumpDataRevision()
-            return
-        }
-        let wasRead = isRead(article)
-        stagedReadChanges[article.id] = true
-        cancelPendingScrollRead(for: article)
-        try? database.markArticleRead(id: article.id, read: true)
-        if !wasRead {
-            adjustUnreadCount(for: article, delta: -1)
-        }
-        applyReadChangeToCachedArticle(id: article.id, isRead: true)
-        readMaskRevision += 1
-        bumpDataRevision()
-        updateBadgeCount()
-    }
-
-    func toggleRead(_ article: Article) {
-        let newState = !isRead(article)
-        stagedReadChanges[article.id] = newState
-        cancelPendingScrollRead(for: article)
-        try? database.markArticleRead(id: article.id, read: newState)
-        adjustUnreadCount(for: article, delta: newState ? -1 : 1)
-        applyReadChangeToCachedArticle(id: article.id, isRead: newState)
-        readMaskRevision += 1
-        updateBadgeCount()
-    }
-
-    func toggleBookmark(_ article: Article) {
-        let newState = !isBookmarked(article)
-        stagedBookmarkChanges[article.id] = newState
-        try? database.toggleBookmark(id: article.id)
-        applyBookmarkChangeToCachedArticle(id: article.id, isBookmarked: newState)
-        readMaskRevision += 1
-        bumpDataRevision()
-        if newState {
-            onBookmarkAdded?(article)
-        }
-    }
-
-    private func applyReadChangeToCachedArticle(id: Int64, isRead: Bool) {
-        guard let index = articles.firstIndex(where: { $0.id == id }) else { return }
-        articles[index].isRead = isRead
-    }
-
-    private func applyBookmarkChangeToCachedArticle(id: Int64, isBookmarked: Bool) {
-        guard let index = articles.firstIndex(where: { $0.id == id }) else { return }
-        articles[index].isBookmarked = isBookmarked
-    }
-
-    /// Applies an unflushed scroll-read's pending unread decrement now, before the
-    /// caller toggles read state, so `markRead`/`toggleRead`'s delta isn't dropped
-    /// or double-counted.
-    private func cancelPendingScrollRead(for article: Article) {
-        pendingReadIDs.remove(article.id)
-        guard unflushedReadIDs.remove(article.id) != nil else { return }
-        if let count = pendingReadDecrements[article.feedID], count > 0 {
-            pendingReadDecrements[article.feedID] = count - 1
-        }
-        if article.url.contains("/reel/"),
-           let count = pendingReadReelsDecrements[article.feedID], count > 0 {
-            pendingReadReelsDecrements[article.feedID] = count - 1
-        }
-        adjustUnreadCount(for: article, delta: -1)
-    }
-
     func markAllRead(feed: Feed) {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         try? database.markAllRead(feedID: feed.id)
         Task { await loadFromDatabaseInBackground(animated: true) }
@@ -251,6 +181,7 @@ public extension FeedManager {
     }
 
     func markAllRead() {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         try? database.markAllRead()
         Task { await loadFromDatabaseInBackground(animated: true) }
@@ -258,6 +189,7 @@ public extension FeedManager {
     }
 
     func markAllUnread() {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         try? database.markAllUnread()
         Task { await loadFromDatabaseInBackground(animated: true) }
@@ -358,6 +290,7 @@ public extension FeedManager {
     }
 
     func markAllRead(forTopic topic: String) {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         let ids = preloadedArticleEntries(forTopic: topic).map(\.id)
         guard !ids.isEmpty else { return }
@@ -367,6 +300,7 @@ public extension FeedManager {
     }
 
     func markAllRead(for section: FeedSection) {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         let sectionFeeds = feeds.filter { $0.feedSection == section }
         for feed in sectionFeeds {

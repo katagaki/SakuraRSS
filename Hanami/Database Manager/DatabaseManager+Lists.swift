@@ -19,11 +19,11 @@ public nonisolated extension DatabaseManager {
     }
 
     func allLists() throws -> [FeedList] {
-        try database.prepare(lists.order(listSortOrder.asc, listName.asc)).map(rowToList)
+        try readDatabase.prepare(lists.order(listSortOrder.asc, listName.asc)).map(rowToList)
     }
 
     func list(byID id: Int64) throws -> FeedList? {
-        guard let row = try database.pluck(lists.filter(listID == id)) else { return nil }
+        guard let row = try readDatabase.pluck(lists.filter(listID == id)) else { return nil }
         return rowToList(row)
     }
 
@@ -68,33 +68,29 @@ public nonisolated extension DatabaseManager {
     }
 
     func feedIDs(forListID lid: Int64) throws -> [Int64] {
-        try database.prepare(
+        try readDatabase.prepare(
             listFeeds.filter(listFeedListID == lid).select(listFeedFeedID)
         ).map { $0[listFeedFeedID] }
     }
 
+    func allListFeedIDs() throws -> [Int64: Set<Int64>] {
+        var membership: [Int64: Set<Int64>] = [:]
+        for row in try readDatabase.prepare(listFeeds.select(listFeedListID, listFeedFeedID)) {
+            membership[row[listFeedListID], default: []].insert(row[listFeedFeedID])
+        }
+        return membership
+    }
+
     func listIDs(forFeedID fid: Int64) throws -> [Int64] {
-        try database.prepare(
+        try readDatabase.prepare(
             listFeeds.filter(listFeedFeedID == fid).select(listFeedListID)
         ).map { $0[listFeedListID] }
-    }
-
-    func feedCount(forListID lid: Int64) throws -> Int {
-        try database.scalar(listFeeds.filter(listFeedListID == lid).count)
-    }
-
-    func listsContainingFeed(feedID fid: Int64) throws -> [FeedList] {
-        let ids = try listIDs(forFeedID: fid)
-        guard !ids.isEmpty else { return [] }
-        return try database.prepare(
-            lists.filter(ids.contains(listID)).order(listSortOrder.asc)
-        ).map(rowToList)
     }
 
     // MARK: - List Rules CRUD
 
     func listRules(forListID lid: Int64, type: String) throws -> [String] {
-        try database.prepare(
+        try readDatabase.prepare(
             listRules
                 .filter(listRuleListID == lid && listRuleType == type)
                 .order(listRuleValue.asc)
@@ -106,7 +102,7 @@ public nonisolated extension DatabaseManager {
         let query = listRules
             .filter(listRuleListID == lid)
             .order(listRuleValue.asc)
-        for row in try database.prepare(query) {
+        for row in try readDatabase.prepare(query) {
             result[row[listRuleType], default: []].append(row[listRuleValue])
         }
         return result

@@ -12,11 +12,15 @@ final class WindowDataRevisions {
     private(set) var dataRevision = 0
     /// Read and bookmark state, and unread counts.
     private(set) var readStateRevision = 0
+    /// Recently opened content.
+    private(set) var recentsRevision = 0
 
     @ObservationIgnored private var hasPendingData = false
     @ObservationIgnored private var hasPendingReadState = false
+    @ObservationIgnored private var hasPendingRecents = false
     @ObservationIgnored private var dataObserver: ChangeObserver?
     @ObservationIgnored private var readStateObserver: ChangeObserver?
+    @ObservationIgnored private var recentsObserver: ChangeObserver?
     @ObservationIgnored nonisolated(unsafe) private var occlusionObserver: NSObjectProtocol?
     @ObservationIgnored private weak var window: NSWindow?
 
@@ -32,6 +36,11 @@ final class WindowDataRevisions {
             _ = (feedManager.unreadCounts, feedManager.unreadReelsCounts)
         } onChange: { [weak self] in
             self?.readStateDidChange()
+        }
+        recentsObserver = ChangeObserver {
+            _ = feedManager.recentsRevision
+        } onChange: { [weak self] in
+            self?.recentsDidChange()
         }
     }
 
@@ -57,6 +66,7 @@ final class WindowDataRevisions {
     func cancel() {
         dataObserver?.cancel()
         readStateObserver?.cancel()
+        recentsObserver?.cancel()
     }
 
     private var isWindowVisible: Bool {
@@ -80,6 +90,14 @@ final class WindowDataRevisions {
         }
     }
 
+    private func recentsDidChange() {
+        if isWindowVisible {
+            recentsRevision += 1
+        } else {
+            hasPendingRecents = true
+        }
+    }
+
     private func deliverPendingChangesIfVisible() {
         guard isWindowVisible else { return }
         if hasPendingData {
@@ -89,6 +107,10 @@ final class WindowDataRevisions {
         if hasPendingReadState {
             hasPendingReadState = false
             readStateRevision += 1
+        }
+        if hasPendingRecents {
+            hasPendingRecents = false
+            recentsRevision += 1
         }
     }
 }

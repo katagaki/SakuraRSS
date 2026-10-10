@@ -10,6 +10,8 @@ public final class FeedManager {
     public var feeds: [Feed] = []
     public var articles: [Article] = []
     public var lists: [FeedList] = []
+    /// Feed IDs per list ID, loaded with `lists` so rows don't query membership on render.
+    public internal(set) var listFeedIDs: [Int64: Set<Int64>] = [:]
     public var bookmarkFolders: [BookmarkFolder] = []
     public var isLoading = false
     public var isStopping = false
@@ -90,6 +92,13 @@ public final class FeedManager {
     /// count unchanged does not invalidate the observer.
     public private(set) var unreadBadgeCount: Int = 0
     public private(set) var iconRevision: Int = 0
+    /// Bumped when content is opened, so only recents reload instead of every list.
+    public internal(set) var recentsRevision: Int = 0
+
+    /// Changes with either `dataRevision` or `recentsRevision`, for views that show recents.
+    public var dataAndRecentsRevision: Int {
+        dataRevision + recentsRevision
+    }
     public private(set) var unreadCounts: [Int64: Int] = [:]
     /// Per-Instagram-feed count of unread articles that are reels.
     /// Subtracted from `unreadCounts` when the user has hidden reels.
@@ -111,6 +120,8 @@ public final class FeedManager {
     @ObservationIgnored public var stagedReadChanges: [Int64: Bool] = [:]
     /// Same staging mechanism for bookmark state, consulted by `isBookmarked`.
     @ObservationIgnored public var stagedBookmarkChanges: [Int64: Bool] = [:]
+    @ObservationIgnored var articleStateWriteGeneration = 0
+    @ObservationIgnored var articleStateWriteGenerations: [Int64: Int] = [:]
     /// Fired after a bookmark is added (not removed), so the app can confirm the action.
     @ObservationIgnored public var onBookmarkAdded: ((Article) -> Void)?
     public var readMaskRevision: Int = 0
@@ -170,20 +181,20 @@ public final class FeedManager {
     }
 
     public func loadFromDatabase() {
+        let settledGeneration = waitForArticleStateWrites()
         do {
             feeds = try database.allFeeds()
             feedsByID = Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) })
             articles = try database.allArticlesList(limit: 200)
             reloadUnreadCounts()
             lists = (try? database.allLists()) ?? []
+            listFeedIDs = (try? database.allListFeedIDs()) ?? [:]
             bookmarkFolders = (try? database.allBookmarkFolders()) ?? []
             pendingReadIDs.removeAll()
             unflushedReadIDs.removeAll()
             pendingReadDecrements.removeAll()
             pendingReadReelsDecrements.removeAll()
-            let freshArticleIDs = Set(articles.map(\.id))
-            stagedReadChanges = stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
-            stagedBookmarkChanges = stagedBookmarkChanges.filter { !freshArticleIDs.contains($0.key) }
+            pruneStagedChanges(loadedArticleIDs: Set(articles.map(\.id)), settledGeneration: settledGeneration)
             readMaskRevision += 1
             dataRevision += 1
         } catch {
@@ -200,15 +211,10 @@ public final class FeedManager {
 
     public func loadFromDatabaseInBackground(animated: Bool = false) async {
         let dbm = database
+        let settledGeneration = await articleStateWritesFinished()
         do {
-            let (
-                loadedFeeds,
-                loadedArticles,
-                loadedUnreadCounts,
-                loadedReelsCounts,
-                loadedLists,
-                loadedBookmarkFolders
-            ) = try await Task.detached {
+            let (loadedFeeds, loadedArticles, loadedUnreadCounts, loadedReelsCounts,
+                 loadedLists, loadedListFeedIDs, loadedBookmarkFolders) = try await Task.detached {
                 let feeds = try dbm.allFeeds()
                 let articles = try dbm.allArticlesList(limit: 200)
                 let rawUnreadCounts = (try? dbm.allUnreadCounts()) ?? [:]
@@ -216,8 +222,9 @@ public final class FeedManager {
                 let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
                 let reelsCounts = (try? dbm.unreadReelsCounts(forFeedIDs: instagramFeedIDs)) ?? [:]
                 let lists = (try? dbm.allLists()) ?? []
+                let listFeedIDs = (try? dbm.allListFeedIDs()) ?? [:]
                 let bookmarkFolders = (try? dbm.allBookmarkFolders()) ?? []
-                return (feeds, articles, unreadCounts, reelsCounts, lists, bookmarkFolders)
+                return (feeds, articles, unreadCounts, reelsCounts, lists, listFeedIDs, bookmarkFolders)
             }.value
             await MainActor.run {
                 let apply = {
@@ -227,15 +234,17 @@ public final class FeedManager {
                     self.unreadCounts = loadedUnreadCounts
                     self.unreadReelsCounts = loadedReelsCounts
                     self.lists = loadedLists
+                    self.listFeedIDs = loadedListFeedIDs
                     self.bookmarkFolders = loadedBookmarkFolders
                     self.applyLoadedPageHidesReadContent(FeedManager.loadPageHidesReadContent(from: dbm))
                     self.pendingReadIDs.removeAll()
                     self.unflushedReadIDs.removeAll()
                     self.pendingReadDecrements.removeAll()
                     self.pendingReadReelsDecrements.removeAll()
-                    let freshArticleIDs = Set(loadedArticles.map(\.id))
-                    self.stagedReadChanges = self.stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
-                    self.stagedBookmarkChanges = self.stagedBookmarkChanges.filter { !freshArticleIDs.contains($0.key) }
+                    self.pruneStagedChanges(
+                        loadedArticleIDs: Set(loadedArticles.map(\.id)),
+                        settledGeneration: settledGeneration
+                    )
                     self.readMaskRevision += 1
                     self.dataRevision += 1
                 }

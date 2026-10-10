@@ -25,11 +25,12 @@ struct ArticleDestinationView: View {
         self.overrideTextMode = overrideTextMode
     }
 
+    @State private var rawArticleCache = RawArticleCache()
+
     /// The article without Content Overrides applied. Lists override the display, but the
     /// viewer always reads the original RSS fields straight from the DB.
     private var rawArticle: Article {
-        guard !article.isEphemeral else { return article }
-        return feedManager.article(byID: article.id) ?? article
+        rawArticleCache.article(for: article, feedManager: feedManager)
     }
 
     private var effectiveOpenMode: FeedOpenMode {
@@ -81,5 +82,23 @@ struct ArticleDestinationView: View {
                 ephemeralTextMode: article.isEphemeral ? overrideTextMode : nil
             )
         }
+    }
+}
+
+/// Reads the full row once per item and data revision instead of on every body evaluation.
+private final class RawArticleCache {
+    private var cachedArticle: Article?
+    private var cachedRevision: Int?
+
+    func article(for article: Article, feedManager: FeedManager) -> Article {
+        guard !article.isEphemeral else { return article }
+        let revision = feedManager.dataRevision
+        if let cachedArticle, cachedArticle.id == article.id, cachedRevision == revision {
+            return cachedArticle
+        }
+        let resolved = feedManager.article(byID: article.id) ?? article
+        cachedArticle = resolved
+        cachedRevision = revision
+        return resolved
     }
 }

@@ -13,7 +13,7 @@ struct TodayCardsColumn: View {
             TodayCardSections(model: model, feedManager: feedManager, actions: actions)
                 .padding(.vertical, 24)
         }
-        .task(id: revisions.dataRevision) {
+        .task(id: revisions.dataRevision + revisions.recentsRevision) {
             await model.load(feeds: feedManager.feeds)
         }
     }

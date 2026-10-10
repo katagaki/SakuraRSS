@@ -8,56 +8,66 @@ struct MiniPlayerBar: View {
 
     @Environment(FeedManager.self) var feedManager
     private let audioPlayer = AudioPlayer.shared
+    @State private var article: Article?
 
     var body: some View {
-        if let articleID = audioPlayer.currentArticleID,
-           let article = feedManager.article(byID: articleID) {
-            HStack(spacing: 12) {
-                artwork(for: article)
-                    .frame(width: 32, height: 32)
-                    .clipShape(.rect(cornerRadius: 6))
-                    .padding(.leading, 4)
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(audioPlayer.currentEpisodeTitle ?? article.title)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .lineLimit(1)
-                        .foregroundStyle(.primary)
-                    if let feedTitle = audioPlayer.currentFeedTitle {
-                        Text(feedTitle)
-                            .font(.caption)
-                            .lineLimit(1)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                Spacer(minLength: 8)
-
-                Button {
-                    audioPlayer.togglePlayPause()
-                } label: {
-                    Image(systemName: audioPlayer.isPlaying
-                          ? "pause.fill"
-                          : "play.fill")
-                        .font(.title3)
-                        .frame(width: 32, height: 32)
-                        .contentShape(.rect)
-                }
-                .buttonStyle(.plain)
-
-                Button {
-                    audioPlayer.stop()
-                } label: {
-                    Image(systemName: "stop.fill")
-                        .font(.title3)
-                        .frame(width: 32, height: 32)
-                        .contentShape(.rect)
-                }
-                .buttonStyle(.plain)
+        // Not a Group: it forwards .task to its children, so the load would never run while empty.
+        VStack(spacing: 0) {
+            if let article, article.id == audioPlayer.currentArticleID {
+                bar(for: article)
             }
-            .padding(.horizontal, 12)
         }
+        .task(id: audioPlayer.currentArticleID) {
+            article = audioPlayer.currentArticleID.flatMap { feedManager.listArticle(byID: $0) }
+        }
+    }
+
+    private func bar(for article: Article) -> some View {
+        HStack(spacing: 12) {
+            artwork(for: article)
+                .frame(width: 32, height: 32)
+                .clipShape(.rect(cornerRadius: 6))
+                .padding(.leading, 4)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(audioPlayer.currentEpisodeTitle ?? article.title)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
+                    .foregroundStyle(.primary)
+                if let feedTitle = audioPlayer.currentFeedTitle {
+                    Text(feedTitle)
+                        .font(.caption)
+                        .lineLimit(1)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Spacer(minLength: 8)
+
+            Button {
+                audioPlayer.togglePlayPause()
+            } label: {
+                Image(systemName: audioPlayer.isPlaying
+                      ? "pause.fill"
+                      : "play.fill")
+                    .font(.title3)
+                    .frame(width: 32, height: 32)
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+
+            Button {
+                audioPlayer.stop()
+            } label: {
+                Image(systemName: "stop.fill")
+                    .font(.title3)
+                    .frame(width: 32, height: 32)
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
     }
 
     @ViewBuilder
@@ -67,7 +77,7 @@ struct MiniPlayerBar: View {
                 RoundedRectangle(cornerRadius: 6)
                     .fill(.secondary.opacity(0.15))
             }
-            .aspectRatio(contentMode: .fill)
+            .scaledToFill()
         } else {
             RoundedRectangle(cornerRadius: 6)
                 .fill(.secondary.opacity(0.15))

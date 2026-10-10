@@ -47,6 +47,7 @@ struct SakuraRSSApp: App {
                     feedManager.onBookmarkAdded = { [feedManager] article in
                         BookmarkToastManager.shared.show(article: article, feedManager: feedManager)
                     }
+                    RefreshProgressActivity.shared.start(observing: feedManager)
                     feedManager.connectCloudSync()
                     feedManager.connectProviderSessions()
                     await FeedProviderRegistry.migrateAuthenticatedCookies()
@@ -76,8 +77,19 @@ struct SakuraRSSApp: App {
                     LogManager.shared.flush()
                 }
                 .onReceive(
+                    NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+                ) { _ in
+                    AppSuspensionCoordinator.shared.appDidEnterForeground()
+                }
+                .onReceive(
+                    NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
+                ) { _ in
+                    AppSuspensionCoordinator.shared.appDidEnterBackground()
+                }
+                .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
+                    AppSuspensionCoordinator.shared.appDidEnterForeground()
                     feedManager.updateBadgeCount()
                     feedManager.reloadRefreshTimestampsFromDefaults()
                     feedManager.reloadFocusFromDefaults()
