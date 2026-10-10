@@ -16,7 +16,8 @@ extension SakuraRSSApp {
     ].map { "com.tsubuzaki.SakuraRSS.RefreshFeeds.\($0)" }
 
     /// Requests time out after 60s, so one slow feed would otherwise hold the
-    /// task until the system expires it.
+    /// task until the system expires it. Feeds cut off here count as attempted,
+    /// so they don't trigger a continuation run.
     nonisolated private static let appRefreshHardLimit: Duration = .seconds(25)
 
     nonisolated func registerAppRefreshHandlers() {
@@ -71,10 +72,7 @@ extension SakuraRSSApp {
             let options = await Self.backgroundImageOptions()
             let manager = await MainActor.run { FeedManager.forBackgroundRefresh() }
             let latestArticleIDBefore = DatabaseManager.shared.latestArticleID()
-            let deferredCount = await manager.refreshFeedsInBackground(
-                skipImageFetch: options.skipImageFetch,
-                skipImagePreload: options.skipImagePreload
-            )
+            let deferredCount = await Self.refreshFeedsWithinHardLimit(manager, options: options)
             if Task.isCancelled { return deferredCount }
             await MainActor.run { manager.reloadUnreadCounts() }
             manager.updateBadgeCount()
@@ -86,13 +84,6 @@ extension SakuraRSSApp {
             return deferredCount
         }
 
-        let watchdog = Task {
-            try? await Task.sleep(for: Self.appRefreshHardLimit)
-            guard !Task.isCancelled else { return }
-            log("BackgroundRefresh", "handleAppRefresh hit time limit")
-            refreshTask.cancel()
-        }
-
         task.expirationHandler = {
             log("BackgroundRefresh", "handleAppRefresh expired")
             refreshTask.cancel()
@@ -102,14 +93,38 @@ extension SakuraRSSApp {
 
         Task {
             let deferredCount = await refreshTask.value
-            watchdog.cancel()
-            let wasCancelled = refreshTask.isCancelled
-            log("BackgroundRefresh", "handleAppRefresh end deferred=\(deferredCount) cancelled=\(wasCancelled)")
-            if deferredCount > 0 || wasCancelled {
+            let wasExpired = refreshTask.isCancelled
+            log("BackgroundRefresh", "handleAppRefresh end deferred=\(deferredCount) expired=\(wasExpired)")
+            if deferredCount > 0, !wasExpired {
                 scheduleAppRefresh(continuingSoon: true)
             }
-            completion.complete(success: !wasCancelled)
+            completion.complete(success: !wasExpired)
         }
+    }
+
+    nonisolated private static func refreshFeedsWithinHardLimit(
+        _ manager: FeedManager,
+        options: (skipImageFetch: Bool, skipImagePreload: Bool)
+    ) async -> Int {
+        let fetching = Task {
+            await manager.refreshFeedsInBackground(
+                skipImageFetch: options.skipImageFetch,
+                skipImagePreload: options.skipImagePreload
+            )
+        }
+        let watchdog = Task {
+            try? await Task.sleep(for: appRefreshHardLimit)
+            guard !Task.isCancelled else { return }
+            log("BackgroundRefresh", "handleAppRefresh hit time limit")
+            fetching.cancel()
+        }
+        let deferredCount = await withTaskCancellationHandler {
+            await fetching.value
+        } onCancel: {
+            fetching.cancel()
+        }
+        watchdog.cancel()
+        return deferredCount
     }
 
     nonisolated private static func backgroundImageOptions() async -> (skipImageFetch: Bool, skipImagePreload: Bool) {
