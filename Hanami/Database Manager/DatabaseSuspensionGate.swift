@@ -6,7 +6,9 @@ import Synchronization
 /// iOS kills a process that is suspended while it holds a SQLite lock in the
 /// app group container (`0xdead10cc`). Once the last activity ends, the gate
 /// interrupts running statements so their transactions roll back and release
-/// the lock, then waits for each connection's queue to drain. The gate stays
+/// the lock, then waits for each connection's queue to drain. The progress
+/// handler only fires on long statements, so the authorizer also refuses to
+/// prepare anything but a rollback while closed. The gate stays
 /// closed only briefly so work after an untracked wake (such as a CloudKit
 /// push) isn't blocked.
 public nonisolated final class DatabaseSuspensionGate: @unchecked Sendable {
@@ -45,6 +47,14 @@ public nonisolated final class DatabaseSuspensionGate: @unchecked Sendable {
             guard let context else { return 0 }
             let gate = Unmanaged<DatabaseSuspensionGate>.fromOpaque(context).takeUnretainedValue()
             return gate.isClosed ? 1 : 0
+        }, context)
+        sqlite3_set_authorizer(connection.handle, { context, action, firstArgument, _, _, _ in
+            guard let context else { return SQLITE_OK }
+            let gate = Unmanaged<DatabaseSuspensionGate>.fromOpaque(context).takeUnretainedValue()
+            guard gate.isClosed else { return SQLITE_OK }
+            let isRollback = action == SQLITE_TRANSACTION
+                && firstArgument.map { String(cString: $0) == "ROLLBACK" } ?? false
+            return isRollback ? SQLITE_OK : SQLITE_DENY
         }, context)
     }
 
