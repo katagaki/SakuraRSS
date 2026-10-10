@@ -85,17 +85,20 @@ struct ArticleDestinationView: View {
     }
 }
 
-/// Reads the full row once per item instead of on every body evaluation.
+/// Reads the full row once per item and data revision instead of on every body evaluation.
 private final class RawArticleCache {
     private var cachedArticle: Article?
+    private var cachedRevision: Int?
 
     func article(for article: Article, feedManager: FeedManager) -> Article {
         guard !article.isEphemeral else { return article }
-        if let cachedArticle, cachedArticle.id == article.id {
+        let revision = feedManager.dataRevision
+        if let cachedArticle, cachedArticle.id == article.id, cachedRevision == revision {
             return cachedArticle
         }
         let resolved = feedManager.article(byID: article.id) ?? article
         cachedArticle = resolved
+        cachedRevision = revision
         return resolved
     }
 }
