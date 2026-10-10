@@ -15,19 +15,7 @@ final class RefreshProgressActivity {
     private weak var feedManager: FeedManager?
     private var task: BGContinuedProcessingTask?
     private var completion: BackgroundTaskCompletion?
-    private var hasRequestedTask = false
-
-    nonisolated static func register() {
-        BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: "\(identifierPrefix).*",
-            using: .main
-        ) { task in
-            guard let task = task as? BGContinuedProcessingTask else { return }
-            MainActor.assumeIsolated {
-                RefreshProgressActivity.shared.attach(task)
-            }
-        }
-    }
+    private var requestedIdentifier: String?
 
     func start(observing feedManager: FeedManager) {
         guard self.feedManager == nil else { return }
@@ -54,11 +42,19 @@ final class RefreshProgressActivity {
 
     /// Submission only succeeds while the app is in the foreground, and `.fail`
     /// skips it when the system can't run it right away; the refresh runs either way.
+    /// Info.plist permits the wildcard, but each concrete identifier needs its own handler.
     private func requestTaskIfNeeded(for progress: RefreshProgress) {
-        guard !hasRequestedTask, UIApplication.shared.applicationState == .active else { return }
-        hasRequestedTask = true
+        guard requestedIdentifier == nil, UIApplication.shared.applicationState == .active else { return }
+        let identifier = "\(Self.identifierPrefix).\(UUID().uuidString)"
+        requestedIdentifier = identifier
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: identifier, using: .main) { task in
+            guard let task = task as? BGContinuedProcessingTask else { return }
+            MainActor.assumeIsolated {
+                RefreshProgressActivity.shared.attach(task)
+            }
+        }
         let request = BGContinuedProcessingTaskRequest(
-            identifier: "\(Self.identifierPrefix).\(UUID().uuidString)",
+            identifier: identifier,
             title: Self.title,
             subtitle: Self.subtitle(for: progress)
         )
@@ -73,7 +69,7 @@ final class RefreshProgressActivity {
     private func attach(_ task: BGContinuedProcessingTask) {
         let progress = feedManager.map(RefreshProgress.init(of:)) ?? RefreshProgress()
         let completion = BackgroundTaskCompletion(task: task)
-        guard progress.total > 0 else {
+        guard progress.total > 0, self.task == nil, task.identifier == requestedIdentifier else {
             completion.complete(success: true)
             return
         }
@@ -106,7 +102,7 @@ final class RefreshProgressActivity {
     }
 
     private func finish(success: Bool) {
-        hasRequestedTask = false
+        requestedIdentifier = nil
         task = nil
         completion?.complete(success: success)
         completion = nil

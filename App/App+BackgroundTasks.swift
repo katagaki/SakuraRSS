@@ -43,7 +43,6 @@ extension SakuraRSSApp {
             guard let task = task as? BGProcessingTask else { return }
             self.handleImageBackfill(task: task)
         }
-        RefreshProgressActivity.register()
         BGTaskScheduler.shared.cancel(
             taskRequestWithIdentifier: "com.tsubuzaki.SakuraRSS.SummaryBackfill"
         )
