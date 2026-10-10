@@ -5,7 +5,7 @@ public extension FeedManager {
     func markRead(_ article: Article) {
         let articleID = article.id
         guard !isSettledAsRead(article) else {
-            writeArticleState { databaseManager in
+            writeArticleState(for: articleID) { databaseManager in
                 try? databaseManager.updateLastAccessed(articleID: articleID)
             } completion: { [weak self] in
                 self?.recentsRevision += 1
@@ -15,7 +15,7 @@ public extension FeedManager {
         let wasRead = isRead(article)
         stagedReadChanges[articleID] = true
         cancelPendingScrollRead(for: article)
-        writeArticleState { databaseManager in
+        writeArticleState(for: articleID) { databaseManager in
             try? databaseManager.updateLastAccessed(articleID: articleID)
             try? databaseManager.markArticleRead(id: articleID, read: true)
         } completion: { [weak self] in
@@ -34,7 +34,7 @@ public extension FeedManager {
         let newState = !isRead(article)
         stagedReadChanges[articleID] = newState
         cancelPendingScrollRead(for: article)
-        writeArticleState { databaseManager in
+        writeArticleState(for: articleID) { databaseManager in
             try? databaseManager.markArticleRead(id: articleID, read: newState)
         }
         adjustUnreadCount(for: article, delta: newState ? -1 : 1)
@@ -47,7 +47,7 @@ public extension FeedManager {
         let articleID = article.id
         let newState = !isBookmarked(article)
         stagedBookmarkChanges[articleID] = newState
-        writeArticleState { databaseManager in
+        writeArticleState(for: articleID) { databaseManager in
             try? databaseManager.setBookmarked(id: articleID, bookmarked: newState)
         } completion: { [weak self] in
             self?.bumpDataRevision()

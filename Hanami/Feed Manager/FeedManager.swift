@@ -120,6 +120,8 @@ public final class FeedManager {
     @ObservationIgnored public var stagedReadChanges: [Int64: Bool] = [:]
     /// Same staging mechanism for bookmark state, consulted by `isBookmarked`.
     @ObservationIgnored public var stagedBookmarkChanges: [Int64: Bool] = [:]
+    @ObservationIgnored var articleStateWriteGeneration = 0
+    @ObservationIgnored var articleStateWriteGenerations: [Int64: Int] = [:]
     /// Fired after a bookmark is added (not removed), so the app can confirm the action.
     @ObservationIgnored public var onBookmarkAdded: ((Article) -> Void)?
     public var readMaskRevision: Int = 0
@@ -179,6 +181,7 @@ public final class FeedManager {
     }
 
     public func loadFromDatabase() {
+        let settledGeneration = waitForArticleStateWrites()
         do {
             feeds = try database.allFeeds()
             feedsByID = Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) })
@@ -191,9 +194,7 @@ public final class FeedManager {
             unflushedReadIDs.removeAll()
             pendingReadDecrements.removeAll()
             pendingReadReelsDecrements.removeAll()
-            let freshArticleIDs = Set(articles.map(\.id))
-            stagedReadChanges = stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
-            stagedBookmarkChanges = stagedBookmarkChanges.filter { !freshArticleIDs.contains($0.key) }
+            pruneStagedChanges(loadedArticleIDs: Set(articles.map(\.id)), settledGeneration: settledGeneration)
             readMaskRevision += 1
             dataRevision += 1
         } catch {
@@ -210,6 +211,7 @@ public final class FeedManager {
 
     public func loadFromDatabaseInBackground(animated: Bool = false) async {
         let dbm = database
+        let settledGeneration = await articleStateWritesFinished()
         do {
             let (loadedFeeds, loadedArticles, loadedUnreadCounts, loadedReelsCounts,
                  loadedLists, loadedListFeedIDs, loadedBookmarkFolders) = try await Task.detached {
@@ -239,9 +241,10 @@ public final class FeedManager {
                     self.unflushedReadIDs.removeAll()
                     self.pendingReadDecrements.removeAll()
                     self.pendingReadReelsDecrements.removeAll()
-                    let freshArticleIDs = Set(loadedArticles.map(\.id))
-                    self.stagedReadChanges = self.stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
-                    self.stagedBookmarkChanges = self.stagedBookmarkChanges.filter { !freshArticleIDs.contains($0.key) }
+                    self.pruneStagedChanges(
+                        loadedArticleIDs: Set(loadedArticles.map(\.id)),
+                        settledGeneration: settledGeneration
+                    )
                     self.readMaskRevision += 1
                     self.dataRevision += 1
                 }
