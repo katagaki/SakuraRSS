@@ -19,18 +19,6 @@ public nonisolated extension DatabaseManager {
         CloudSyncEngine.shared.noteItemStatusChanged()
     }
 
-    func toggleBookmark(id: Int64) throws {
-        guard let row = try database.pluck(articles.filter(articleID == id)) else { return }
-        let current = row[articleIsBookmarked]
-        try database.run(articles.filter(articleID == id).update(
-            articleIsBookmarked <- !current, articleStatusDirty <- true,
-            articleStatusModifiedAt <- Date().timeIntervalSince1970))
-        if current {
-            try removeBookmarkFromAllFolders(articleID: id)
-        }
-        CloudSyncEngine.shared.noteItemStatusChanged()
-    }
-
     /// Idempotent bookmark setter used by App Intents.
     /// Returns `true` when the stored value actually changed.
     @discardableResult

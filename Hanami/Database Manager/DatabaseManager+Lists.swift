@@ -87,18 +87,6 @@ public nonisolated extension DatabaseManager {
         ).map { $0[listFeedListID] }
     }
 
-    func feedCount(forListID lid: Int64) throws -> Int {
-        try readDatabase.scalar(listFeeds.filter(listFeedListID == lid).count)
-    }
-
-    func listsContainingFeed(feedID fid: Int64) throws -> [FeedList] {
-        let ids = try listIDs(forFeedID: fid)
-        guard !ids.isEmpty else { return [] }
-        return try readDatabase.prepare(
-            lists.filter(ids.contains(listID)).order(listSortOrder.asc)
-        ).map(rowToList)
-    }
-
     // MARK: - List Rules CRUD
 
     func listRules(forListID lid: Int64, type: String) throws -> [String] {
