@@ -17,15 +17,12 @@ extension FeedManager {
                 limit: FeedManager.maximumPreloadedEntries
             )) ?? []
         }
-        let raw = (try? database.allArticlesList(limit: FeedManager.maximumPreloadedEntries)) ?? []
-        var pool = applyAllRules(raw, rulesByFeed: rulesByFeed)
-        if !muted.isEmpty {
-            pool = pool.filter { !muted.contains($0.feedID) }
-        }
-        if requireUnread {
-            pool = pool.filter { !$0.isRead }
-        }
-        return idEntries(from: pool)
+        let raw = (try? database.allArticlesList(
+            excludingFeedIDs: muted,
+            requireUnread: requireUnread,
+            limit: FeedManager.maximumPreloadedEntries
+        )) ?? []
+        return idEntries(from: applyAllRules(raw, rulesByFeed: rulesByFeed))
     }
 
     nonisolated static func computeFeedPreloadedEntries(
@@ -100,7 +97,8 @@ extension FeedManager {
             return (try? database.articleIDEntries(
                 ids: ids,
                 excludingFeedIDs: muted,
-                requireUnread: requireUnread
+                requireUnread: requireUnread,
+                includingExternal: true
             )) ?? []
         }
         let raw = (try? database.articlesList(withIDs: ids)) ?? []
