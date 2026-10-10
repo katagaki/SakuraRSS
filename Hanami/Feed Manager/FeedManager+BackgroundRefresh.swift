@@ -10,8 +10,6 @@ public extension FeedManager {
     /// Refreshes the stalest feeds that fit in one `BGAppRefreshTask` budget and
     /// returns how many eligible feeds were left over. The next run picks those
     /// up first, since the feeds refreshed this time become the freshest.
-    /// `contentOnly: true` skips meta updates (title, description, podcast
-    /// detection, Substack URL wrap, Fediverse probe, fetcher metadata refresh).
     func refreshFeedsInBackground(
         skipImageFetch: Bool,
         skipImagePreload: Bool
