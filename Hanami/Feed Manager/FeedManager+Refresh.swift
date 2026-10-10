@@ -198,15 +198,16 @@ public extension FeedManager {
 
     func filterByRefreshCooldown(
         _ feeds: [Feed],
-        cooldownSeconds: TimeInterval?
+        cooldownSeconds: TimeInterval?,
+        lastRefreshed: (Feed) -> Date? = \.lastFetched
     ) -> [Feed] {
         let now = Date()
         return feeds.filter { feed in
             let domainTimeout = RefreshTimeoutDomains.refreshTimeout(for: feed.domain)
             let effectiveCooldown = domainTimeout ?? cooldownSeconds
             if let effectiveCooldown,
-               let lastFetched = feed.lastFetched,
-               now.timeIntervalSince(lastFetched) < effectiveCooldown {
+               let lastRefreshedAt = lastRefreshed(feed),
+               now.timeIntervalSince(lastRefreshedAt) < effectiveCooldown {
                 return false
             }
             return true

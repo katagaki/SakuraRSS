@@ -20,8 +20,11 @@ public extension FeedManager {
         let cooldownSeconds = (cooldownRaw.flatMap(FeedRefreshCooldown.init(rawValue:)) ?? .fiveMinutes).seconds
         let candidates = feeds.filter { !PetalRecipe.isPetalFeedURL($0.url) }
         let attempts = Self.loadBackgroundAttempts(keepingFeedIDs: Set(feeds.map(\.id)))
-        let eligible = filterByRefreshCooldown(candidates, cooldownSeconds: cooldownSeconds)
-            .sorted { Self.stalenessDate(of: $0, attempts: attempts) < Self.stalenessDate(of: $1, attempts: attempts) }
+        let lastRefreshed = { (feed: Feed) in Self.stalenessDate(of: feed, attempts: attempts) }
+        let eligible = filterByRefreshCooldown(
+            candidates, cooldownSeconds: cooldownSeconds, lastRefreshed: lastRefreshed
+        )
+            .sorted { lastRefreshed($0) < lastRefreshed($1) }
         guard !eligible.isEmpty else {
             log("FeedRefresh.Background", "no feeds eligible")
             return 0
