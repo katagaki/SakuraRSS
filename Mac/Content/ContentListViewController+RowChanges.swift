@@ -22,6 +22,8 @@ extension ContentListViewController {
             }
         }
         articles = reloaded
+        isApplyingRowChanges = true
+        defer { isApplyingRowChanges = false }
         tableView.beginUpdates()
         tableView.removeRows(at: removals, withAnimation: [])
         tableView.insertRows(at: insertions, withAnimation: [])

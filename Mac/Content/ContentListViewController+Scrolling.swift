@@ -51,7 +51,14 @@ extension ContentListViewController {
         let visibleRows = tableView.rows(in: tableView.visibleRect)
         guard visibleRows.location != NSNotFound, visibleRows.length > 0 else { return }
         markRowsScrolledPast(upTo: visibleRows.location)
-        if NSMaxRange(visibleRows) >= articles.count - Self.loadMoreDistance {
+        guard NSMaxRange(visibleRows) >= articles.count - Self.loadMoreDistance else { return }
+        // `endUpdates` can scroll the list as rows resize; inserting rows from
+        // inside it makes NSTableView throw, so loading more waits until it's done.
+        if isApplyingRowChanges {
+            DispatchQueue.main.async { [weak self] in
+                self?.listDidScroll()
+            }
+        } else {
             loadMoreIfAvailable()
         }
     }

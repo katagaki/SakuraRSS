@@ -21,6 +21,7 @@ final class ContentListViewController: NSViewController {
     ))
     var bookmarkBrowsingObserver: ChangeObserver?
     var firstVisibleRow = 0
+    var isApplyingRowChanges = false
     nonisolated(unsafe) var scrollObserver: NSObjectProtocol?
     nonisolated(unsafe) var settingsObserver: NSObjectProtocol?
     nonisolated(unsafe) var pagePreferencesObserver: NSObjectProtocol?
