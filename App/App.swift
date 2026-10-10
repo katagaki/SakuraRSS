@@ -79,7 +79,7 @@ struct SakuraRSSApp: App {
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
                 ) { _ in
-                    AppSuspensionCoordinator.shared.appDidBecomeActive()
+                    AppSuspensionCoordinator.shared.appDidEnterForeground()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
@@ -89,6 +89,7 @@ struct SakuraRSSApp: App {
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
+                    AppSuspensionCoordinator.shared.appDidEnterForeground()
                     feedManager.updateBadgeCount()
                     feedManager.reloadRefreshTimestampsFromDefaults()
                     feedManager.reloadFocusFromDefaults()

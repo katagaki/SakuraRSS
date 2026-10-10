@@ -12,7 +12,9 @@ final class AppSuspensionCoordinator {
     private var holdsForegroundActivity = false
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
 
-    func appDidBecomeActive() {
+    /// Also called on `willEnterForeground`, since foreground loads start before
+    /// the app becomes active and the gate may still be closed from the last suspension.
+    func appDidEnterForeground() {
         if backgroundTaskID != .invalid {
             UIApplication.shared.endBackgroundTask(backgroundTaskID)
             backgroundTaskID = .invalid
