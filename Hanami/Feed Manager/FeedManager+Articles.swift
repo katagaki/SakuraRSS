@@ -173,6 +173,7 @@ public extension FeedManager {
     }
 
     func markAllRead(feed: Feed) {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         try? database.markAllRead(feedID: feed.id)
         Task { await loadFromDatabaseInBackground(animated: true) }
@@ -180,6 +181,7 @@ public extension FeedManager {
     }
 
     func markAllRead() {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         try? database.markAllRead()
         Task { await loadFromDatabaseInBackground(animated: true) }
@@ -187,6 +189,7 @@ public extension FeedManager {
     }
 
     func markAllUnread() {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         try? database.markAllUnread()
         Task { await loadFromDatabaseInBackground(animated: true) }
@@ -287,6 +290,7 @@ public extension FeedManager {
     }
 
     func markAllRead(forTopic topic: String) {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         let ids = preloadedArticleEntries(forTopic: topic).map(\.id)
         guard !ids.isEmpty else { return }
@@ -296,6 +300,7 @@ public extension FeedManager {
     }
 
     func markAllRead(for section: FeedSection) {
+        waitForArticleStateWrites()
         stagedReadChanges.removeAll()
         let sectionFeeds = feeds.filter { $0.feedSection == section }
         for feed in sectionFeeds {
