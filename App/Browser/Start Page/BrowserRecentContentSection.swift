@@ -8,6 +8,7 @@ struct BrowserRecentContentSection: View {
     @Environment(FeedManager.self) private var feedManager
 
     private var articles: [Article] {
+        _ = feedManager.recentsRevision
         let unread = feedManager.articles(limit: BrowserRecentContentSection.contentLimit, requireUnread: true)
         guard unread.isEmpty else { return unread }
         return feedManager.articles(limit: BrowserRecentContentSection.contentLimit)
