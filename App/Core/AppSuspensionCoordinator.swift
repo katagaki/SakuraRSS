@@ -49,13 +49,21 @@ final class AppSuspensionCoordinator {
             return
         }
         holdsForegroundActivity = false
-        Task.detached(priority: .userInitiated) {
+        let drained = DispatchSemaphore(value: 0)
+        DispatchQueue.global(qos: .userInitiated).async {
             DatabaseSuspensionGate.shared.endActivity()
             LogManager.shared.flush()
-            guard taskID != .invalid else { return }
-            await MainActor.run {
+            drained.signal()
+        }
+        guard taskID != .invalid else { return }
+        DispatchQueue.global(qos: .userInitiated).async {
+            _ = drained.wait(timeout: .now() + Self.drainTimeout)
+            DispatchQueue.main.async {
                 UIApplication.shared.endBackgroundTask(taskID)
             }
         }
     }
+
+    /// The system kills the app if it doesn't end the task shortly after expiry.
+    nonisolated private static let drainTimeout: TimeInterval = 2
 }
